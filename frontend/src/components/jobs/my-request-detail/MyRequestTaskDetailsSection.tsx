@@ -16,7 +16,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldLabel, StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
-import { notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
 
 interface MyRequestTaskDetailsSectionProps {
@@ -237,6 +237,10 @@ export function MyRequestTaskDetailsSection({
           const outboundTone = outboundDiffersFromCompletion && !outboundIsAutoStatus
             ? 'outbound-diff' as const
             : 'completion' as const
+          const outboundField = citizenOutboundOrPending(
+            displayedOutbound,
+            t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+          )
           const primaryTerminalTaskId = detail.tasks.find(item =>
             item.currentStatus === 'Completed'
             || item.currentStatus === 'Cancelled'
@@ -324,8 +328,10 @@ export function MyRequestTaskDetailsSection({
                       && task.taskId === primaryTerminalTaskId
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: displayedOutbound || '—',
-                          tone: outboundDiffersFromCompletion ? outboundTone : 'completion',
+                          value: outboundField.value,
+                          tone: (outboundField.pending
+                            ? 'outbound-pending'
+                            : outboundDiffersFromCompletion ? outboundTone : 'completion') as 'completion' | 'outbound-diff' | 'outbound-pending',
                           fullRow: true as const,
                         }]
                       : []),
@@ -397,7 +403,7 @@ export function MyRequestTaskDetailsSection({
                     return (
                     <div key={'key' in row ? row.key : String(row.label)} className={`job-detail-field-row job-detail-field-row--request-info${fullRow ? ' job-detail-field-row--full' : ''}${rowClass ? ` ${rowClass}` : ''}`}>
                       <div className={`job-detail-field-row__label ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
-                      <div className={`job-detail-field-row__value ${tone === 'cancel' || tone === 'outbound-diff' || tone === 'completion' ? 'citizen-terminal-note-value ' : ''}${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
+                      <div className={`job-detail-field-row__value ${tone === 'outbound-pending' ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS : ''}${tone === 'cancel' || tone === 'outbound-diff' || tone === 'completion' ? 'citizen-terminal-note-value ' : ''}${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : tone === 'outbound-pending' ? '' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
                     </div>
                     )
                   })}

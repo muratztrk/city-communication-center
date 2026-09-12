@@ -51,7 +51,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
 import { printHtmlDocument } from '../utils/printDocument'
-import { notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -2328,10 +2328,10 @@ const pageKicker = isMyTasksView
                               <span className="ml-auto flex shrink-0 items-center gap-3">
                                 {isCitizenRequestJob(parentJobDetail) ? (
                                   <span
-                                    className="inline-flex items-center gap-1 text-xs font-semibold"
+                                    className="inline-flex items-center gap-0.5 text-[0.68rem] font-semibold"
                                     style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp') }}
                                   >
-                                    <ChannelIcon channel={citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                                    <ChannelIcon channel={citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp'} className="size-3 shrink-0" />
                                     {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp')}
                                   </span>
                                 ) : null}
@@ -2465,7 +2465,7 @@ const pageKicker = isMyTasksView
                               const outboundTone = outboundDiffers && !outboundIsAutoStatus
                                 ? 'outbound-diff' as const
                                 : 'completion' as const
-                              const rows: { label: string; value: string; tone?: 'completion' | 'cancel' | 'outbound-diff' }[] = []
+                              const rows: { label: string; value: string; tone?: 'completion' | 'cancel' | 'outbound-diff' | 'outbound-pending' }[] = []
                               if (showCitizenApprover && isCompletedTask) {
                                 rows.push({
                                   label: t('tasks.detail.completionNoteApprover', 'Tamamlama Notu Onaylayan'),
@@ -2492,10 +2492,14 @@ const pageKicker = isMyTasksView
                                 })
                               }
                               if (isCitizenTerminalTask) {
+                                const outboundField = citizenOutboundOrPending(
+                                  displayedOutbound,
+                                  t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+                                )
                                 rows.push({
                                   label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                                  value: displayedOutbound || '—',
-                                  tone: outboundTone,
+                                  value: outboundField.value,
+                                  tone: outboundField.pending ? 'outbound-pending' : outboundTone,
                                 })
                               }
                               return rows
@@ -2604,10 +2608,14 @@ const pageKicker = isMyTasksView
                               : tone === 'completion'
                                 ? 'text-emerald-600'
                                 : ''
+                            const labelClass = tone === 'outbound-pending' ? '' : toneClass
+                            const valueClass = tone === 'outbound-pending'
+                              ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
+                              : `${tone ? 'citizen-terminal-note-value ' : ''}${toneClass}`
                             return (
                             <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in row && row.rowClass ? ` ${row.rowClass}` : ''}`}>
-                              <div className={`job-detail-field-row__label ${toneClass}`}>{row.label}</div>
-                              <div className={`job-detail-field-row__value ${tone ? 'citizen-terminal-note-value ' : ''}${toneClass}`}>{row.value}</div>
+                              <div className={`job-detail-field-row__label ${labelClass}`}>{row.label}</div>
+                              <div className={`job-detail-field-row__value ${valueClass}`}>{row.value}</div>
                             </div>
                             )
                           })}

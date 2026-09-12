@@ -787,6 +787,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız Operator/SystemAdmin (`SetConversationBlockedCommand` + menü). `IsBlocked` iken inbound
   persist/unread/push/auto-reply/`LastMessageAt` yapılmaz.
   Confirm başlığının altında çizgi vardır (`titleDivider`, #3549).
+  **Engellenenler (#3550):** sol panel `Sırala` yok; yerine `Engellenenler` butonu + popup liste
+  + `Engeli Kaldır` (`SetConversationBlockedCommand` false). Engel kalkınca inbound yeniden alınır.
   **WA inbound ses (#3544):** yalnız `Operator` (Vatandaş Talep Operatörü); diğer roller çalmaz.
   **Sekme rozeti (#3531):** operatörde okunmamış ≥1 iken başlık `(N)` + sayılı favicon (N=1 dahil).
   **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
@@ -963,7 +965,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `#citizen-request-form` `min-height: 1.6rem`, buton `1.4rem` (#2568). Kanal (Çağrı) butonu
   `py-1.5` (#2560). Adres Tarifi textarea `#citizen-request-form` `4.5rem` (#2584; Tailwind
   `min-h-[5.5rem]` `!important` ile ezilir). Cadde/Sokak biraz dar, No biraz geniş
-  (`1fr` / `6.75rem`, #2584 reopen). `request-form--readable` 3.2rem ezilir.
+  (`1.12fr` / `9.15rem`, #2584/#3547). `request-form--readable` 3.2rem ezilir.
   **Mobil Talep Oluştur taşma (#3426):** `max-lg` formlar/input/dropdown `min-w-0` + `max-width:100%`;
   Cadde/No satırı mobilde tek kolon; masaüstü `#citizen-request-form` 3-sütun adres kuralları yalnız `≥1024px`.
   Sol kolon **Talebin Adres Bilgisi** Cadde/No placeholder `0.875rem`; Mahalle aynı punto
@@ -1486,7 +1488,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
   WA Mahalle/Cadde/No arama ve liste punto aynı (0.875rem); liste küçültülmez (#2729).
-  WA **Vatandaş Talebi Oluştur** popup açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (#2730). Kapalı kutu form `.field-select` (0.82rem) kalır. WA profil **Vatandaş Bilgileri** açık menü punto `0.75rem` (#2640).
+  WA **Vatandaş Talebi Oluştur** popup açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (#2730). Kapalı kutu form `.field-select` (0.82rem) kalır; seçili Mahalle tetikleyici `0.78rem` (#3555). Cadde biraz dar / No `5.4rem` (#3554). WA profil **Vatandaş Bilgileri** açık menü punto `0.75rem` (#2640); Cadde `1.0125fr` / No `5.68rem`, menü = trigger (#3545).
   Popup Konum Koordinatı Mahalle’nin **alt satırında** (Cadde/No ile aynı satırda değil) (#2741).
   Popup yüksekliği taban detay shell’den çok az daha fazladır (`detail-modal-shell--citizen-create`, #2742).
   Masaüstünde popup genişliği `.detail-modal-shell` ölçüsündedir; `w-full` yalnız mobil (#3427).
@@ -1808,7 +1810,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   11px (`text-[11px] font-semibold`) olur ve `Normal` değeri yeşildir. Görevlerim / Birimdeki Görevler /
   Personelimin Görevleri detayında Görev Bilgileri başlığı aynı puntoyu kullanır (#2109).
   Görevlerim / Birimdeki / Personelimin popup Görev Bilgileri'nde kanal ikonu + ad Öncelik'in
-  hemen solundadır (Talep Bilgileri ile aynı, #3551). Vatandaş kanal
+  hemen solundadır (Talep Bilgileri ile aynı, #3551). Başlıktaki kanal ikon+ad `0.68rem` /
+  `size-3` (#3551 reopen). Vatandaş kanal
   ikonu/adı varsa bu bloğun solunda kalır
   (card #1599 reopen). Detay içi `Düzenle` modunda değer aynı başlık konumunda kompakt dropdown'a
   dönüşür; `Talep Yapılan Birim` satırının altında ikinci bir Öncelik alanı oluşmaz
@@ -2299,7 +2302,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mobilde 2 kolon durur, başlık aralıkları popup’ı kaplayıp ortalanır (`space-evenly`, #3300).
   X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın yalnız **üç kutu** düzeninde (`2.4rem`, #2759/#2728); **iki kutu** (`--attachments-only`) eşit 3 kolon sola yaslı, transform yok (#3327 reopen).
-  Görevlerim İlgili Talep Adres Bilgileri 3+2 eşit kolon sola yaslı (#3327 reopen); Mahalle/Cadde/No üstünde boşluk (#2568); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar K/A + liste ikonları yalnız o popup’ta hafif büyük (`!important`, #2757 reopen). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
+  Görevlerim İlgili Talep Adres Bilgileri 3+2 eşit kolon sola yaslı (#3327 reopen); Mahalle/Cadde/No üstünde boşluk (#2568); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyici genişliğinde, No tetikleyici genişliğinde, aşağı açılır (#2640/#3545). WA Talebi Oluştur Açıklama toolbar K/A + liste ikonları yalnız o popup’ta hafif büyük (`!important`, #2757 reopen). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)
@@ -2724,7 +2727,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **alt satırında** (Giden grid ile aynı — ayrı `Tamamlanma Tarihi` sütunu yok); yazdırmada `Tamamlanma Tarihi` sütunu kalır.
 - **Overflow tooltip (#r545/#2065/#2072/#2078):** hücre ortası; max-width ~18rem; 2. satır `text-align: center`.
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
-- **Mesaj Onayı banner (#2064/#3541):** “Mesaj gönderimi onayladığında…” (`Mesajı` değil);
+- **Mesaj Onayı banner (#2064/#3541):** “Mesaj gönderimi onayladığında, kurumunuz operatörüne
+  vatandaşımıza…” (`Mesajı` değil; `operatörüne` sonrası virgül yok);
   “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
 - **Mesaj Onayı Notu Düzenle modal (#2073/#2079/#2081/#2084/#2091):** genişlik `max-w-md`; yükseklik `py-5` +
   textarea `rows={4}`; aksiyon butonları `size="sm"`. Not limiti **400 karakter** FE+BE (#3432/#3466).
@@ -2965,7 +2969,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile ExternalUnit kaynaklı VT'yi de çözer.
 - **Birime Gelen İptal popup (#3516):** İptal nedeni textbox `maxLength=400` (BE `CancelJob` ile uyumlu).
 - **Görev Süreç Gecikti mi (#3522):** Birime Gelen detay → İlgili Görev Detayları Süreç başlığında Evet/Hayır.
-- **Outbound yeşil (#3523):** Vatandaşa Giden Mesaj = Tamamlama Notu ise satır etiket+değer yeşil.
+- **Outbound yeşil (#3523/#3556):** Vatandaşa Giden Mesaj iletilmiş ve Tamamlama Notu ile aynıysa
+  etiket+değer yeşil. İletim yoksa etiket yeşil değil; değer açık mavi `Onay Bekleyen` (`—` değil).
 - **Onaylayan yedeği (#3515/#3491):** `CitizenTerminalMessageReleasedAtUtc` dolu, döngü audit yoksa son release actor.
   `GetJobById` onaylayan + released not VT bağlantısı/WA-Phone/ReleasedAtUtc şartına bağlı değil; outbound terminal görev/job veya kanal bağlantısında çözülür (#3491/#3527).
 - **Personelimin Görevleri onaylayan (#3515 reopen):** `TasksPage` Görev Bilgileri terminal satırları
@@ -3008,7 +3013,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   diğer roller yalnız veri varsa görür.
 - **Görev detay outbound (#3512):** Birime Gelen / paylaşılan görev bölümünde müdür/sorumlu + VT
   yöneticisi terminal görevde `İptal/Tamamlama Notu` altında `Vatandaşa Giden Mesaj` satırını görür
-  (`outboundPlain` yokken `—`; iletim öncesi fallback not gösterilmez — #3356).
+  (`outboundPlain` yokken açık mavi `Onay Bekleyen` — #3556; iletim öncesi fallback not yok — #3356/#3552).
 - **Birimdeki Görevler detay (#3513):** `TasksPage` görev popup Görev Bilgileri'nde vatandaş talebinde
   terminal görevde onaylayan + outbound satırları `MyRequestTaskDetailsSection` ile aynı kurallar.
 - **Görev popup Talep Bilgileri (#3529 geri alındı):** İlgili Talep Detayları → Talep Bilgileri'nde

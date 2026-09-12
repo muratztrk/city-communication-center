@@ -304,7 +304,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                 `${i18nRoot}.subtitle`,
                 isSms
                   ? 'Çağrı talebi ile gelen talepleri Sms aracılığıyla vatandaşları bilgilendirin.'
-                  : 'Mesaj gönderimi onayladığında, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
+                  : 'Mesaj gönderimi onayladığında, kurumunuz operatörüne vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
               )}
             </p>
           </div>

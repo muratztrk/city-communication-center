@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo, lazy, Suspense } from 'react'
-import { ArrowDownUp, Ban, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
+import { Ban, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -24,6 +24,9 @@ import { DeferredComposerTextarea } from '../components/ui/DeferredComposerTexta
 import { DeferredComposerInput } from '../components/ui/DeferredComposerInput'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { Button } from '../components/ui/button'
+import { ModalBackdrop } from '../components/ui/modal-backdrop'
+import { createPortal } from 'react-dom'
 import { emitPageToast } from '../components/ui/pageToast'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
@@ -172,7 +175,6 @@ function ConversationStatusCounts({
 // ─── left panel: conversation list ────────────────────────────────────────────
 
 type ConversationListFilter = 'all' | 'unread' | 'pendingApproval'
-type ConversationSortOrder = 'newest' | 'oldest'
 type ConversationStatusFilter = 'all' | 'intake' | 'in-progress' | 'completed' | 'cancelled'
 
 function isRecentConversationTime(dateStr: string): boolean {
@@ -368,8 +370,7 @@ function ConversationListPanel({
   onSearchChange,
   listFilter,
   onListFilterChange,
-  sortOrder,
-  onSortOrderChange,
+  onOpenBlocked,
   statusFilter,
   onOpenStatusRequests,
   selectedId,
@@ -382,8 +383,7 @@ function ConversationListPanel({
   onSearchChange: (value: string) => void
   listFilter: ConversationListFilter
   onListFilterChange: (value: ConversationListFilter) => void
-  sortOrder: ConversationSortOrder
-  onSortOrderChange: (value: ConversationSortOrder) => void
+  onOpenBlocked: () => void
   statusFilter: ConversationStatusFilter
   onOpenStatusRequests: (value: ConversationStatusFilter) => void
   selectedId: string | null
@@ -449,12 +449,12 @@ function ConversationListPanel({
           </div>
           <button
             type="button"
-            onClick={() => onSortOrderChange(sortOrder === 'newest' ? 'oldest' : 'newest')}
+            onClick={onOpenBlocked}
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
-            aria-label={t('whatsapp.sort', 'Sırala')}
+            aria-label={t('whatsapp.blockedList', 'Engellenenler')}
           >
-            <ArrowDownUp className="size-3.5" aria-hidden="true" />
-            {t('whatsapp.sort', 'Sırala')}
+            <Ban className="size-3.5 text-red-600" aria-hidden="true" />
+            {t('whatsapp.blockedList', 'Engellenenler')}
           </button>
         </div>
 
@@ -693,12 +693,12 @@ function ConversationProfilePanel({
           streetNo={draft.streetNo}
           required={hasNeighborhood}
           labelClassName={labelClass}
-          className="address-street-no-row grid grid-cols-[minmax(0,1.125fr)_5.16rem] gap-2"
-          streetNoColumnClassName="lg:w-[5.16rem] lg:min-w-[5.16rem] lg:max-w-[5.16rem]"
+          className="address-street-no-row grid grid-cols-[minmax(0,1.0125fr)_5.68rem] gap-2"
+          streetNoColumnClassName="lg:w-[5.68rem] lg:min-w-[5.68rem] lg:max-w-[5.68rem]"
           menuScrollClassName="whatsapp-neighborhood-menu-scroll"
           menuClassName="whatsapp-neighborhood-menu-scroll"
           matchTriggerWidth
-          streetMenuWidthExtraPx={96}
+          streetMenuWidthExtraPx={0}
           streetPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           streetNoPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           onStreetChange={street => onDraftChange({ street })}
@@ -1612,6 +1612,7 @@ function ConversationDetail({
 
 export function WhatsAppConversationsPage() {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [searchParams] = useSearchParams()
@@ -1630,7 +1631,7 @@ export function WhatsAppConversationsPage() {
   const [filterTo, setFilterTo] = useState('')
   const [listFilter, setListFilter] = useState<ConversationListFilter>('all')
   const [statusFilter] = useState<ConversationStatusFilter>('all')
-  const [sortOrder, setSortOrder] = useState<ConversationSortOrder>('newest')
+  const [blockedListOpen, setBlockedListOpen] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
   const mountedRef = useRef(true)
@@ -1817,9 +1818,9 @@ export function WhatsAppConversationsPage() {
     return matches.sort((a, b) => {
       const aTime = new Date(a.lastMessageAt).getTime()
       const bTime = new Date(b.lastMessageAt).getTime()
-      return sortOrder === 'newest' ? bTime - aTime : aTime - bTime
+      return bTime - aTime
     })
-  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, searchActive, sortOrder, statusFilter])
+  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, searchActive, statusFilter])
 
   // Sayfa açılışında sağ panel boş kalmasın diye ilk (en üstteki) konuşma otomatik seçilir —
   // tıklandığında açılan görünüm varsayılan olarak gelir. Bir kere tetiklenir; kullanıcının
@@ -1986,14 +1987,13 @@ export function WhatsAppConversationsPage() {
     navigate(`/social?phone=${encodeURIComponent(digits)}`)
   }, [navigate])
 
-  const handleToggleBlocked = useCallback(async (nextBlocked: boolean) => {
-    if (!selectedId) return
+  const handleSetBlocked = useCallback(async (conversationId: string, nextBlocked: boolean) => {
     try {
-      await api.setCitizenConversationBlocked(selectedId, nextBlocked)
+      await api.setCitizenConversationBlocked(conversationId, nextBlocked)
       setConversations(prev => prev.map(item =>
-        item.citizenConversationId === selectedId ? { ...item, isBlocked: nextBlocked } : item,
+        item.citizenConversationId === conversationId ? { ...item, isBlocked: nextBlocked } : item,
       ))
-      setDetailRefreshKey(key => key + 1)
+      if (conversationId === selectedId) setDetailRefreshKey(key => key + 1)
       emitPageToast(nextBlocked
         ? t('whatsapp.blockNumber', 'Numarayı Engelle')
         : t('whatsapp.unblockNumber', 'Numara Engelini Kaldır'))
@@ -2001,6 +2001,10 @@ export function WhatsAppConversationsPage() {
       emitPageToast(error instanceof Error ? error.message : t('common.error'), 'error')
     }
   }, [selectedId, t])
+  const handleToggleBlocked = useCallback(async (nextBlocked: boolean) => {
+    if (!selectedId) return
+    await handleSetBlocked(selectedId, nextBlocked)
+  }, [handleSetBlocked, selectedId])
 
   const handleOpenStatusRequests = useCallback((status: ConversationStatusFilter) => {
     const params = new URLSearchParams()
@@ -2054,8 +2058,7 @@ export function WhatsAppConversationsPage() {
           onSearchChange={setSearch}
           listFilter={listFilter}
           onListFilterChange={setListFilter}
-          sortOrder={sortOrder}
-          onSortOrderChange={setSortOrder}
+          onOpenBlocked={() => setBlockedListOpen(true)}
           statusFilter={statusFilter}
           onOpenStatusRequests={handleOpenStatusRequests}
           selectedId={selectedId}
@@ -2100,6 +2103,51 @@ export function WhatsAppConversationsPage() {
           )}
         </div>
       </div>
+
+      {blockedListOpen ? createPortal(
+        <ModalBackdrop onEscapeClose={() => setBlockedListOpen(false)}>
+          <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white px-6 py-5 shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setBlockedListOpen(false)}
+              aria-label={t('common.close', 'Kapat')}
+              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <X className="size-4" />
+            </button>
+            <h2 className="mb-3 border-b border-slate-200 pb-2 text-lg font-bold text-slate-950">
+              {t('whatsapp.blockedList', 'Engellenenler')}
+            </h2>
+            {conversations.filter(item => item.isBlocked).length === 0 ? (
+              <p className="text-sm text-slate-600">{t('whatsapp.blockedListEmpty', 'Engellenen numara yok.')}</p>
+            ) : (
+              <ul className="max-h-[min(24rem,60vh)] divide-y divide-slate-100 overflow-y-auto">
+                {conversations.filter(item => item.isBlocked).map(item => (
+                  <li key={item.citizenConversationId} className="flex items-center justify-between gap-3 py-2.5">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold text-slate-900">
+                        {item.citizenName?.trim() || formatPhone(item.citizenPhone)}
+                      </div>
+                      <div className="truncate text-xs text-slate-500">{formatPhone(item.citizenPhone)}</div>
+                    </div>
+                    {user?.role === 'Operator' || user?.role === 'SystemAdmin' ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => { void handleSetBlocked(item.citizenConversationId, false) }}
+                      >
+                        {t('whatsapp.unblockAction', 'Engeli Kaldır')}
+                      </Button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </ModalBackdrop>,
+        document.body,
+      ) : null}
 
       {requestModalMessage ? (
         <Suspense fallback={null}>

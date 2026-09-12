@@ -87,7 +87,7 @@ import { DetailModalTitle } from '../utils/detailModalTitle'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
-import { resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey } from '../utils/dateTimePicker'
@@ -220,13 +220,32 @@ function buildCancelledWithoutTaskInfoRows(
     })
   }
   if (!hideMessageApprovalPendingFields) {
+    const outboundField = citizenOutboundOrPending(
+      outboundDisplay,
+      t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+    )
     rows.push({
       label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-      value: outboundDisplay || '—',
-      valueClass: outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
+      value: outboundField.value,
+      valueClass: outboundField.pending
+        ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
+        : outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
     })
   }
   return rows
+}
+
+function citizenOutboundFieldView(detail: JobDetail, t: TFunction) {
+  const field = citizenOutboundOrPending(
+    resolveCitizenOutboundDisplay(detail),
+    t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+  )
+  return {
+    value: field.value,
+    className: field.pending
+      ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
+      : 'citizen-terminal-note-value text-slate-900',
+  }
 }
 
 function isJobOverdue(job: JobSummary): boolean {
@@ -2994,10 +3013,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           {/* Birime Gelen (#3489): kanal VT no solunda + Talep Kanalı satırında; diğer yüzeylerde başlıkta (#1532). */}
                           {isCitizenRequestDetail ? (
                             <span
-                              className="inline-flex items-center gap-1 text-xs font-semibold"
+                              className="inline-flex items-center gap-0.5 text-[0.68rem] font-semibold"
                               style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp') }}
                             >
-                              <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                              <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3 shrink-0" />
                               {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp')}
                             </span>
                           ) : null}
@@ -3120,10 +3139,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         valueClass: 'citizen-terminal-note-value text-slate-900',
                       })
                       if (!hideMessageApprovalPendingFields) {
+                        const outboundField = citizenOutboundOrPending(
+                          outboundDisplay,
+                          t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+                        )
                         rows.push({
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: outboundDisplay || '—',
-                          valueClass: outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
+                          value: outboundField.value,
+                          valueClass: outboundField.pending
+                            ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
+                            : outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
                         })
                       }
                       return rows.map(row => (
@@ -3155,8 +3180,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           <div className="job-detail-field-row__label">
                             {t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')}
                           </div>
-                          <div className="job-detail-field-row__value citizen-terminal-note-value text-slate-900">
-                            {resolveCitizenOutboundDisplay(detail) || '—'}
+                          <div className={`job-detail-field-row__value ${citizenOutboundFieldView(detail, t).className}`}>
+                            {citizenOutboundFieldView(detail, t).value}
                           </div>
                         </div>
                         </>
@@ -3176,8 +3201,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             <div className="job-detail-field-row__label">
                               {t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')}
                             </div>
-                            <div className="job-detail-field-row__value citizen-terminal-note-value text-slate-900">
-                              {resolveCitizenOutboundDisplay(detail) || '—'}
+                            <div className={`job-detail-field-row__value ${citizenOutboundFieldView(detail, t).className}`}>
+                              {citizenOutboundFieldView(detail, t).value}
                             </div>
                           </div>
                         ) : null}

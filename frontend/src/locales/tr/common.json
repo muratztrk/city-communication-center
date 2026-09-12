@@ -980,7 +980,7 @@
   "citizenMessageApproval": {
     "kicker": "Vatandaş Talepleri",
     "title": "Vatandaşa Gönderilecek Mesaj Onayı",
-    "subtitle": "Mesaj gönderimi onayladığında, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
+    "subtitle": "Mesaj gönderimi onayladığında, kurumunuz operatörüne vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
     "scope": {
       "toSend": "Mesaj Onayı Bekleyen",
       "sent": "Mesaj Gönderimi Onaylanan",
@@ -1119,6 +1119,9 @@
     "newTicket": "Yeni Talep Aç",
     "viewTicket": "Talebi Görüntüle",
     "viewRequestsByNumber": "Numaranın Talepleri",
+    "blockedList": "Engellenenler",
+    "blockedListEmpty": "Engellenen numara yok.",
+    "unblockAction": "Engeli Kaldır",
     "blockNumber": "Numarayı Engelle",
     "unblockNumber": "Numara Engelini Kaldır",
     "blockNumberConfirm": "Bu numara engellenince vatandaş WhatsApp ile mesaj gönderemez. Devam edilsin mi?",

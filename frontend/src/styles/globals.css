@@ -4210,29 +4210,36 @@
     white-space: nowrap;
   }
 
+  /* WA Talep oluştur: seçili Mahalle metni biraz küçük (#3555). */
+  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select,
+  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span {
+    font-size: 0.78rem !important;
+  }
+
   @media (min-width: 768px) {
+    /* Cadde biraz dar, No biraz geniş (#3554). */
     .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row,
     .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row--with-link {
-      grid-template-columns: minmax(0, 1fr) minmax(2.75rem, 4.75rem) minmax(0, 0.9fr) !important;
+      grid-template-columns: minmax(0, 0.88fr) minmax(3.15rem, 5.4rem) minmax(0, 0.9fr) !important;
     }
 
     .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row > div:nth-child(2) {
       width: auto !important;
-      min-width: 2.75rem !important;
-      max-width: 4.75rem !important;
+      min-width: 3.15rem !important;
+      max-width: 5.4rem !important;
     }
   }
 
   @media (min-width: 1024px) {
     /* Vatandaş Çağrı Talebin Adres: Cadde biraz dar, No biraz geniş (#3547 reopen). */
     #citizen-request-form .address-street-no-row.citizen-call-address-street-row {
-      grid-template-columns: minmax(0, 1.32fr) 8.15rem !important;
+      grid-template-columns: minmax(0, 1.12fr) 9.15rem !important;
     }
 
     #citizen-request-form .address-street-no-row.citizen-call-address-street-row > div:nth-child(2) {
-      width: 8.15rem !important;
-      min-width: 8.15rem !important;
-      max-width: 8.15rem !important;
+      width: 9.15rem !important;
+      min-width: 9.15rem !important;
+      max-width: 9.15rem !important;
     }
   }
 

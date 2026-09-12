@@ -1790,8 +1790,8 @@ export function CreateRequestPage() {
                 showCoordinates: false,
                 neighborhoodStreetRowClass: 'md:grid-cols-[minmax(0,0.72fr)_minmax(0,1.4fr)]',
                 streetRowClassName:
-                  'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1.35fr)_8.15rem] gap-2 w-full',
-                streetNoColumnClassName: 'lg:w-[8.15rem] lg:min-w-[8.15rem] lg:max-w-[8.15rem]',
+                  'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1.12fr)_9.15rem] gap-2 w-full',
+                streetNoColumnClassName: 'lg:w-[9.15rem] lg:min-w-[9.15rem] lg:max-w-[9.15rem]',
               },
             )}
             <div className="job-field min-h-0">

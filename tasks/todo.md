@@ -1,3 +1,14 @@
+## Round 1169 — Trello Doing (8 web)
+
+- **#3551:** Talep/Görev Bilgileri başlık kanalı `0.68rem` / `size-3`.
+- **#3547:** Çağrı Cadde daha dar, No daha geniş.
+- **#3541:** Banner `operatörüne` sonrası virgül yok.
+- **#3555:** WA Talep oluştur seçili Mahalle metni küçük.
+- **#3554:** WA Talep oluştur Cadde dar, No geniş.
+- **#3545:** WA profil Cadde −10% / No +10%; menü = trigger.
+- **#3550:** Sırala → Engellenenler popup + Engeli Kaldır.
+- **#3556:** İletim yokken outbound başlık yeşil değil; değer açık mavi Onay Bekleyen.
+
 ## Round 1168 — Trello Doing (8 web)
 
 - **#3549:** Numarayı Engelle confirm başlığı altında çizgi (`titleDivider`).

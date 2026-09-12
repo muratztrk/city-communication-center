@@ -28,6 +28,14 @@ export function resolveCitizenOutboundDisplay(detail: {
     || notePlain(detail.citizenOutboundMessage)
 }
 
+/** İletim yokken Detaylar değeri: açık mavi Onay Bekleyen; başlık yeşil olmaz (#3556). */
+export const CITIZEN_OUTBOUND_PENDING_VALUE_CLASS = 'citizen-terminal-note-value text-sky-500'
+
+export function citizenOutboundOrPending(outbound: string | null | undefined, pendingLabel: string) {
+  const text = (outbound ?? '').trim()
+  return text ? { value: text, pending: false } : { value: pendingLabel, pending: true }
+}
+
 export function notesDiffer(left?: string | null, right?: string | null) {
   const a = notePlain(left)
   const b = notePlain(right)

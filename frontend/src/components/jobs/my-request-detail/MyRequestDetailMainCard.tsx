@@ -15,7 +15,7 @@ import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
-import { resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../../../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../../../utils/citizenOutboundDisplay'
 import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowCitizenMessageApproverInRequestInfo, getCitizenMessageApproverRequestInfoLabel } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
@@ -336,11 +336,19 @@ export function MyRequestDetailMainCard({
     citizenOutboundMessage: citizenOutboundMessage ?? detail.citizenOutboundMessage,
     citizenApprovalReleasedNote: detail.citizenApprovalReleasedNote,
   })
+  const outboundField = citizenOutboundOrPending(
+    outboundDisplay,
+    t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+  )
   const cancelledWithoutTaskNote = detail.cancelReason?.trim() || '—'
   const cancelledOutboundDisplay = resolveCitizenCancelOutboundDisplay({
     citizenOutboundMessage: citizenOutboundMessage ?? detail.citizenOutboundMessage,
     citizenApprovalReleasedNote: detail.citizenApprovalReleasedNote,
   }, cancelledWithoutTaskNote)
+  const cancelledOutboundField = citizenOutboundOrPending(
+    cancelledOutboundDisplay,
+    t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+  )
   const cancelledOutboundDiffersFromNote = Boolean(
     cancelledOutboundDisplay
     && cancelledWithoutTaskNote !== '—'
@@ -378,8 +386,8 @@ export function MyRequestDetailMainCard({
       ? [{
           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
           value: (
-            <span className="citizen-terminal-note-value text-slate-900">
-              {outboundDisplay || '—'}
+            <span className={outboundField.pending ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS : 'citizen-terminal-note-value text-slate-900'}>
+              {outboundField.value}
             </span>
           ),
         }]
@@ -409,8 +417,11 @@ export function MyRequestDetailMainCard({
           {
             label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
             value: (
-              <span className={`citizen-terminal-note-value ${cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}`}>
-                {cancelledOutboundDisplay || '—'}
+              <span className={cancelledOutboundField.pending
+                ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
+                : `citizen-terminal-note-value ${cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}`}
+              >
+                {cancelledOutboundField.value}
               </span>
             ),
           },
@@ -572,10 +583,10 @@ export function MyRequestDetailMainCard({
                   <span className="my-request-detail-info-heading__meta ml-auto flex shrink-0 items-center gap-3">
                     {isCitizenRequestJob(detail) ? (
                       <span
-                        className="inline-flex items-center gap-1 text-xs font-semibold"
+                        className="inline-flex items-center gap-0.5 text-[0.68rem] font-semibold"
                         style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? 'WhatsApp') }}
                       >
-                        <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                        <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3 shrink-0" />
                         {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}
                       </span>
                     ) : null}

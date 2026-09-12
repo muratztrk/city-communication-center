@@ -129,24 +129,6 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                         break;
                     }
                 }
-
-                if (string.IsNullOrWhiteSpace(citizenOutboundMessage)
-                    && !string.IsNullOrWhiteSpace(citizenApprovalReleasedNote))
-                {
-                    citizenOutboundMessage = citizenApprovalReleasedNote;
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(citizenOutboundMessage)
-                && !string.IsNullOrWhiteSpace(citizenApprovalReleasedNote))
-            {
-                citizenOutboundMessage = citizenApprovalReleasedNote;
-            }
-
-            if (string.IsNullOrWhiteSpace(citizenOutboundMessage))
-            {
-                citizenOutboundMessage = await CitizenMessageApprovalNoteResolver.ResolveAsync(
-                    _dbContext, tenantId, jobEntity, cancellationToken);
             }
         }
 

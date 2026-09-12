@@ -716,24 +716,6 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                         break;
                     }
                 }
-
-                if (string.IsNullOrWhiteSpace(citizenOutboundMessage)
-                    && !string.IsNullOrWhiteSpace(citizenApprovalReleasedNote))
-                {
-                    citizenOutboundMessage = citizenApprovalReleasedNote;
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(citizenOutboundMessage)
-                && !string.IsNullOrWhiteSpace(citizenApprovalReleasedNote))
-            {
-                citizenOutboundMessage = citizenApprovalReleasedNote;
-            }
-
-            if (string.IsNullOrWhiteSpace(citizenOutboundMessage))
-            {
-                citizenOutboundMessage = await CitizenMessageApprovalNoteResolver.ResolveAsync(
-                    _dbContext, tenantId, job, cancellationToken);
             }
         }
 

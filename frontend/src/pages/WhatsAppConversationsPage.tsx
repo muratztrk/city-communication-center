@@ -693,8 +693,8 @@ function ConversationProfilePanel({
           streetNo={draft.streetNo}
           required={hasNeighborhood}
           labelClassName={labelClass}
-          className="address-street-no-row grid grid-cols-[minmax(0,1.5fr)_4.125rem] gap-2"
-          streetNoColumnClassName="lg:w-[4.125rem] lg:min-w-[4.125rem] lg:max-w-[4.125rem]"
+          className="address-street-no-row grid grid-cols-[minmax(0,1.125fr)_5.16rem] gap-2"
+          streetNoColumnClassName="lg:w-[5.16rem] lg:min-w-[5.16rem] lg:max-w-[5.16rem]"
           menuScrollClassName="whatsapp-neighborhood-menu-scroll"
           menuClassName="whatsapp-neighborhood-menu-scroll"
           matchTriggerWidth
@@ -837,25 +837,19 @@ function ConversationDetail({
 
   useEffect(() => {
     profileDirtyRef.current = false
-    setProfileDraft(current => {
-      const next = {
-        ...current,
-        citizenName: citizenName ?? '',
-        citizenPhone: citizenPhone ?? current.citizenPhone,
-      }
-      profileDraftRef.current = next
-      return next
-    })
-    // Adres alanları yeni detay gelene kadar durur — boşaltmak formu zıplatır (#3246).
-    // citizenName/citizenPhone deps omitted — list refresh must not reset WA profile draft (#2513).
+    const next = createProfileDraft(null, citizenPhone, citizenName)
+    profileDraftRef.current = next
+    setProfileDraft(next)
+    // Konuşma değişince adresi sıfırla — önceki numaranın mahalle/cadde/no'su sızmasın (#3553).
+    // citizenName/citizenPhone deps yok: liste yenilemesi taslağı silmesin (#2513).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
   }, [conversationId])
 
   useEffect(() => {
-    if (!detail || profileDirtyRef.current) return
+    if (!detail || detail.citizenConversationId !== conversationId || profileDirtyRef.current) return
     setProfileDraft(current => {
       const fromServer = createProfileDraft(detail)
-      // Sunucu boş dönerse (talep oluşturma yan etkisi) dolu yerel taslağı silme.
+      // Aynı konuşmada sunucu boş dönerse (talep oluşturma) dolu yerel taslağı silme (#3246).
       const next: ConversationProfileDraft = {
         citizenName: fromServer.citizenName || current.citizenName,
         citizenPhone: fromServer.citizenPhone || current.citizenPhone,
@@ -868,7 +862,7 @@ function ConversationDetail({
       profileDraftRef.current = next
       return next
     })
-  }, [detail])
+  }, [detail, conversationId])
 
   const updatePinnedToBottom = useCallback(() => {
     const container = scrollContainerRef.current
@@ -1072,12 +1066,14 @@ function ConversationDetail({
 
   const handleProfileSave = async () => {
     if (!detail || profileSaving || detail.citizenConversationId !== conversationId) return
+    const savedForConversationId = conversationId
     const active = document.activeElement
     if (active instanceof HTMLElement) active.blur()
     // Blur + deferred input commit tamamlansın diye iki kare beklenir (#3391).
     await new Promise<void>(resolve => {
       window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()))
     })
+    if (latestConversationIdRef.current !== savedForConversationId) return
     const draft = profileDraftRef.current
     if (draft.neighborhood.trim() && !draft.street.trim()) {
       window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
@@ -1096,10 +1092,9 @@ function ConversationDetail({
       streetNo: draft.streetNo.trim(),
       openAddress: normalizeTitleCaseField(draft.openAddress) ?? '',
     }
-    const savedForConversationId = conversationId
     setProfileSaving(true)
     try {
-      await api.updateCitizenConversationProfile(conversationId, {
+      await api.updateCitizenConversationProfile(savedForConversationId, {
         citizenName: savedDraft.citizenName,
         citizenPhone: savedDraft.citizenPhone || null,
         neighborhood: savedDraft.neighborhood,
@@ -1336,6 +1331,7 @@ function ConversationDetail({
                         title: blocked
                           ? t('whatsapp.unblockNumber', 'Numara Engelini Kaldır')
                           : t('whatsapp.blockNumber', 'Numarayı Engelle'),
+                        titleDivider: true,
                         message: blocked
                           ? t('whatsapp.unblockNumberConfirm', 'Bu numaranın engeli kaldırılsın mı?')
                           : t('whatsapp.blockNumberConfirm', 'Bu numara engellenince vatandaş WhatsApp ile mesaj gönderemez. Devam edilsin mi?'),
@@ -2070,6 +2066,7 @@ export function WhatsAppConversationsPage() {
         <div className="min-h-[34rem] flex-1 min-w-0 overflow-hidden bg-slate-50 md:min-h-0">
           {selectedId ? (
             <ConversationDetail
+              key={selectedId}
               conversationId={selectedId}
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}

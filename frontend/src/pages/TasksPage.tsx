@@ -46,7 +46,7 @@ import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
 import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus, isInProgressProcessStatusLabel, shouldShowGridPrioritySubline } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus, isInProgressProcessStatusLabel, shouldShowGridPrioritySubline } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
@@ -96,6 +96,7 @@ import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
+import { getChannelLabelColor } from '../utils/channelColors'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
 import { MyRequestDetailMainCard, MyRequestInfoFieldsList } from '../components/jobs/my-request-detail/MyRequestDetailMainCard'
@@ -2321,13 +2322,24 @@ const pageKicker = isMyTasksView
                       </div>
                       <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
                         <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
-                          <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
+                          <span className="flex min-w-0 w-full flex-1 items-center justify-between gap-2">
                             <span className="min-w-0">{t('tasks.detail.infoFields', 'Görev Bilgileri')}</span>
                             {parentJobDetail ? (
-                              <span className="ml-auto flex flex-col items-end text-right leading-tight">
-                                <span className="text-xs font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
-                                <span className={`text-[11px] font-semibold ${getPriorityColorClass(parentJobDetail.priority)} ${parentJobDetail.priority === 'High' || parentJobDetail.priority === 'VeryHigh' || parentJobDetail.priority === 'Critical' ? 'font-extrabold' : ''}`}>
-                                  {getPriorityLabel(t, parentJobDetail.priority)}
+                              <span className="ml-auto flex shrink-0 items-center gap-3">
+                                {isCitizenRequestJob(parentJobDetail) ? (
+                                  <span
+                                    className="inline-flex items-center gap-1 text-xs font-semibold"
+                                    style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp') }}
+                                  >
+                                    <ChannelIcon channel={citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                                    {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp')}
+                                  </span>
+                                ) : null}
+                                <span className="flex flex-col items-end text-right leading-tight">
+                                  <span className="text-xs font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
+                                  <span className={`text-[11px] font-semibold ${getPriorityColorClass(parentJobDetail.priority)} ${parentJobDetail.priority === 'High' || parentJobDetail.priority === 'VeryHigh' || parentJobDetail.priority === 'Critical' ? 'font-extrabold' : ''}`}>
+                                    {getPriorityLabel(t, parentJobDetail.priority)}
+                                  </span>
                                 </span>
                               </span>
                             ) : null}

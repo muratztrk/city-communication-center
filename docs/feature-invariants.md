@@ -786,6 +786,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Numarayı Engelle (#3537):** konuşma 3-nokta menüsünde `Numaranın Talepleri` altında;
   yalnız Operator/SystemAdmin (`SetConversationBlockedCommand` + menü). `IsBlocked` iken inbound
   persist/unread/push/auto-reply/`LastMessageAt` yapılmaz.
+  Confirm başlığının altında çizgi vardır (`titleDivider`, #3549).
   **WA inbound ses (#3544):** yalnız `Operator` (Vatandaş Talep Operatörü); diğer roller çalmaz.
   **Sekme rozeti (#3531):** operatörde okunmamış ≥1 iken başlık `(N)` + sayılı favicon (N=1 dahil).
   **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
@@ -797,6 +798,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`AllowClear` yoksa); silme yalnız WhatsApp / dizin **Kaydet** (`allowClear: true`)
   ile elle yapılır. Talep oluşturma profili asla temizlemez. Kaydedilen ad/etiket/adres metinleri Türkçe
   başlık biçimine normalize edilir.
+  **Adres konuşma bazlı (#3553):** WA Vatandaş Bilgileri Kaydet yalnız o
+  `CitizenConversationId` / numarayı günceller. Konuşma değişince taslak sıfırlanır;
+  başka numaranın mahalle/cadde/no'su taşınmaz (`key={conversationId}` + id eşleşmeyen
+  detay yutulur).
 - **WhatsApp detay header sayaçları (#3295):** seçili konuşma header'ında `Talep Sayısı` satırı
   ve yanındaki `Görev Sahibi` yok; ad + numara + `Numaranın Talepleri` butonu durur.
 - **WhatsApp detay header görev sahibi:** görev sahibi bilgisi header'da basılmaz (#3295);
@@ -1801,7 +1806,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   detaylarında `Öncelik` Talep Bilgileri satır listesinden çıkar; başlığın sağ sınırında etiketi
   üstte, değeri altta görünür. Etiket title-case (`Öncelik`) ve 12px (`text-xs font-bold`) kalır; değer
   11px (`text-[11px] font-semibold`) olur ve `Normal` değeri yeşildir. Görevlerim / Birimdeki Görevler /
-  Personelimin Görevleri detayında Görev Bilgileri başlığı aynı puntoyu kullanır (#2109). Vatandaş kanal
+  Personelimin Görevleri detayında Görev Bilgileri başlığı aynı puntoyu kullanır (#2109).
+  Görevlerim / Birimdeki / Personelimin popup Görev Bilgileri'nde kanal ikonu + ad Öncelik'in
+  hemen solundadır (Talep Bilgileri ile aynı, #3551). Vatandaş kanal
   ikonu/adı varsa bu bloğun solunda kalır
   (card #1599 reopen). Detay içi `Düzenle` modunda değer aynı başlık konumunda kompakt dropdown'a
   dönüşür; `Talep Yapılan Birim` satırının altında ikinci bir Öncelik alanı oluşmaz
@@ -2044,8 +2051,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
   verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
   harita). **Vatandaşa Giden Mesaj** Detaylar popup'ta terminal VT'de başlık her zaman durur
-  (`—` boşsa); değer iletilmiş outbound, yoksa release notu, yoksa `ResolveAsync` terminal notu
-  (#3536 reopen). Mesaj Onayı Bekleyen (`to-send`) satırı gizler (#3519). WhatsApp'ta
+  (`—` boşsa); değer yalnız iletilmiş outbound'tur — release / tamamlama / iptal notuna
+  düşülmez (#3552; #3536 başlık kuralı durur). Mesaj Onayı Bekleyen (`to-send`) satırı gizler (#3519). WhatsApp'ta
   `ResolveOutboundDisplayNoteAsync` yalnız `DeliveryStatusUpdatedAtUtc >= release` olan
   Sent/Delivered/Read giden kayıtlarından terminal notu çıkarır; release sonrası Pending veya
   release öncesi otomatik yanıtlar bu alanı doldurmaz (#3356 reopen). Aynı iletim zamanında
@@ -2717,7 +2724,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **alt satırında** (Giden grid ile aynı — ayrı `Tamamlanma Tarihi` sütunu yok); yazdırmada `Tamamlanma Tarihi` sütunu kalır.
 - **Overflow tooltip (#r545/#2065/#2072/#2078):** hücre ortası; max-width ~18rem; 2. satır `text-align: center`.
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
-- **Mesaj Onayı banner (#2064):** “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
+- **Mesaj Onayı banner (#2064/#3541):** “Mesaj gönderimi onayladığında…” (`Mesajı` değil);
+  “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
 - **Mesaj Onayı Notu Düzenle modal (#2073/#2079/#2081/#2084/#2091):** genişlik `max-w-md`; yükseklik `py-5` +
   textarea `rows={4}`; aksiyon butonları `size="sm"`. Not limiti **400 karakter** FE+BE (#3432/#3466).
 - **Mesajı Onayla ConfirmDialog genişliği:** `wide: true` → `max-w-md px-6 py-5` (Notu Düzenle ile aynı
@@ -2947,8 +2955,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
   WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
 - **Vatandaşa Giden Mesaj görünürlük (#3520/#3536 reopen):** Detaylar popup (Birime Gelen / Taleplerim /
-  Görevlerim) terminal VT'de başlık her zaman görünür; değer iletilmiş outbound → release notu →
-  tamamlama/iptal notu, hiçbiri yoksa `—`. Görevsiz iptal VT (ör. VT-2026-36, ExternalUnit +
+  Görevlerim) terminal VT'de başlık her zaman görünür; değer yalnız iletilmiş outbound,
+  yoksa `—` (#3552 — Mesaj Onayı + operatör iletiminden önce not gösterilmez).
+  Görevsiz iptal VT (ör. VT-2026-36, ExternalUnit +
   `Not:` şablonu) Talep Bilgileri listesinde durur; WA `SentAt` release'ten önce olsa da iletilmiş
   terminal gövde okunur. `to-send` chip hâlâ gizler (#3519). İletilmiş terminal WA:
   `SentAt` release öncesi olsa bile `DeliveryStatusUpdatedAtUtc` (veya `SentAt` yedeği) release
@@ -2983,7 +2992,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen Talep Bilgileri onaylayan (#3515/#3539/#3492):** tamamlanmış/iptal VT detayında
   `Tamamlama Notu Onaylayan` / `İptal Notu Onaylayan` gösterilir; `Talebi İptal Eden` ve
   `Talebi Onaylayan` satırı yok. Vatandaşa Giden Mesaj başlığı terminal Detaylar'da her zaman
-  durur; iletim çözülemese release/tamamlama notu veya `—` (#3536 reopen). Tamamlama/İptal Notu
+  durur; iletim yoksa `—` (#3552). Tamamlama/İptal Notu
   değeri satır kayınca `text-align: justify` (#3475).
 - **Görev popup Gecikti mi? (#3509 reopen):** `TasksPage` görev detay Süreç başlığında
   `Gecikti mi?` sağa hizalı; İlgili Talep Detayları `MyRequestDetailMainCard` ile aynı.

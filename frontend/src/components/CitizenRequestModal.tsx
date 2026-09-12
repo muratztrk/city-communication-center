@@ -733,7 +733,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-[minmax(0,0.36fr)_minmax(0,1fr)] md:items-stretch">
+                <div className="citizen-create-address-row grid gap-2 md:grid-cols-[minmax(0,0.36fr)_minmax(0,1fr)] md:items-stretch">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">
                       {t('address.neighborhoodLabel', 'Mahalle')}
@@ -771,7 +771,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     triggerClassName="citizen-request-address-trigger"
                     menuScrollClassName="citizen-request-department-menu"
                     menuClassName="citizen-request-department-menu"
-                    streetNoColumnClassName="lg:w-[6.5rem] lg:min-w-[6.5rem] lg:max-w-[6.5rem]"
+                    streetNoColumnClassName="lg:w-[4.75rem] lg:min-w-[2.75rem] lg:max-w-[4.75rem]"
                     matchTriggerWidth
                   />
                 </div>

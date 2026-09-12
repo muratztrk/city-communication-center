@@ -980,7 +980,7 @@
   "citizenMessageApproval": {
     "kicker": "Vatandaş Talepleri",
     "title": "Vatandaşa Gönderilecek Mesaj Onayı",
-    "subtitle": "Mesajı gönderimi onayladığında, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
+    "subtitle": "Mesaj gönderimi onayladığında, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
     "scope": {
       "toSend": "Mesaj Onayı Bekleyen",
       "sent": "Mesaj Gönderimi Onaylanan",

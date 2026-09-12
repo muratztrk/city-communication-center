@@ -4200,16 +4200,39 @@
     font-size: 0.72rem !important;
   }
 
+  /* WA Vatandaş Talebi Oluştur: Cadde/Sokak Mahalle ile aynı ölçekte daralsın;
+     başlık tek satır; No daha çok küçülsün (#3538 reopen). */
+  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row {
+    grid-template-columns: minmax(0, 0.36fr) minmax(0, 1fr);
+  }
+
+  .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row > div:first-child > span {
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row,
+    .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row--with-link {
+      grid-template-columns: minmax(0, 1fr) minmax(2.75rem, 4.75rem) minmax(0, 0.9fr) !important;
+    }
+
+    .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row > div:nth-child(2) {
+      width: auto !important;
+      min-width: 2.75rem !important;
+      max-width: 4.75rem !important;
+    }
+  }
+
   @media (min-width: 1024px) {
-    /* Vatandaş Çağrı Talebin Adres: Cadde/Sokak sütunu (#2873 / #2879). */
+    /* Vatandaş Çağrı Talebin Adres: Cadde biraz dar, No biraz geniş (#3547 reopen). */
     #citizen-request-form .address-street-no-row.citizen-call-address-street-row {
-      grid-template-columns: minmax(0, 1.45fr) 7.5rem !important;
+      grid-template-columns: minmax(0, 1.32fr) 8.15rem !important;
     }
 
     #citizen-request-form .address-street-no-row.citizen-call-address-street-row > div:nth-child(2) {
-      width: 7.5rem !important;
-      min-width: 7.5rem !important;
-      max-width: 7.5rem !important;
+      width: 8.15rem !important;
+      min-width: 8.15rem !important;
+      max-width: 8.15rem !important;
     }
   }
 

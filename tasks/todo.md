@@ -1,3 +1,14 @@
+## Round 1168 — Trello Doing (8 web)
+
+- **#3549:** Numarayı Engelle confirm başlığı altında çizgi (`titleDivider`).
+- **#3552:** Vatandaşa Giden Mesaj yalnız iletilmiş outbound; release/`ResolveAsync` yedeği yok.
+- **#3538:** WA Talep oluştur Cadde/Sokak Mahalle ölçeğinde daralır; `/ Sokak` alt satıra inmez; No daha çok küçülür.
+- **#3545:** WA profil Cadde/Sokak −25%, No +25%.
+- **#3541:** Banner `Mesaj gönderimi onayladığında…`.
+- **#3547:** Çağrı formu Cadde biraz dar, No biraz geniş.
+- **#3551:** Görev Bilgileri'nde kanal ikonu Öncelik solunda.
+- **#3553:** WA adres kaydı konuşma/numara bazlı; taslak sızıntısı yok.
+
 ## Round 1167 — İptal outbound operatör Not: (#3524)
 
 - Operatör `Not:` sonrası metni değiştirdiyse Detaylar'da yalnız o ifade.

@@ -122,7 +122,7 @@ export function CbsStreetNoDropdowns({
   return (
     <div className={rowClassName}>
       <div className="grid min-w-0 gap-1">
-        <span className={labelClassName}>
+        <span className={`${labelClassName} whitespace-nowrap`}>
           {t('address.streetLabel', 'Cadde / Sokak')}
           {required && hasNeighborhood ? <span className="text-red-500"> *</span> : null}
         </span>

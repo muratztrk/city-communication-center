@@ -19,15 +19,13 @@ export function stripAutoMessageNoteLabel(value?: string | null) {
   return plain
 }
 
-/** Detay popup: iletilmiş outbound, yoksa onaylanmış release notu. */
+/** Detay popup: yalnız iletilmiş outbound; onay notuna düşülmez (#3552). */
 export function resolveCitizenOutboundDisplay(detail: {
   citizenOutboundMessage?: string | null
   citizenApprovalReleasedNote?: string | null
 }): string {
-  const outbound = stripAutoMessageNoteLabel(detail.citizenOutboundMessage)
+  return stripAutoMessageNoteLabel(detail.citizenOutboundMessage)
     || notePlain(detail.citizenOutboundMessage)
-  if (outbound) return outbound
-  return notePlain(detail.citizenApprovalReleasedNote)
 }
 
 export function notesDiffer(left?: string | null, right?: string | null) {

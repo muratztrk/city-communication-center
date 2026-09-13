@@ -91,7 +91,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
         ) : null}
       </span>
       <textarea
-        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:text-[0.44rem]' : ' min-h-[2.75rem]'}`}
+        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:!text-[0.40rem]' : ' min-h-[2.75rem]'}`}
         placeholder={t('address.openAddressPlaceholder', 'Mevki, daire, kat bilgisi giriniz.')}
         maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
         value={draft.openAddress}

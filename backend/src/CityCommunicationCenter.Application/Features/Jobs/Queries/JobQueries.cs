@@ -601,13 +601,13 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 m.SocialMessageId,
                 m.JobId,
                 m.Tags,
+                m.Category,
             })
             .ToListAsync(cancellationToken);
         var citizenRequest = citizenRequestCandidates
             .OrderByDescending(m => m.JobId == job.JobId)
             .ThenByDescending(m => m.CitizenRequestNumberYear)
             .ThenByDescending(m => m.CitizenRequestNumber)
-            .Select(m => new { m.CitizenRequestNumber, m.CitizenRequestNumberYear, m.Channel, m.SocialMessageId, m.Tags })
             .FirstOrDefault();
 
         string? sourceChannel = null;
@@ -740,17 +740,33 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.LocationMapsUrl,
             sourceChannel, sourceSocialMessageId,
             citizenMessageApproverDisplayName,
-            SplitRequestTags(citizenRequest?.Tags));
+            SplitRequestTags(citizenRequest?.Tags, citizenRequest?.Category));
     }
 
-    private static IReadOnlyCollection<string> SplitRequestTags(string? tags)
+    private static IReadOnlyCollection<string> SplitRequestTags(string? tags, string? category = null)
     {
-        return string.IsNullOrWhiteSpace(tags)
-            ? Array.Empty<string>()
-            : tags
-                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Where(tag => !string.IsNullOrWhiteSpace(tag))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
+        var result = new List<string>();
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            result.Add(category.Trim());
+        }
+
+        if (!string.IsNullOrWhiteSpace(tags))
+        {
+            foreach (var tag in tags.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                if (string.IsNullOrWhiteSpace(tag))
+                {
+                    continue;
+                }
+
+                if (!result.Contains(tag, StringComparer.OrdinalIgnoreCase))
+                {
+                    result.Add(tag);
+                }
+            }
+        }
+
+        return result;
     }
 }

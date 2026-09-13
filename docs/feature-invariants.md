@@ -3364,7 +3364,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   genişliği (ekstra px yok). VT grid Talep Etiketi menüsü de tetikleyici genişliği (#3611).
   Düzenle kaydı `operatorSocialEdit` ile tüm VT rolleri (#3597 reopen). Adres Tarifi + Konum
   Linki yan yana; Adres Tarifi + Konum Linki etiketleri `min-h-[2.25rem] items-end` (#3612);
-  `(max 400 karakter)` başlığın hemen sağında; placeholder `0.44rem` (#3594 reopen);
+  `(max 400 karakter)` başlığın hemen sağında; Adres Tarifi placeholder `0.40rem` (#3594/#3622);
   Konum Linki placeholder `0.70rem`. No kolon `6.75rem`.
   Adres Tarifi `min-h-[5.5rem]` / ≥4 satır. Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon
   adres düzeni durur.

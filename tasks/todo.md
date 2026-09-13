@@ -1,3 +1,8 @@
+## Round 1189 — Trello Doing (2 web)
+
+- **#3619 reopen-2:** X ikonu `right-2` + `pr-7`.
+- **#3621:** arama yükseklik `h-[1.25rem]`.
+
 ## Round 1188 — Trello Doing (1 web reopen)
 
 - **#3620:** mesai dışı self-assign — yönetici SMS ilk atamaya ertelendi; self-assign yalnız görev SMS.

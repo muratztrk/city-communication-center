@@ -2168,15 +2168,25 @@ export function WhatsAppConversationsPage() {
               <h2 className="shrink-0 text-lg font-bold text-slate-950">
                 {t('whatsapp.blockedList', 'Engellenenler')}
               </h2>
-              <div className="relative min-w-0 flex-1">
-                <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <div className="relative w-[9.75rem] shrink-0">
+                <Search className="pointer-events-none absolute left-1.5 top-1/2 size-3 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                 <input
-                  type="search"
+                  type="text"
                   value={blockedListSearch}
                   onChange={event => setBlockedListSearch(event.target.value)}
-                  placeholder={t('whatsapp.blockedListSearch', 'Numara veya vatandaş adı')}
-                  className="field-input h-8 w-full min-w-0 pl-7 text-xs"
+                  placeholder={t('whatsapp.blockedListSearch', 'Telefon No, vatandaş adı...')}
+                  className="field-input h-7 w-full min-w-0 pl-6 pr-6 text-[0.6875rem]"
                 />
+                {blockedListSearch.trim() ? (
+                  <button
+                    type="button"
+                    onClick={() => setBlockedListSearch('')}
+                    className="absolute right-1 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center text-red-600 transition-colors hover:text-red-700"
+                    aria-label={t('common.clear', 'Temizle')}
+                  >
+                    <X className="size-3" strokeWidth={2.25} />
+                  </button>
+                ) : null}
               </div>
             </div>
             {blockedConversations.length === 0 ? (

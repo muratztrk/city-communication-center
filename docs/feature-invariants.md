@@ -805,7 +805,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ring-sky-200`) ve **oval** (`rounded-full`, #3559 reopen); engelleyen/tarih çerçevesi dar
   (`min-w-[5.25rem] max-w-[7.5rem]`, `px-2 py-0.5`, #3559 reopen-2).   Satır `items-start`: vatandaş adı ile engelleyen çerçevesi üst hizada (#3559 reopen-3).
   İsim satırları `leading-snug` (descender kesilmesin, #3559 reopen-4); çerçeve `py-1`.
-  Başlık satırında numara/ad arama (`blockedListSearch`, #3613); >5 kayıtta liste
+  Başlık satırında dar arama (`w-[9.75rem] h-7`, placeholder **Telefon No, vatandaş adı...**,
+  #3613 reopen); doluysa kırmızı X + `cursor-pointer` (#3614). >5 kayıtta liste
   `max-h-[16.25rem] overflow-y-auto`.
   Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`

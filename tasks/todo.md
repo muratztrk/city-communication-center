@@ -1,3 +1,10 @@
+## Round 1186 — Trello Doing (4 web)
+
+- **#3613 reopen:** Engellenenler arama genişlik/yükseklik placeholder için.
+- **#3618:** arama yazı boyutu `text-xs`.
+- **#3619:** X ikonu sola (`right-2`).
+- **#3620:** mesai dışı self-assign → yalnız görev SMS.
+
 ## Round 1185 — Trello Doing (2 web)
 
 - **#3613:** Engellenenler arama dar + placeholder **Telefon No, vatandaş adı...**.

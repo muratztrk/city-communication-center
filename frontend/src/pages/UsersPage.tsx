@@ -26,7 +26,7 @@ import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User, UserManagementContext } from '../types/platform'
 import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
 import { uniqueDepartmentsByName } from '../utils/departments'
-import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
+import { formatTrNationalGrouped, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 type CreateMode = 'manual' | 'ldap'
 
 const ADDITIONAL_ROLE_CODES = ['Staff', 'Operator', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
@@ -1372,8 +1372,11 @@ export function UsersPage() {
                 placeholder={t('users.mobilePhonePlaceholder')}
                 type="text"
                 inputMode="numeric"
-                pattern="[0-9]*"
-                value={newUser.mobilePhone}
+                pattern="[0-9 ]*"
+                maxLength={13}
+                value={newUser.mobilePhone.replace(/\D/g, '').startsWith('5')
+                  ? formatTrNationalGrouped(newUser.mobilePhone)
+                  : newUser.mobilePhone}
                 onChange={event => setNewUser(current => ({
                   ...current,
                   mobilePhone: sanitizeMobilePhoneInput(event.target.value, current.mobilePhone),
@@ -1709,9 +1712,10 @@ export function UsersPage() {
                           className="field-input min-w-[12rem] text-sm"
                           type="text"
                           inputMode="numeric"
-                          pattern="[0-9]*"
+                          pattern="[0-9 ]*"
+                          maxLength={13}
                           placeholder={t('users.mobilePhonePlaceholder')}
-                          value={editForm.mobilePhone}
+                          value={formatTrNationalGrouped(editForm.mobilePhone)}
                           onChange={e => setEditForm(c => ({
                             ...c,
                             mobilePhone: sanitizeMobilePhoneInput(e.target.value, c.mobilePhone),

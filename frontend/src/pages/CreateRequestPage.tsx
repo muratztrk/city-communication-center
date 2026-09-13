@@ -1757,7 +1757,7 @@ export function CreateRequestPage() {
                     }))}
                   />
                   <input
-                    className="field-input min-w-0 flex-1 placeholder:text-[0.875rem]"
+                    className="field-input min-w-0 flex-1 text-[0.8125rem] placeholder:text-[0.875rem]"
                     required
                     inputMode="numeric"
                     pattern={citizenForm.phoneCountryIso === 'TR' ? '[0-9 ]*' : '[0-9]*'}

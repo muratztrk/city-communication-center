@@ -841,7 +841,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   )
   useNewRecordIdsSound(outgoingJobIds, !loading && isDepartmentOutgoingView)
   const detailContext = detailContextOverride ?? searchParams.get('context')
-  const operatorSocialEdit = detailContext === 'social' && user?.role === 'Operator'
+  const operatorSocialEdit = detailContext === 'social'
   const incomingReturnStatus = searchParams.get('returnStatus')
   const detailHeaderTitle = detailContext === 'social'
     ? t('jobs.detail.citizenRequest', 'Vatandaş Talebi')

@@ -801,7 +801,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`items-center`, #3559). Engellenen numara biraz küçük (`0.75rem`); adsız satırda numara
   tek satırda kalır. Engelleyen + tarih **parantezsiz çerçevede**, grid Durum gibi istif:
   ad üstte ortalı, tarih altında ortalı ve biraz daha küçük (`0.625rem`); Engeli Kaldır’ın
-  solunda (#3559).
+  solunda. Çerçeve grid **Yapılmakta** pili gibi açık mavi dolgu (`bg-sky-100 text-sky-700
+  ring-sky-200`, #3559).
   Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
@@ -830,6 +831,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   silme ikonu özel X butonuyla çakışır — card #1496). Arama eşleştirme mantığında (`normalizedSearchName`
   vb.) her OR dalı kendi uzunluk guard'ını taşımalı; guard'sız bir `.includes('')` her satırı
   vacuously eşleştirip filtreyi no-op'a çevirir (card #1496 reopen kökü).
+  `+90` / `+49` gibi `+` ile başlayan 2 haneli ülke kodu telefon aramasıdır (`normalizePhone`
+  2 hane bırakır; 3 hane eşiği atlanır, #3610).
 - **WhatsApp konuşma listesi paging:** `/whatsapp` sol Konuşmalar panelinin altında basit toplam
   footer değil, Taleplerim gridleriyle aynı ortak `TablePagination` barı kullanılır; liste gerçek
   sayfalama yapar ve bar panelin iki alt sınır çizgisini kaplayan koyu paging yüzeyi olarak görünür.
@@ -1020,8 +1023,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1594 reopen).   İlk gövde textarea kompakt `min-h-[4.5rem]`; Kaydet `bodyText.trim()` yapar
   (#2911 revert). Hitap (greeting) dört durum kartında paylaşılan üst textarea’dır; birine
   yazınca hepsi güncellenir (#3085 geri alındı). Durum gövde/ek metin kutuları ayrı kalır.
-  Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
-  Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-48` / CSS `12rem` (#2910). Bu bölümün Kaydet toast’ı
+  Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Müdürü/Sorumluları/Vatandaş Talep
+  Yöneticileri'ne** + alt satır **Mesai Dışı Giden SMS Bildirimleri** vardır (#2907/#3582);
+  Bildirim Mesajı textarea `min-h-48` / CSS `12rem` (#2910). Bu bölümün Kaydet toast’ı
   `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
   içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
   (#2906). Mesai dışı talep oluşturulunca yönetici şablonu birim müdürü, sorumlu
@@ -1030,6 +1034,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   personel **dahil değil** (#2903/#2904, 2026-09-03). Vatandaş kaynağı `JobCitizenRequestHelper`
   (`Citizen` / `SocialMessage` / `CitizenRequest` / `EDevlet`) — WA/çağrı formunun yazdığı
   `ExternalUnit` + `SocialMessage` dahil; hedef birim VTY'si yönetici SMS'ini talep açılışında alır.
+  Mesai dışı kontrolü **bildirim birimlerinin herhangi biri** kapalıysa tetiklenir — sahip birim
+  7/24 açık olsa bile Hedef Birim mesai dışındaysa oluşturma SMS'i gider (#3602).
   Gerçek birim-dışı (`ExternalUnit` + `Manual`) VTY almaz; yalnız müdür + sorumlular.
   **Birim Personeline Mesai Dışı SMS** ayrı kutu (#3305); her ikisinde **Aktif** anahtar
   (#3306). Aktif kapalıysa o kutu gönderilmez. Yönetici kutusu eski kayıtlarda bayrak yoksa
@@ -1037,7 +1043,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider.
   Standart personel aynı; salt müdür atlanır. Atanan VTY veya birim sorumlusu talep SMS'inden
   sonra yalnız kendisine ikinci (görev) SMS alır (#3601).
-  **SMS Gönderimi İşleme Alındı Durumu** (#3386): Vatandaşa Giden Cevaplar ile mesai dışı SMS
+  **Vatandaşa Giden SMS Gönderimi "İşleme Alındı" Durumu** (#3386/#3604): Vatandaşa Giden Cevaplar ile mesai dışı SMS
   kutularının arasında ayrı bölüm; yalnız `Phone` kanalından gelen taleplerde `İşleme Alındı`
   otomatik SMS'i bu şablonu kullanır (WhatsApp/sosyal kanallar genel İşleme Alındı şablonunda
   kalır). **Aktif** kapalıysa Phone kanalı İşleme Alındı SMS'i gönderilmez. Durum hitabı
@@ -1600,6 +1606,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız Ek görev birimleri + Ek roller düzenlenir; Oluştur ek birim veya ek rol seçilince
   aktif olur (#3428). LDAP Title=`description`,   Phone=`telephoneNumber`, MobilePhone=`mobile`/`mobileTelephoneNumber`/`otherMobile`
   (card #1773/#2902/#2908). Kullanıcılar grid e-Posta yerine Cep Telefonu No gösterir.
+  Yeni / Düzenle Cep Telefonu No gösterimi `5XX XXX XX XX` (`formatTrNationalGrouped`, #3606).
   LDAP senkronunda birim değişince eski birim adı (sistemdeki önceki ad) gösterilir; `—` değil (#2909).
   Personel Dahili No sonuç paneli `left-0` ile sağa açılır (card #1786).
   Talep oluştur ek listesinde dosya adı `text-sm`, uzantı küçük gri (card #1788).
@@ -2214,7 +2221,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kurum içi FAB gizlenir, zoom kontrolleri kapanmaz (#2694). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
-  konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
+  konumlanan pinleri listeler (`--my-request` + `--tickets-grid`, Vatandaş Bilgi Listesi
+  Detaylar ile aynı ölçü; `--all-requests` yok, #3609).
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Harita Konumu Olmayan Talepler** (#2737/#2745).
   Birim haritası konumlanan liste başlığı **Konum Bilgisi Olan Birim Talepleri** (#2745).
   Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha yüksek; genişlik içerik kadar (`w-fit`); Talepleri Listele biraz daha dar padding (`px-1.5` vs `px-2`, #2738).
@@ -3229,7 +3237,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.76rem` / `0.80rem`,
   metin `font-weight: 500` — kural **unlayered**. Talep Tarihi `0.76rem` (#3328).
   Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
-  `(Geciken)` durur; dizin Detaylar Durum punto değişmez (#3291).
+  `(Geciken)` durur; dizin Detaylar Durum `0.70rem` (#3291/#3608).
   Dizin Detaylar + harita Talepleri Listele / pin popup scroll pie gibi tablo `hscroll` içinde;
   popup kenar scrollbar yok (`--tickets-grid`, #3297).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
@@ -3330,6 +3338,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   numara kutusu biraz dar. Ülke değişince numara **silinir** (#3580). TR 10 hane/5 ve
   gösterim `XXX XXX XX XX` (#3581); diğer ülkeler ITU ulusal hane (`getPhoneNsnLength`, #3575/#3579).
   Placeholder TR `5XX XXX XX XX`, diğer ülkeler boş.
+  Çağrı Telefon No yazılan metin `0.8125rem` (#3607).
   Açık ülke listesi paneli `256px` (eski 320’nin %80’i, #3578); açık listedeki bayrak
   `16×12` ve metin `0.78rem` (tetikleyici bayrak/punto aynı kalır).
   Çağrı Mahalle/Cadde/No açık menü punto `0.75rem`, satır `min-height: 1.42rem`,
@@ -3337,13 +3346,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Oluştur ikonu (#3584):** yalnız Vatandaş İş Takip lisansı (kurum içi kapalıyken)
   sol menüde `Phone` (çağrı) **açık mavi** (`text-sky-400`) ve biraz küçük (`size-4`);
   kurum içi lisans açıksa `ClipboardPlus` + `size-4.5` durur.
-- **Operatör + Vatandaş Talepleri Düzenle (#3588/#3594/#3597):** yalnız `Operator` +
-  `detailContext=social`. Düzenle arka plan `#007985` / hover `#006570`. Düzenlemede yalnız
+- **Vatandaş Talepleri Düzenle (#3588/#3594/#3597/#3605):** `detailContext=social` (sayfayı
+  açabilen her rol). Düzenle arka plan `#007985` / hover `#006570`. Düzenlemede yalnız
   Adres Bilgileri, Talep Ekleri, Öncelik, Talep Etiketi değişir; başlık / açıklama / son
-  tarih / vatandaş ad-telefon kilitli (BE `UpdateJob` da korur). Adres Tarifi + Konum Linki
-  yan yana; Adres Tarifi başlığı kolonun %50’si; placeholder `0.60rem`. Mahalle/Cadde açık
-  menü tetikleyiciden −32px, No +36px / kolon `5.6rem`. Adres Tarifi `min-h-[5.5rem]` / ≥4 satır.
-  Diğer roller / Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon adres düzeni durur.
+  tarih / vatandaş ad-telefon kilitli. BE `UpdateJob` kiliti yalnız `Operator` (Taleplerim
+  başlık düzeni diğer rollerde durur). Talep Etiketi dropdown sağa; açık menü = tetikleyici
+  genişliği (#3597). Adres Tarifi + Konum Linki yan yana; etiketler `min-h-[3.5rem]` ile
+  textbox üst hizalı; Adres Tarifi başlığı kolonun %50’si; placeholder `0.56rem`; Konum
+  Linki placeholder `0.70rem`. Mahalle/Cadde açık menü −40px, No +48px / kolon `6.75rem`.
+  Adres Tarifi `min-h-[5.5rem]` / ≥4 satır. Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon
+  adres düzeni durur.
 - **WA Talep oluştur No menü (#3583):** `streetNoMenuWidthExtraPx={36}` (önceki +72).
 - **Detay popup Telefon No (#3574):** `.citizen-contact-phone-value` `0.72rem` (tüm Detaylar).
 

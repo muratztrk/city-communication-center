@@ -1,3 +1,19 @@
+## Round 1179 — Trello Doing (12 web)
+
+- **#3602:** Mesai dışı talep SMS: sahip birim 7/24 olsa bile hedef birim kapalıysa gider.
+- **#3605:** VT Düzenle (turkuaz, kilitli alanlar) sayfayı açan her rolde.
+- **#3597:** VT Düzenle Talep Etiketi sağa; menü = tetikleyici genişliği.
+- **#3594:** No `6.75rem` / −40/+48; Adres Tarifi placeholder `0.56rem`; Konum Linki üst hiza + `0.70rem`.
+- **#3559:** Engellenenler Yapılmakta-stili açık mavi dolgu.
+- **#3604:** Ayarlar başlığı `Vatandaşa Giden SMS Gönderimi "İşleme Alındı" Durumu`.
+- **#3582:** Mesai dışı yönetici başlığı iki satır (müdür/sorumlu/VTY).
+- **#3610:** WA arama `+90` / `+49` ülke kodunu telefon sanır.
+- **#3609:** Harita liste popup = Vatandaş Bilgi Listesi Detaylar boyutu.
+- **#3608:** Dizin Detaylar Durum biraz küçük (`0.70rem`).
+- **#3607:** Çağrı Telefon No yazısı biraz küçük (`0.8125rem`).
+- **#3606:** Kullanıcılar cep `5XX XXX XX XX`.
+- Atlandı: 6 Tim mobil (#3591/#3600/#3599/#3596/#3595/#3598).
+
 ## Round 1178 — Trello Doing (5 web)
 
 - **#3601:** Mesai dışı görev SMS: atanan VTY/sorumlu ikinci SMS alır; müdür atlanır; personel aynı.

@@ -45,7 +45,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
         menuClassName={menuClassName}
         menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
         matchTriggerWidth={operatorSocialLayout}
-        menuWidthExtraPx={operatorSocialLayout ? -32 : 0}
+        menuWidthExtraPx={operatorSocialLayout ? -40 : 0}
         options={neighborhoodOptions}
         value={draft.neighborhood}
         onChange={neighborhood => {
@@ -64,13 +64,13 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
       required={hasNeighborhood}
       labelClassName="text-xs font-semibold text-slate-500"
       openUp
-      className={`grid min-w-0 gap-2 ${operatorSocialLayout ? 'grid-cols-[minmax(0,1fr)_5.6rem]' : 'grid-cols-[minmax(0,1fr)_4.5rem]'}`}
+      className={`grid min-w-0 gap-2 ${operatorSocialLayout ? 'grid-cols-[minmax(0,1fr)_6.75rem]' : 'grid-cols-[minmax(0,1fr)_4.5rem]'}`}
       streetNoColumnClassName=""
       menuClassName={menuClassName}
       menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
       matchTriggerWidth={operatorSocialLayout}
-      streetMenuWidthExtraPx={operatorSocialLayout ? -32 : 0}
-      streetNoMenuWidthExtraPx={operatorSocialLayout ? 36 : 0}
+      streetMenuWidthExtraPx={operatorSocialLayout ? -40 : 0}
+      streetNoMenuWidthExtraPx={operatorSocialLayout ? 48 : 0}
       onStreetChange={street => onChange({ street })}
       onStreetNoChange={streetNo => onChange({ streetNo })}
     />
@@ -78,14 +78,14 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
 
   const openAddressField = (
     <label className="grid min-w-0 gap-1">
-      <span className={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' inline-block max-w-[50%]' : ''}`}>
+      <span className={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' flex min-h-[3.5rem] max-w-[50%] items-end' : ''}`}>
         {t('address.openAddressLabel', 'Açık Adres')}
         {hasNeighborhood ? (
           <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 400 karakter)')}</span>
         ) : null}
       </span>
       <textarea
-        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:text-[0.60rem]' : ' min-h-[2.75rem]'}`}
+        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:text-[0.56rem]' : ' min-h-[2.75rem]'}`}
         placeholder={t('address.openAddressPlaceholder', 'Mevki, daire, kat bilgisi giriniz.')}
         maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
         value={draft.openAddress}
@@ -101,8 +101,8 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
     <AddressCoordinatesField
       value={draft.coordinates}
       onChange={coordinates => onChange({ coordinates })}
-      labelClassName="text-xs font-semibold text-slate-500"
-      inputClassName="placeholder:!text-[0.60rem]"
+      labelClassName={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' flex min-h-[3.5rem] items-end' : ''}`}
+      inputClassName={operatorSocialLayout ? 'placeholder:!text-[0.70rem]' : undefined}
     />
   )
 
@@ -114,7 +114,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
             {neighborhoodField}
             {streetFields}
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
             {openAddressField}
             {coordinatesField}
           </div>

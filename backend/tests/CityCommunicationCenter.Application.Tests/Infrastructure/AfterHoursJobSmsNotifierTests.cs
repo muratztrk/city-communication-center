@@ -168,6 +168,33 @@ public sealed class AfterHoursJobSmsNotifierTests
     }
 
     [Fact]
+    public async Task NotifyJobCreatedAsync_sends_when_target_is_after_hours_even_if_owner_always_open()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+        db.Departments.Add(new Department
+        {
+            TenantId = TenantId,
+            DepartmentId = OtherDepartmentId,
+            Name = "Fen İşleri",
+            DepartmentType = "Müdürlük",
+        });
+        await db.SaveChangesAsync();
+        var gateway = new RecordingSmsGateway();
+        var notifier = new AfterHoursJobSmsNotifier(
+            db,
+            new OwnerAlwaysOpenWorkingHoursService(DepartmentId),
+            gateway,
+            NullLogger<AfterHoursJobSmsNotifier>.Instance);
+
+        var job = CreateJob();
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId, OtherDepartmentId], CancellationToken.None);
+
+        Assert.Single(gateway.Sends);
+        Assert.Equal("905551111111", gateway.Sends[0].Phone);
+    }
+
+    [Fact]
     public async Task NotifyJobCreatedAsync_citizen_request_includes_scoped_vty_with_phone()
     {
         await using var db = CreateDbContext();
@@ -357,6 +384,23 @@ public sealed class AfterHoursJobSmsNotifierTests
 
         public Task<WorkingHoursDescriptor> GetSettingsAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
             Task.FromResult(isAfterHours ? AlwaysAfterHours : AlwaysBusinessHours);
+
+        public Task SaveSettingsAsync(Guid tenantId, WorkingHoursUpdate settings, Guid? actorUserId, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+    }
+
+    private sealed class OwnerAlwaysOpenWorkingHoursService(Guid alwaysOpenDepartmentId) : ITenantWorkingHoursService
+    {
+        private static readonly WorkingHoursSchedule AfterHoursDefault = new(
+            false,
+            Enumerable.Range(0, 7)
+                .Select(day => new WorkingHoursDaySchedule(day, null, null))
+                .ToList());
+
+        public Task<WorkingHoursDescriptor> GetSettingsAsync(Guid tenantId, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new WorkingHoursDescriptor(
+                AfterHoursDefault,
+                [new WorkingHoursDepartmentOverride(alwaysOpenDepartmentId, "Sahip", true, [])]));
 
         public Task SaveSettingsAsync(Guid tenantId, WorkingHoursUpdate settings, Guid? actorUserId, CancellationToken cancellationToken = default) =>
             Task.CompletedTask;

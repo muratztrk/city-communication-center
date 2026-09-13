@@ -67,7 +67,13 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
 
     private async Task NotifyJobCreatedCoreAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken)
     {
-        if (!await IsAfterHoursAsync(job.TenantId, job.OwnerDepartmentId, cancellationToken))
+        var distinctDepartmentIds = DistinctDepartmentIds(departmentIds);
+        if (distinctDepartmentIds.Length == 0)
+        {
+            distinctDepartmentIds = DistinctDepartmentIds([job.OwnerDepartmentId]);
+        }
+
+        if (!await IsAfterHoursForAnyDepartmentAsync(job.TenantId, distinctDepartmentIds, cancellationToken))
         {
             return;
         }
@@ -78,7 +84,6 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             return;
         }
 
-        var distinctDepartmentIds = DistinctDepartmentIds(departmentIds);
         var managerIds = await ResolveManagerRecipientIdsAsync(job, distinctDepartmentIds, cancellationToken);
         await SendTemplateAsync(
             job,
@@ -128,6 +133,25 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         var settings = await _workingHoursService.GetSettingsAsync(tenantId, cancellationToken);
         var schedule = WorkingHoursEvaluator.ResolveSchedule(settings, departmentId);
         return WorkingHoursEvaluator.IsAfterHours(schedule, DateTimeOffset.UtcNow, TurkeyTimeZone);
+    }
+
+    /// <summary>
+    /// Sahip birim 7/24 açık olsa bile hedef birim mesai dışındaysa talep SMS'i gider (#3602).
+    /// </summary>
+    private async Task<bool> IsAfterHoursForAnyDepartmentAsync(
+        Guid tenantId,
+        Guid[] departmentIds,
+        CancellationToken cancellationToken)
+    {
+        foreach (var departmentId in departmentIds)
+        {
+            if (await IsAfterHoursAsync(tenantId, departmentId, cancellationToken))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task<CitizenAutoReplyTemplateModel> LoadTemplatesAsync(Guid tenantId, CancellationToken cancellationToken)

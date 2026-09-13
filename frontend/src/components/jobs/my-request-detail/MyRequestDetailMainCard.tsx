@@ -71,6 +71,8 @@ interface MyRequestInfoFieldsListProps {
   // Öncelik/Proje mi? satırının hemen altında aynı hizada gösterilir (card #1481). Talep Ekleri'nden
   // sonra veri varsa Yönetici Notu satırı da aynı listede eklenebilir (card #1538).
   extraTrailingRows?: { label: ReactNode; value: ReactNode }[]
+  /** Vatandaş Talepleri Düzenle: Talep Etiketi sağa, menü = tetikleyici (#3597). */
+  operatorSocialEdit?: boolean
 }
 
 export function MyRequestInfoFieldsList({
@@ -86,6 +88,7 @@ export function MyRequestInfoFieldsList({
   hideProjectRow = false,
   canEditCitizenContact = false,
   extraTrailingRows,
+  operatorSocialEdit = false,
 }: MyRequestInfoFieldsListProps) {
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   const categoryLabel = t('social.label', 'Talep Etiketi')
@@ -116,12 +119,13 @@ export function MyRequestInfoFieldsList({
                 placeholder={t('jobs.form.priority', 'Öncelik')}
               />
             ) : isEditing && editDraft && onEditDraftChange && field.label === categoryLabel ? (
-              <div className="my-request-detail-edit-control my-request-detail-edit-control--request-tag flex w-full justify-start">
+              <div className={`my-request-detail-edit-control my-request-detail-edit-control--request-tag flex w-full ${operatorSocialEdit ? 'justify-end' : 'justify-start'}`}>
                 <RequestTagPicker
                   tags={requestTags}
                   selectedName={editDraft.category || null}
                   onSelect={name => onEditDraftChange({ category: name })}
                   onClear={() => onEditDraftChange({ category: '' })}
+                  matchTriggerWidth={operatorSocialEdit}
                 />
               </div>
             ) : isEditing && editDraft && onEditDraftChange && canEditCitizenContact && field.label === citizenContactLabel ? (
@@ -555,6 +559,7 @@ export function MyRequestDetailMainCard({
                 hideProjectRow={hideProjectRow || isCitizenRequestJob(detail) || !shouldShowJobProjectField(detail)}
                 canEditCitizenContact={!operatorSocialEdit && citizenSourceMessage?.channel === 'Phone'}
                 extraTrailingRows={trailingInfoRows}
+                operatorSocialEdit={operatorSocialEdit}
               />
             </>
           )}

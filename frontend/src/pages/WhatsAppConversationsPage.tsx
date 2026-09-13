@@ -1793,15 +1793,20 @@ export function WhatsAppConversationsPage() {
   const normalizedSearchPhone = normalizePhone(search)
   const normalizedSearchName = search.trim().toLocaleLowerCase('tr')
   const normalizedSearchTicket = search.replace(/\D/g, '')
-  const searchActive = normalizedSearchPhone.length >= 3
+  // "+90" / "+49" normalize 2 hane olur; + ile başlayan ülke kodunu telefon araması say (#3610).
+  const searchPlusCountry = search.trim().startsWith('+') && normalizedSearchPhone.length >= 2
+  const searchActive = searchPlusCountry
+    || normalizedSearchPhone.length >= 3
     || normalizedSearchName.length >= 3
     || normalizedSearchTicket.length >= 3
   const filtered = useMemo(() => {
     const matches = conversations.filter(conversation => {
       const ticketNumber = conversation.latestCitizenRequestNumber?.toString() ?? ''
+      const matchesPhoneSearch = (searchPlusCountry || normalizedSearchPhone.length >= 3)
+        && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone)
       const matchesSearch = !searchActive
         ? true
-        : (normalizedSearchPhone.length >= 3 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
+        : matchesPhoneSearch
           || (normalizedSearchName.length >= 3 && (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName))
           || (normalizedSearchTicket.length >= 3 && ticketNumber.includes(normalizedSearchTicket))
       if (!matchesSearch) return false
@@ -1826,7 +1831,7 @@ export function WhatsAppConversationsPage() {
       const bTime = new Date(b.lastMessageAt).getTime()
       return bTime - aTime
     })
-  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, searchActive, statusFilter])
+  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, searchActive, searchPlusCountry, statusFilter])
 
   // Sayfa açılışında sağ panel boş kalmasın diye ilk (en üstteki) konuşma otomatik seçilir —
   // tıklandığında açılan görünüm varsayılan olarak gelir. Bir kere tetiklenir; kullanıcının
@@ -2161,7 +2166,7 @@ export function WhatsAppConversationsPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {blockerName || blockerWhen ? (
-                        <div className="flex min-w-[6.5rem] max-w-[9.5rem] flex-col items-center rounded-md border border-sky-200 px-2 py-1 text-sky-500">
+                        <div className="flex min-w-[6.5rem] max-w-[9.5rem] flex-col items-center rounded-md bg-sky-100 px-2 py-1 text-sky-700 ring-1 ring-sky-200">
                           {blockerName ? (
                             <div className="w-full truncate text-center text-xs font-medium leading-none">{blockerName}</div>
                           ) : null}

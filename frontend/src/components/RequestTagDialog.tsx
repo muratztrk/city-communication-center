@@ -218,12 +218,17 @@ interface RequestTagPickerProps {
   showSelectedOnButton?: boolean
   /** Boş seçim buton metni. Vatandaş Talepleri grid → "Etiketler" (#6a6d8fe8). */
   emptyLabel?: string
+  /** Açık menü tetikleyici ile aynı genişlikte (#3597). */
+  matchTriggerWidth?: boolean
 }
 
-function computeTagMenuStyle(button: HTMLDivElement) {
+function computeTagMenuStyle(button: HTMLDivElement, matchTriggerWidth = false) {
   const rect = button.getBoundingClientRect()
   // Menü butondan biraz daha geniş; her zaman aşağı açılır (card #1865).
-  const menuWidth = Math.max(220, Math.min(280, Math.max(rect.width + 40, 220)))
+  // VT Düzenle: menü = tetikleyici (sağ hiza bozulmasın, #3597).
+  const menuWidth = matchTriggerWidth
+    ? Math.round(rect.width)
+    : Math.max(220, Math.min(280, Math.max(rect.width + 40, 220)))
   const left = Math.min(rect.left, window.innerWidth - menuWidth - 8)
   return {
     top: rect.bottom + 4,
@@ -245,6 +250,7 @@ export function RequestTagPicker({
   selectedName = null,
   showSelectedOnButton = true,
   emptyLabel,
+  matchTriggerWidth = false,
 }: RequestTagPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -299,7 +305,7 @@ export function RequestTagPicker({
       return
     }
     if (buttonRef.current) {
-      setMenuStyle(computeTagMenuStyle(buttonRef.current))
+      setMenuStyle(computeTagMenuStyle(buttonRef.current, matchTriggerWidth))
     }
     setOpen(true)
   }

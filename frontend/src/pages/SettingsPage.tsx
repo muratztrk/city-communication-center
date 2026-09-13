@@ -3603,7 +3603,7 @@ export function SettingsPage() {
           <section className="section-card page-stack">
             <div className="page-header-row">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.smsProcessingReceivedTitle', 'SMS Gönderimi İşleme Alındı Durumu')}</h2>
+                <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.routing.smsProcessingReceivedTitle', 'Vatandaşa Giden SMS Gönderimi "İşleme Alındı" Durumu')}</h2>
                 <SettingsActiveSwitch
                   label={citizenAutoReplyTemplates.smsProcessingReceivedEnabled ?? true ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
                   checked={citizenAutoReplyTemplates.smsProcessingReceivedEnabled ?? true}
@@ -3638,7 +3638,7 @@ export function SettingsPage() {
           <section className="section-card page-stack">
             <div className="page-header-row">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.routing.afterHoursManagerSmsTitle')}</h2>
+                <h2 className="whitespace-pre-line text-lg font-extrabold leading-snug text-slate-950">{t('settings.routing.afterHoursManagerSmsTitle')}</h2>
                 <SettingsActiveSwitch
                   label={t('users.active', 'Aktif')}
                   checked={citizenAutoReplyTemplates.afterHoursManagerSmsEnabled ?? true}

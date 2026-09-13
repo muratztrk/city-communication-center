@@ -803,8 +803,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ad üstte ortalı, tarih altında ortalı ve biraz daha küçük (`0.625rem`); Engeli Kaldır’ın
   solunda. Çerçeve grid **Yapılmakta** pili gibi açık mavi dolgu (`bg-sky-100 text-sky-700
   ring-sky-200`) ve **oval** (`rounded-full`, #3559 reopen); engelleyen/tarih çerçevesi dar
-  (`min-w-[5.25rem] max-w-[7.5rem]`, `px-2 py-0.5`, #3559 reopen-2). Satır `items-start`:
-  vatandaş adı ile engelleyen çerçevesi üst hizada (`-mt-px`, #3559 reopen-3).
+  (`min-w-[5.25rem] max-w-[7.5rem]`, `px-2 py-0.5`, #3559 reopen-2).   Satır `items-start`: vatandaş adı ile engelleyen çerçevesi üst hizada (#3559 reopen-3).
+  İsim satırları `leading-snug` (descender kesilmesin, #3559 reopen-4); çerçeve `py-1`.
   Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
@@ -3240,7 +3240,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.76rem` / `0.80rem`,
   metin `font-weight: 500` — kural **unlayered**. Talep Tarihi `0.76rem` (#3328).
   Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
-  `(Geciken)` durur; dizin Detaylar Durum unlayered `0.68rem !important` (#3291/#3608).
+  `(Geciken)` durur; dizin Detaylar Durum unlayered `0.70rem !important` (#3291/#3608).
   Dizin Detaylar + harita Talepleri Listele / pin popup scroll pie gibi tablo `hscroll` içinde;
   popup kenar scrollbar yok (`--tickets-grid`, #3297).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
@@ -3356,8 +3356,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlık düzeni diğer rollerde durur).   Talep Etiketi Düzenle modunda görünür (#3597); dropdown sağa; açık menü = tetikleyici
   genişliği (ekstra px yok). VT grid Talep Etiketi menüsü de tetikleyici genişliği (#3611).
   Düzenle kaydı `operatorSocialEdit` ile tüm VT rolleri (#3597 reopen). Adres Tarifi + Konum
-  Linki yan yana; etiketler `min-h-[3.5rem]` ile textbox üst hizalı; `(max 400 karakter)` başlığın
-  hemen sağında (sağa yaslı değil); placeholder `0.52rem`;
+  Linki yan yana; Adres Tarifi + Konum Linki etiketleri `min-h-[2.75rem] items-end` (#3612);
+  `(max 400 karakter)` başlığın hemen sağında; placeholder `0.48rem` (#3594 reopen);
   Konum Linki placeholder `0.70rem`. No kolon `6.75rem`.
   Adres Tarifi `min-h-[5.5rem]` / ≥4 satır. Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon
   adres düzeni durur.

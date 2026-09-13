@@ -2153,22 +2153,22 @@ export function WhatsAppConversationsPage() {
                     : ''
                   return (
                   <li key={item.citizenConversationId} className="flex items-start justify-between gap-3 py-2 pr-1">
-                    <div className="min-w-0 -mt-px">
+                    <div className="min-w-0">
                       <div className="flex min-w-0 items-center gap-1.5">
                         <Ban className="size-3 shrink-0 text-red-600" aria-hidden="true" />
-                        <span className={`truncate font-semibold leading-none text-slate-900 ${citizenName ? 'text-sm' : 'text-[0.75rem]'}`}>
+                        <span className={`truncate font-semibold leading-snug text-slate-900 ${citizenName ? 'text-sm' : 'text-[0.75rem]'}`}>
                           {citizenName || phoneLabel}
                         </span>
                       </div>
                       {citizenName ? (
-                        <div className="truncate pl-5 pt-1 text-[0.75rem] font-semibold leading-none text-slate-900">{phoneLabel}</div>
+                        <div className="truncate pl-5 pt-1 text-[0.75rem] font-semibold leading-snug text-slate-900">{phoneLabel}</div>
                       ) : null}
                     </div>
-                    <div className="flex shrink-0 items-start gap-2 -mt-px">
+                    <div className="flex shrink-0 items-start gap-2">
                       {blockerName || blockerWhen ? (
-                        <div className="flex min-w-[5.25rem] max-w-[7.5rem] flex-col items-center rounded-full bg-sky-100 px-2 py-0.5 text-sky-700 ring-1 ring-sky-200">
+                        <div className="flex min-w-[5.25rem] max-w-[7.5rem] flex-col items-center rounded-full bg-sky-100 px-2 py-1 text-sky-700 ring-1 ring-sky-200">
                           {blockerName ? (
-                            <div className="w-full truncate text-center text-[0.6875rem] font-medium leading-none">{blockerName}</div>
+                            <div className="w-full truncate text-center text-[0.6875rem] font-medium leading-snug">{blockerName}</div>
                           ) : null}
                           {blockerWhen ? (
                             <div className="grid-status-datetime w-full pt-0.5 text-center text-[0.5625rem] font-medium leading-tight">{blockerWhen}</div>

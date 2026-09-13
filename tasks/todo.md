@@ -1,3 +1,10 @@
+## Round 1184 — Trello Doing (3 web)
+
+- **#3613:** Engellenenler arama + >5 scroll.
+- **#3612:** etiket `min-h-[2.25rem]` reopen.
+- **#3594:** placeholder `0.44rem` reopen.
+- Atlandı: Tim mobil #3595.
+
 ## Round 1183 — Trello Doing (4 web reopen)
 
 - **#3608:** dizin Durum `0.70rem`.

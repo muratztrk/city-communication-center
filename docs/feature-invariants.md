@@ -799,10 +799,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Engeli Kaldır` sağ border kesilmesin diye buton biraz solda (`mr-1` / `pr-1`).
   Satırda Ban ikonu solda, küçük (`size-3`); ad (veya adsızsa numara) Ban ile aynı hizada
   (`items-center`, #3559). Engellenen numara biraz küçük (`0.75rem`); adsız satırda numara
-  tek satırda kalır. Engelleyen + tarih **tek parantez** içinde, grid Durum gibi istif:
-  ad üstte, tarih altında parantezsiz ve biraz daha küçük (`0.625rem`); Engeli Kaldır’ın
+  tek satırda kalır. Engelleyen + tarih **parantezsiz çerçevede**, grid Durum gibi istif:
+  ad üstte ortalı, tarih altında ortalı ve biraz daha küçük (`0.625rem`); Engeli Kaldır’ın
   solunda (#3559).
-  Eski kayıtlarda actor/zaman yoksa parantez/tarih yok.
+  Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
   **WA inbound ses (#3544):** yalnız `Operator` (Vatandaş Talep Operatörü); diğer roller çalmaz.
@@ -1034,8 +1034,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Birim Personeline Mesai Dışı SMS** ayrı kutu (#3305); her ikisinde **Aktif** anahtar
   (#3306). Aktif kapalıysa o kutu gönderilmez. Yönetici kutusu eski kayıtlarda bayrak yoksa
   açıktır; personel kutusu varsayılan kapalı. Personel şablonu **yalnız görev bir kullanıcıya
-  atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider;
-  atanan kişi müdür/sorumlu/VTY ise ikinci SMS atılmaz (talep SMS'i yeterli).
+  atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider.
+  Standart personel aynı; salt müdür atlanır. Atanan VTY veya birim sorumlusu talep SMS'inden
+  sonra yalnız kendisine ikinci (görev) SMS alır (#3601).
   **SMS Gönderimi İşleme Alındı Durumu** (#3386): Vatandaşa Giden Cevaplar ile mesai dışı SMS
   kutularının arasında ayrı bölüm; yalnız `Phone` kanalından gelen taleplerde `İşleme Alındı`
   otomatik SMS'i bu şablonu kullanır (WhatsApp/sosyal kanallar genel İşleme Alındı şablonunda
@@ -3331,16 +3332,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Placeholder TR `5XX XXX XX XX`, diğer ülkeler boş.
   Açık ülke listesi paneli `256px` (eski 320’nin %80’i, #3578); açık listedeki bayrak
   `16×12` ve metin `0.78rem` (tetikleyici bayrak/punto aynı kalır).
-  Çağrı Mahalle/Cadde/No açık menü punto `0.75rem`, satır `min-height: 1.55rem`,
-  satır içi metin biraz aşağı (`padding-top: 0.32rem`, #3585).
+  Çağrı Mahalle/Cadde/No açık menü punto `0.75rem`, satır `min-height: 1.42rem`,
+  satır içi metin biraz aşağı (`padding-top: 0.26rem`, #3585).
 - **Talep Oluştur ikonu (#3584):** yalnız Vatandaş İş Takip lisansı (kurum içi kapalıyken)
   sol menüde `Phone` (çağrı) **açık mavi** (`text-sky-400`) ve biraz küçük (`size-4`);
   kurum içi lisans açıksa `ClipboardPlus` + `size-4.5` durur.
-- **Operatör + Vatandaş Talepleri Düzenle (#3588):** yalnız `Operator` + `detailContext=social`.
-  Düzenle arka plan `#007985` / hover `#006570`. Adres Tarifi başlık+kutu alt satır;
-  Mahalle/Cadde/No açık menü dar (`--compact`, trigger genişliği); placeholder `0.72rem`.
-  Mahalle/Cadde açık menü tetikleyiciden −20px, No +24px (#3594). Adres Tarifi kutusu
-  `min-h-[5.5rem]` / en az 4 satır; placeholder `0.66rem`.
+- **Operatör + Vatandaş Talepleri Düzenle (#3588/#3594/#3597):** yalnız `Operator` +
+  `detailContext=social`. Düzenle arka plan `#007985` / hover `#006570`. Düzenlemede yalnız
+  Adres Bilgileri, Talep Ekleri, Öncelik, Talep Etiketi değişir; başlık / açıklama / son
+  tarih / vatandaş ad-telefon kilitli (BE `UpdateJob` da korur). Adres Tarifi + Konum Linki
+  yan yana; Adres Tarifi başlığı kolonun %50’si; placeholder `0.60rem`. Mahalle/Cadde açık
+  menü tetikleyiciden −32px, No +36px / kolon `5.6rem`. Adres Tarifi `min-h-[5.5rem]` / ≥4 satır.
   Diğer roller / Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon adres düzeni durur.
 - **WA Talep oluştur No menü (#3583):** `streetNoMenuWidthExtraPx={36}` (önceki +72).
 - **Detay popup Telefon No (#3574):** `.citizen-contact-phone-value` `0.72rem` (tüm Detaylar).

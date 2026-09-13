@@ -108,7 +108,9 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
 
         var notifyDepartmentIds = await ResolveJobNotifyDepartmentIdsAsync(job, cancellationToken);
         var managerIds = await ResolveManagerRecipientIdsAsync(job, notifyDepartmentIds, cancellationToken);
-        if (managerIds.Contains(assigneeUserId))
+        if (managerIds.Contains(assigneeUserId)
+            && !await AllowsSecondAfterHoursAssignmentSmsAsync(
+                job, assigneeUserId, notifyDepartmentIds, cancellationToken))
         {
             return;
         }
@@ -187,6 +189,45 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         await AddScopedCitizenRequestManagerRecipientsAsync(job, recipientIds, cancellationToken);
 
         return recipientIds;
+    }
+
+    /// <summary>
+    /// Talep SMS'ini almış kümede olsa da atanan VTY veya birim sorumlusu ikinci
+    /// (görev) SMS'i alır. Salt müdür atlanır; standart personel yolu değişmez.
+    /// </summary>
+    private async Task<bool> AllowsSecondAfterHoursAssignmentSmsAsync(
+        Job job,
+        Guid assigneeUserId,
+        Guid[] distinctDepartmentIds,
+        CancellationToken cancellationToken)
+    {
+        var user = await _dbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                entity => entity.TenantId == job.TenantId && entity.UserId == assigneeUserId,
+                cancellationToken);
+        if (user is null)
+        {
+            return false;
+        }
+
+        if (UserRoleAccess.IsCitizenRequestManager(user))
+        {
+            return true;
+        }
+
+        if (distinctDepartmentIds.Length == 0)
+        {
+            return false;
+        }
+
+        var responsibleJsons = await _dbContext.Departments
+            .AsNoTracking()
+            .Where(department => department.TenantId == job.TenantId && distinctDepartmentIds.Contains(department.DepartmentId))
+            .Select(department => department.ResponsibleUserIdsJson)
+            .ToListAsync(cancellationToken);
+
+        return responsibleJsons.Any(json => ParseResponsibleUserIds(json).Contains(assigneeUserId));
     }
 
     /// <summary>

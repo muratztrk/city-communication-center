@@ -8,6 +8,7 @@ interface AddressCoordinatesFieldProps {
   value: string
   onChange: (value: string) => void
   labelClassName?: string
+  inputClassName?: string
 }
 
 /** Konum Koordinatı: taşan metin ellipsis + 500ms hover tooltip (#2725/#2763). */
@@ -15,6 +16,7 @@ export function AddressCoordinatesField({
   value,
   onChange,
   labelClassName = 'text-sm font-semibold text-slate-500',
+  inputClassName,
 }: AddressCoordinatesFieldProps) {
   const { t } = useTranslation()
   const [showTip, setShowTip] = useState(false)
@@ -29,7 +31,7 @@ export function AddressCoordinatesField({
       <input
         type="text"
         inputMode="url"
-        className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] placeholder:text-[14px]"
+        className={`field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] placeholder:text-[14px]${inputClassName ? ` ${inputClassName}` : ''}`}
         placeholder={t('address.coordinatesPlaceholder', 'Link giriniz...')}
         value={value}
         onChange={event => onChange(event.target.value)}

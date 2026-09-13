@@ -99,6 +99,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         var previousOpenAddress = job.OpenAddress;
         var previousCitizenName = job.CitizenName;
         var previousCitizenPhone = job.CitizenPhone;
+        var previousLocationMapsUrl = job.LocationMapsUrl;
         var previousIsProject = job.IsProject;
         var previousIsProjectCreatorRequested = job.IsProjectCreatorRequested;
         job.Title = request.Title;
@@ -135,6 +136,16 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         if (request.LocationMapsUrl is not null) job.LocationMapsUrl = string.IsNullOrWhiteSpace(request.LocationMapsUrl) ? null : request.LocationMapsUrl.Trim();
         if (request.CitizenName is not null) job.CitizenName = string.IsNullOrWhiteSpace(request.CitizenName) ? null : request.CitizenName.Trim();
         if (request.CitizenPhone is not null) job.CitizenPhone = string.IsNullOrWhiteSpace(request.CitizenPhone) ? null : request.CitizenPhone.Trim();
+        // Operatör VT Düzenle: yalnız öncelik / adres / konum / ekler / etiket (#3597).
+        if (canOperatorEditCitizenRequest)
+        {
+            job.Title = previousTitle;
+            job.Description = previousDescription;
+            job.StartDateUtc = previousStartDateUtc;
+            job.DueDateUtc = previousDueDateUtc;
+            job.CitizenName = previousCitizenName;
+            job.CitizenPhone = previousCitizenPhone;
+        }
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
 
@@ -217,6 +228,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             || previousOpenAddress != job.OpenAddress
             || previousCitizenName != job.CitizenName
             || previousCitizenPhone != job.CitizenPhone
+            || previousLocationMapsUrl != job.LocationMapsUrl
             || previousIsProject != job.IsProject
             || previousIsProjectCreatorRequested != job.IsProjectCreatorRequested;
         if (dueDateChanged)

@@ -132,7 +132,7 @@ public sealed class AfterHoursJobSmsNotifierTests
     }
 
     [Fact]
-    public async Task NotifyTaskAssignedAsync_skips_vty_already_notified_on_citizen_source()
+    public async Task NotifyTaskAssignedAsync_sends_second_sms_to_assigned_vty()
     {
         await using var db = CreateDbContext();
         await SeedAsync(db, crmPhone: "905559999999");
@@ -143,7 +143,28 @@ public sealed class AfterHoursJobSmsNotifierTests
         var job = CreateJob(JobRequestType.ExternalUnit, JobSourceType.SocialMessage);
         await notifier.NotifyTaskAssignedAsync(job, CrmId, DepartmentId, CancellationToken.None);
 
-        Assert.Empty(gateway.Sends);
+        Assert.Single(gateway.Sends);
+        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
+        Assert.Equal("905559999999", gateway.Sends[0].Phone);
+    }
+
+    [Fact]
+    public async Task NotifyTaskAssignedAsync_sends_second_sms_to_assigned_responsible()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+        var responsible = await db.Users.SingleAsync(user => user.UserId == ResponsibleId);
+        responsible.MobilePhone = "905553333333";
+        await db.SaveChangesAsync();
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+
+        var job = CreateJob();
+        await notifier.NotifyTaskAssignedAsync(job, ResponsibleId, DepartmentId, CancellationToken.None);
+
+        Assert.Single(gateway.Sends);
+        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
+        Assert.Equal("905553333333", gateway.Sends[0].Phone);
     }
 
     [Fact]

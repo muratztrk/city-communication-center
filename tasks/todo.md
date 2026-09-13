@@ -1,3 +1,12 @@
+## Round 1178 — Trello Doing (5 web)
+
+- **#3601:** Mesai dışı görev SMS: atanan VTY/sorumlu ikinci SMS alır; müdür atlanır; personel aynı.
+- **#3597:** Operatör VT Düzenle yalnız adres / ekler / öncelik / etiket.
+- **#3594:** Operatör adres: menü −32/+36, Adres Tarifi başlık %50, sağda Konum Linki, placeholder `0.60rem`.
+- **#3559:** Engellenenler: parantez yok, çerçeve, tarih ortalı.
+- **#3585:** Çağrı adres menü satırı biraz daha kısa.
+- Atlandı: 6 Tim mobil (#3591/#3600/#3599/#3596/#3595/#3598).
+
 ## Round 1177 — Trello Doing (1 web)
 
 - **#3594:** Operatör VT Düzenle: Mahalle/Cadde menü −20px, No +24px; Adres Tarifi 2× yükseklik; placeholder `0.66rem`.

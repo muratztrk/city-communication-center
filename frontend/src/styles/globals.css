@@ -2517,9 +2517,9 @@
   .citizen-call-address-menu .dropdown-menu-item,
   .citizen-call-address-menu .dropdown-menu-item span {
     font-size: 0.75rem !important;
-    min-height: 1.55rem;
-    padding-top: 0.32rem;
-    padding-bottom: 0.12rem;
+    min-height: 1.42rem;
+    padding-top: 0.26rem;
+    padding-bottom: 0.08rem;
     line-height: 1.15;
   }
 

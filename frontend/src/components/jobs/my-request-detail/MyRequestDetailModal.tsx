@@ -216,6 +216,7 @@ export function MyRequestDetailModal({
           priorityInInfoHeader
           hideProjectRow={forceCitizenDetailCards}
           citizenOutboundMessage={outboundMessage}
+          operatorSocialEdit={operatorSocialEdit}
           infoExtraTrailingRows={isStandardUser && !forceCitizenDetailCards ? [
             ...(showManagerNoteColumn && detail.managerNote?.trim()
               ? [{

@@ -243,6 +243,8 @@ interface MyRequestDetailMainCardProps {
   forceShowOwnerApproval?: boolean
   /** Görev oluşmadan iptal edilen VT — Talep Bilgileri kırmızı notlar (#3490). */
   citizenOutboundMessage?: string | null
+  /** Operatör + Vatandaş Talepleri Düzenle: yalnız öncelik/etiket (#3597). */
+  operatorSocialEdit?: boolean
 }
 
 export function MyRequestDetailMainCard({
@@ -280,6 +282,7 @@ export function MyRequestDetailMainCard({
   priorityInInfoHeader = false,
   hideProjectRow = false,
   forceShowOwnerApproval = false,
+  operatorSocialEdit = false,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -351,7 +354,12 @@ export function MyRequestDetailMainCard({
   const requestNumberText = isCitizenRequestJob(detail)
     ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
     : formatJobDisplayNumberText(detail, locale)
-  const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
+  const lockOperatorCore = operatorSocialEdit && isEditing
+  const dueDateContent = lockOperatorCore ? (
+    <div className="flex flex-wrap items-center gap-2">
+      <TimelineDateTimeValue utc={detail.dueDateUtc} locale={locale} />
+    </div>
+  ) : isEditing && editDraft && onEditDraftChange ? (
     <div className="my-request-detail-edit-due-date">
       <DateTimePicker
         value={editDraft.dueDateUtc}
@@ -458,7 +466,7 @@ export function MyRequestDetailMainCard({
             <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
               <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
                 <span className="min-w-0 overflow-hidden">
-                  {isEditing && editDraft && onEditDraftChange ? (
+                  {isEditing && editDraft && onEditDraftChange && !operatorSocialEdit ? (
                     <textarea
                       className="field-textarea my-request-title-heading-edit__textarea font-semibold"
                       value={editDraft.title}
@@ -479,7 +487,7 @@ export function MyRequestDetailMainCard({
             </MyRequestSectionHeading>
           ) : null}
           {leftColumnBelowHeading ?? (
-            isEditing && editDraft && onEditDraftChange ? (
+            isEditing && editDraft && onEditDraftChange && !operatorSocialEdit ? (
               <RichTextEditor
                 value={editDraft.description}
                 onChange={value => onEditDraftChange({ description: value })}
@@ -545,7 +553,7 @@ export function MyRequestDetailMainCard({
                 hidePriorityRow={priorityInInfoHeader}
                 // Vatandaş talebinde Proje mi anlamsız — UI + yazdır (#r465/#r466).
                 hideProjectRow={hideProjectRow || isCitizenRequestJob(detail) || !shouldShowJobProjectField(detail)}
-                canEditCitizenContact={citizenSourceMessage?.channel === 'Phone'}
+                canEditCitizenContact={!operatorSocialEdit && citizenSourceMessage?.channel === 'Phone'}
                 extraTrailingRows={trailingInfoRows}
               />
             </>

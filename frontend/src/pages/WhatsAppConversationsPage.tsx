@@ -2161,17 +2161,13 @@ export function WhatsAppConversationsPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {blockerName || blockerWhen ? (
-                        <div className="flex min-w-0 items-stretch gap-px text-sky-500">
-                          <span className={`self-start font-medium leading-none ${blockerName ? 'text-xs' : 'text-[0.625rem]'}`}>(</span>
-                          <div className="min-w-0 text-left leading-tight">
-                            {blockerName ? (
-                              <div className="truncate text-xs font-medium leading-none">{blockerName}</div>
-                            ) : null}
-                            {blockerWhen ? (
-                              <div className="grid-status-datetime truncate pt-0.5 text-[0.625rem] font-medium leading-tight">{blockerWhen}</div>
-                            ) : null}
-                          </div>
-                          <span className={`self-end font-medium leading-none ${blockerWhen ? 'text-[0.625rem]' : 'text-xs'}`}>)</span>
+                        <div className="flex min-w-[6.5rem] max-w-[9.5rem] flex-col items-center rounded-md border border-sky-200 px-2 py-1 text-sky-500">
+                          {blockerName ? (
+                            <div className="w-full truncate text-center text-xs font-medium leading-none">{blockerName}</div>
+                          ) : null}
+                          {blockerWhen ? (
+                            <div className="grid-status-datetime w-full pt-0.5 text-center text-[0.625rem] font-medium leading-tight">{blockerWhen}</div>
+                          ) : null}
                         </div>
                       ) : null}
                       {user?.role === 'Operator' || user?.role === 'SystemAdmin' ? (

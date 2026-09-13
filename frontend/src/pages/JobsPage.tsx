@@ -65,7 +65,8 @@ import {
 } from '../utils/citizenRequests'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
-import { displayMapsLink } from '../utils/coordinates'
+import { displayMapsLink, originalGoogleMapsUrl } from '../utils/coordinates'
+import { resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { hasCitizenRequestManagerRole, canCitizenRequestManagerActOnRow } from '../utils/roleAccess'
@@ -1637,12 +1638,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }
 
   const handleSaveMyRequestEdit = async () => {
-    if (!detail || !myRequestEditDraft || !myRequestEditDraft.title.trim()) return
+    if (!detail || !myRequestEditDraft || (!operatorSocialEdit && !myRequestEditDraft.title.trim())) return
     setMyRequestEditSaving(true)
     setError(null)
     try {
       // Çağrı kanalı — 10 hane zorunlu; uyarı modal içinde (#6a6d903e).
-      const isPhoneCitizenEdit = citizenSourceMessage?.channel === 'Phone'
+      // Operatör VT Düzenle vatandaş ad/telefon kilidi (#3597).
+      const isPhoneCitizenEdit = !operatorSocialEdit && citizenSourceMessage?.channel === 'Phone'
       const nextCitizenName = isPhoneCitizenEdit
         ? (myRequestEditDraft.citizenName.trim() || null)
         : undefined
@@ -1676,19 +1678,28 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         setMyRequestEditSaving(false)
         return
       }
+      const resolvedCoordinates = operatorSocialEdit && myRequestEditDraft.coordinates.trim()
+        ? await resolveGoogleMapsCoordinatePair(myRequestEditDraft.coordinates)
+        : null
       await api.updateJob(detail.jobId, {
-        title: myRequestEditDraft.title.trim(),
-        description: myRequestEditDraft.description,
+        title: operatorSocialEdit ? detail.title : myRequestEditDraft.title.trim(),
+        description: operatorSocialEdit ? (detail.description ?? '') : myRequestEditDraft.description,
         priority: myRequestEditDraft.priority,
         startDateUtc: detail.startDateUtc,
-        dueDateUtc: myRequestEditDraft.dueDateUtc ? new Date(myRequestEditDraft.dueDateUtc).toISOString() : null,
-        latitude: detail.latitude,
-        longitude: detail.longitude,
+        dueDateUtc: operatorSocialEdit
+          ? detail.dueDateUtc
+          : (myRequestEditDraft.dueDateUtc ? new Date(myRequestEditDraft.dueDateUtc).toISOString() : null),
+        latitude: resolvedCoordinates?.latitude ?? detail.latitude,
+        longitude: resolvedCoordinates?.longitude ?? detail.longitude,
         isProject: detail.isProject,
         neighborhood: myRequestEditDraft.neighborhood || null,
         street: normalizeTitleCaseField(myRequestEditDraft.street),
         streetNo: myRequestEditDraft.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(myRequestEditDraft.openAddress),
+        ...(operatorSocialEdit ? {
+          locationMapsUrl: originalGoogleMapsUrl(myRequestEditDraft.coordinates)
+            ?? (myRequestEditDraft.coordinates.trim() || ''),
+        } : {}),
         ...(isPhoneCitizenEdit ? {
           citizenName: nextCitizenName,
           citizenPhone: nextCitizenPhoneDigits,

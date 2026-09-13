@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getNeighborhoodsForDistrict } from '../../../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../../../hooks/useMunicipalityDistrictId'
-import { CbsStreetNoDropdowns } from '../../address/CbsStreetNoDropdowns'
+import { AddressCoordinatesField, CbsStreetNoDropdowns } from '../../address/CbsStreetNoDropdowns'
 import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
 import { stringListSelectOptions } from '../../../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../../../utils/addressLimits'
@@ -45,7 +45,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
         menuClassName={menuClassName}
         menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
         matchTriggerWidth={operatorSocialLayout}
-        menuWidthExtraPx={operatorSocialLayout ? -20 : 0}
+        menuWidthExtraPx={operatorSocialLayout ? -32 : 0}
         options={neighborhoodOptions}
         value={draft.neighborhood}
         onChange={neighborhood => {
@@ -64,13 +64,13 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
       required={hasNeighborhood}
       labelClassName="text-xs font-semibold text-slate-500"
       openUp
-      className={`grid min-w-0 gap-2 ${operatorSocialLayout ? 'grid-cols-[minmax(0,1fr)_5.15rem]' : 'grid-cols-[minmax(0,1fr)_4.5rem]'}`}
+      className={`grid min-w-0 gap-2 ${operatorSocialLayout ? 'grid-cols-[minmax(0,1fr)_5.6rem]' : 'grid-cols-[minmax(0,1fr)_4.5rem]'}`}
       streetNoColumnClassName=""
       menuClassName={menuClassName}
       menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
       matchTriggerWidth={operatorSocialLayout}
-      streetMenuWidthExtraPx={operatorSocialLayout ? -20 : 0}
-      streetNoMenuWidthExtraPx={operatorSocialLayout ? 24 : 0}
+      streetMenuWidthExtraPx={operatorSocialLayout ? -32 : 0}
+      streetNoMenuWidthExtraPx={operatorSocialLayout ? 36 : 0}
       onStreetChange={street => onChange({ street })}
       onStreetNoChange={streetNo => onChange({ streetNo })}
     />
@@ -78,14 +78,14 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
 
   const openAddressField = (
     <label className="grid min-w-0 gap-1">
-      <span className="text-xs font-semibold text-slate-500">
+      <span className={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' inline-block max-w-[50%]' : ''}`}>
         {t('address.openAddressLabel', 'Açık Adres')}
         {hasNeighborhood ? (
           <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 400 karakter)')}</span>
         ) : null}
       </span>
       <textarea
-        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:text-[0.66rem]' : ' min-h-[2.75rem]'}`}
+        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:text-[0.60rem]' : ' min-h-[2.75rem]'}`}
         placeholder={t('address.openAddressPlaceholder', 'Mevki, daire, kat bilgisi giriniz.')}
         maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
         value={draft.openAddress}
@@ -97,6 +97,15 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
     </label>
   )
 
+  const coordinatesField = (
+    <AddressCoordinatesField
+      value={draft.coordinates}
+      onChange={coordinates => onChange({ coordinates })}
+      labelClassName="text-xs font-semibold text-slate-500"
+      inputClassName="placeholder:!text-[0.60rem]"
+    />
+  )
+
   return (
     <div className="my-request-edit-fields grid gap-3">
       {operatorSocialLayout ? (
@@ -105,7 +114,10 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
             {neighborhoodField}
             {streetFields}
           </div>
-          {openAddressField}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {openAddressField}
+            {coordinatesField}
+          </div>
         </>
       ) : (
         <div className="my-request-edit-address-grid grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1.2fr)]">

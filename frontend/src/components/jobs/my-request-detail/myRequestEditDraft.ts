@@ -1,4 +1,5 @@
 import type { JobDetail, SocialMessage } from '../../../types/platform'
+import { displayMapsLink } from '../../../utils/coordinates'
 import { toDateTimePickerValue } from '../../../utils/dateTimePicker'
 
 export interface MyRequestEditDraft {
@@ -10,6 +11,8 @@ export interface MyRequestEditDraft {
   street: string
   streetNo: string
   openAddress: string
+  /** Konum Linki — Operatör VT Düzenle (#3594). */
+  coordinates: string
   /** Vatandaş talep etiketi (Operator/CRM düzenleme — card #1896 reopen). */
   category: string
   /** Çağrı kanalı düzenlemede ad/telefon (#6a6d903e). */
@@ -38,6 +41,7 @@ export function buildMyRequestEditDraft(
     street: detail.street ?? '',
     streetNo: detail.streetNo ?? '',
     openAddress: detail.openAddress ?? '',
+    coordinates: displayMapsLink(detail.locationMapsUrl, detail.latitude, detail.longitude),
     category: citizenSourceMessage?.category?.trim() ?? '',
     citizenName: detail.citizenName?.trim()
       || citizenSourceMessage?.citizenName?.trim()

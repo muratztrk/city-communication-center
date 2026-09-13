@@ -85,6 +85,12 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         }
 
         var managerIds = await ResolveManagerRecipientIdsAsync(job, distinctDepartmentIds, cancellationToken);
+        foreach (var selfAssignedId in await ResolveSelfAssignedManagerSmsExclusionIdsAsync(
+                     job, distinctDepartmentIds, cancellationToken))
+        {
+            managerIds.Remove(selfAssignedId);
+        }
+
         await SendTemplateAsync(
             job,
             templates.AfterHoursManagerSms,
@@ -113,7 +119,9 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
 
         var notifyDepartmentIds = await ResolveJobNotifyDepartmentIdsAsync(job, cancellationToken);
         var managerIds = await ResolveManagerRecipientIdsAsync(job, notifyDepartmentIds, cancellationToken);
+        var isSelfAssigned = await IsUserAssignedToJobTaskAsync(job, assigneeUserId, cancellationToken);
         if (managerIds.Contains(assigneeUserId)
+            && !isSelfAssigned
             && !await AllowsSecondAfterHoursAssignmentSmsAsync(
                 job, assigneeUserId, notifyDepartmentIds, cancellationToken))
         {
@@ -213,6 +221,77 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         await AddScopedCitizenRequestManagerRecipientsAsync(job, recipientIds, cancellationToken);
 
         return recipientIds;
+    }
+
+    /// <summary>
+    /// Müdür/sorumlu/VTY görevi kendine atadığında yönetici SMS'i yerine yalnız görev SMS'i (#3620).
+    /// </summary>
+    private async Task<HashSet<Guid>> ResolveSelfAssignedManagerSmsExclusionIdsAsync(
+        Job job,
+        Guid[] distinctDepartmentIds,
+        CancellationToken cancellationToken)
+    {
+        var assigneeIds = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(task => task.TenantId == job.TenantId
+                && task.JobId == job.JobId
+                && task.AssignedUserId != null)
+            .Select(task => task.AssignedUserId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        if (assigneeIds.Count == 0)
+        {
+            return [];
+        }
+
+        var exclusions = new HashSet<Guid>();
+        foreach (var assigneeId in assigneeIds)
+        {
+            if (await IsAfterHoursManagerSmsRecipientAsync(
+                    job, assigneeId, distinctDepartmentIds, cancellationToken))
+            {
+                exclusions.Add(assigneeId);
+            }
+        }
+
+        return exclusions;
+    }
+
+    private Task<bool> IsUserAssignedToJobTaskAsync(
+        Job job,
+        Guid userId,
+        CancellationToken cancellationToken) =>
+        _dbContext.Tasks
+            .AsNoTracking()
+            .AnyAsync(
+                task => task.TenantId == job.TenantId
+                    && task.JobId == job.JobId
+                    && task.AssignedUserId == userId,
+                cancellationToken);
+
+    private async Task<bool> IsAfterHoursManagerSmsRecipientAsync(
+        Job job,
+        Guid userId,
+        Guid[] distinctDepartmentIds,
+        CancellationToken cancellationToken)
+    {
+        if (distinctDepartmentIds.Length > 0)
+        {
+            var isManager = await _dbContext.Departments
+                .AsNoTracking()
+                .AnyAsync(
+                    department => department.TenantId == job.TenantId
+                        && distinctDepartmentIds.Contains(department.DepartmentId)
+                        && department.ManagerUserId == userId,
+                    cancellationToken);
+            if (isManager)
+            {
+                return true;
+            }
+        }
+
+        return await AllowsSecondAfterHoursAssignmentSmsAsync(
+            job, userId, distinctDepartmentIds, cancellationToken);
     }
 
     /// <summary>

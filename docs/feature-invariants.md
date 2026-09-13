@@ -805,8 +805,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ring-sky-200`) ve **oval** (`rounded-full`, #3559 reopen); engelleyen/tarih çerçevesi dar
   (`min-w-[5.25rem] max-w-[7.5rem]`, `px-2 py-0.5`, #3559 reopen-2).   Satır `items-start`: vatandaş adı ile engelleyen çerçevesi üst hizada (#3559 reopen-3).
   İsim satırları `leading-snug` (descender kesilmesin, #3559 reopen-4); çerçeve `py-1`.
-  Başlık satırında dar arama (`w-[9.75rem] h-7`, placeholder **Telefon No, vatandaş adı...**,
-  #3613 reopen); doluysa kırmızı X + `cursor-pointer` (#3614). >5 kayıtta liste
+  Başlık satırında dar arama (`w-[11.5rem] h-6`, placeholder **Telefon No, vatandaş adı...**,
+  yazı `text-xs`, #3613/#3618 reopen); doluysa kırmızı X `right-2` + `cursor-pointer` (#3614/#3619).
+  >5 kayıtta liste
   `max-h-[16.25rem] overflow-y-auto`.
   Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
@@ -1047,7 +1048,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açıktır; personel kutusu varsayılan kapalı. Personel şablonu **yalnız görev bir kullanıcıya
   atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider.
   Standart personel aynı; salt müdür atlanır. Atanan VTY veya birim sorumlusu talep SMS'inden
-  sonra yalnız kendisine ikinci (görev) SMS alır (#3601).
+  sonra yalnız kendisine ikinci (görev) SMS alır (#3601). Müdür/sorumlu/VTY görevi **kendine**
+  atadığında yönetici SMS'i atlanır; yalnız görev SMS'i gider (#3620).
   **Vatandaşa Giden SMS Gönderimi "İşleme Alındı" Durumu** (#3386/#3604): Vatandaşa Giden Cevaplar ile mesai dışı SMS
   kutularının arasında ayrı bölüm; yalnız `Phone` kanalından gelen taleplerde `İşleme Alındı`
   otomatik SMS'i bu şablonu kullanır (WhatsApp/sosyal kanallar genel İşleme Alındı şablonunda

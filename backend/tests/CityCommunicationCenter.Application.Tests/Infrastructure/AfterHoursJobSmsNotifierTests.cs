@@ -82,6 +82,24 @@ public sealed class AfterHoursJobSmsNotifierTests
     }
 
     [Fact]
+    public async Task NotifyJobCreatedAsync_self_assigned_manager_gets_task_sms_only()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+        await SeedSelfAssignedTaskAsync(db, ManagerId);
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+
+        var job = CreateJob();
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyTaskAssignedAsync(job, ManagerId, DepartmentId, CancellationToken.None);
+
+        Assert.Single(gateway.Sends);
+        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
+        Assert.Equal("905551111111", gateway.Sends[0].Phone);
+    }
+
+    [Fact]
     public async Task NotifyJobCreatedAsync_excludes_deputy_manager()
     {
         await using var db = CreateDbContext();
@@ -250,6 +268,24 @@ public sealed class AfterHoursJobSmsNotifierTests
             DepartmentId = DepartmentId,
             Role = JobDepartmentRole.Target,
             ApprovalStatus = JobApprovalStatus.Pending,
+        });
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task SeedSelfAssignedTaskAsync(CityCommunicationCenterDbContext db, Guid assigneeUserId)
+    {
+        db.Tasks.Add(new WorkTask
+        {
+            TaskId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            TenantId = TenantId,
+            JobId = JobId,
+            Title = "Test",
+            Description = "Test",
+            AssignedDepartmentId = DepartmentId,
+            AssignedUserId = assigneeUserId,
+            OwnerUserId = assigneeUserId,
+            CurrentStatus = CityCommunicationCenter.Domain.Enums.TaskStatus.Assigned,
+            Priority = "Normal",
         });
         await db.SaveChangesAsync();
     }

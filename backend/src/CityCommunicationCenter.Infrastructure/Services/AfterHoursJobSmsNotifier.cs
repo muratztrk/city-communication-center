@@ -65,14 +65,64 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         }
     }
 
+    public async Task NotifyFirstAssignmentAsync(
+        Job job,
+        Guid assigneeUserId,
+        Guid? assignedDepartmentId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await NotifyFirstAssignmentCoreAsync(job, assigneeUserId, assignedDepartmentId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Mesai dışı ilk atama yönetici SMS bildirimi başarısız oldu. JobId={JobId} AssigneeUserId={AssigneeUserId}",
+                job.JobId,
+                assigneeUserId);
+        }
+    }
+
     private async Task NotifyJobCreatedCoreAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken)
     {
-        var distinctDepartmentIds = DistinctDepartmentIds(departmentIds);
-        if (distinctDepartmentIds.Length == 0)
+        if (!await HasAssignedTasksAsync(job, cancellationToken))
         {
-            distinctDepartmentIds = DistinctDepartmentIds([job.OwnerDepartmentId]);
+            return;
         }
 
+        var distinctDepartmentIds = ResolveDistinctDepartmentIds(departmentIds, job);
+        await SendManagerSmsAsync(job, distinctDepartmentIds, additionalExclusions: null, cancellationToken);
+    }
+
+    private async Task NotifyFirstAssignmentCoreAsync(
+        Job job,
+        Guid assigneeUserId,
+        Guid? assignedDepartmentId,
+        CancellationToken cancellationToken)
+    {
+        if (await HasOtherAssignedTasksAsync(job, assigneeUserId, cancellationToken))
+        {
+            return;
+        }
+
+        var distinctDepartmentIds = await ResolveAssignmentDepartmentIdsAsync(job, assignedDepartmentId, cancellationToken);
+        HashSet<Guid>? additionalExclusions = null;
+        if (await IsAfterHoursManagerSmsRecipientAsync(job, assigneeUserId, distinctDepartmentIds, cancellationToken))
+        {
+            additionalExclusions = [assigneeUserId];
+        }
+
+        await SendManagerSmsAsync(job, distinctDepartmentIds, additionalExclusions, cancellationToken);
+    }
+
+    private async Task SendManagerSmsAsync(
+        Job job,
+        Guid[] distinctDepartmentIds,
+        HashSet<Guid>? additionalExclusions,
+        CancellationToken cancellationToken)
+    {
         if (!await IsAfterHoursForAnyDepartmentAsync(job.TenantId, distinctDepartmentIds, cancellationToken))
         {
             return;
@@ -89,6 +139,14 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
                      job, distinctDepartmentIds, cancellationToken))
         {
             managerIds.Remove(selfAssignedId);
+        }
+
+        if (additionalExclusions is not null)
+        {
+            foreach (var excludedId in additionalExclusions)
+            {
+                managerIds.Remove(excludedId);
+            }
         }
 
         await SendTemplateAsync(
@@ -459,6 +517,51 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             .Where(id => id != Guid.Empty)
             .Distinct()
             .ToArray();
+
+    private static Guid[] ResolveDistinctDepartmentIds(IReadOnlyCollection<Guid> departmentIds, Job job)
+    {
+        var distinctDepartmentIds = DistinctDepartmentIds(departmentIds);
+        return distinctDepartmentIds.Length == 0
+            ? DistinctDepartmentIds([job.OwnerDepartmentId])
+            : distinctDepartmentIds;
+    }
+
+    private Task<bool> HasAssignedTasksAsync(Job job, CancellationToken cancellationToken) =>
+        _dbContext.Tasks
+            .AsNoTracking()
+            .AnyAsync(
+                task => task.TenantId == job.TenantId
+                    && task.JobId == job.JobId
+                    && task.AssignedUserId != null,
+                cancellationToken);
+
+    private Task<bool> HasOtherAssignedTasksAsync(
+        Job job,
+        Guid assigneeUserId,
+        CancellationToken cancellationToken) =>
+        _dbContext.Tasks
+            .AsNoTracking()
+            .AnyAsync(
+                task => task.TenantId == job.TenantId
+                    && task.JobId == job.JobId
+                    && task.AssignedUserId != null
+                    && task.AssignedUserId != assigneeUserId,
+                cancellationToken);
+
+    private async Task<Guid[]> ResolveAssignmentDepartmentIdsAsync(
+        Job job,
+        Guid? assignedDepartmentId,
+        CancellationToken cancellationToken)
+    {
+        var notifyDepartmentIds = await ResolveJobNotifyDepartmentIdsAsync(job, cancellationToken);
+        if (assignedDepartmentId is Guid departmentId && departmentId != Guid.Empty)
+        {
+            var ids = new List<Guid>(notifyDepartmentIds) { departmentId };
+            return DistinctDepartmentIds(ids);
+        }
+
+        return notifyDepartmentIds;
+    }
 
     private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)
     {

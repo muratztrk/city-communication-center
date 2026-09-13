@@ -171,6 +171,11 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
 
         if (targetUser is not null)
         {
+            await _afterHoursJobSmsNotifier.NotifyFirstAssignmentAsync(
+                job,
+                targetUser.UserId,
+                targetDepartment?.DepartmentId,
+                cancellationToken);
             await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
                 job,
                 targetUser.UserId,

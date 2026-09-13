@@ -1,3 +1,13 @@
+## Round 1188 — Trello Doing (1 web reopen)
+
+- **#3620:** mesai dışı self-assign — yönetici SMS ilk atamaya ertelendi; self-assign yalnız görev SMS.
+
+## Round 1187 — Trello Doing (3 web reopen)
+
+- **#3613:** Engellenenler arama genişlik/yükseklik + placeholder.
+- **#3618:** arama `text-[0.8125rem]`.
+- **#3619:** X `right-1`.
+
 ## Round 1186 — Trello Doing (4 web)
 
 - **#3613 reopen:** Engellenenler arama genişlik/yükseklik placeholder için.

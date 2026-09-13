@@ -274,6 +274,11 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
         await _dbContext.SaveChangesAsync(cancellationToken);
         if (assignedUserId.HasValue)
         {
+            await _afterHoursJobSmsNotifier.NotifyFirstAssignmentAsync(
+                job,
+                assignedUserId.Value,
+                assignedDepartmentId,
+                cancellationToken);
             await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
                 job,
                 assignedUserId.Value,

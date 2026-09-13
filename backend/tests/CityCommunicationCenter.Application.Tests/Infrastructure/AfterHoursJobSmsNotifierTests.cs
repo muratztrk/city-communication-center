@@ -26,6 +26,7 @@ public sealed class AfterHoursJobSmsNotifierTests
     {
         await using var db = CreateDbContext();
         await SeedAsync(db);
+        await SeedAssignedTaskAsync(db, StaffId);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
@@ -42,6 +43,7 @@ public sealed class AfterHoursJobSmsNotifierTests
     {
         await using var db = CreateDbContext();
         await SeedAsync(db);
+        await SeedAssignedTaskAsync(db, StaffId);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
@@ -49,6 +51,20 @@ public sealed class AfterHoursJobSmsNotifierTests
         await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
 
         Assert.DoesNotContain(gateway.Sends, send => send.Text == "Personel mesajı");
+    }
+
+    [Fact]
+    public async Task NotifyJobCreatedAsync_defers_manager_sms_until_first_assignment()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+
+        var job = CreateJob();
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+
+        Assert.Empty(gateway.Sends);
     }
 
     [Fact]
@@ -68,17 +84,22 @@ public sealed class AfterHoursJobSmsNotifierTests
     }
 
     [Fact]
-    public async Task NotifyTaskAssignedAsync_skips_when_assignee_already_manager_recipient()
+    public async Task NotifyFirstAssignmentAsync_self_assigned_manager_gets_task_sms_only()
     {
         await using var db = CreateDbContext();
         await SeedAsync(db);
+        await SeedSelfAssignedTaskAsync(db, ManagerId);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyFirstAssignmentAsync(job, ManagerId, DepartmentId, CancellationToken.None);
         await notifier.NotifyTaskAssignedAsync(job, ManagerId, DepartmentId, CancellationToken.None);
 
-        Assert.Empty(gateway.Sends);
+        Assert.Single(gateway.Sends);
+        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
+        Assert.Equal("905551111111", gateway.Sends[0].Phone);
     }
 
     [Fact]
@@ -104,6 +125,7 @@ public sealed class AfterHoursJobSmsNotifierTests
     {
         await using var db = CreateDbContext();
         await SeedAsync(db);
+        await SeedAssignedTaskAsync(db, StaffId);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
@@ -119,6 +141,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         await using var db = CreateDbContext();
         await SeedAsync(db, crmPhone: "905559999999", includeOtherDepartmentVty: true);
         await SeedTargetDepartmentAsync(db);
+        await SeedAssignedTaskAsync(db, StaffId);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
@@ -138,6 +161,7 @@ public sealed class AfterHoursJobSmsNotifierTests
     {
         await using var db = CreateDbContext();
         await SeedAsync(db, crmPhone: "905559999999");
+        await SeedAssignedTaskAsync(db, StaffId);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
@@ -198,6 +222,7 @@ public sealed class AfterHoursJobSmsNotifierTests
             DepartmentType = "Müdürlük",
         });
         await db.SaveChangesAsync();
+        await SeedAssignedTaskAsync(db, StaffId);
         var gateway = new RecordingSmsGateway();
         var notifier = new AfterHoursJobSmsNotifier(
             db,
@@ -218,6 +243,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         await using var db = CreateDbContext();
         await SeedAsync(db, crmPhone: "905559999999", includeOtherDepartmentVty: true);
         await SeedTargetDepartmentAsync(db);
+        await SeedAssignedTaskAsync(db, StaffId);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
@@ -272,7 +298,13 @@ public sealed class AfterHoursJobSmsNotifierTests
         await db.SaveChangesAsync();
     }
 
-    private static async Task SeedSelfAssignedTaskAsync(CityCommunicationCenterDbContext db, Guid assigneeUserId)
+    private static async Task SeedSelfAssignedTaskAsync(CityCommunicationCenterDbContext db, Guid assigneeUserId) =>
+        await SeedAssignedTaskAsync(db, assigneeUserId, assigneeUserId);
+
+    private static async Task SeedAssignedTaskAsync(
+        CityCommunicationCenterDbContext db,
+        Guid assigneeUserId,
+        Guid? ownerUserId = null)
     {
         db.Tasks.Add(new WorkTask
         {
@@ -283,7 +315,7 @@ public sealed class AfterHoursJobSmsNotifierTests
             Description = "Test",
             AssignedDepartmentId = DepartmentId,
             AssignedUserId = assigneeUserId,
-            OwnerUserId = assigneeUserId,
+            OwnerUserId = ownerUserId ?? assigneeUserId,
             CurrentStatus = CityCommunicationCenter.Domain.Enums.TaskStatus.Assigned,
             Priority = "Normal",
         });

@@ -16,4 +16,14 @@ public interface IAfterHoursJobSmsNotifier
         Guid assigneeUserId,
         Guid? assignedDepartmentId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// İlk görev atamasında (havuzdan üstlenme veya doğrudan atama) ertelenmiş yönetici SMS'i.
+    /// Self-assign eden müdür/sorumlu/VTY yönetici SMS'i almaz (#3620).
+    /// </summary>
+    Task NotifyFirstAssignmentAsync(
+        Job job,
+        Guid assigneeUserId,
+        Guid? assignedDepartmentId,
+        CancellationToken cancellationToken = default);
 }

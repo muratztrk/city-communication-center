@@ -2,9 +2,10 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getNeighborhoodsForDistrict } from '../../../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../../../hooks/useMunicipalityDistrictId'
+import { CbsStreetNoDropdowns } from '../../address/CbsStreetNoDropdowns'
 import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
 import { stringListSelectOptions } from '../../../utils/formDropdownOptions'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../../../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../../../utils/addressLimits'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 
@@ -38,7 +39,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             searchable
             clearable
             className="min-w-0 max-w-full"
-            menuClassName="min-w-full w-max max-w-[20rem]"
+            menuClassName="min-w-full w-max max-w-[20rem] my-request-edit-neighborhood-menu"
             menuScrollClassName="my-request-edit-neighborhood-menu"
             options={neighborhoodOptions}
             value={draft.neighborhood}
@@ -48,40 +49,20 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
           />
         </label>
-        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
-          <label className="grid min-w-0 gap-1">
-            <span className="text-xs font-semibold text-slate-500">
-              {t('address.streetLabel', 'Cadde / Sokak')}
-              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-            </span>
-            <textarea
-              className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-              placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-              maxLength={ADDRESS_STREET_MAX_LENGTH}
-              value={draft.street}
-              rows={autoGrowRows(draft.street)}
-              onChange={e => onChange({ street: e.target.value })}
-              onBlur={() => onChange({ street: normalizeTitleCaseField(draft.street) ?? '' })}
-              disabled={!hasNeighborhood}
-              required={hasNeighborhood}
-            />
-          </label>
-          <label className="grid min-w-0 gap-1">
-            <span className="text-xs font-semibold text-slate-500">
-              {t('address.streetNoLabel', 'No')}
-              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-            </span>
-            <input
-              className="field-input min-h-[2.75rem] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-              placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
-              maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
-              value={draft.streetNo}
-              onChange={e => onChange({ streetNo: normalizeStreetNo(e.target.value) })}
-              disabled={!hasNeighborhood}
-              required={hasNeighborhood}
-            />
-          </label>
-        </div>
+        <CbsStreetNoDropdowns
+          neighborhood={draft.neighborhood}
+          street={draft.street}
+          streetNo={draft.streetNo}
+          required={hasNeighborhood}
+          labelClassName="text-xs font-semibold text-slate-500"
+          openUp
+          className="grid min-w-0 grid-cols-[minmax(0,1fr)_4.5rem] gap-2"
+          streetNoColumnClassName=""
+          menuClassName="my-request-edit-neighborhood-menu"
+          menuScrollClassName="my-request-edit-neighborhood-menu"
+          onStreetChange={street => onChange({ street })}
+          onStreetNoChange={streetNo => onChange({ streetNo })}
+        />
         <label className="grid min-w-0 gap-1">
           <span className="text-xs font-semibold text-slate-500">
             {t('address.openAddressLabel', 'Açık Adres')}

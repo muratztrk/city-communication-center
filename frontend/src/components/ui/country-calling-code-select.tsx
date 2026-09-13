@@ -32,7 +32,7 @@ export function CountryCallingCodeSelect({ value, onChange, className }: Country
       return {
         value: country.iso,
         label: `${name} +${country.dial}`,
-        triggerLabel: '',
+        triggerLabel: `+${country.dial}`,
         leading: <CountryFlag iso={country.iso} />,
       }
     })
@@ -53,7 +53,7 @@ export function CountryCallingCodeSelect({ value, onChange, className }: Country
       placeholder={t('settings.citizen.citizenPhoneCountry', 'Ülke kodu')}
       searchPlaceholder={t('settings.citizen.citizenPhoneCountrySearch', 'Ülke ara...')}
       className={className}
-      triggerClassName="h-[2.375rem] min-w-[4.25rem] px-2 text-[0.8125rem]"
+      triggerClassName="h-[2.375rem] min-w-[5.85rem] px-2 text-[0.8125rem]"
       menuWidth={320}
       menuExpand="right"
     />

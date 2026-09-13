@@ -65,7 +65,7 @@ import {
   splitCitizenPhone,
 } from '../utils/countryCallingCodes'
 import { getPhoneNsnLength } from '../utils/phoneNationalLengths'
-import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
+import { formatTrNationalGrouped, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -817,6 +817,8 @@ export function CreateRequestPage() {
       compactPlaceholders?: boolean
       smallerPlaceholders?: boolean
       largerPlaceholders?: boolean
+      menuClassName?: string
+      menuScrollClassName?: string
       showCoordinates?: boolean
       coordinatesBelowNeighborhood?: boolean
       streetRowClassName?: string
@@ -863,6 +865,8 @@ export function CreateRequestPage() {
               }}
               placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
               triggerClassName="citizen-call-neighborhood-trigger"
+              menuClassName={options?.menuClassName}
+              menuScrollClassName={options?.menuScrollClassName}
             />
           </div>
           <CbsStreetNoDropdowns
@@ -876,6 +880,8 @@ export function CreateRequestPage() {
             streetNoColumnClassName={options?.streetNoColumnClassName}
             onStreetChange={street => setField('street', street)}
             onStreetNoChange={streetNo => setField('streetNo', streetNo)}
+            menuClassName={options?.menuClassName}
+            menuScrollClassName={options?.menuScrollClassName}
           />
         </div>
         {showCoordinates && coordinatesBelowNeighborhood ? (
@@ -1719,6 +1725,8 @@ export function CreateRequestPage() {
                 sectionTitle: t('requests.create.jobAddressSection', 'Talebin Adres Bilgisi (İsteğe Bağlı)'),
                 smallerPlaceholders: true,
                 coordinatesBelowNeighborhood: true,
+                menuClassName: 'citizen-call-address-menu',
+                menuScrollClassName: 'citizen-call-address-menu',
               },
             )}
           </div>
@@ -1738,29 +1746,26 @@ export function CreateRequestPage() {
               </label>
               <label className="job-field">
                 <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Telefon No')} <span className="text-red-500">*</span></span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <CountryCallingCodeSelect
+                    className="w-[6.35rem] shrink-0"
                     value={citizenForm.phoneCountryIso}
-                    onChange={iso => setCitizenForm(current => {
-                      const nsn = getPhoneNsnLength(iso)
-                      const nextPhone = iso === 'TR' && current.citizenPhone && !current.citizenPhone.startsWith('5')
-                        ? ''
-                        : current.citizenPhone.slice(0, nsn.max)
-                      return {
-                        ...current,
-                        phoneCountryIso: iso,
-                        citizenPhone: nextPhone,
-                      }
-                    })}
+                    onChange={iso => setCitizenForm(current => ({
+                      ...current,
+                      phoneCountryIso: iso,
+                      citizenPhone: '',
+                    }))}
                   />
                   <input
                     className="field-input min-w-0 flex-1 placeholder:text-[0.875rem]"
                     required
                     inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={getPhoneNsnLength(citizenForm.phoneCountryIso).max}
+                    pattern={citizenForm.phoneCountryIso === 'TR' ? '[0-9 ]*' : '[0-9]*'}
+                    maxLength={citizenForm.phoneCountryIso === 'TR' ? 13 : getPhoneNsnLength(citizenForm.phoneCountryIso).max}
                     placeholder={citizenForm.phoneCountryIso === 'TR' ? '5XX XXX XX XX' : ''}
-                    value={citizenForm.citizenPhone}
+                    value={citizenForm.phoneCountryIso === 'TR'
+                      ? formatTrNationalGrouped(citizenForm.citizenPhone)
+                      : citizenForm.citizenPhone}
                     onChange={event => setCitizenForm(current => {
                       const nsn = getPhoneNsnLength(current.phoneCountryIso)
                       return {
@@ -1850,6 +1855,8 @@ export function CreateRequestPage() {
                 streetRowClassName:
                   'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1.12fr)_9.15rem] gap-2 w-full',
                 streetNoColumnClassName: 'lg:w-[9.15rem] lg:min-w-[9.15rem] lg:max-w-[9.15rem]',
+                menuClassName: 'citizen-call-address-menu',
+                menuScrollClassName: 'citizen-call-address-menu',
               },
             )}
             <div className="job-field min-h-0">

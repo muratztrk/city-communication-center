@@ -2165,38 +2165,6 @@ const pageKicker = isMyTasksView
                         {t('tasks.actions.route', 'Görevi Yönlendir')}
                       </DisabledActionButton>
                     ))}
-                    {isMyTasksView && selectedTask
-                      && (!canChangeTaskStatusFromDetail(selectedTask) || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
-                      && (canEditRoutineTask(selectedTask) ? (
-                      <Button
-                        type="button"
-                        size="lg"
-                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
-                        onClick={() => void openRoutineTaskEdit(selectedTask.taskId)}
-                      >
-                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                        {t('common.edit', 'Düzenle')}
-                      </Button>
-                    ) : taskDetail && canEditSelfAssignedManagerTask(taskDetail) && parentJobDetail ? (
-                      <Button
-                        type="button"
-                        size="lg"
-                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
-                        onClick={() => openEditJobModal(parentJobDetail)}
-                      >
-                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                        {t('common.edit', 'Düzenle')}
-                      </Button>
-                    ) : selectedTask.jobSourceType === 'Routine' ? (
-                      <DisabledActionButton
-                        size="lg"
-                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
-                        hoverTitle={t('tasks.actions.editUnavailable', 'Bu görev düzenlenemez')}
-                      >
-                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                        {t('common.edit', 'Düzenle')}
-                      </DisabledActionButton>
-                    ) : null)}
                     {isMyTasksView && canCompleteTask && (
                       <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => selectedTask && handleComplete(selectedTask)}>
                         <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

@@ -752,6 +752,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       triggerClassName="citizen-request-address-trigger"
                       menuScrollClassName="citizen-request-department-menu"
                       menuClassName="citizen-request-department-menu"
+                      matchTriggerWidth
+                      menuWidthExtraPx={32}
                     />
                   </label>
                   <CbsStreetNoDropdowns
@@ -769,6 +771,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     menuClassName="citizen-request-department-menu"
                     streetNoColumnClassName="lg:w-[6.15rem] lg:min-w-[3.4rem] lg:max-w-[6.15rem]"
                     matchTriggerWidth
+                    streetMenuWidthExtraPx={32}
                     streetNoMenuWidthExtraPx={72}
                     streetNoMenuExpand="right"
                   />

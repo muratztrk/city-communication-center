@@ -1,3 +1,17 @@
+## Round 1174 — Trello Doing (11 web)
+
+- **#3564:** Tümü grid Onay Bekleyen `0.875rem`.
+- **#3559:** Engellenenler ad/numara Ban hizası; kayıtlı adde numara aynı punto; tarih `(tarih)`.
+- **#3578:** Kapalı ülke tetikleyicide bayrak + `+kod`; dropdown biraz geniş, numara dar.
+- **#3579:** Çağrı telefonu ITU hane kuralı (mevcut `getPhoneNsnLength`).
+- **#3580:** Ülke değişince Telefon No temizlenir.
+- **#3581:** TR giriş gösterimi `XXX XXX XX XX`.
+- **#3583:** WA Talep oluştur Mahalle/Cadde açık menü +32px sağa.
+- **#3585:** Çağrı Mahalle/Cadde/No menü punto `0.6875rem`.
+- **#3584:** Yalnız vatandaş lisansında Talep Oluştur = çağrı ikonu.
+- **#3586:** Detaylar Düzenle Cadde/No CBS dropdown; mahalle sonrası `*`.
+- **#3587:** Görevlerim / Birimdeki / Personelimin detayında Düzenle yok.
+
 ## Round 1173 — Trello Doing (7 web)
 
 - **#3560:** Engellenenler tarihi alt satırda biraz küçük (`0.6875rem`).

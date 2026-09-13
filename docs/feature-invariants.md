@@ -805,8 +805,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ring-sky-200`) ve **oval** (`rounded-full`, #3559 reopen); engelleyen/tarih çerçevesi dar
   (`min-w-[5.25rem] max-w-[7.5rem]`, `px-2 py-0.5`, #3559 reopen-2).   Satır `items-start`: vatandaş adı ile engelleyen çerçevesi üst hizada (#3559 reopen-3).
   İsim satırları `leading-snug` (descender kesilmesin, #3559 reopen-4); çerçeve `py-1`.
-  Başlık satırında dar arama (`w-[13.75rem] h-[1.375rem]`, placeholder **Telefon No, vatandaş adı...**,
-  yazı `text-[0.8125rem]`, #3613/#3618 reopen-2); doluysa kırmızı X `right-1` + `cursor-pointer` (#3614/#3619 reopen).
+  Başlık satırında dar arama (`w-[13.75rem] h-[1.25rem]`, placeholder **Telefon No, vatandaş adı...**,
+  yazı `text-[0.8125rem]`, #3613/#3618/#3621); doluysa kırmızı X `right-2` + `pr-7` + `cursor-pointer` (#3614/#3619 reopen-2).
   >5 kayıtta liste
   `max-h-[16.25rem] overflow-y-auto`.
   Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.

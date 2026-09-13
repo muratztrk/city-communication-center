@@ -2175,13 +2175,13 @@ export function WhatsAppConversationsPage() {
                   value={blockedListSearch}
                   onChange={event => setBlockedListSearch(event.target.value)}
                   placeholder={t('whatsapp.blockedListSearch', 'Telefon No, vatandaş adı...')}
-                  className="field-input h-[1.375rem] w-full min-w-0 pl-6 pr-6 text-[0.8125rem] leading-tight"
+                  className="field-input h-[1.25rem] w-full min-w-0 pl-6 pr-7 text-[0.8125rem] leading-tight"
                 />
                 {blockedListSearch.trim() ? (
                   <button
                     type="button"
                     onClick={() => setBlockedListSearch('')}
-                    className="absolute right-1 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center text-red-600 transition-colors hover:text-red-700"
+                    className="absolute right-2 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center text-red-600 transition-colors hover:text-red-700"
                     aria-label={t('common.clear', 'Temizle')}
                   >
                     <X className="size-3" strokeWidth={2.25} />

@@ -1,3 +1,13 @@
+## Round 1181 — Trello Doing (6 web reopen)
+
+- **#3594:** Adres Tarifi placeholder `0.52rem`; max hint başlığın hemen sağında.
+- **#3608:** Dizin Detaylar Durum unlayered `0.68rem`.
+- **#3611:** VT grid Talep Etiketi menü = tetikleyici genişliği.
+- **#3597:** VT Düzenle etiket kaydı `operatorSocialEdit` ile tüm VT rolleri.
+- **#3559:** Engellenenler engelleyen/tarih çerçevesi dar.
+- **#3609:** Harita listesi başlığı **Harita Konumu Olan Vatandaş Talepleri**.
+- Atlandı: 2 Tim mobil (#3595/#3600); Doing’de 4 Tim mobil kaldı.
+
 ## Round 1180 — Trello Doing (7 web reopen)
 
 - **#3559:** Engellenenler çerçeve oval (`rounded-full`).

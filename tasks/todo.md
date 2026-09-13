@@ -1,3 +1,7 @@
+## Round 1182 — Trello Doing (1 web reopen)
+
+- **#3559:** Engellenenler vatandaş adı + engelleyen çerçevesi üst hizada.
+
 ## Round 1181 — Trello Doing (6 web reopen)
 
 - **#3594:** Adres Tarifi placeholder `0.52rem`; max hint başlığın hemen sağında.

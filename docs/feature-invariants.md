@@ -799,8 +799,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Engeli Kaldır` sağ border kesilmesin diye buton biraz solda (`mr-1` / `pr-1`).
   Satırda Ban ikonu solda, küçük (`size-3`); ad (veya adsızsa numara) Ban ile aynı hizada
   (`items-center`, #3559). Engellenen numara biraz küçük (`0.75rem`); adsız satırda numara
-  tek satırda kalır. Engelleyen adı **Engeli Kaldır'ın solunda** mavi `(ad)`; tarih onun
-  altında mavi `(tarih)` (`0.6875rem`), `•` yok — adın yanında değil (#3559).
+  tek satırda kalır. Engelleyen + tarih **tek parantez** içinde, grid Durum gibi istif:
+  ad üstte, tarih altında parantezsiz ve biraz daha küçük (`0.625rem`); Engeli Kaldır’ın
+  solunda (#3559).
   Eski kayıtlarda actor/zaman yoksa parantez/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
@@ -3328,11 +3329,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   numara kutusu biraz dar. Ülke değişince numara **silinir** (#3580). TR 10 hane/5 ve
   gösterim `XXX XXX XX XX` (#3581); diğer ülkeler ITU ulusal hane (`getPhoneNsnLength`, #3575/#3579).
   Placeholder TR `5XX XXX XX XX`, diğer ülkeler boş.
-  Açık ülke listesi paneli `256px` (eski 320’nin %80’i, #3578).
-  Çağrı Mahalle/Cadde/No açık menü punto `0.75rem`, satır `min-height: 1.55rem` (#3585).
+  Açık ülke listesi paneli `256px` (eski 320’nin %80’i, #3578); açık listedeki bayrak
+  `16×12` ve metin `0.78rem` (tetikleyici bayrak/punto aynı kalır).
+  Çağrı Mahalle/Cadde/No açık menü punto `0.75rem`, satır `min-height: 1.55rem`,
+  satır içi metin biraz aşağı (`padding-top: 0.32rem`, #3585).
 - **Talep Oluştur ikonu (#3584):** yalnız Vatandaş İş Takip lisansı (kurum içi kapalıyken)
-  sol menüde `Phone` (çağrı) **açık mavi** (`text-sky-400`); kurum içi lisans açıksa
-  `ClipboardPlus` durur.
+  sol menüde `Phone` (çağrı) **açık mavi** (`text-sky-400`) ve biraz küçük (`size-4`);
+  kurum içi lisans açıksa `ClipboardPlus` + `size-4.5` durur.
 - **Operatör + Vatandaş Talepleri Düzenle (#3588):** yalnız `Operator` + `detailContext=social`.
   Düzenle arka plan `#007985` / hover `#006570`. Adres Tarifi başlık+kutu alt satır;
   Mahalle/Cadde/No açık menü dar (`--compact`, trigger genişliği); placeholder `0.72rem`.

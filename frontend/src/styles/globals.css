@@ -2518,9 +2518,27 @@
   .citizen-call-address-menu .dropdown-menu-item span {
     font-size: 0.75rem !important;
     min-height: 1.55rem;
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
+    padding-top: 0.32rem;
+    padding-bottom: 0.12rem;
     line-height: 1.15;
+  }
+
+  .country-calling-code-menu .dropdown-menu-item {
+    min-height: 1.85rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    font-size: 0.78rem !important;
+    line-height: 1.2;
+  }
+
+  .country-calling-code-menu .dropdown-menu-item img {
+    width: 16px !important;
+    height: 12px !important;
+  }
+
+  .dropdown-menu-panel.country-calling-code-menu input {
+    font-size: 0.78rem !important;
+    line-height: 1.2 !important;
   }
 
   .dropdown-menu-panel.citizen-call-address-menu input {

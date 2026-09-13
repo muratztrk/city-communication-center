@@ -1,3 +1,10 @@
+## Round 1176 — Trello Doing (4 web, reopen)
+
+- **#3559:** Engellenenler engelleyen+tarih tek parantez; tarih `0.625rem`; grid Durum istif.
+- **#3578:** Ülke açık listede bayrak/metin biraz küçük (`16×12` / `0.78rem`).
+- **#3585:** Çağrı Mahalle/Cadde/No menü satır metni biraz aşağı.
+- **#3584:** Vatandaş-only Talep Oluştur ikonu `size-4`.
+
 ## Round 1175 — Trello Doing (7 web)
 
 - **#3584:** Vatandaş-only lisansında Talep Oluştur çağrı ikonu açık mavi (`text-sky-400`).

@@ -342,6 +342,7 @@ export interface JobSummary {
   title: string;
   status: JobStatus;
   priority: string;
+  requestTags?: string[] | null;
   requestType: JobRequestType;
   isProject: boolean;
   isProjectCreatorRequested?: boolean;

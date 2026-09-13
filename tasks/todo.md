@@ -1,3 +1,9 @@
+## Round 1185 — Trello Doing (2 web)
+
+- **#3613:** Engellenenler arama dar + placeholder **Telefon No, vatandaş adı...**.
+- **#3614:** Arama doluysa kırmızı X + pointer temizle.
+- Atlandı: Tim mobil #3595.
+
 ## Round 1184 — Trello Doing (3 web)
 
 - **#3613:** Engellenenler arama + >5 scroll.

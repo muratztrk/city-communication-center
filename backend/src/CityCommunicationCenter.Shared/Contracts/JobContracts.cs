@@ -165,4 +165,6 @@ public sealed record JobDetailResponse(
     /// <summary>sourceRefId yoksa job'a bağlı sosyal mesaj kimliği.</summary>
     Guid? SourceSocialMessageId = null,
     /// <summary>Vatandaşa gönderilecek mesaj onayı — Mesajı Onayla yapan kullanıcı (#3487/#3488).</summary>
-    string? CitizenMessageApproverDisplayName = null);
+    string? CitizenMessageApproverDisplayName = null,
+    /// <summary>VT kaynak sosyal mesajındaki Talep Etiketi değerleri.</summary>
+    IReadOnlyCollection<string>? RequestTags = null);

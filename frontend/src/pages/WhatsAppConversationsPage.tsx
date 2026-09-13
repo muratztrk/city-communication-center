@@ -2152,8 +2152,8 @@ export function WhatsAppConversationsPage() {
                     ? formatDateTime(item.blockedAtUtc, locale)
                     : ''
                   return (
-                  <li key={item.citizenConversationId} className="flex items-center justify-between gap-3 py-2.5 pr-1">
-                    <div className="min-w-0">
+                  <li key={item.citizenConversationId} className="flex items-start justify-between gap-3 py-2 pr-1">
+                    <div className="min-w-0 -mt-px">
                       <div className="flex min-w-0 items-center gap-1.5">
                         <Ban className="size-3 shrink-0 text-red-600" aria-hidden="true" />
                         <span className={`truncate font-semibold leading-none text-slate-900 ${citizenName ? 'text-sm' : 'text-[0.75rem]'}`}>
@@ -2164,7 +2164,7 @@ export function WhatsAppConversationsPage() {
                         <div className="truncate pl-5 pt-1 text-[0.75rem] font-semibold leading-none text-slate-900">{phoneLabel}</div>
                       ) : null}
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex shrink-0 items-start gap-2 -mt-px">
                       {blockerName || blockerWhen ? (
                         <div className="flex min-w-[5.25rem] max-w-[7.5rem] flex-col items-center rounded-full bg-sky-100 px-2 py-0.5 text-sky-700 ring-1 ring-sky-200">
                           {blockerName ? (

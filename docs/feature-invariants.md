@@ -803,7 +803,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ad üstte ortalı, tarih altında ortalı ve biraz daha küçük (`0.625rem`); Engeli Kaldır’ın
   solunda. Çerçeve grid **Yapılmakta** pili gibi açık mavi dolgu (`bg-sky-100 text-sky-700
   ring-sky-200`) ve **oval** (`rounded-full`, #3559 reopen); engelleyen/tarih çerçevesi dar
-  (`min-w-[5.25rem] max-w-[7.5rem]`, `px-2 py-0.5`, #3559 reopen-2).
+  (`min-w-[5.25rem] max-w-[7.5rem]`, `px-2 py-0.5`, #3559 reopen-2). Satır `items-start`:
+  vatandaş adı ile engelleyen çerçevesi üst hizada (`-mt-px`, #3559 reopen-3).
   Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
@@ -2224,7 +2225,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`--my-request` + `--tickets-grid`, Vatandaş Bilgi Listesi
   Detaylar ile aynı ölçü ve başlık stili `DetailModalTitle` + `my-request-detail-header__title`;
-  `--all-requests` yok, #3609).
+  başlık metni **Harita Konumu Olan Vatandaş Talepleri** (`citizenRequestMap.locatedListTitle`, #3609).
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Harita Konumu Olmayan Talepler** (#2737/#2745).
   Birim haritası konumlanan liste başlığı **Konum Bilgisi Olan Birim Talepleri** (#2745).
   Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha yüksek; genişlik içerik kadar (`w-fit`); Talepleri Listele biraz daha dar padding (`px-1.5` vs `px-2`, #2738).

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Info, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import type { CitizenDashboardMapPin } from '../types/platform'
@@ -22,6 +22,7 @@ import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, type GridStatusTone } from '../utils/localization'
 import { isJobDueDateOverdue } from '../utils/dateTimePicker'
+import { DetailModalTitle } from '../utils/detailModalTitle'
 
 interface MapPinnedRequestsModalProps {
   pins: CitizenDashboardMapPin[]
@@ -155,6 +156,13 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
   const safePage = Math.min(page, maxPage)
   const paged = rows.slice((safePage - 1) * pageSize, safePage * pageSize)
   const columnCount = isCitizen ? 7 : 8
+  const modalTitle = isCitizen
+    ? (located
+      ? t('nav.social', 'Vatandaş Talepleri')
+      : t('citizenRequestMap.unlocatedListTitle', 'Harita Konumu Olmayan Talepler'))
+    : (located
+      ? t('departmentRequestMap.locatedListTitle', 'Konum Bilgisi Olan Birim Talepleri')
+      : t('citizenRequestMap.unlocatedListTitle', 'Harita Konumu Olmayan Talepler'))
 
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
@@ -164,18 +172,9 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
       >
         <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-5 py-3.5">
           <div className="detail-modal-header-title min-w-0">
-            <h2 className="map-list-modal-title flex min-w-0 items-start gap-2">
-              <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-              <span className="block truncate">
-                {isCitizen
-                  ? (located
-                    ? t('nav.social', 'Vatandaş Talepleri')
-                    : t('citizenRequestMap.unlocatedListTitle', 'Harita Konumu Olmayan Talepler'))
-                  : (located
-                    ? t('departmentRequestMap.locatedListTitle', 'Konum Bilgisi Olan Birim Talepleri')
-                    : t('citizenRequestMap.unlocatedListTitle', 'Harita Konumu Olmayan Talepler'))}
-              </span>
-            </h2>
+            <div className="my-request-detail-header__title">
+              <DetailModalTitle title={modalTitle} />
+            </div>
           </div>
           <DetailModalHeaderBrand />
           <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">

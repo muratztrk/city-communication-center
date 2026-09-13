@@ -2166,7 +2166,7 @@ export function WhatsAppConversationsPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       {blockerName || blockerWhen ? (
-                        <div className="flex min-w-[6.5rem] max-w-[9.5rem] flex-col items-center rounded-md bg-sky-100 px-2 py-1 text-sky-700 ring-1 ring-sky-200">
+                        <div className="flex min-w-[6.5rem] max-w-[9.5rem] flex-col items-center rounded-full bg-sky-100 px-2.5 py-1 text-sky-700 ring-1 ring-sky-200">
                           {blockerName ? (
                             <div className="w-full truncate text-center text-xs font-medium leading-none">{blockerName}</div>
                           ) : null}

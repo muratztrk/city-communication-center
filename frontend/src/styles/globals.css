@@ -7493,6 +7493,12 @@
   height: 0.80rem !important;
 }
 
+.citizen-directory-tickets-table tbody td .status-pill,
+.citizen-directory-tickets-table tbody td .status-pill .grid-status-label--flow-status > span:first-child {
+  font-size: 0.66rem !important;
+  line-height: 1.15;
+}
+
 .citizen-map-requests-table .citizen-grid-phone-value {
   font-size: 0.78rem !important;
   line-height: 1.25;

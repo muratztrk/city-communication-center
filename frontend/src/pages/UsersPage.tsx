@@ -27,6 +27,13 @@ import type { Department, DirectoryUserLookup, User, UserManagementContext } fro
 import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
 import { uniqueDepartmentsByName } from '../utils/departments'
 import { formatTrNationalGrouped, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
+
+function formatUserMobileGridDisplay(phone: string | null | undefined): string {
+  if (!phone?.trim()) return ''
+  const digits = phone.replace(/\D/g, '')
+  const national = digits.length >= 10 ? digits.slice(-10) : digits
+  return national.startsWith('5') ? formatTrNationalGrouped(national) : phone
+}
 type CreateMode = 'manual' | 'ldap'
 
 const ADDITIONAL_ROLE_CODES = ['Staff', 'Operator', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
@@ -1723,7 +1730,7 @@ export function UsersPage() {
                           aria-label={t('users.mobilePhone')}
                         />
                       ) : (
-                        <span>{user.mobilePhone || t('common.none')}</span>
+                        <span>{formatUserMobileGridDisplay(user.mobilePhone) || t('common.none')}</span>
                       )}
                     </td>
                     <td className="users-edit-dept-cell w-[7.5rem] max-w-[7.5rem]">
@@ -1835,7 +1842,7 @@ export function UsersPage() {
                     <td>{user.username || t('common.none')}</td>
                     <td className="font-semibold">{user.displayName}</td>
                     <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
-                    <td>{user.mobilePhone || t('common.none')}</td>
+                    <td>{formatUserMobileGridDisplay(user.mobilePhone) || t('common.none')}</td>
                     <td>
                       <div className="grid gap-1">
                         <span>{getDepartmentName(user.departmentId)}</span>

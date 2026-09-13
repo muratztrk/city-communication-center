@@ -1,3 +1,13 @@
+## Round 1180 — Trello Doing (7 web reopen)
+
+- **#3559:** Engellenenler çerçeve oval (`rounded-full`).
+- **#3594:** VT Düzenle menü = tetikleyici; Adres Tarifi başlık satırı + sağda max hint; placeholder küçük.
+- **#3597:** VT Düzenle’de Talep Etiketi tüm rollerde görünür.
+- **#3608:** Dizin Detaylar Durum unlayered `0.66rem`.
+- **#3607:** Çağrı telefon + ülke kodu `0.875rem`.
+- **#3609:** Harita liste başlığı = dizin `DetailModalTitle` stili.
+- **#3606:** Kullanıcılar grid cep `5XX XXX XX XX`.
+
 ## Round 1179 — Trello Doing (12 web)
 
 - **#3602:** Mesai dışı talep SMS: sahip birim 7/24 olsa bile hedef birim kapalıysa gider.

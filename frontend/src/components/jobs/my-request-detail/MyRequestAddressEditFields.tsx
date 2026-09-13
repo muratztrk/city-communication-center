@@ -45,7 +45,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
         menuClassName={menuClassName}
         menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
         matchTriggerWidth={operatorSocialLayout}
-        menuWidthExtraPx={operatorSocialLayout ? -40 : 0}
+        menuWidthExtraPx={0}
         options={neighborhoodOptions}
         value={draft.neighborhood}
         onChange={neighborhood => {
@@ -69,8 +69,8 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
       menuClassName={menuClassName}
       menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
       matchTriggerWidth={operatorSocialLayout}
-      streetMenuWidthExtraPx={operatorSocialLayout ? -40 : 0}
-      streetNoMenuWidthExtraPx={operatorSocialLayout ? 48 : 0}
+      streetMenuWidthExtraPx={0}
+      streetNoMenuWidthExtraPx={0}
       onStreetChange={street => onChange({ street })}
       onStreetNoChange={streetNo => onChange({ streetNo })}
     />
@@ -78,9 +78,15 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
 
   const openAddressField = (
     <label className="grid min-w-0 gap-1">
-      <span className={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' flex min-h-[3.5rem] max-w-[50%] items-end' : ''}`}>
-        {t('address.openAddressLabel', 'Açık Adres')}
-        {hasNeighborhood ? (
+      <span className={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' flex min-h-[3.5rem] items-end justify-between gap-2' : ''}`}>
+        <span className={operatorSocialLayout ? 'whitespace-nowrap' : undefined}>
+          {t('address.openAddressLabel', 'Adres Tarifi')}
+        </span>
+        {operatorSocialLayout ? (
+          <span className="shrink-0 font-normal text-slate-400 whitespace-nowrap">
+            {t('address.openAddressMaxHint', '(max 400 karakter)')}
+          </span>
+        ) : hasNeighborhood ? (
           <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 400 karakter)')}</span>
         ) : null}
       </span>

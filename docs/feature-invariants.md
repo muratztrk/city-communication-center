@@ -802,7 +802,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tek satırda kalır. Engelleyen + tarih **parantezsiz çerçevede**, grid Durum gibi istif:
   ad üstte ortalı, tarih altında ortalı ve biraz daha küçük (`0.625rem`); Engeli Kaldır’ın
   solunda. Çerçeve grid **Yapılmakta** pili gibi açık mavi dolgu (`bg-sky-100 text-sky-700
-  ring-sky-200`, #3559).
+  ring-sky-200`) ve **oval** (`rounded-full`, #3559 reopen).
   Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
@@ -1606,7 +1606,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız Ek görev birimleri + Ek roller düzenlenir; Oluştur ek birim veya ek rol seçilince
   aktif olur (#3428). LDAP Title=`description`,   Phone=`telephoneNumber`, MobilePhone=`mobile`/`mobileTelephoneNumber`/`otherMobile`
   (card #1773/#2902/#2908). Kullanıcılar grid e-Posta yerine Cep Telefonu No gösterir.
-  Yeni / Düzenle Cep Telefonu No gösterimi `5XX XXX XX XX` (`formatTrNationalGrouped`, #3606).
+  Yeni / Düzenle / grid Cep Telefonu No gösterimi `5XX XXX XX XX` (`formatTrNationalGrouped`, #3606).
   LDAP senkronunda birim değişince eski birim adı (sistemdeki önceki ad) gösterilir; `—` değil (#2909).
   Personel Dahili No sonuç paneli `left-0` ile sağa açılır (card #1786).
   Talep oluştur ek listesinde dosya adı `text-sm`, uzantı küçük gri (card #1788).
@@ -2222,7 +2222,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`--my-request` + `--tickets-grid`, Vatandaş Bilgi Listesi
-  Detaylar ile aynı ölçü; `--all-requests` yok, #3609).
+  Detaylar ile aynı ölçü ve başlık stili `DetailModalTitle` + `my-request-detail-header__title`;
+  `--all-requests` yok, #3609).
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Harita Konumu Olmayan Talepler** (#2737/#2745).
   Birim haritası konumlanan liste başlığı **Konum Bilgisi Olan Birim Talepleri** (#2745).
   Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha yüksek; genişlik içerik kadar (`w-fit`); Talepleri Listele biraz daha dar padding (`px-1.5` vs `px-2`, #2738).
@@ -3237,7 +3238,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.76rem` / `0.80rem`,
   metin `font-weight: 500` — kural **unlayered**. Talep Tarihi `0.76rem` (#3328).
   Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
-  `(Geciken)` durur; dizin Detaylar Durum `0.70rem` (#3291/#3608).
+  `(Geciken)` durur; dizin Detaylar Durum unlayered `0.66rem !important` (#3291/#3608).
   Dizin Detaylar + harita Talepleri Listele / pin popup scroll pie gibi tablo `hscroll` içinde;
   popup kenar scrollbar yok (`--tickets-grid`, #3297).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
@@ -3338,7 +3339,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   numara kutusu biraz dar. Ülke değişince numara **silinir** (#3580). TR 10 hane/5 ve
   gösterim `XXX XXX XX XX` (#3581); diğer ülkeler ITU ulusal hane (`getPhoneNsnLength`, #3575/#3579).
   Placeholder TR `5XX XXX XX XX`, diğer ülkeler boş.
-  Çağrı Telefon No yazılan metin `0.8125rem` (#3607).
+  Çağrı Telefon No yazılan metin ve ülke kodu tetikleyici `0.875rem` (#3607).
   Açık ülke listesi paneli `256px` (eski 320’nin %80’i, #3578); açık listedeki bayrak
   `16×12` ve metin `0.78rem` (tetikleyici bayrak/punto aynı kalır).
   Çağrı Mahalle/Cadde/No açık menü punto `0.75rem`, satır `min-height: 1.42rem`,
@@ -3350,10 +3351,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açabilen her rol). Düzenle arka plan `#007985` / hover `#006570`. Düzenlemede yalnız
   Adres Bilgileri, Talep Ekleri, Öncelik, Talep Etiketi değişir; başlık / açıklama / son
   tarih / vatandaş ad-telefon kilitli. BE `UpdateJob` kiliti yalnız `Operator` (Taleplerim
-  başlık düzeni diğer rollerde durur). Talep Etiketi dropdown sağa; açık menü = tetikleyici
-  genişliği (#3597). Adres Tarifi + Konum Linki yan yana; etiketler `min-h-[3.5rem]` ile
-  textbox üst hizalı; Adres Tarifi başlığı kolonun %50’si; placeholder `0.56rem`; Konum
-  Linki placeholder `0.70rem`. Mahalle/Cadde açık menü −40px, No +48px / kolon `6.75rem`.
+  başlık düzeni diğer rollerde durur).   Talep Etiketi Düzenle modunda görünür (#3597); dropdown sağa; açık menü = tetikleyici
+  genişliği (ekstra px yok). Adres Tarifi + Konum Linki yan yana; etiketler `min-h-[3.5rem]`
+  ile textbox üst hizalı; başlık satırında sağda `(max 400 karakter)`; placeholder `0.56rem`;
+  Konum Linki placeholder `0.70rem`. No kolon `6.75rem`.
   Adres Tarifi `min-h-[5.5rem]` / ≥4 satır. Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon
   adres düzeni durur.
 - **WA Talep oluştur No menü (#3583):** `streetNoMenuWidthExtraPx={36}` (önceki +72).

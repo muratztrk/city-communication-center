@@ -292,9 +292,12 @@ export function MyRequestDetailMainCard({
   const { user } = useAuth()
   const weekendDueMin = useWeekendSlaDueDateMin()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
-  const canShowRequestLabel = user?.role === 'Operator' || hasCitizenRequestManagerRole(user)
-  const showCitizenRequestLabel = canShowRequestLabel
-    && (isEditing || Boolean(citizenSourceMessage?.category?.trim()))
+  const canShowRequestLabel = operatorSocialEdit
+    || user?.role === 'Operator'
+    || hasCitizenRequestManagerRole(user)
+  const showCitizenRequestLabel = operatorSocialEdit
+    ? (isEditing || Boolean(citizenSourceMessage?.category?.trim()))
+    : canShowRequestLabel && (isEditing || Boolean(citizenSourceMessage?.category?.trim()))
   // Manager/Reporter Taleplerim'de sahip onayını gizler; görev popup İlgili Talep'te gösterilir (#1654).
   // Birim dışı talepte yönetici oluşturmuş olsa da katman durur (#3309 / T-2026-665).
   const hideOwnerApproval = forceShowOwnerApproval

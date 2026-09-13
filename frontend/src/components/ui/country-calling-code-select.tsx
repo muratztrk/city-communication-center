@@ -54,7 +54,7 @@ export function CountryCallingCodeSelect({ value, onChange, className }: Country
       searchPlaceholder={t('settings.citizen.citizenPhoneCountrySearch', 'Ülke ara...')}
       className={className}
       triggerClassName="h-[2.375rem] min-w-[5.85rem] px-2 text-[0.8125rem]"
-      menuWidth={320}
+      menuWidth={256}
       menuExpand="right"
     />
   )

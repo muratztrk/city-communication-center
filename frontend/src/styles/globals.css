@@ -2516,14 +2516,16 @@
 
   .citizen-call-address-menu .dropdown-menu-item,
   .citizen-call-address-menu .dropdown-menu-item span {
-    font-size: 0.6875rem !important;
-    min-height: 1.85rem;
-    line-height: 1.2;
+    font-size: 0.75rem !important;
+    min-height: 1.55rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    line-height: 1.15;
   }
 
   .dropdown-menu-panel.citizen-call-address-menu input {
-    font-size: 0.6875rem !important;
-    line-height: 1.25 !important;
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
   }
 
   /* Ayarlar → Kurum Konumu CBS dropdown menü satırları (#2835 reopen / #3317 İlçe). */
@@ -3645,6 +3647,13 @@
     font-size: 0.72rem;
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  .my-request-edit-neighborhood-menu--compact .dropdown-menu-item {
+    min-width: 0 !important;
+    max-width: 14rem !important;
+    min-height: 1.55rem;
+    font-size: 0.68rem;
   }
 
   .detail-modal-shell--my-request .my-request-edit-priority-menu.dropdown-menu-scroll {

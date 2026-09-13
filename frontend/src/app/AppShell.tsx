@@ -346,7 +346,7 @@ export function AppShell() {
     .toUpperCase()
   type NavLinkConfig = SidebarNavLinkItem & { pageKey?: PageAccessKey; requiredRole?: string }
 
-  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean; badgeCount?: number }
+  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean; badgeCount?: number; iconClassName?: string }
 
   const canSeeCitizenMessageApproval = useMemo(
     () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'citizenMessageApproval'),
@@ -455,7 +455,7 @@ export function AppShell() {
           ]),
     { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'edevletActivityPlansList' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
-    { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: isCitizenOnlyLicense() ? Phone : ClipboardPlus },
+    { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: isCitizenOnlyLicense() ? Phone : ClipboardPlus, iconClassName: isCitizenOnlyLicense() ? 'text-sky-400' : undefined },
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     // Vatandaş Talepleri grubu: WhatsApp + Sms Onayı — aynı emphasized hiza/punto (#621 / #6a6b6c8e).
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
@@ -518,7 +518,7 @@ export function AppShell() {
           })),
         })
       } else {
-        items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, badgeCount: item.badgeCount, newTab: item.newTab })
+        items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, badgeCount: item.badgeCount, newTab: item.newTab, iconClassName: item.iconClassName })
       }
       if (item.separatorAfter) items.push({ type: 'separator' })
     }

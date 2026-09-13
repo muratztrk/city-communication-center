@@ -344,8 +344,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak tüm giriş yüzeylerinde en fazla 50 karakter,
   No (kapı/sokak numarası) en fazla **6** karakter ve yazılan her karakter büyük harf
-  (`toLocaleUpperCase('tr')`, #2585), **Adres Tarifi** (eski Açık Adres) en fazla 100 karakterdir;
-  backend komut validasyonları da aynı sınırı korur (#2567/#2578).
+  (`toLocaleUpperCase('tr')`, #2585), **Adres Tarifi** (eski Açık Adres) en fazla **400** karakterdir
+  (`ADDRESS_OPEN_ADDRESS_MAX_LENGTH` / `AddressFieldLimits.OpenAddressMaxLength`, #3589);
+  backend komut validasyonları da aynı sınırı korur. e-Devlet açıklama / yönetici notu / iptal
+  nedeni 100-karakter sınırına dokunma.
   WhatsApp Vatandaş Bilgileri ve yazdırma çıktısında etiket `Adres Tarifi`; yazdırmada Cadde/Sokak
   altında ayrı `No` satırı vardır (#2586/#2588). Adres Tarifi placeholder:
   `Mevki, daire, kat bilgisi giriniz...` (#2660/#2669). Cadde placeholder her yerde
@@ -796,9 +798,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   + `Engeli Kaldır` (`SetConversationBlockedCommand` false). Engel kalkınca inbound yeniden alınır.
   `Engeli Kaldır` sağ border kesilmesin diye buton biraz solda (`mr-1` / `pr-1`).
   Satırda Ban ikonu solda, küçük (`size-3`); ad (veya adsızsa numara) Ban ile aynı hizada
-  (`items-center`, #3559). Ad varsa alt satırda numara **aynı punto** (`text-sm`).
-  Engelleyen adı aynı satırda mavi `(ad)`; tarih bir alt satırda sola yaslı mavi `(tarih)`
-  (`0.6875rem`), `•` yok (#3559/#3560).
+  (`items-center`, #3559). Engellenen numara biraz küçük (`0.75rem`); adsız satırda numara
+  tek satırda kalır. Engelleyen adı **Engeli Kaldır'ın solunda** mavi `(ad)`; tarih onun
+  altında mavi `(tarih)` (`0.6875rem`), `•` yok — adın yanında değil (#3559).
   Eski kayıtlarda actor/zaman yoksa parantez/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
@@ -1900,11 +1902,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   FilterableTh `allowLetters`; filtre değeri tarih + tip rozeti metnini kapsar.
 - **Personelimin Görev Tarihi altı tip (#6a75c4e8):** `showTaskTypeUnderDate` staff’ta da.
 - **Birimdeki kolon genişlik (#6a75c5d5):** Sıra + Talep No dar; Görev Tipi geniş (~10.5rem).
-- **WA Açık Adres hint (#6a75b7a4 reopen):** `(max 100 karakter)` `text-[10px]` normal-case.
+- **WA Açık Adres hint (#6a75b7a4 reopen / #3589):** `(max 400 karakter)` `text-[10px]` normal-case.
 - **Kurum Konumu ilçe kalıcılığı (#6a75b1ae):** Kaydet → `TenantSettings.Theme = ccc-district:<id>`
   + localStorage; sonraki girişlerde Settings dropdown seçili gelir. Kurum Bilgisi Kaydet Theme’i silmez.
 - **WA Mahalle:** başlık tıklanabilir değil (div, label değil — #6a75b6c1); dropdown seçenekleri
-  küçültülmüş (#6a75b6ed). Açık Adres `(max 100 karakter)` küçük + normal-case (#6a75b7a4).
+  küçültülmüş (#6a75b6ed). Açık Adres `(max 400 karakter)` küçük + normal-case (#6a75b7a4/#3589).
 - **WA pending ek dosya adı:** `text-[11px]` / `text-xs` (#6a75b73a).
 - **Vatandaş Talebi Açıklama hint:** `field-hint` (#6a75b7b0). Rutin Dosya/Görsel başlık
   biraz küçük (#6a75be0b).
@@ -2354,7 +2356,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA konuşmada ara (#3378/#3379/#3380):** büyüteç araması min 3 karakter; `deliveryStatus=Pending` giden mesajlar `Beklemede` rozeti metniyle contains eşleşir.
 - **Dashboard metrik kutuları (#3367/#3368):** Müdür ≤4 kart `max-w-4xl lg:grid-cols-4` ortalı; standart kullanıcı 4'lü satır `min-w-[7.75rem]` yarı genişlik.
 - **Users/Birimler grid yüksekliği (#3369 / #3374):** oluşturma sonrası `loadData({ silent: true })`; ilk yükleme dışında tam sayfa spinner yok; `admin-surface-page` form `max-height` scroll; grid iç scroll yok — sayfa boyutu kadar satır görünür.
-- **Açık Adres zorunluluk etiketi (#r463):** mahalle sonrası `(max 100 karakter)` sonra kırmızı `*`.
+- **Açık Adres zorunluluk etiketi (#r463 / #3589):** mahalle sonrası `(max 400 karakter)`; Adres Tarifi’de `*` yok.
 - **WA Talep Oluştur popup (#r464):** konuşma + form `lg:grid-cols-2` (yarım / yarım).
 - **Dizin yazdır (#r462–#r465):** h1 `Vatandaş Bilgi Listesi`; Başlık ~30% + ortalı;
   Durum ~15%; nested Detaylar Yazdır = `printJobDetail`.
@@ -3326,8 +3328,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   numara kutusu biraz dar. Ülke değişince numara **silinir** (#3580). TR 10 hane/5 ve
   gösterim `XXX XXX XX XX` (#3581); diğer ülkeler ITU ulusal hane (`getPhoneNsnLength`, #3575/#3579).
   Placeholder TR `5XX XXX XX XX`, diğer ülkeler boş.
+  Açık ülke listesi paneli `256px` (eski 320’nin %80’i, #3578).
+  Çağrı Mahalle/Cadde/No açık menü punto `0.75rem`, satır `min-height: 1.55rem` (#3585).
 - **Talep Oluştur ikonu (#3584):** yalnız Vatandaş İş Takip lisansı (kurum içi kapalıyken)
-  sol menüde `Phone` (çağrı); kurum içi lisans açıksa `ClipboardPlus` durur.
+  sol menüde `Phone` (çağrı) **açık mavi** (`text-sky-400`); kurum içi lisans açıksa
+  `ClipboardPlus` durur.
+- **Operatör + Vatandaş Talepleri Düzenle (#3588):** yalnız `Operator` + `detailContext=social`.
+  Düzenle arka plan `#007985` / hover `#006570`. Adres Tarifi başlık+kutu alt satır;
+  Mahalle/Cadde/No açık menü dar (`--compact`, trigger genişliği); placeholder `0.72rem`.
+  Diğer roller / Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon adres düzeni durur.
+- **WA Talep oluştur No menü (#3583):** `streetNoMenuWidthExtraPx={36}` (önceki +72).
 - **Detay popup Telefon No (#3574):** `.citizen-contact-phone-value` `0.72rem` (tüm Detaylar).
 
 ## 6. Tenant / Auth

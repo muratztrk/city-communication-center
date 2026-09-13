@@ -1,3 +1,14 @@
+## Round 1175 — Trello Doing (7 web)
+
+- **#3584:** Vatandaş-only lisansında Talep Oluştur çağrı ikonu açık mavi (`text-sky-400`).
+- **#3589:** Adres Tarifi max 100 → 400 (hint + `maxLength` + BE validators).
+- **#3588:** Operatör + Vatandaş Talepleri Düzenle koyu turkuaz; Adres Tarifi alt satır; menüler dar.
+- **#3585:** Çağrı Mahalle/Cadde/No menü `0.75rem`, satır daha kısa.
+- **#3583:** WA Talep oluştur No açık menü `+36px` (önceki +72).
+- **#3578:** Ülke açık paneli 320 → 256 (−20%).
+- **#3559:** Engellenenler: engelleyen Engeli Kaldır solunda, tarih altında; numara `0.75rem`.
+- Atlandı: 6 Tim mobil kart (#3495/#3592/#3593/#3591/#3590/#3493).
+
 ## Round 1174 — Trello Doing (11 web)
 
 - **#3564:** Tümü grid Onay Bekleyen `0.875rem`.

@@ -35,7 +35,7 @@ public sealed class UpdateJobCommandValidator : AbstractValidator<UpdateJobComma
         RuleFor(c => c.StreetNo).MaximumLength(AddressFieldLimits.StreetNoMaxLength)
             .WithMessage("No en fazla 20 karakter olabilir.");
         RuleFor(c => c.OpenAddress).MaximumLength(AddressFieldLimits.OpenAddressMaxLength)
-            .WithMessage("Açık Adres en fazla 100 karakter olabilir.");
+            .WithMessage("Adres Tarifi en fazla 400 karakter olabilir.");
     }
 }
 

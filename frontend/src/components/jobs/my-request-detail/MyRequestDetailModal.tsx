@@ -83,6 +83,8 @@ export interface MyRequestDetailModalProps {
   citizenOutboundMessage?: string | null
   /** Yöneticinin Mesajı Onayla anındaki not — Tamamlama Notu (#2528). Prop yoksa detail alanından okunur. */
   citizenApprovalReleasedNote?: string | null
+  /** Operatör + Vatandaş Talepleri Düzenle stili (#3588). */
+  operatorSocialEdit?: boolean
 }
 
 export function MyRequestDetailModal({
@@ -146,6 +148,7 @@ export function MyRequestDetailModal({
   shellClassName,
   citizenOutboundMessage,
   citizenApprovalReleasedNote,
+  operatorSocialEdit = false,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
   const outboundMessage = citizenOutboundMessage ?? detail.citizenOutboundMessage
@@ -180,6 +183,7 @@ export function MyRequestDetailModal({
         editSaving={editSaving}
         onSaveEdit={onSaveEdit}
         onCancelEdit={onCancelEdit}
+        editTurquoise={operatorSocialEdit}
       />
 
       <div className="flex-1 overflow-y-auto p-6">
@@ -246,6 +250,7 @@ export function MyRequestDetailModal({
             isEditing={isEditing}
             editDraft={editDraft}
             onEditDraftChange={onEditDraftChange}
+            operatorSocialLayout={operatorSocialEdit}
           />
         ) : (
           <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn && !isStandardUser ? 'lg:grid-cols-3 my-request-detail-bottom--three-cards' : 'lg:grid-cols-2 my-request-detail-bottom--attachments-only'}`}>
@@ -254,7 +259,7 @@ export function MyRequestDetailModal({
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
               </MyRequestSectionHeading>
               {isEditing && editDraft && onEditDraftChange ? (
-                <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} />
+                <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} operatorSocialLayout={operatorSocialEdit} />
               ) : (
                 <AddressDetailFields
                   variant="my-request"

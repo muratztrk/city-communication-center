@@ -20,6 +20,8 @@ interface MyRequestDetailHeaderProps {
   editSaving?: boolean
   onSaveEdit?: () => void
   onCancelEdit?: () => void
+  /** Operatör + Vatandaş Talepleri Düzenle: koyu turkuaz (#3588). */
+  editTurquoise?: boolean
 }
 
 export function MyRequestDetailHeader({
@@ -37,6 +39,7 @@ export function MyRequestDetailHeader({
   editSaving = false,
   onSaveEdit,
   onCancelEdit,
+  editTurquoise = false,
 }: MyRequestDetailHeaderProps) {
   const { t } = useTranslation()
 
@@ -75,7 +78,9 @@ export function MyRequestDetailHeader({
               <Button
                 type="button"
                 size="lg"
-                className="inline-flex items-center gap-1.5 bg-emerald-700 text-white hover:bg-emerald-800"
+                className={editTurquoise
+                  ? 'inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]'
+                  : 'inline-flex items-center gap-1.5 bg-emerald-700 text-white hover:bg-emerald-800'}
                 onClick={onEdit}
                 aria-label={t('jobs.actions.edit', 'Düzenle')}
               >
@@ -86,7 +91,9 @@ export function MyRequestDetailHeader({
             {showEditDisabled && (
               <DisabledActionButton
                 size="lg"
-                className="inline-flex items-center gap-1.5 bg-emerald-700 text-white"
+                className={editTurquoise
+                  ? 'inline-flex items-center gap-1.5 bg-[#007985] text-white'
+                  : 'inline-flex items-center gap-1.5 bg-emerald-700 text-white'}
                 hoverTitle={editDisabledTitle ?? t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
               >
                 <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

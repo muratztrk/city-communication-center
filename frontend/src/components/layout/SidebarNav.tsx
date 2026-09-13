@@ -20,6 +20,8 @@ export interface SidebarNavLinkItem {
   badgeCount?: number
   /** Slightly enlarge important nested links without changing the whole sidebar. */
   emphasized?: boolean
+  /** İkon rengi (ör. vatandaş-only Talep Oluştur çağrı ikonu — #3584). */
+  iconClassName?: string
 }
 
 export interface SidebarNavGroupItem {
@@ -132,7 +134,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
         {item.iconImageSrc ? (
           <img src={item.iconImageSrc} alt="" className={cn('shrink-0 object-contain', isEmphasizedNested ? 'size-4' : nested && !collapsed ? 'size-4' : 'size-4.5')} />
         ) : Icon ? (
-          <Icon className={cn('shrink-0', isEmphasizedNested ? 'size-5' : nested && !collapsed ? 'size-4' : 'size-4.5')} />
+          <Icon className={cn('shrink-0', isEmphasizedNested ? 'size-5' : nested && !collapsed ? 'size-4' : 'size-4.5', item.iconClassName)} />
         ) : null}
         {!collapsed ? (
           item.badgeCount != null && item.badgeCount > 0 ? (

@@ -1,6 +1,6 @@
 export const ADDRESS_STREET_MAX_LENGTH = 50
 export const ADDRESS_STREET_NO_MAX_LENGTH = 6
-export const ADDRESS_OPEN_ADDRESS_MAX_LENGTH = 100
+export const ADDRESS_OPEN_ADDRESS_MAX_LENGTH = 400
 /** Cadde üzerinde kapı yok (yol, park, saha) — CBS No listesine eklenir (#2714). */
 export const STREET_NO_NONE = 'Yok'
 

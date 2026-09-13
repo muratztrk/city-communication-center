@@ -407,7 +407,7 @@ export function RoutineTaskPage() {
                   <span className="job-field-label text-[0.82rem]">
                     {t('address.openAddressLabel', 'Açık Adres')}
                     {hasNeighborhood ? (
-                      <span className="ml-1 text-xs font-normal normal-case text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
+                      <span className="ml-1 text-xs font-normal normal-case text-slate-400">{t('address.openAddressMaxHint', '(max 400 karakter)')}</span>
                     ) : null}
                   </span>
                   <textarea

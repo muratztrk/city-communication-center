@@ -40,6 +40,7 @@ interface MyRequestDetailBottomCardsProps {
   // satırına taşındığı için salt-okunur modda ayrı kart gösterilmez; düzenleme modunda yükleme/silme
   // için hâlâ gerekli olduğundan sadece isEditing=false iken gizlenir (card #1481).
   hideAttachmentsCard?: boolean
+  operatorSocialLayout?: boolean
 }
 
 export function MyRequestDetailBottomCards({
@@ -62,6 +63,7 @@ export function MyRequestDetailBottomCards({
   onAttachmentUpload,
   onAttachmentDelete,
   isEditing = false,
+  operatorSocialLayout = false,
   editDraft,
   onEditDraftChange,
   hideAddressCard = false,
@@ -88,7 +90,7 @@ export function MyRequestDetailBottomCards({
             {t('address.detailSectionTitle', 'Adres Bilgileri')}
           </MyRequestSectionHeading>
           {isEditing && editDraft && onEditDraftChange ? (
-            <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} />
+            <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} operatorSocialLayout={operatorSocialLayout} />
           ) : (
             <AddressDetailFields
               variant="my-request"

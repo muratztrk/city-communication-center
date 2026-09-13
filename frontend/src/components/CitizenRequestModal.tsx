@@ -772,7 +772,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     streetNoColumnClassName="lg:w-[6.15rem] lg:min-w-[3.4rem] lg:max-w-[6.15rem]"
                     matchTriggerWidth
                     streetMenuWidthExtraPx={32}
-                    streetNoMenuWidthExtraPx={72}
+                    streetNoMenuWidthExtraPx={36}
                     streetNoMenuExpand="right"
                   />
                 </div>
@@ -781,7 +781,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="job-field-label">
                       {t('address.openAddressLabel', 'Açık Adres')}
                       {neighborhood ? (
-                        <span className="ml-1 normal-case text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                        <span className="ml-1 normal-case text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 400 karakter)')}</span>
                       ) : null}
                     </span>
                     <DeferredComposerTextarea

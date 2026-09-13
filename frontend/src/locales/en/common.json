@@ -2059,7 +2059,7 @@
     "openAddressRequired": "Full address is required when a neighborhood is selected.",
     "openAddressLabel": "Address Directions",
     "directionsLabel": "Address Directions",
-    "openAddressMaxHint": "(max 100 characters)",
+    "openAddressMaxHint": "(max 400 characters)",
     "openAddressPlaceholder": "Location, apartment, floor details..."
   },
   "routineTask": {

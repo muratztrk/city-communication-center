@@ -713,7 +713,7 @@ function ConversationProfilePanel({
           <span className={labelClass}>
             {t('address.openAddressLabel', 'Adres Tarifi')}
             {hasNeighborhood ? (
-              <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
+              <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-slate-400">{t('address.openAddressMaxHint', '(max 400 karakter)')}</span>
             ) : null}
           </span>
           <DeferredComposerTextarea
@@ -2151,31 +2151,37 @@ export function WhatsAppConversationsPage() {
                     <div className="min-w-0">
                       <div className="flex min-w-0 items-center gap-1.5">
                         <Ban className="size-3 shrink-0 text-red-600" aria-hidden="true" />
-                        <span className="truncate text-sm font-semibold leading-none text-slate-900">
+                        <span className={`truncate font-semibold leading-none text-slate-900 ${citizenName ? 'text-sm' : 'text-[0.75rem]'}`}>
                           {citizenName || phoneLabel}
                         </span>
-                        {blockerName ? (
-                          <span className="shrink-0 text-xs font-medium leading-none text-sky-500">({blockerName})</span>
-                        ) : null}
                       </div>
                       {citizenName ? (
-                        <div className="truncate pl-5 pt-1 text-sm font-semibold leading-none text-slate-900">{phoneLabel}</div>
-                      ) : null}
-                      {blockerWhen ? (
-                        <div className="truncate pl-5 pt-0.5 text-left text-[0.6875rem] font-medium leading-tight text-sky-500">({blockerWhen})</div>
+                        <div className="truncate pl-5 pt-1 text-[0.75rem] font-semibold leading-none text-slate-900">{phoneLabel}</div>
                       ) : null}
                     </div>
-                    {user?.role === 'Operator' || user?.role === 'SystemAdmin' ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        className="mr-1 shrink-0"
-                        onClick={() => { void handleSetBlocked(item.citizenConversationId, false) }}
-                      >
-                        {t('whatsapp.unblockAction', 'Engeli Kaldır')}
-                      </Button>
-                    ) : null}
+                    <div className="flex shrink-0 items-center gap-2">
+                      {blockerName || blockerWhen ? (
+                        <div className="min-w-0 text-left">
+                          {blockerName ? (
+                            <div className="truncate text-xs font-medium leading-none text-sky-500">({blockerName})</div>
+                          ) : null}
+                          {blockerWhen ? (
+                            <div className="truncate pt-0.5 text-[0.6875rem] font-medium leading-tight text-sky-500">({blockerWhen})</div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                      {user?.role === 'Operator' || user?.role === 'SystemAdmin' ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          className="mr-1 shrink-0"
+                          onClick={() => { void handleSetBlocked(item.citizenConversationId, false) }}
+                        >
+                          {t('whatsapp.unblockAction', 'Engeli Kaldır')}
+                        </Button>
+                      ) : null}
+                    </div>
                   </li>
                   )
                 })}

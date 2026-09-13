@@ -2101,7 +2101,7 @@
     "openAddressRequired": "Mahalle seçildiğinde Adres Tarifi zorunludur.",
     "openAddressLabel": "Adres Tarifi",
     "directionsLabel": "Adres Tarifi",
-    "openAddressMaxHint": "(max 100 karakter)",
+    "openAddressMaxHint": "(max 400 karakter)",
     "openAddressPlaceholder": "Mevki, daire, kat bilgisi giriniz..."
   },
   "routineTask": {

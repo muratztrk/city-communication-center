@@ -45,6 +45,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
         menuClassName={menuClassName}
         menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
         matchTriggerWidth={operatorSocialLayout}
+        menuWidthExtraPx={operatorSocialLayout ? -20 : 0}
         options={neighborhoodOptions}
         value={draft.neighborhood}
         onChange={neighborhood => {
@@ -63,11 +64,13 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
       required={hasNeighborhood}
       labelClassName="text-xs font-semibold text-slate-500"
       openUp
-      className="grid min-w-0 grid-cols-[minmax(0,1fr)_4.5rem] gap-2"
+      className={`grid min-w-0 gap-2 ${operatorSocialLayout ? 'grid-cols-[minmax(0,1fr)_5.15rem]' : 'grid-cols-[minmax(0,1fr)_4.5rem]'}`}
       streetNoColumnClassName=""
       menuClassName={menuClassName}
       menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
       matchTriggerWidth={operatorSocialLayout}
+      streetMenuWidthExtraPx={operatorSocialLayout ? -20 : 0}
+      streetNoMenuWidthExtraPx={operatorSocialLayout ? 24 : 0}
       onStreetChange={street => onChange({ street })}
       onStreetNoChange={streetNo => onChange({ streetNo })}
     />
@@ -82,11 +85,11 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
         ) : null}
       </span>
       <textarea
-        className={`field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' placeholder:text-[0.72rem]' : ''}`}
+        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:text-[0.66rem]' : ' min-h-[2.75rem]'}`}
         placeholder={t('address.openAddressPlaceholder', 'Mevki, daire, kat bilgisi giriniz.')}
         maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
         value={draft.openAddress}
-        rows={autoGrowRows(draft.openAddress)}
+        rows={operatorSocialLayout ? Math.max(4, autoGrowRows(draft.openAddress)) : autoGrowRows(draft.openAddress)}
         onChange={e => onChange({ openAddress: e.target.value })}
         onBlur={() => onChange({ openAddress: normalizeTitleCaseField(draft.openAddress) ?? '' })}
         disabled={!hasNeighborhood}

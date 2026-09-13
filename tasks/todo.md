@@ -1,3 +1,8 @@
+## Round 1177 — Trello Doing (1 web)
+
+- **#3594:** Operatör VT Düzenle: Mahalle/Cadde menü −20px, No +24px; Adres Tarifi 2× yükseklik; placeholder `0.66rem`.
+- Atlandı: #3591 Tim mobil.
+
 ## Round 1176 — Trello Doing (4 web, reopen)
 
 - **#3559:** Engellenenler engelleyen+tarih tek parantez; tarih `0.625rem`; grid Durum istif.

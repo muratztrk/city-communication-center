@@ -3339,6 +3339,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Operatör + Vatandaş Talepleri Düzenle (#3588):** yalnız `Operator` + `detailContext=social`.
   Düzenle arka plan `#007985` / hover `#006570`. Adres Tarifi başlık+kutu alt satır;
   Mahalle/Cadde/No açık menü dar (`--compact`, trigger genişliği); placeholder `0.72rem`.
+  Mahalle/Cadde açık menü tetikleyiciden −20px, No +24px (#3594). Adres Tarifi kutusu
+  `min-h-[5.5rem]` / en az 4 satır; placeholder `0.66rem`.
   Diğer roller / Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon adres düzeni durur.
 - **WA Talep oluştur No menü (#3583):** `streetNoMenuWidthExtraPx={36}` (önceki +72).
 - **Detay popup Telefon No (#3574):** `.citizen-contact-phone-value` `0.72rem` (tüm Detaylar).

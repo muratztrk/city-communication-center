@@ -1121,6 +1121,7 @@
     "viewTicket": "Talebi Görüntüle",
     "viewRequestsByNumber": "Numaranın Talepleri",
     "blockedList": "Engellenenler",
+    "blockedListSearch": "Numara veya vatandaş adı",
     "blockedListEmpty": "Engellenen numara yok.",
     "unblockAction": "Engeli Kaldır",
     "blockNumber": "Numarayı Engelle",

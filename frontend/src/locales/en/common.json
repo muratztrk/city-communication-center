@@ -1114,6 +1114,7 @@
     "viewTicket": "View Ticket",
     "viewRequestsByNumber": "This Number's Requests",
     "blockedList": "Blocked",
+    "blockedListSearch": "Phone or citizen name",
     "blockedListEmpty": "No blocked numbers.",
     "unblockAction": "Unblock",
     "blockNumber": "Block Number",

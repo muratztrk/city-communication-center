@@ -80,6 +80,19 @@ function toLocalPhoneFilterDigits(phone: string): string {
   return digits
 }
 
+function matchesBlockedListSearch(conv: CitizenConversationSummary, query: string): boolean {
+  const trimmed = query.trim()
+  if (!trimmed) return true
+  const qLower = trimmed.toLocaleLowerCase('tr')
+  const name = (conv.citizenName ?? '').trim().toLocaleLowerCase('tr')
+  if (name.includes(qLower)) return true
+  const queryDigits = trimmed.replace(/\D/g, '').replace(/^90/, '').replace(/^0/, '')
+  const phoneDigits = toLocalPhoneFilterDigits(conv.citizenPhone)
+  if (queryDigits && phoneDigits.includes(queryDigits)) return true
+  const formatted = formatPhone(conv.citizenPhone).toLocaleLowerCase('tr')
+  return formatted.includes(qLower)
+}
+
 /** İsimden baş harfleri çıkarır (en fazla 2). Harf yoksa null döner. */
 function getInitials(value: string): string | null {
   const words = value.trim().split(/\s+/).filter(w => /\p{L}/u.test(w))
@@ -1638,6 +1651,7 @@ export function WhatsAppConversationsPage() {
   const [listFilter, setListFilter] = useState<ConversationListFilter>('all')
   const [statusFilter] = useState<ConversationStatusFilter>('all')
   const [blockedListOpen, setBlockedListOpen] = useState(false)
+  const [blockedListSearch, setBlockedListSearch] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
   const mountedRef = useRef(true)
@@ -2044,6 +2058,19 @@ export function WhatsAppConversationsPage() {
     }
   }, [navigate, requestedAt, requestedMessageId, requestedPhone])
 
+  const blockedConversations = useMemo(
+    () => conversations.filter(item => item.isBlocked),
+    [conversations],
+  )
+  const filteredBlockedConversations = useMemo(
+    () => blockedConversations.filter(item => matchesBlockedListSearch(item, blockedListSearch)),
+    [blockedConversations, blockedListSearch],
+  )
+  const closeBlockedList = useCallback(() => {
+    setBlockedListOpen(false)
+    setBlockedListSearch('')
+  }, [])
+
   return (
     <div className="page-stack desktop-page-shell whatsapp-page-shell">
       <header className="sticky-page-header">
@@ -2127,24 +2154,38 @@ export function WhatsAppConversationsPage() {
       </div>
 
       {blockedListOpen ? createPortal(
-        <ModalBackdrop onEscapeClose={() => setBlockedListOpen(false)}>
+        <ModalBackdrop onEscapeClose={closeBlockedList}>
           <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white px-6 py-5 shadow-2xl">
             <button
               type="button"
-              onClick={() => setBlockedListOpen(false)}
+              onClick={closeBlockedList}
               aria-label={t('common.close', 'Kapat')}
               className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
             >
               <X className="size-4" />
             </button>
-            <h2 className="mb-3 border-b border-slate-200 pb-2 text-lg font-bold text-slate-950">
-              {t('whatsapp.blockedList', 'Engellenenler')}
-            </h2>
-            {conversations.filter(item => item.isBlocked).length === 0 ? (
+            <div className="mb-3 flex items-center gap-2 border-b border-slate-200 pb-2 pr-8">
+              <h2 className="shrink-0 text-lg font-bold text-slate-950">
+                {t('whatsapp.blockedList', 'Engellenenler')}
+              </h2>
+              <div className="relative min-w-0 flex-1">
+                <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={blockedListSearch}
+                  onChange={event => setBlockedListSearch(event.target.value)}
+                  placeholder={t('whatsapp.blockedListSearch', 'Numara veya vatandaş adı')}
+                  className="field-input h-8 w-full min-w-0 pl-7 text-xs"
+                />
+              </div>
+            </div>
+            {blockedConversations.length === 0 ? (
               <p className="text-sm text-slate-600">{t('whatsapp.blockedListEmpty', 'Engellenen numara yok.')}</p>
+            ) : filteredBlockedConversations.length === 0 ? (
+              <p className="text-sm text-slate-600">{t('common.noResults', 'Sonuç bulunamadı.')}</p>
             ) : (
-              <ul className="max-h-[min(24rem,60vh)] divide-y divide-slate-100 overflow-y-auto pr-1">
-                {conversations.filter(item => item.isBlocked).map(item => {
+              <ul className={`divide-y divide-slate-100 pr-1${filteredBlockedConversations.length > 5 ? ' max-h-[16.25rem] overflow-y-auto' : ''}`}>
+                {filteredBlockedConversations.map(item => {
                   const citizenName = item.citizenName?.trim() ?? ''
                   const phoneLabel = formatPhone(item.citizenPhone)
                   const blockerName = item.blockedByDisplayName?.trim() ?? ''

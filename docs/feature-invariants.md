@@ -805,6 +805,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ring-sky-200`) ve **oval** (`rounded-full`, #3559 reopen); engelleyen/tarih çerçevesi dar
   (`min-w-[5.25rem] max-w-[7.5rem]`, `px-2 py-0.5`, #3559 reopen-2).   Satır `items-start`: vatandaş adı ile engelleyen çerçevesi üst hizada (#3559 reopen-3).
   İsim satırları `leading-snug` (descender kesilmesin, #3559 reopen-4); çerçeve `py-1`.
+  Başlık satırında numara/ad arama (`blockedListSearch`, #3613); >5 kayıtta liste
+  `max-h-[16.25rem] overflow-y-auto`.
   Eski kayıtlarda actor/zaman yoksa çerçeve/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
@@ -3356,8 +3358,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlık düzeni diğer rollerde durur).   Talep Etiketi Düzenle modunda görünür (#3597); dropdown sağa; açık menü = tetikleyici
   genişliği (ekstra px yok). VT grid Talep Etiketi menüsü de tetikleyici genişliği (#3611).
   Düzenle kaydı `operatorSocialEdit` ile tüm VT rolleri (#3597 reopen). Adres Tarifi + Konum
-  Linki yan yana; Adres Tarifi + Konum Linki etiketleri `min-h-[2.75rem] items-end` (#3612);
-  `(max 400 karakter)` başlığın hemen sağında; placeholder `0.48rem` (#3594 reopen);
+  Linki yan yana; Adres Tarifi + Konum Linki etiketleri `min-h-[2.25rem] items-end` (#3612);
+  `(max 400 karakter)` başlığın hemen sağında; placeholder `0.44rem` (#3594 reopen);
   Konum Linki placeholder `0.70rem`. No kolon `6.75rem`.
   Adres Tarifi `min-h-[5.5rem]` / ≥4 satır. Taleplerim / Görevlerim yeşil Düzenle ve 3 kolon
   adres düzeni durur.

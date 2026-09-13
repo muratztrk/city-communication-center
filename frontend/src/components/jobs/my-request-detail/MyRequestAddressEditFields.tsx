@@ -78,7 +78,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
 
   const openAddressField = (
     <label className="grid min-w-0 gap-1">
-      <span className={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' flex min-h-[2.75rem] items-end gap-1.5' : ''}`}>
+      <span className={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' flex min-h-[2.25rem] items-end gap-1.5' : ''}`}>
         <span className={operatorSocialLayout ? 'whitespace-nowrap' : undefined}>
           {t('address.openAddressLabel', 'Adres Tarifi')}
         </span>
@@ -91,7 +91,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
         ) : null}
       </span>
       <textarea
-        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:text-[0.48rem]' : ' min-h-[2.75rem]'}`}
+        className={`field-textarea resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400${operatorSocialLayout ? ' min-h-[5.5rem] placeholder:text-[0.44rem]' : ' min-h-[2.75rem]'}`}
         placeholder={t('address.openAddressPlaceholder', 'Mevki, daire, kat bilgisi giriniz.')}
         maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
         value={draft.openAddress}
@@ -107,7 +107,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
     <AddressCoordinatesField
       value={draft.coordinates}
       onChange={coordinates => onChange({ coordinates })}
-      labelClassName={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' flex min-h-[2.75rem] items-end' : ''}`}
+      labelClassName={`text-xs font-semibold text-slate-500${operatorSocialLayout ? ' flex min-h-[2.25rem] items-end' : ''}`}
       inputClassName={operatorSocialLayout ? 'placeholder:!text-[0.70rem]' : undefined}
     />
   )

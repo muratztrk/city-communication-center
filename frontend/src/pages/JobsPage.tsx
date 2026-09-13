@@ -1706,7 +1706,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         } : {}),
       })
       // Operator/CRM: Talep Etiketi sosyal mesaj kategorisinde saklanır (card #1896 reopen).
-      if (citizenSourceMessage?.socialMessageId && (user?.role === 'Operator' || hasCitizenRequestManagerRole(user) || isPhoneCitizenEdit)) {
+      if (citizenSourceMessage?.socialMessageId && (operatorSocialEdit || user?.role === 'Operator' || hasCitizenRequestManagerRole(user) || isPhoneCitizenEdit)) {
         const nextCategory = myRequestEditDraft.category.trim() || null
         const phoneHandle = isPhoneCitizenEdit && nextCitizenPhoneDigits.length === 10
           ? `90${nextCitizenPhoneDigits}`

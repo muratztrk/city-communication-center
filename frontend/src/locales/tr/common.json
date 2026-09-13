@@ -81,6 +81,7 @@
     "listUnlocated": "Haritada Olmayanları Listele",
     "geocodeEmpty": "Adresler haritada konumlanamadı.",
     "geocodePartial": "{{count}} talep adresinden konumlanamadı.",
+    "locatedListTitle": "Harita Konumu Olan Vatandaş Talepleri",
     "unlocatedListTitle": "Harita Konumu Olmayan Talepler",
     "streetView": "Street View",
     "approximatePin": "Yaklaşık konum — açık adres tam çözülemedi, mahalle/cadde seviyesinde gösteriliyor.",

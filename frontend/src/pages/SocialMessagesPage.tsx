@@ -775,6 +775,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                           tags={requestTags}
                           selectedName={message.category}
                           emptyLabel={t('whatsapp.requestTagsGridEmpty', 'Etiketler')}
+                          matchTriggerWidth
                           onSelect={name => { void handleCategorySelect(message, name) }}
                           onClear={() => { void handleCategoryClear(message) }}
                         />

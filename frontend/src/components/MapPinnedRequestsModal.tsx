@@ -158,7 +158,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
   const columnCount = isCitizen ? 7 : 8
   const modalTitle = isCitizen
     ? (located
-      ? t('nav.social', 'Vatandaş Talepleri')
+      ? t('citizenRequestMap.locatedListTitle', 'Harita Konumu Olan Vatandaş Talepleri')
       : t('citizenRequestMap.unlocatedListTitle', 'Harita Konumu Olmayan Talepler'))
     : (located
       ? t('departmentRequestMap.locatedListTitle', 'Konum Bilgisi Olan Birim Talepleri')

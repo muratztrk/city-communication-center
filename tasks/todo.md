@@ -1,3 +1,10 @@
+## Round 1183 — Trello Doing (4 web reopen)
+
+- **#3608:** dizin Durum `0.70rem`.
+- **#3559:** Engellenenler `leading-snug` descender fix.
+- **#3612:** VT Düzenle adres etiketleri yukarı (`min-h-[2.75rem]`).
+- **#3594:** placeholder `0.48rem`.
+
 ## Round 1182 — Trello Doing (1 web reopen)
 
 - **#3559:** Engellenenler vatandaş adı + engelleyen çerçevesi üst hizada.

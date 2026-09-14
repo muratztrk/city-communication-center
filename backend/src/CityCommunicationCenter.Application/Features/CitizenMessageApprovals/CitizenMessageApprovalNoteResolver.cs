@@ -164,8 +164,8 @@ internal static class CitizenMessageApprovalNoteResolver
     }
 
     /// <summary>
-    /// İptal edilen vatandaş talebinin WA beklemede balonundaki Onaylayan Yönetici — İptal Et
-    /// aksiyonunu başlatan kullanıcı (card #3646).
+    /// İptal edilen vatandaş talebinin WA beklemede balonundaki Onaylayan Personel —
+    /// İptal notunu giren / İptal Et aksiyonunu başlatan kullanıcı (card #3646 / #3652).
     /// </summary>
     public static async Task<string?> ResolveCancelledJobInitiatorDisplayNameAsync(
         IApplicationDbContext dbContext,

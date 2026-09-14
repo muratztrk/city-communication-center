@@ -2987,13 +2987,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Tamamlama Notu / İptal Nedeni etiketinin hemen üstünde yönetici onayı bilgi satırı görünür
   (üst boşluk yok).
 - **Birime Gelen iptal → Mesaj Onayı (#3470):** görev oluşmadan vatandaş talebi `CancelJob`
-  ile iptal edilince `CitizenTerminalMessageReleasedAtUtc` sıfırlanır; talep Mesaj Onayı
-  `to-send` listesinde kalır (Rejected + `CancelReason` da listelenir). Detay popup
-  `Vatandaşa Giden Mesaj` alanı yine audit release + iletilmiş kanal kaydından dolar (#3504);
+  ile iptal edilince `CitizenTerminalMessageReleasedAtUtc` sıfırlanır; **Çağrı (Phone)** kanalı
+  için talep Mesaj Onayı `to-send` listesinde kalır (Rejected + `CancelReason` da listelenir).
+  **WhatsApp** bağlı VT iptalinde `ReleaseTerminalMessagesAsync` hemen çağrılır (#3652).
+  Detay popup `Vatandaşa Giden Mesaj` alanı yine audit release + iletilmiş kanal kaydından dolar (#3504);
   `ReleasedAtUtc` null olsa da gösterim engellenmez.
-- **Vatandaş Talepleri iptal (#3646):** grid/detay `İptal Et` yalnız `isCitizenProcessingReceivedState`
-  (İşleme Alındı); popup İptal Nedeni 400 karakter + mesaj onayı bilgi satırı. WA beklemede
-  balon `Onaylayan Yönetici` = `JobCancelled` audit actor (`ResolveCancelledJobInitiatorDisplayNameAsync`).
+- **Vatandaş Talepleri iptal (#3646/#3652):** grid/detay `İptal Et` yalnız `isCitizenProcessingReceivedState`
+  (İşleme Alındı); popup İptal Nedeni 400 karakter + mesaj onayı bilgi satırı. WA iptalinde
+  `İptal Edildi` şablonu `{İptal Notu}` (`job.CancelReason`) ile beklemede balon oluşur; chip
+  `Onaylayan Personel` = `JobCancelled` audit actor (`ResolveCancelledJobInitiatorDisplayNameAsync`).
 - **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.

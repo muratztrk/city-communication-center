@@ -1,6 +1,7 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Application.Features.Users;
+using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
@@ -156,13 +157,29 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        if (_citizenJobStatusNotifier is not null)
+        if (_citizenJobStatusNotifier is not null && JobCitizenRequestHelper.IsCitizenRequest(job))
         {
             await _citizenJobStatusNotifier.NotifyStatusChangedAsync(
                 tenantId,
                 job.JobId,
                 previousDisplayStatus,
                 cancellationToken);
+
+            // VT iptal → İptal Edildi şablonu + {İptal Notu} operatör WA kuyruğuna (card #3652).
+            var hasWhatsAppThread = await _dbContext.SocialMessages.AsNoTracking()
+                .AnyAsync(
+                    message => message.TenantId == tenantId
+                        && message.Channel == SocialChannel.WhatsApp
+                        && (message.JobId == job.JobId
+                            || (job.SourceRefId.HasValue && message.SocialMessageId == job.SourceRefId.Value)),
+                    cancellationToken);
+            if (hasWhatsAppThread)
+            {
+                await _citizenJobStatusNotifier.ReleaseTerminalMessagesAsync(
+                    tenantId,
+                    job.JobId,
+                    cancellationToken);
+            }
         }
 
         return true;

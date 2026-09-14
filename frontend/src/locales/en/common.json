@@ -1154,7 +1154,7 @@
       "cancel": "Note",
       "completion": "Note"
     },
-    "messageApproverButton": "Approving Manager",
+    "messageApproverButton": "Approving Staff",
     "requestTagsShort": "Select a tag",
       "requestTagPlaceholder": "Select request tag...",
     "requestTagsGridEmpty": "Tags",

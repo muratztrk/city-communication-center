@@ -667,7 +667,7 @@ export function DepartmentsPage() {
                 <Building2 className="size-4 shrink-0 text-white/90" aria-hidden="true" />
                 <div>
                   <div className="text-[0.62rem] font-semibold uppercase tracking-[0.06em] text-white/75">{t('departments.total')}</div>
-                  <div className="text-lg font-extrabold leading-none tabular-nums">{departments.length}</div>
+                  <div className="text-base font-extrabold leading-none tabular-nums">{departments.length}</div>
                 </div>
               </div>
               <div className="flex max-w-[18rem] flex-wrap items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5">

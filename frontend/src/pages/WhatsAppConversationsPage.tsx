@@ -2084,7 +2084,7 @@ export function WhatsAppConversationsPage() {
     <div className="page-stack desktop-page-shell whatsapp-page-shell">
       <header className="sticky-page-header">
         <div className="page-header-row">
-          <div className="space-y-1">
+          <div className="whatsapp-page-header-copy space-y-0">
             <h1 className="page-title">{t('whatsapp.title')}</h1>
             <p className="page-subtitle">{t('whatsapp.subtitle')}</p>
           </div>
@@ -2181,9 +2181,9 @@ export function WhatsAppConversationsPage() {
                   value={blockedListSearch}
                   onChange={event => setBlockedListSearch(event.target.value)}
                   placeholder={blockedListSearchCompact
-                    ? t('whatsapp.blockedListSearchMobile', 'Telefon No, isim...')
+                    ? t('whatsapp.blockedListSearchMobile', 'Telefon no, isim...')
                     : t('whatsapp.blockedListSearch', 'Telefon No, vatandaş adı...')}
-                  className="whatsapp-blocked-list-search field-input h-[1.25rem] w-full min-w-0 pl-6 pr-7 text-[0.8125rem] leading-tight"
+                  className="whatsapp-blocked-list-search field-input w-full min-w-0 pl-6 pr-7 text-[0.8125rem] leading-none"
                 />
                 {blockedListSearch.trim() ? (
                   <button

@@ -7780,7 +7780,7 @@
   }
 
   .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
-    right: -6rem;
+    right: -5.25rem;
   }
 
   /* Harita dikey FAB: paneller sağa taşmasın, butonların soluna açılsın (#3280/#3243). */
@@ -8992,21 +8992,24 @@
 }
 
 .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
-  height: 1.125rem !important;
+  height: 1rem !important;
+  min-height: 1rem !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .whatsapp-blocked-list-modal .whatsapp-blocked-list-search-wrap:has(.whatsapp-blocked-list-search:not(:placeholder-shown)) button {
-  right: 0.35rem !important;
+  right: 0.625rem !important;
 }
 
 @media (max-width: 767px) {
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-search-wrap {
-    width: 9.5rem !important;
+    width: 8.25rem !important;
     max-width: 100%;
   }
 
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
-    padding-right: 1.35rem !important;
+    padding-right: 1.5rem !important;
   }
 }
 
@@ -9072,9 +9075,14 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   gap: 0.45rem !important;
 }
 
-/* Vatandaş dashboard FAB hizası (#3634). */
-body:has(.dashboard-page-shell--citizen) .fixed-fab-stack {
-  bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap)) !important;
+/* WhatsApp banner: alt başlık altı boşluk (#3637). */
+.whatsapp-page-shell .sticky-page-header {
+  gap: 0.45rem;
+}
+
+.whatsapp-page-shell .whatsapp-page-header-copy .page-subtitle {
+  margin-bottom: 0;
+  line-height: 1.35;
 }
 
 /* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */

@@ -9032,11 +9032,13 @@
 
 @media (max-width: 767px) {
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-search-wrap {
-    width: 8.25rem !important;
+    width: 9rem !important;
     max-width: 100%;
   }
 
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
+    height: 1.5rem !important;
+    min-height: 1.5rem !important;
     padding-right: 1.5rem !important;
   }
 

@@ -1088,6 +1088,7 @@
     "openLocation": "Open in Maps",
     "locationUnavailable": "Location coordinates were not available.",
     "pendingBadge": "Pending",
+    "messageQueuedAt": "Created: {{time}}",
     "automaticMessage": "Automatic Message",
     "editedBadge": "Edited",
     "sendPendingMessage": "Send Message",

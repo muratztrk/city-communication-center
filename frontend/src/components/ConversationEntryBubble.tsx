@@ -19,6 +19,7 @@ import {
 } from '../utils/socialConversationContent'
 import { formatWhatsAppDeliveryError, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
+import { resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
 
 export interface ConversationEntryBubbleData {
   entryId: string
@@ -31,6 +32,7 @@ export interface ConversationEntryBubbleData {
   senderLabel?: string | null
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | string | null
   deliveryError?: string | null
+  deliveryStatusUpdatedAtUtc?: string | null
   editedAtUtc?: string | null
   editedByDisplayName?: string | null
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null
@@ -164,7 +166,13 @@ export function ConversationEntryBubble({
     && Boolean(locationCoords)
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
-  const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
+  const { displayAt, queuedAt } = resolveConversationEntryBubbleTime(entry)
+  const sentTime = formatConversationMessageTime(displayAt, locale, t)
+  const queuedTimeTitle = queuedAt
+    ? t('whatsapp.messageQueuedAt', 'Oluşturulma: {{time}}', {
+        time: formatConversationMessageTime(queuedAt, locale, t),
+      })
+    : undefined
   const showPendingActions = (isPending || isReEngagementFailure) && canSendPending
 
   const syncTextareaHeight = () => {
@@ -379,7 +387,7 @@ export function ConversationEntryBubble({
               />
             ) : null}
             {!isInbound && entry.deliveryStatus ? <span aria-hidden="true">·</span> : null}
-            <span>{sentTime}</span>
+            <span title={queuedTimeTitle}>{sentTime}</span>
           </p>
           {!isInbound && entry.deliveryStatus === 'Failed' && deliveryErrorMessage ? (
             <p className={`mt-1 text-[10px] leading-snug ${theme === 'light' ? 'text-red-100' : 'text-red-200'}`}>

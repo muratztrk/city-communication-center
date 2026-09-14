@@ -75,19 +75,21 @@ public sealed class GetSocialConversationQueryHandler
         var entries = await _dbContext.ConversationEntries
             .AsNoTracking()
             .Where(e => messageIds.Contains(e.SocialMessageId))
-            .OrderBy(e => e.SentAt)
             .Select(e => new
             {
                 e.EntryId,
                 e.SocialMessageId,
-                Direction = e.Direction.ToString(),
+                e.Direction,
+                DirectionLabel = e.Direction.ToString(),
                 e.Content,
                 e.MediaId,
                 e.MediaMimeType,
                 e.SentAt,
                 e.SenderLabel,
-                DeliveryStatus = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
+                e.DeliveryStatus,
+                DeliveryStatusLabel = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
                 e.DeliveryError,
+                e.DeliveryStatusUpdatedAtUtc,
                 e.EditedAtUtc,
                 e.EditedByDisplayName,
             })
@@ -112,6 +114,7 @@ public sealed class GetSocialConversationQueryHandler
                 null,
                 null,
                 null,
+                null,
                 request.SocialMessageId,
                 null,
                 fallbackLat,
@@ -121,7 +124,7 @@ public sealed class GetSocialConversationQueryHandler
 
         var terminalInfoByMessageId = new Dictionary<Guid, TerminalInfo>();
         foreach (var entryMessageId in entries
-            .Where(e => IsTerminalNoteEligibleDelivery(e.DeliveryStatus))
+            .Where(e => IsTerminalNoteEligibleDelivery(e.DeliveryStatusLabel))
             .Select(e => e.SocialMessageId)
             .Distinct())
         {
@@ -132,15 +135,21 @@ public sealed class GetSocialConversationQueryHandler
                 cancellationToken);
         }
 
-        return entries.Select(e =>
+        return entries
+            .OrderBy(e => ConversationEntryTimelineTime.ResolveSortKey(
+                e.Direction,
+                e.SentAt,
+                e.DeliveryStatus,
+                e.DeliveryStatusUpdatedAtUtc))
+            .Select(e =>
         {
             TerminalInfo? terminalInfo = null;
-            var hasTerminalInfo = IsTerminalNoteEligibleDelivery(e.DeliveryStatus)
+            var hasTerminalInfo = IsTerminalNoteEligibleDelivery(e.DeliveryStatusLabel)
                 && terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out terminalInfo);
             var terminalStatus = hasTerminalInfo ? terminalInfo?.Status : null;
             var terminalNote = hasTerminalInfo ? terminalInfo?.Note : null;
             var messageApprover = hasTerminalInfo
-                && e.DeliveryStatus is nameof(ConversationDeliveryStatus.Pending)
+                && e.DeliveryStatusLabel is nameof(ConversationDeliveryStatus.Pending)
                     or nameof(ConversationDeliveryStatus.Failed)
                 ? terminalInfo?.MessageApproverDisplayName
                 : null;
@@ -150,17 +159,18 @@ public sealed class GetSocialConversationQueryHandler
                 messageCoords.GetValueOrDefault(e.SocialMessageId));
             return new SocialConversationEntryDto(
                 e.EntryId,
-                e.Direction,
+                e.DirectionLabel,
                 e.Content,
                 e.MediaId,
                 e.MediaMimeType,
                 e.SentAt,
                 e.SenderLabel
-                    ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
+                    ?? (e.Direction == ConversationEntryDirection.Inbound
                         ? citizenPhoneLabel
                         : tenantName),
-                e.DeliveryStatus,
+                e.DeliveryStatusLabel,
                 e.DeliveryError,
+                e.DeliveryStatusUpdatedAtUtc,
                 e.EditedAtUtc,
                 e.EditedByDisplayName,
                 terminalStatus,
@@ -170,8 +180,8 @@ public sealed class GetSocialConversationQueryHandler
                 latitude,
                 longitude,
                 WhatsAppTemplateAutoReply.IsAutomaticTimedReplyEntry(
-                    e.Direction,
-                    e.DeliveryStatus,
+                    e.DirectionLabel,
+                    e.DeliveryStatusLabel,
                     e.Content,
                     timedAutoReplyContents));
         }).ToList();

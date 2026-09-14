@@ -48,6 +48,7 @@ import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/at
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
+import { compareConversationEntriesByDisplayTime, resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
 import { formatDateTime } from '../components/jobs/my-request-detail/format'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
 import { syncWhatsAppUnreadMessageCount } from '../utils/whatsappUnreadMessageCount'
@@ -1234,8 +1235,10 @@ function ConversationDetail({
   const visibleTimeline = useMemo(() => {
     if (!activeDetail) return []
     const timeline = filterVisibleConversationEntries(activeDetail.timeline)
-    if (!activeChatSearch) return timeline
-    return timeline.filter(entry => conversationEntryMatchesChatSearch(entry, activeChatSearch, pendingBadgeSearchLabel))
+    const filtered = activeChatSearch
+      ? timeline.filter(entry => conversationEntryMatchesChatSearch(entry, activeChatSearch, pendingBadgeSearchLabel))
+      : timeline
+    return [...filtered].sort(compareConversationEntriesByDisplayTime)
   }, [activeDetail, activeChatSearch, pendingBadgeSearchLabel])
 
   return (
@@ -1402,10 +1405,14 @@ function ConversationDetail({
             ) : (
               visibleTimeline.map((entry, index) => {
                 const previousEntry = index > 0 ? visibleTimeline[index - 1] : null
-                const showDivider = index === 0 || (previousEntry && !conversationSameDay(entry.sentAt, previousEntry.sentAt))
+                const entryDisplayAt = resolveConversationEntryBubbleTime(entry).displayAt
+                const previousDisplayAt = previousEntry
+                  ? resolveConversationEntryBubbleTime(previousEntry).displayAt
+                  : null
+                const showDivider = index === 0 || (previousDisplayAt && !conversationSameDay(entryDisplayAt, previousDisplayAt))
                 return (
                   <Fragment key={entry.entryId || index}>
-                    {showDivider ? <DateDivider light label={dayLabel(entry.sentAt)} /> : null}
+                    {showDivider ? <DateDivider light label={dayLabel(entryDisplayAt)} /> : null}
                     <div
                       ref={element => {
                         if (element) entryRefs.current.set(index, element)

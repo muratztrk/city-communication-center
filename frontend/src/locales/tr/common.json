@@ -1095,6 +1095,7 @@
     "openLocation": "Haritada Göster",
     "locationUnavailable": "Konum koordinatı alınamadı.",
     "pendingBadge": "Beklemede",
+    "messageQueuedAt": "Oluşturulma: {{time}}",
     "automaticMessage": "Otomatik Mesaj",
     "editedBadge": "Düzenlendi",
     "sendPendingMessage": "Mesajı Gönder",

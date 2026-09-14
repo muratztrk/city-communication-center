@@ -15,6 +15,7 @@ import { ModalCloseButton } from './ui/modal-close-button'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
+import { compareConversationEntriesByDisplayTime, resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
 import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries, formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import {
@@ -151,8 +152,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
   const activeChatSearch = normalizedChatSearch.length >= 3 ? normalizedChatSearch : ''
   const visibleEntries = useMemo(() => {
-    if (!activeChatSearch) return entries
-    return entries.filter(entry => conversationEntryMatchesChatSearch(entry, activeChatSearch, pendingBadgeSearchLabel))
+    const sorted = [...entries].sort(compareConversationEntriesByDisplayTime)
+    if (!activeChatSearch) return sorted
+    return sorted.filter(entry => conversationEntryMatchesChatSearch(entry, activeChatSearch, pendingBadgeSearchLabel))
   }, [activeChatSearch, entries, pendingBadgeSearchLabel])
   const userQuickReplies = useMemo(() => {
     const metaTemplates = (whatsAppTemplatesQuery.data ?? [])
@@ -488,10 +490,14 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
           </p>
         ) : (
           visibleEntries.map((entry, i) => {
-            const showDivider = i === 0 || !conversationSameDay(entry.sentAt, visibleEntries[i - 1].sentAt)
+            const entryDisplayAt = resolveConversationEntryBubbleTime(entry).displayAt
+            const previousDisplayAt = i > 0
+              ? resolveConversationEntryBubbleTime(visibleEntries[i - 1]).displayAt
+              : null
+            const showDivider = i === 0 || (previousDisplayAt && !conversationSameDay(entryDisplayAt, previousDisplayAt))
             return (
               <Fragment key={entry.entryId || i}>
-                {showDivider && <DateDivider label={dayLabel(entry.sentAt)} />}
+                {showDivider && <DateDivider label={dayLabel(entryDisplayAt)} />}
                 <ConversationEntryBubble
                   entry={entry}
                   socialMessageId={entry.socialMessageId ?? socialMessageId}

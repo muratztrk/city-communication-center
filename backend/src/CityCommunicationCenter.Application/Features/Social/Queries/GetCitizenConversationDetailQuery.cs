@@ -81,19 +81,21 @@ public sealed class GetCitizenConversationDetailQueryHandler
         var rawTimeline = await _dbContext.ConversationEntries
             .AsNoTracking()
             .Where(e => messageIds.Contains(e.SocialMessageId))
-            .OrderBy(e => e.SentAt)
             .Select(e => new
             {
                 e.EntryId,
-                Direction = e.Direction.ToString(),
+                e.Direction,
+                DirectionLabel = e.Direction.ToString(),
                 e.Content,
                 e.MediaId,
                 e.MediaMimeType,
                 e.SentAt,
                 e.SocialMessageId,
                 e.SenderLabel,
-                DeliveryStatus = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
+                e.DeliveryStatus,
+                DeliveryStatusLabel = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
                 e.DeliveryError,
+                e.DeliveryStatusUpdatedAtUtc,
                 e.EditedAtUtc,
                 e.EditedByDisplayName,
             })
@@ -105,6 +107,11 @@ public sealed class GetCitizenConversationDetailQueryHandler
             cancellationToken);
 
         var timeline = rawTimeline
+            .OrderBy(e => ConversationEntryTimelineTime.ResolveSortKey(
+                e.Direction,
+                e.SentAt,
+                e.DeliveryStatus,
+                e.DeliveryStatusUpdatedAtUtc))
             .Select(e =>
             {
                 terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out var terminalInfo);
@@ -113,31 +120,32 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     messageCoords.GetValueOrDefault(e.SocialMessageId));
                 return new CitizenConversationTimelineEntryDto(
                     e.EntryId,
-                    e.Direction,
+                    e.DirectionLabel,
                     e.Content,
                     e.MediaId,
                     e.MediaMimeType,
                     e.SentAt,
                     e.SocialMessageId,
                     e.SenderLabel
-                        ?? (e.Direction == ConversationEntryDirection.Inbound.ToString()
+                        ?? (e.Direction == ConversationEntryDirection.Inbound
                             ? citizenPhoneLabel
                             : tenantName),
-                    e.DeliveryStatus,
+                    e.DeliveryStatusLabel,
                     e.DeliveryError,
+                    e.DeliveryStatusUpdatedAtUtc,
                     e.EditedAtUtc,
                     e.EditedByDisplayName,
-                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Status : null,
-                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Note : null,
-                    (e.DeliveryStatus is nameof(ConversationDeliveryStatus.Pending)
+                    IsTerminalNoteEligibleDelivery(e.DeliveryStatusLabel) ? terminalInfo?.Status : null,
+                    IsTerminalNoteEligibleDelivery(e.DeliveryStatusLabel) ? terminalInfo?.Note : null,
+                    (e.DeliveryStatusLabel is nameof(ConversationDeliveryStatus.Pending)
                         or nameof(ConversationDeliveryStatus.Failed))
                         ? terminalInfo?.MessageApproverDisplayName
                         : null,
                     latitude,
                     longitude,
                     WhatsAppTemplateAutoReply.IsAutomaticTimedReplyEntry(
-                        e.Direction,
-                        e.DeliveryStatus,
+                        e.DirectionLabel,
+                        e.DeliveryStatusLabel,
                         e.Content,
                         timedAutoReplyContents));
             })

@@ -3010,7 +3010,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
   WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
   Bekleyen giden mesaj operatör gönderiminde başarılı iletimde `SentAt` gerçek gönderim zamanına
-  güncellenir; baloncuk saati bu değeri gösterir (#3627).
+  güncellenir; baloncuk saati bu değeri gösterir (#3627). Konuşma sıralaması ve balon saati
+  iletilmiş giden mesajlarda `SentAt` (yeni kayıtlar) veya eski kayıtlarda `DeliveryStatusUpdatedAtUtc`
+  ile hizalanır; kuyruk anı ile gönderim saati farklıysa balon üzerinde hover ile
+  «Oluşturulma: HH:mm» gösterilir.
 - **Vatandaşa Giden Mesaj görünürlük (#3520/#3536/#3562/#3565):** Sıradan Detaylar (Birime Gelen /
   Taleplerim / Görevlerim) **Talep Bilgileri**'nde Tamamlama/İptal Notu Onaylayan ve
   Vatandaşa Giden Mesaj yoktur; İptal Notu durur (#3562). Outbound yalnız Mesaj Onayı

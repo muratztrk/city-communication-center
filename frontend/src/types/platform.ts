@@ -472,6 +472,7 @@ export interface SocialConversationEntry {
   senderLabel?: string | null;
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
+  deliveryStatusUpdatedAtUtc?: string | null;
   editedAtUtc?: string | null;
   editedByDisplayName?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
@@ -593,6 +594,7 @@ export interface CitizenConversationTimelineEntry {
   senderLabel?: string | null;
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
+  deliveryStatusUpdatedAtUtc?: string | null;
   editedAtUtc?: string | null;
   editedByDisplayName?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;

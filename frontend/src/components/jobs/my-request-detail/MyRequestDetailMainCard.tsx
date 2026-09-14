@@ -347,9 +347,9 @@ export function MyRequestDetailMainCard({
       ? [
           ...(detail.cancelReason?.trim()
             ? [{
-                label: t('tasks.detail.cancelNote', 'İptal Notu'),
+                label: <span className="text-red-600">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>,
                 value: (
-                  <span className="citizen-terminal-note-value text-slate-900">
+                  <span className="citizen-terminal-note-value text-red-600">
                     {cancelledWithoutTaskNote}
                   </span>
                 ),

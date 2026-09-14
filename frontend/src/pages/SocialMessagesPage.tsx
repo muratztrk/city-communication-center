@@ -27,6 +27,7 @@ import { JobsPage } from './JobsPage'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenInProgressState, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState } from '../utils/citizenRequests'
 import { looksLikePhone } from '../utils/phoneDisplay'
 import { wasJobOverdueWhenClosed } from '../utils/dateTimePicker'
+import { emitPageToast } from '../components/ui/pageToast'
 
 const CHANNEL_BADGE_SEEN_PREFIX = 'ccc-social-channel-badge-seen-'
 const BADGE_CHANNELS = ['EDevlet', 'MobileApp'] as const
@@ -249,8 +250,9 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
   const [jobsById, setJobsById] = useState<Map<string, JobSummary>>(new Map())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
+  const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean; displayNumber?: string } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
+  const [detailRefreshKey, setDetailRefreshKey] = useState(0)
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
@@ -367,6 +369,8 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
       invalidateJobs(queryClient, cancelModal.jobId)
       invalidateSocialMessages(queryClient)
       setCancelModal(null)
+      emitPageToast(t('jobs.actions.cancelSuccess', 'Talep iptal edildi.'), 'error')
+      setDetailRefreshKey(current => current + 1)
       await reload()
     } catch (cancelError) {
       setError(cancelError instanceof Error ? cancelError.message : t('common.error'))
@@ -828,6 +832,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
 
       {detailJobId && (
         <JobsPage
+          key={`${detailJobId}-${detailRefreshKey}`}
           mode="myRequests"
           fixedScope="mine"
           detailOnly
@@ -849,7 +854,12 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                 ? t('social.editAfterApprovalDisabled', 'Hedef birim yöneticisi onayladıktan sonra talep düzenlenemez')
                 : undefined,
               cancel: canCancelJob
-                ? () => setCancelModal({ jobId: message.jobId!, reason: '', saving: false })
+                ? () => setCancelModal({
+                  jobId: message.jobId!,
+                  reason: '',
+                  saving: false,
+                  displayNumber: formatCitizenRequestNumber(message, locale),
+                })
                 : undefined,
               cancelDisabledTitle: message.jobId
                 ? t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')
@@ -879,15 +889,21 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
             </button>
             <h2 id="cancel-social-job-dialog-title" className="workflow-note-dialog__title">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
             <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
+              {cancelModal.displayNumber ? (
+                <>
+                  <span className="font-semibold text-red-600">{cancelModal.displayNumber}</span>
+                  {' '}
+                </>
+              ) : null}
               {t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
             </p>
-            <p className="helper-copy mt-3 text-left text-[0.85rem] text-slate-600">
+            <p className="helper-copy mb-0 mt-1 text-left text-[0.85rem] text-slate-600">
               {t(
                 'jobs.actions.cancelCitizenMessageApprovalHint',
                 'Eklediğiniz Not vatandaşa gönderilmek üzere mesajlar bölümünde iletmeniz için onayınızı bekleyecektir.',
               )}
             </p>
-            <label className="job-field mt-5">
+            <label className="job-field mt-3">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max {CANCEL_JOB_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"

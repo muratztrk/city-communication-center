@@ -513,6 +513,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sorumlu rol (#3443/#3558):** Kullanıcılar rol dropdown'unda `Sorumlu` **Müdür'ün altında** durur;
   kayıt `roleCode=Manager` + `skipManagerQuota`. VT-only gizleme kart #3558 ile geri alındı.
 - **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`; max 400 karakter (#3451/#3466); placeholder `Talep yönlendirme sebebini yazınız...` (#3453); birim seçimi metni «…seçiniz.» (#3454); birim dropdown yüksekliği hafif düşük (#3452).
+  Yönlendir API hatası modal içinde kırmızı banner ile gösterilir (`detailOnly` embed'de sayfa
+  hatası gizli kalmasın, #3629).
 - **Görev Durum Değiştir modal (#3455–#3457):** üstte `GÖREV DURUMU` dropdown, altta `DURUM DEĞİŞİKLİĞİ NOTU`;
   not placeholder/input punto `workflow-note-dialog__textarea` (= Tamamlama Notu).
 - **`RecomputeJobCompletionAsync` çoğu terminal geçişini yapar; `Completed` talebi tüm görevler
@@ -887,7 +889,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   textarea yüksekliğine eklenir (genişlik değişmez). WhatsApp profil paneli Talep Etiketi bloğunu
   göstermez — blok `Talep Oluştur` popup'ında Açıklama'nın hemen üstündedir (#1865). WhatsApp'tan
   açılan Vatandaş Çağrı Talebi oluşturma POPUP'ında Kanal/Talep Etiketi bloğu gösterilmez (#1563);
-  CreateRequestPage (çağrı formu) Talep Kanalı yanındaki klonu korur.
+  CreateRequestPage (çağrı formu) Talep Kanalı yanındaki klonu korur. Modal submit `requestLabel` →
+  `SocialMessage.category` olarak kaydedilir (VT grid Talep Etiketi, #3630). Modal submit `requestLabel` →
+  `SocialMessage.category` olarak kaydedilir (VT grid Talep Etiketi, #3630).
   Talep Oluştur SAYFASINDAKİ Vatandaş Çağrı Talebi formunda ise Talep Kanalı'nın sağında aynı
   salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (#1561 reopen);
   kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
@@ -2996,6 +3000,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `SourceRefId` ile bulunur; `citizenRequest` null olsa bile `SourceRefId` WA/Phone mesajında outbound aranır (#3527).
   Aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
   WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
+  Bekleyen giden mesaj operatör gönderiminde başarılı iletimde `SentAt` gerçek gönderim zamanına
+  güncellenir; baloncuk saati bu değeri gösterir (#3627).
 - **Vatandaşa Giden Mesaj görünürlük (#3520/#3536/#3562/#3565):** Sıradan Detaylar (Birime Gelen /
   Taleplerim / Görevlerim) **Talep Bilgileri**'nde Tamamlama/İptal Notu Onaylayan ve
   Vatandaşa Giden Mesaj yoktur; İptal Notu durur (#3562). Outbound yalnız Mesaj Onayı

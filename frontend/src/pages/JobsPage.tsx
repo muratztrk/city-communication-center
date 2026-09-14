@@ -1529,6 +1529,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     departmentId: string
     note: string
     saving: boolean
+    error: string | null
   } | null>(null)
 
   const openJobExtraTimeReview = async () => {
@@ -1996,12 +1997,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const openForwardModal = () => {
     if (!detail) return
     setError(null)
-    setForwardModal({ jobId: detail.jobId, departmentId: '', note: '', saving: false })
+    setForwardModal({ jobId: detail.jobId, departmentId: '', note: '', saving: false, error: null })
   }
 
   const handleForwardConfirm = async () => {
     if (!forwardModal || !forwardModal.departmentId || !forwardModal.note.trim()) return
-    setForwardModal(current => (current ? { ...current, saving: true } : current))
+    setForwardModal(current => (current ? { ...current, saving: true, error: null } : current))
     try {
       await api.forwardJobTarget(forwardModal.jobId, forwardModal.departmentId, forwardModal.note.trim())
       invalidateJobs(queryClient, forwardModal.jobId)
@@ -2009,8 +2010,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       // Yönlendirildikten sonra Birime Gelen Talepler sayfasına dön (card #1408).
       closeDetail()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-      setForwardModal(current => (current ? { ...current, saving: false } : current))
+      const message = err instanceof Error ? err.message : t('common.error')
+      if (!detailOnly) setError(message)
+      setForwardModal(current => (current ? { ...current, saving: false, error: message } : current))
     }
   }
 
@@ -3857,7 +3859,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 searchable={forwardDepartmentOptions.length >= 7}
                 options={forwardDepartmentOptions}
                 value={forwardModal.departmentId}
-                onChange={departmentId => setForwardModal(current => (current ? { ...current, departmentId } : current))}
+                onChange={departmentId => setForwardModal(current => (current ? { ...current, departmentId, error: null } : current))}
                 placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
               />
             </div>
@@ -3871,11 +3873,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 rows={3}
                 maxLength={FORWARD_NOTE_MAX_LENGTH}
                 value={forwardModal.note}
-                onChange={event => setForwardModal(current => (current ? { ...current, note: event.target.value } : current))}
+                onChange={event => setForwardModal(current => (current ? { ...current, note: event.target.value, error: null } : current))}
                 placeholder={t('jobs.forward.notePlaceholder', 'Talep yönlendirme sebebini yazınız...')}
               />
               <div className="mt-0.5 text-right text-[0.7rem] text-slate-400">{forwardModal.note.length}/{FORWARD_NOTE_MAX_LENGTH}</div>
             </div>
+            {forwardModal.error ? <div className="error mb-3">{forwardModal.error}</div> : null}
             <div className="flex flex-col gap-2">
               <Button
                 type="button"

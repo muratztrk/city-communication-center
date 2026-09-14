@@ -131,6 +131,7 @@ public sealed class SendPendingConversationEntryCommandHandler
                 entry.ExternalEntryId = sendResult.MessageId;
                 entry.DeliveryStatus = ConversationDeliveryStatus.Sent;
                 entry.DeliveryError = null;
+                entry.SentAt = utcNow;
             }
             else
             {
@@ -147,11 +148,13 @@ public sealed class SendPendingConversationEntryCommandHandler
             }, cancellationToken);
             entry.DeliveryStatus = ConversationDeliveryStatus.Sent;
             entry.DeliveryError = null;
+            entry.SentAt = utcNow;
         }
         else
         {
             entry.DeliveryStatus = ConversationDeliveryStatus.Sent;
             entry.DeliveryError = null;
+            entry.SentAt = utcNow;
         }
 
         entry.DeliveryStatusUpdatedAtUtc = utcNow;

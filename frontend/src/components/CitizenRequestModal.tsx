@@ -400,6 +400,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       return
     }
     const storedPhone = phoneValidation.stored
+    const requestCategory = requestLabel.trim() || undefined
     if (!targetDepartmentId) {
       setError(t('requests.create.targetDepartmentRequired', 'Talebin gideceği birim seçilmelidir.'))
       return
@@ -476,7 +477,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           channel: message.channel,
           citizenHandle: trimmedHandle,
           content: description.trim(),
-          category: message.category ?? undefined,
+          category: requestCategory,
           latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
           longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
         })
@@ -501,7 +502,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           channel: createChannel,
           citizenHandle: storedPhone.length === 10 ? `90${storedPhone}` : storedPhone,
           content: description.trim(),
-          category: message.category ?? undefined,
+          category: requestCategory,
           latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
           longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
           citizenConversationId: citizenConversationId ?? undefined,
@@ -511,7 +512,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           channel: createChannel,
           citizenHandle: trimmedHandle,
           content: description.trim(),
-          category: message.category ?? undefined,
+          category: requestCategory,
           latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
           longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
         })
@@ -541,7 +542,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         channel: createChannel,
         citizenHandle: trimmedHandle,
         content: description.trim(),
-        category: message.category ?? undefined,
+        category: requestCategory,
         latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
         longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
       })

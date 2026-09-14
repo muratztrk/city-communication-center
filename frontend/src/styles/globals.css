@@ -8992,8 +8992,8 @@
 }
 
 .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
-  height: 1rem !important;
-  min-height: 1rem !important;
+  height: 1.125rem !important;
+  min-height: 1.125rem !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
@@ -9010,6 +9010,14 @@
 
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
     padding-right: 1.5rem !important;
+  }
+
+  .whatsapp-blocked-list-modal .whatsapp-blocked-list-citizen-name.text-sm {
+    font-size: 0.8125rem !important;
+  }
+
+  .whatsapp-blocked-list-modal .whatsapp-blocked-list-citizen-phone {
+    font-size: 0.6875rem !important;
   }
 }
 
@@ -9075,14 +9083,35 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   gap: 0.45rem !important;
 }
 
-/* WhatsApp banner: alt başlık altı boşluk (#3637). */
-.whatsapp-page-shell .sticky-page-header {
-  gap: 0.45rem;
+/* WhatsApp banner: kompakt + tarih filtresi alt başlık hizası (#3637 reopen). */
+.whatsapp-page-shell .whatsapp-page-banner.sticky-page-header {
+  gap: 0.35rem;
+  padding-block: 0.75rem;
 }
 
-.whatsapp-page-shell .whatsapp-page-header-copy .page-subtitle {
-  margin-bottom: 0;
+.whatsapp-page-shell .whatsapp-page-banner-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.whatsapp-page-shell .whatsapp-page-banner-subtitle {
+  margin: 0;
   line-height: 1.35;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.whatsapp-page-shell .whatsapp-page-banner-toolbar .scope-chips-filters {
+  margin-left: 0;
+  align-self: center;
+}
+
+/* Vatandaş Paneli FAB: WA bildirim balonu scroll düğmesine yaklaştır (#3634 reopen). */
+body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
+  right: -4.25rem !important;
 }
 
 /* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */

@@ -2082,23 +2082,21 @@ export function WhatsAppConversationsPage() {
 
   return (
     <div className="page-stack desktop-page-shell whatsapp-page-shell">
-      <header className="sticky-page-header">
-        <div className="page-header-row">
-          <div className="whatsapp-page-header-copy space-y-0">
-            <h1 className="page-title">{t('whatsapp.title')}</h1>
-            <p className="page-subtitle">{t('whatsapp.subtitle')}</p>
+      <header className="sticky-page-header whatsapp-page-banner">
+        <h1 className="page-title">{t('whatsapp.title')}</h1>
+        <div className="whatsapp-page-banner-toolbar">
+          <p className="page-subtitle whatsapp-page-banner-subtitle">{t('whatsapp.subtitle')}</p>
+          <div className="scope-chips-filters">
+            <ScopeChipDateRange
+              from={filterFrom}
+              to={filterTo}
+              onFromChange={setFilterFrom}
+              onToChange={setFilterTo}
+              fromPlaceholder={t('filters.startDate', 'Başlangıç tarihi')}
+              toPlaceholder={t('filters.endDate', 'Bitiş tarihi')}
+              forceDown
+            />
           </div>
-        </div>
-        <div className="scope-chips-filters">
-          <ScopeChipDateRange
-            from={filterFrom}
-            to={filterTo}
-            onFromChange={setFilterFrom}
-            onToChange={setFilterTo}
-            fromPlaceholder={t('filters.startDate', 'Başlangıç tarihi')}
-            toPlaceholder={t('filters.endDate', 'Bitiş tarihi')}
-            forceDown
-          />
         </div>
       </header>
 
@@ -2215,12 +2213,12 @@ export function WhatsAppConversationsPage() {
                     <div className="min-w-0">
                       <div className="flex min-w-0 items-center gap-1.5">
                         <Ban className="size-3 shrink-0 text-red-600" aria-hidden="true" />
-                        <span className={`truncate font-semibold leading-snug text-slate-900 ${citizenName ? 'text-sm' : 'text-[0.75rem]'}`}>
+                        <span className={`whatsapp-blocked-list-citizen-name truncate font-semibold leading-snug text-slate-900 ${citizenName ? 'text-sm' : 'text-[0.75rem]'}`}>
                           {citizenName || phoneLabel}
                         </span>
                       </div>
                       {citizenName ? (
-                        <div className="truncate pl-5 pt-1 text-[0.75rem] font-semibold leading-snug text-slate-900">{phoneLabel}</div>
+                        <div className="whatsapp-blocked-list-citizen-phone truncate pl-5 pt-1 text-[0.75rem] font-semibold leading-snug text-slate-900">{phoneLabel}</div>
                       ) : null}
                     </div>
                     <div className="flex shrink-0 items-start gap-2">

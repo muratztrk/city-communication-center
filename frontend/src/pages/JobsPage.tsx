@@ -2006,6 +2006,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       await api.forwardJobTarget(forwardModal.jobId, forwardModal.departmentId, forwardModal.note.trim())
       invalidateJobs(queryClient, forwardModal.jobId)
       setForwardModal(null)
+      emitPageToast(t('jobs.actions.forwardSuccess', 'Talep yönlendirildi.'))
       // Yönlendirildikten sonra Birime Gelen Talepler sayfasına dön (card #1408).
       closeDetail()
     } catch (err) {

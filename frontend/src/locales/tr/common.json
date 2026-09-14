@@ -1925,6 +1925,7 @@
     "actions": {
       "approveOwner": "Onayla",
       "approveSuccess": "Talep onaylandı.",
+      "forwardSuccess": "Talep yönlendirildi.",
       "cancelSuccess": "Talep iptal edildi.",
       "rejectOwner": "Reddet",
       "assignStaff": "Personel Ata",

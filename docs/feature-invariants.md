@@ -3014,12 +3014,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   iletilmiş giden mesajlarda `SentAt` (yeni kayıtlar) veya eski kayıtlarda `DeliveryStatusUpdatedAtUtc`
   ile hizalanır; kuyruk anı ile gönderim saati farklıysa balon üzerinde hover ile
   «Oluşturulma: HH:mm» gösterilir.
-- **Vatandaşa Giden Mesaj görünürlük (#3520/#3536/#3562/#3565):** Sıradan Detaylar (Birime Gelen /
+- **Vatandaşa Giden Mesaj görünürlük (#3520/#3536/#3562/#3565/#3650):** Sıradan Detaylar (Birime Gelen /
   Taleplerim / Görevlerim) **Talep Bilgileri**'nde Tamamlama/İptal Notu Onaylayan ve
   Vatandaşa Giden Mesaj yoktur; İptal Notu durur (#3562). Outbound yalnız Mesaj Onayı
   detayında `showRequestInfoCitizenOutbound` ile Talep Bilgileri'ne (görevsiz iptalde İptal
-  Notu altına) eklenir (#3565). Görev Bilgileri'nde terminal görevde outbound Bekleyen dahil
-  durur (#3563). `to-send` yalnız onaylayan satırlarını gizler (#3519). İletilmiş terminal WA:
+  Notu altına) eklenir (#3565). **Vatandaş Talepleri** grid detayında iptal sonrası Talep
+  Bilgileri'nde outbound da gösterilir (`detailContextOverride=social`, kırmızı başlık +
+  sağa yaslı değer, #3650). Görev Bilgileri'nde terminal görevde outbound Bekleyen dahil
+  durur (#3563); iptal görevde outbound etiketi yeşil değil kırmızıdır (#3650). `to-send` yalnız onaylayan satırlarını gizler (#3519). İletilmiş terminal WA:
   `SentAt` release öncesi olsa bile `DeliveryStatusUpdatedAtUtc` (veya `SentAt` yedeği) release
   sonrasıysa outbound çözülür (#3520/VT-2026-42). `GetJobById`/`GetTaskById` `JobCitizenRequestHelper`
   ile ExternalUnit kaynaklı VT'yi de çözer.

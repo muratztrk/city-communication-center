@@ -9020,8 +9020,8 @@
 }
 
 .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
-  height: 1.375rem !important;
-  min-height: 1.375rem !important;
+  height: 1.5rem !important;
+  min-height: 1.5rem !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
@@ -9032,13 +9032,13 @@
 
 @media (max-width: 767px) {
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-search-wrap {
-    width: 10rem !important;
+    width: 11rem !important;
     max-width: 100%;
   }
 
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
-    height: 1.75rem !important;
-    min-height: 1.75rem !important;
+    height: 1.875rem !important;
+    min-height: 1.875rem !important;
     padding-right: 1.5rem !important;
   }
 
@@ -9132,7 +9132,7 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   grid-column: 1;
   grid-row: 1;
   margin: 0;
-  padding-top: 0.125rem;
+  padding-top: 0.1875rem;
 }
 
 .whatsapp-page-shell .whatsapp-page-banner-subtitle {
@@ -9209,7 +9209,11 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     line-height: 1.3 !important;
   }
 
-  /* WA banner mobil (#3646): tarih filtresi kaldır, alt başlık sol hizada. */
+  /* WA banner mobil (#3646/#3662): tarih filtresi kaldır, banner biraz daha yüksek. */
+  .whatsapp-page-shell .whatsapp-page-banner.sticky-page-header {
+    padding-block: 0.625rem;
+  }
+
   .whatsapp-page-shell .whatsapp-page-banner-filters {
     display: none !important;
   }

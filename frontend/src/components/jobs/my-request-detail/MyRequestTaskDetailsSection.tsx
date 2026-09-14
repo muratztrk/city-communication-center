@@ -248,6 +248,7 @@ export function MyRequestTaskDetailsSection({
             citizenOutboundEditorDisplayName ?? detail.citizenOutboundEditorDisplayName,
             t,
             isCancelledTask,
+            outboundField.pending,
           )
           const primaryTerminalTaskId = detail.tasks.find(item =>
             item.currentStatus === 'Completed'
@@ -339,7 +340,9 @@ export function MyRequestTaskDetailsSection({
                             value: outboundField.value,
                             tone: (outboundField.pending
                               ? 'outbound-pending'
-                              : outboundDiffersFromCompletion ? outboundTone : 'completion') as 'completion' | 'outbound-diff' | 'outbound-pending',
+                              : isCancelledTask
+                                ? 'cancel'
+                                : outboundDiffersFromCompletion ? outboundTone : 'completion') as 'cancel' | 'completion' | 'outbound-diff' | 'outbound-pending',
                             fullRow: true as const,
                           },
                           ...(outboundEditorField
@@ -419,7 +422,7 @@ export function MyRequestTaskDetailsSection({
                     return (
                     <div key={'key' in row ? row.key : String(row.label)} className={`job-detail-field-row job-detail-field-row--request-info${fullRow ? ' job-detail-field-row--full' : ''}${rowClass ? ` ${rowClass}` : ''}`}>
                       <div className={`job-detail-field-row__label ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
-                      <div className={`job-detail-field-row__value ${tone === 'outbound-pending' ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS : ''}${tone === 'cancel' || tone === 'outbound-diff' || tone === 'completion' ? 'citizen-terminal-note-value ' : ''}${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : tone === 'outbound-pending' ? '' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
+                      <div className={`job-detail-field-row__value ${tone === 'outbound-pending' ? `${CITIZEN_OUTBOUND_PENDING_VALUE_CLASS} citizen-terminal-note-value--end` : ''}${tone === 'cancel' || tone === 'outbound-diff' || tone === 'completion' ? 'citizen-terminal-note-value ' : ''}${tone === 'cancel' || tone === 'outbound-diff' || tone === 'completion' || tone === 'outbound-pending' ? 'citizen-terminal-note-value--end ' : ''}${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : tone === 'outbound-pending' ? '' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
                     </div>
                     )
                   })}

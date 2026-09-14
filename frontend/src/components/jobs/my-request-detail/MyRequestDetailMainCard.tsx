@@ -355,7 +355,12 @@ export function MyRequestDetailMainCard({
     cancelledOutboundDisplay,
     t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
   )
-  const cancelledEditorField = buildCitizenOutboundEditorField(outboundEditorName, t, true)
+  const cancelledEditorField = buildCitizenOutboundEditorField(
+    outboundEditorName,
+    t,
+    true,
+    cancelledOutboundField.pending,
+  )
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
     ...(showCancelledWithoutTaskNotes || showCancelledWithTaskNotes
@@ -372,11 +377,11 @@ export function MyRequestDetailMainCard({
             : []),
           ...(isCitizenRequestJob(detail) && (showCancelledWithoutTaskNotes || showCancelledWithTaskNotes)
             ? [{
-                label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                label: <span className="text-red-600">{t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')}</span>,
                 value: (
                   <span className={cancelledOutboundField.pending
-                    ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
-                    : 'citizen-terminal-note-value text-red-600'}>
+                    ? `${CITIZEN_OUTBOUND_PENDING_VALUE_CLASS} citizen-terminal-note-value--end`
+                    : 'citizen-terminal-note-value citizen-terminal-note-value--end text-red-600'}>
                     {cancelledOutboundField.value}
                   </span>
                 ),

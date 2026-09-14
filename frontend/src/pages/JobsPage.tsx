@@ -229,7 +229,12 @@ function buildCancelledWithoutTaskInfoRows(
           ? 'citizen-terminal-note-value citizen-terminal-note-value--end text-red-600'
           : 'citizen-terminal-note-value citizen-terminal-note-value--end text-slate-900',
     })
-    const editorField = buildCitizenOutboundEditorField(detail.citizenOutboundEditorDisplayName, t, true)
+    const editorField = buildCitizenOutboundEditorField(
+      detail.citizenOutboundEditorDisplayName,
+      t,
+      true,
+      outboundField.pending,
+    )
     if (editorField) {
       rows.push({
         label: editorField.label,
@@ -1054,6 +1059,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail.status !== 'Completed' && detail.status !== 'Cancelled'
   // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); vatandaş talebinde gizlenir (#895).
   const isCitizenRequestDetail = detail != null && isCitizenRequestJob(detail)
+  const showCancelledCitizenOutboundInRequestInfo = showRequestInfoCitizenOutbound
+    || (detailContextOverride === 'social'
+      && detail != null
+      && (detail.status === 'Cancelled' || detail.status === 'Rejected'))
   const showManagerNoteColumn = isRequestDetailContext && !isCitizenRequestDetail
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
@@ -3105,7 +3114,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: t('social.label', 'Talep Etiketi'),
                         value: citizenSourceMessage.category.trim(),
                       }] : []),
-                      ...buildCancelledWithoutTaskInfoRows(detail, t, user, showRequestInfoCitizenOutbound),
+                      ...buildCancelledWithoutTaskInfoRows(detail, t, user, showCancelledCitizenOutboundInRequestInfo),
                     ] : [
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
@@ -3125,7 +3134,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }] : []),
                       ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
-                      ...buildCancelledWithoutTaskInfoRows(detail, t, user, showRequestInfoCitizenOutbound),
+                      ...buildCancelledWithoutTaskInfoRows(detail, t, user, showCancelledCitizenOutboundInRequestInfo),
                     ]).map((field, fieldIndex) => (
                       <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in field && field.rowClass ? ` ${field.rowClass}` : ''}`}>
                         <div className={`job-detail-field-row__label${'labelClass' in field && field.labelClass ? ` ${field.labelClass}` : ''}`}>{field.label}</div>
@@ -3150,7 +3159,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: cancelledNote,
                         valueClass: 'citizen-terminal-note-value citizen-terminal-note-value--end text-slate-900',
                       })
-                      if (showRequestInfoCitizenOutbound) {
+                      if (showCancelledCitizenOutboundInRequestInfo) {
                         const outboundField = citizenOutboundOrPending(
                           outboundDisplay,
                           t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
@@ -3165,7 +3174,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               ? 'citizen-terminal-note-value citizen-terminal-note-value--end text-red-600'
                               : 'citizen-terminal-note-value citizen-terminal-note-value--end text-slate-900',
                         })
-                        const editorField = buildCitizenOutboundEditorField(detail.citizenOutboundEditorDisplayName, t, true)
+                        const editorField = buildCitizenOutboundEditorField(
+                          detail.citizenOutboundEditorDisplayName,
+                          t,
+                          true,
+                          outboundField.pending,
+                        )
                         if (editorField) {
                           rows.push({
                             label: editorField.label,

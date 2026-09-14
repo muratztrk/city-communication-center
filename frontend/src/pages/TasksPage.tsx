@@ -2474,6 +2474,7 @@ const pageKicker = isMyTasksView
                                     ?? taskDetail.citizenOutboundEditorDisplayName,
                                   t,
                                   isCancelledTask,
+                                  outboundField.pending,
                                 )
                                 if (outboundEditorField) {
                                   rows.push({

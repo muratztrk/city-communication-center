@@ -62,7 +62,9 @@ export function buildCitizenOutboundEditorField(
   editorName: string | null | undefined,
   t: TFunction,
   forceShow = false,
+  outboundPending = false,
 ): { label: string; value: string } | null {
+  if (outboundPending) return null
   const trimmed = editorName?.trim()
   if (!forceShow && !trimmed) return null
   return {

@@ -67,7 +67,13 @@ export function useIzmirCbsStreetNoCatalog(
   })
 
   const streetOptions = useMemo(
-    () => withCurrentValue(toPlaceOptions(streetsQuery.data), streetName),
+    () => {
+      const yok = { value: STREET_NO_NONE, label: STREET_NO_NONE }
+      const fromCbs = toPlaceOptions(streetsQuery.data).filter(item =>
+        item.value.trim().toLocaleLowerCase('tr') !== STREET_NO_NONE.toLocaleLowerCase('tr'))
+      const options = [yok, ...fromCbs]
+      return withCurrentValue(options, streetName)
+    },
     [streetsQuery.data, streetName],
   )
   const doorNoOptions = useMemo(

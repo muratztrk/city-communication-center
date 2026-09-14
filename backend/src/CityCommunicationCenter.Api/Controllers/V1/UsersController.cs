@@ -140,7 +140,9 @@ public sealed class UsersController : ApiControllerBase
                 request.Email,
                 request.Title,
                 request.SkipManagerQuota,
-                request.MobilePhone),
+                request.MobilePhone,
+                request.Phone,
+                request.Password),
             cancellationToken);
 
         return Ok(response);

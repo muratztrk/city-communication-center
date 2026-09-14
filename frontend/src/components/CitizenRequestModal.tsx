@@ -790,7 +790,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <div className="citizen-create-address-row grid gap-2 md:grid-cols-[minmax(0,0.36fr)_minmax(0,1fr)] md:items-stretch">
+                <div className="citizen-create-address-row citizen-create-address-row--split-mobile grid gap-2 md:grid-cols-[minmax(0,0.36fr)_minmax(0,1fr)] md:items-stretch">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">
                       {t('address.neighborhoodLabel', 'Mahalle')}
@@ -825,6 +825,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     onCoordinatesChange={setCoordinates}
                     required={Boolean(neighborhood)}
                     labelClassName="job-field-label"
+                    splitMobileLayout
                     onStreetChange={setStreet}
                     onStreetNoChange={setStreetNo}
                     triggerClassName="citizen-request-address-trigger"

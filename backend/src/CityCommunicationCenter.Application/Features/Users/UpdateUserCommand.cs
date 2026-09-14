@@ -14,7 +14,9 @@ public sealed record UpdateUserCommand(
     string? Email = null,
     string? Title = null,
     bool SkipManagerQuota = false,
-    string? MobilePhone = null) : ICommand<UserSummaryResponse>;
+    string? MobilePhone = null,
+    string? Phone = null,
+    string? Password = null) : ICommand<UserSummaryResponse>;
 
 public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
 {
@@ -61,6 +63,15 @@ public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCom
         RuleFor(command => command.MobilePhone)
             .MaximumLength(50)
             .When(command => !string.IsNullOrWhiteSpace(command.MobilePhone));
+
+        RuleFor(command => command.Phone)
+            .MaximumLength(50)
+            .When(command => !string.IsNullOrWhiteSpace(command.Phone));
+
+        RuleFor(command => command.Password)
+            .Must(PasswordPolicy.IsStrong)
+            .When(command => !string.IsNullOrWhiteSpace(command.Password))
+            .WithMessage(localizer["ValidationPasswordPolicy"]);
     }
 }
 
@@ -68,15 +79,18 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ILocalUserPasswordService _localUserPasswordService;
     private readonly IStringLocalizer<ApplicationResource> _localizer;
 
     public UpdateUserCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
+        ILocalUserPasswordService localUserPasswordService,
         IStringLocalizer<ApplicationResource> localizer)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _localUserPasswordService = localUserPasswordService;
         _localizer = localizer;
     }
 
@@ -202,6 +216,20 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             user.Email = nextEmail;
             user.Title = string.IsNullOrWhiteSpace(request.Title) ? null : request.Title.Trim();
             user.MobilePhone = string.IsNullOrWhiteSpace(request.MobilePhone) ? null : request.MobilePhone.Trim();
+        }
+
+        if (user.UserSource == UserSource.Manual && request.Phone is not null)
+        {
+            user.Phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone.Trim();
+        }
+
+        if (user.UserSource == UserSource.Manual && !string.IsNullOrWhiteSpace(request.Password))
+        {
+            user.PasswordHash = _localUserPasswordService.HashPassword(user, request.Password);
+        }
+        else if (!string.IsNullOrWhiteSpace(request.Password))
+        {
+            throw new ValidationException(_localizer["ValidationPasswordChangeNotAllowed"]);
         }
 
         user.DepartmentId = request.DepartmentId;

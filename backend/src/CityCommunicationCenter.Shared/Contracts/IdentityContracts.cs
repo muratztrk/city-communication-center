@@ -69,7 +69,9 @@ public sealed record UpdateUserRequest(
     string? Email = null,
     string? Title = null,
     bool SkipManagerQuota = false,
-    string? MobilePhone = null);
+    string? MobilePhone = null,
+    string? Phone = null,
+    string? Password = null);
 
 public sealed record UserLookupResponse(
     Guid UserId,

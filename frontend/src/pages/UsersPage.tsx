@@ -1,7 +1,7 @@
 import type { FormEvent } from 'react'
 import type { TFunction } from 'i18next'
-import { Eye, EyeOff, ShieldUser, PenLine, Search, Trash2, Users } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Eye, EyeOff, PenLine, Search, Trash2, Users } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -178,6 +178,8 @@ export function UsersPage() {
   const [directorySearchLoading, setDirectorySearchLoading] = useState(false)
   const [directorySyncLoading, setDirectorySyncLoading] = useState(false)
   const [directorySyncMessage, setDirectorySyncMessage] = useState<string | null>(null)
+  const [localUserQuery, setLocalUserQuery] = useState('')
+  const [selectedLocalUserId, setSelectedLocalUserId] = useState<string | null>(null)
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
   const [deleteAllLdapLoading, setDeleteAllLdapLoading] = useState(false)
   /** LDAP'ta birim alanı boş kullanıcılar — buton sağındaki dropdown (card #1752). */
@@ -801,6 +803,8 @@ export function UsersPage() {
     setDirectoryQuery('')
     setDirectoryResults([])
     setSelectedDirectoryUser(null)
+    setLocalUserQuery('')
+    setSelectedLocalUserId(null)
   }
 
   const closeCreateForm = () => {
@@ -857,6 +861,7 @@ export function UsersPage() {
       displayName: selected.displayName ?? '',
       email: selected.email?.trim() ?? '',
       password: '',
+      passwordConfirm: '',
       title: selected.title?.trim() ?? '',
       phone: selected.phone?.trim() ?? '',
       mobilePhone: selected.mobilePhone?.trim() ?? '',
@@ -868,18 +873,65 @@ export function UsersPage() {
     }))
   }
 
+  const applyLocalUserSelection = (selected: User | null) => {
+    setSelectedLocalUserId(selected?.userId ?? null)
+    if (!selected) {
+      setNewUser(current => ({
+        ...current,
+        username: '',
+        displayName: '',
+        email: '',
+        title: '',
+        phone: '',
+        mobilePhone: '',
+        password: '',
+        passwordConfirm: '',
+        departmentId: '',
+        roleCode: 'Staff',
+        additionalDepartmentIds: [],
+        additionalRoleCodes: [],
+        isActive: true,
+      }))
+      return
+    }
+
+    const uiRoleCode = resolveUiRoleCode(selected, departments)
+    setNewUser(current => ({
+      ...current,
+      username: selected.username ?? '',
+      displayName: selected.displayName ?? '',
+      email: selected.email?.trim() ?? '',
+      password: '',
+      passwordConfirm: '',
+      title: selected.title?.trim() ?? '',
+      phone: selected.phone?.trim() ?? '',
+      mobilePhone: selected.mobilePhone?.trim() ?? '',
+      departmentId: selected.departmentId,
+      roleCode: uiRoleCode,
+      additionalDepartmentIds: getUserDepartmentIds(selected).filter(id => id !== selected.departmentId),
+      additionalRoleCodes: (selected.additionalRoleCodes ?? []).filter(role =>
+        getAllowedAdditionalRoleCodes(uiRoleCode).includes(role as typeof ADDITIONAL_ROLE_CODES[number])),
+      isActive: selected.isActive,
+    }))
+  }
+
   const handleCreateUser = async (event: FormEvent) => {
     event.preventDefault()
     setError('')
 
-    if (createMode === 'manual' && newUser.password !== newUser.passwordConfirm) {
+    if (createMode === 'manual' && !selectedLocalUserId && newUser.password !== newUser.passwordConfirm) {
+      setError(t('users.passwordMismatch'))
+      return
+    }
+
+    if (createMode === 'manual' && selectedLocalUserId && newUser.password && newUser.password !== newUser.passwordConfirm) {
       setError(t('users.passwordMismatch'))
       return
     }
 
     const resolvedRoleCode = resolvePrimaryRoleCode(newUser.roleCode)
     if (newUser.roleCode === 'Manager' && newUser.departmentId) {
-      const existingManager = getDepartmentManager(newUser.departmentId)
+      const existingManager = getDepartmentManager(newUser.departmentId, selectedLocalUserId ?? undefined)
       if (existingManager) {
         setError(t('users.managerConflict', { name: existingManager.displayName }))
         return
@@ -887,34 +939,55 @@ export function UsersPage() {
     }
 
     try {
-      const createdDisplayName = newUser.displayName.trim()
-      await api.createUser({
-        username: createMode === 'ldap' ? newUser.username || null : newUser.username.trim() || null,
-        displayName: newUser.displayName,
-        email: newUser.email || null,
-        password: createMode === 'manual' ? newUser.password : null,
-        departmentId: newUser.departmentId || null,
+      const sharedPayload = {
+        departmentId: newUser.departmentId,
         additionalDepartmentIds: newUser.additionalDepartmentIds.filter(id => id !== newUser.departmentId),
         roleCode: resolvedRoleCode,
         additionalRoleCodes: newUser.additionalRoleCodes.filter(role => role !== resolvedRoleCode),
         isActive: newUser.isActive,
         skipManagerQuota: newUser.roleCode === SORUMLU_ROLE_OPTION,
-        sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
-        externalIdentityId: createMode === 'ldap' ? newUser.externalIdentityId : null,
-        ldapDepartmentName: createMode === 'ldap' ? selectedDirectoryUser?.department ?? null : null,
+        username: newUser.username.trim() || undefined,
+        displayName: newUser.displayName.trim(),
+        email: newUser.email.trim() || null,
         title: newUser.title.trim() || null,
         phone: newUser.phone.trim() || null,
         mobilePhone: newUser.mobilePhone.trim() || null,
-      })
+        ...(newUser.password.trim() ? { password: newUser.password } : {}),
+      }
+
+      if (createMode === 'manual' && selectedLocalUserId) {
+        await api.updateUser(selectedLocalUserId, sharedPayload)
+        emitPageToast(t('users.updateSuccess', '{{name}} kullanıcısı güncellendi.', { name: newUser.displayName.trim() || t('users.title') }))
+      } else {
+        const createdDisplayName = newUser.displayName.trim()
+        await api.createUser({
+          username: createMode === 'ldap' ? newUser.username || null : newUser.username.trim() || null,
+          displayName: newUser.displayName,
+          email: newUser.email || null,
+          password: createMode === 'manual' ? newUser.password : null,
+          departmentId: newUser.departmentId || null,
+          additionalDepartmentIds: newUser.additionalDepartmentIds.filter(id => id !== newUser.departmentId),
+          roleCode: resolvedRoleCode,
+          additionalRoleCodes: newUser.additionalRoleCodes.filter(role => role !== resolvedRoleCode),
+          isActive: newUser.isActive,
+          skipManagerQuota: newUser.roleCode === SORUMLU_ROLE_OPTION,
+          sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
+          externalIdentityId: createMode === 'ldap' ? newUser.externalIdentityId : null,
+          ldapDepartmentName: createMode === 'ldap' ? selectedDirectoryUser?.department ?? null : null,
+          title: newUser.title.trim() || null,
+          phone: newUser.phone.trim() || null,
+          mobilePhone: newUser.mobilePhone.trim() || null,
+        })
+        if (createMode === 'manual') {
+          emitPageToast(t('users.createSuccess', '{{name}} kullanıcısı oluşturuldu.', { name: createdDisplayName || t('users.title') }))
+        }
+      }
 
       // Oluşturunca form kapanıp listeye dönmesin — alanlar temizlenip form açık kalsın (card #2258).
       resetForm()
       invalidateUsers(queryClient)
       invalidateDepartments(queryClient)
       loadData({ silent: true })
-      if (createMode === 'manual') {
-        emitPageToast(t('users.createSuccess', '{{name}} kullanıcısı oluşturuldu.', { name: createdDisplayName || t('users.title') }))
-      }
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
     }
@@ -1021,6 +1094,11 @@ export function UsersPage() {
     ? { disabled: true, readOnly: true, className: 'field-input bg-slate-50 text-slate-800' as const }
     : { className: 'field-input' as const }
 
+  const getDepartmentName = useCallback(
+    (departmentId: string) => departments.find(department => department.departmentId === departmentId)?.name || t('common.none'),
+    [departments, t],
+  )
+
   const directoryOptions = useMemo(() => directoryResults.map(result => ({
     id: result.externalIdentityId,
     label: result.displayName,
@@ -1030,7 +1108,30 @@ export function UsersPage() {
     disabled: result.alreadyLinked,
   })), [directoryResults, t])
 
-  const getDepartmentName = (departmentId: string) => departments.find(department => department.departmentId === departmentId)?.name || t('common.none')
+  const localUserOptions = useMemo(() => {
+    const query = localUserQuery.trim().toLocaleLowerCase('tr')
+    return users
+      .filter(user => user.userSource === 'Manual')
+      .filter(user => {
+        if (!query) return true
+        const haystack = [
+          user.username,
+          user.displayName,
+          user.email,
+          user.title,
+          user.phone,
+          user.mobilePhone,
+        ].filter(Boolean).join(' ').toLocaleLowerCase('tr')
+        return haystack.includes(query)
+      })
+      .map(user => ({
+        id: user.userId,
+        label: user.displayName,
+        description: [user.username, user.email, getDepartmentName(user.departmentId)].filter(Boolean).join(' • '),
+        badgeText: getUserSourceLabel(t, 'Manual'),
+      }))
+  }, [getDepartmentName, localUserQuery, t, users])
+
   const ldapModeReady = createMode !== 'ldap' || (
     !!newUser.externalIdentityId
     && (newUser.additionalDepartmentIds.length > 0 || newUser.additionalRoleCodes.length > 0)
@@ -1040,6 +1141,9 @@ export function UsersPage() {
       ? getDepartmentName(newUser.departmentId)
       : (selectedDirectoryUser?.department?.trim() ?? ''))
     : ''
+  const manualSubmitReady = createMode !== 'manual'
+    || selectedLocalUserId
+    || (newUser.password && newUser.password === newUser.passwordConfirm)
   const { sortKey: usersSortKey, sortDir: usersSortDir, toggleSort: toggleUsersSort, sortItems: sortUsers } = useSortable()
   const sortedUsers = useMemo(() => sortUsers(users), [users, sortUsers])
   const { filters: userFilters, setFilter: setUserFilter, clearFilters: clearUserFilters, matchesFilters: userMatchesFilters, hasActiveFilters: hasActiveUserColumnFilters } = useColumnFilters()
@@ -1119,46 +1223,35 @@ export function UsersPage() {
             <p className="page-subtitle">{t('users.subtitle')}</p>
           </div>
           {canManageUsers ? (
-            <Button
-              type="button"
-              variant={showForm ? 'destructive' : 'primary'}
-              onClick={showForm ? closeCreateForm : openCreateForm}
-            >
-              {/* İptal = Yeni Kullanıcı Ekle genişliği (card #r459). */}
-              <span className="inline-grid place-items-center">
-                <span className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden="true">{t('users.new')}</span>
-                <span className="col-start-1 row-start-1 whitespace-nowrap">{showForm ? t('common.cancel') : t('users.new')}</span>
-              </span>
-            </Button>
+            <div className="ml-auto flex shrink-0 items-center gap-3">
+              <div className="admin-page-header-stats hidden items-center gap-3 lg:flex">
+                <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-white">
+                  <Users className="size-4 shrink-0 text-white/90" aria-hidden="true" />
+                  <div>
+                    <div className="text-[0.62rem] font-semibold uppercase tracking-[0.06em] text-white/75">{t('users.summary.total')}</div>
+                    <div className="text-lg font-extrabold leading-none tabular-nums">{summary.total}</div>
+                  </div>
+                </div>
+                <div className="inline-actions rounded-xl border border-white/20 bg-white/10 px-3 py-1.5">
+                  <StatusPill tone="success" className="!bg-white/15 !text-white !ring-white/20">{summary.active} {t('users.summary.active')}</StatusPill>
+                  <StatusPill className="!bg-white/15 !text-white !ring-white/20">{summary.local} {getUserSourceLabel(t, 'Manual')}</StatusPill>
+                  <StatusPill tone="info" className="!bg-white/15 !text-white !ring-white/20">{summary.ldap} LDAP</StatusPill>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant={showForm ? 'destructive' : 'primary'}
+                onClick={showForm ? closeCreateForm : openCreateForm}
+              >
+                <span className="inline-grid place-items-center">
+                  <span className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden="true">{t('users.bannerNew', 'Yeni Kullanıcı/Detaylar')}</span>
+                  <span className="col-start-1 row-start-1 whitespace-nowrap">{showForm ? t('common.cancel') : t('users.bannerNew', 'Yeni Kullanıcı/Detaylar')}</span>
+                </span>
+              </Button>
+            </div>
           ) : null}
         </div>
       </header>
-
-      <section className="metric-grid">
-        <div className="section-card">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-              <Users className="size-4.5" />
-            </div>
-            <div>
-              <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('users.summary.total')}</div>
-              <div className="mt-1.5 text-3xl font-extrabold text-slate-950">{summary.total}</div>
-            </div>
-          </div>
-        </div>
-        <div className="section-card">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-success)]/10 text-[color:var(--color-success)]">
-              <ShieldUser className="size-4.5" />
-            </div>
-            <div className="inline-actions">
-              <StatusPill tone="success">{summary.active} {t('users.summary.active')}</StatusPill>
-              <StatusPill>{summary.local} {getUserSourceLabel(t, 'Manual')}</StatusPill>
-              <StatusPill tone="info">{summary.ldap} LDAP</StatusPill>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
@@ -1325,6 +1418,39 @@ export function UsersPage() {
                         : ` (${t('users.departmentWillBeCreated')})`}
                     </div>
                   ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {createMode === 'manual' ? (
+            <div className="section-card page-stack overflow-visible">
+              <h3 className="ldap-section-title text-lg font-extrabold text-slate-950">{t('users.localUserSearch', 'Yerel Kullanıcı Bul')}</h3>
+              <p className="helper-copy">{t('users.localUserSearchDescription', 'Mevcut yerel kullanıcıları arayıp seçerek bilgilerini güncelleyin.')}</p>
+              <AutocompleteField
+                ariaLabel={t('users.localUserSearchAria', 'Yerel kullanıcı ara')}
+                emptyMessage={t('users.localUserSearchEmpty', 'Eşleşen yerel kullanıcı bulunamadı')}
+                loadingMessage={t('users.localUserSearchLoading', 'Kullanıcılar aranıyor...')}
+                options={localUserOptions}
+                placeholder={t('users.localUserSearchPlaceholder', 'Ad, kullanıcı adı veya e-posta ile arayın...')}
+                value={localUserQuery}
+                onOptionSelect={option => {
+                  const selected = users.find(user => user.userId === option.id && user.userSource === 'Manual') ?? null
+                  applyLocalUserSelection(selected)
+                }}
+                onValueChange={value => {
+                  setLocalUserQuery(value)
+                  if (!value.trim()) {
+                    applyLocalUserSelection(null)
+                  }
+                }}
+              />
+              {selectedLocalUserId ? (
+                <div className="section-card">
+                  <div className="font-semibold text-slate-950">{newUser.displayName}</div>
+                  <div className="mt-1 text-sm text-slate-500">
+                    {[newUser.username, newUser.email, getDepartmentName(newUser.departmentId)].filter(item => item && item !== t('common.none')).join(' • ')}
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -1609,10 +1735,10 @@ export function UsersPage() {
                 <div className="inline-actions flex flex-col gap-2">
                   <Button
                     className="users-create-submit w-full min-w-[13rem] px-8 text-base"
-                    disabled={!ldapModeReady || (createMode === 'manual' && (!newUser.password || newUser.password !== newUser.passwordConfirm))}
+                    disabled={!ldapModeReady || !manualSubmitReady}
                     type="submit"
                   >
-                    {t('common.create')}
+                    {selectedLocalUserId && createMode === 'manual' ? t('common.save') : t('common.create')}
                   </Button>
                   {createMode === 'ldap' && selectedDirectoryUser ? (
                     <Button

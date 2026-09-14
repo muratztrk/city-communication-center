@@ -502,6 +502,8 @@ export const api = {
     title?: string | null
     skipManagerQuota?: boolean
     mobilePhone?: string | null
+    phone?: string | null
+    password?: string
   }): Promise<User> {
     const response = await fetchWithCredentials(`${API_BASE}/users/${userId}`, {
       method: 'PUT',

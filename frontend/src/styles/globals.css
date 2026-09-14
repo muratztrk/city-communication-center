@@ -8985,3 +8985,140 @@
     font-size: 0.68rem !important;
   }
 }
+
+/* Engellenenler modal (#3623/#3619/#3621). */
+.whatsapp-blocked-list-modal .whatsapp-blocked-list-search-wrap {
+  min-width: 0;
+}
+
+.whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
+  height: 1.125rem !important;
+}
+
+.whatsapp-blocked-list-modal .whatsapp-blocked-list-search-wrap:has(.whatsapp-blocked-list-search:not(:placeholder-shown)) button {
+  right: 0.35rem !important;
+}
+
+@media (max-width: 767px) {
+  .whatsapp-blocked-list-modal .whatsapp-blocked-list-search-wrap {
+    width: 9.5rem !important;
+    max-width: 100%;
+  }
+
+  .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
+    padding-right: 1.35rem !important;
+  }
+}
+
+/* Login mobil dikey ortalama (#3624). */
+@media (max-width: 1023px) {
+  .login-page > .flex.flex-1.flex-col {
+    padding-bottom: 0.75rem;
+  }
+
+  .login-page > .flex.flex-1.flex-col > section:last-child {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+/* WA konuşma başlığı / profil paneli küçültme (#3637). */
+.whatsapp-conversation-detail-header {
+  padding: 0.625rem 0.875rem !important;
+  gap: 0.625rem !important;
+}
+
+.whatsapp-conversation-detail-header > .size-11 {
+  width: 2.375rem !important;
+  height: 2.375rem !important;
+  font-size: 0.78rem !important;
+}
+
+.whatsapp-conversation-detail-header > .size-11 img {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+}
+
+.whatsapp-conversation-profile-panel {
+  width: 16.5rem !important;
+}
+
+.whatsapp-conversation-profile-panel > div:first-child {
+  padding: 0.75rem !important;
+}
+
+.whatsapp-conversation-profile-panel > div:first-child button {
+  height: 2.25rem !important;
+  padding-inline: 0.75rem !important;
+  font-size: 0.78rem !important;
+}
+
+.whatsapp-conversation-profile-panel > .overflow-y-auto {
+  padding: 0.75rem !important;
+}
+
+.whatsapp-conversation-profile-panel h3 {
+  font-size: 0.82rem !important;
+}
+
+.whatsapp-conversation-profile-panel > .overflow-y-auto button {
+  height: 1.85rem !important;
+  padding-inline: 0.55rem !important;
+  font-size: 0.68rem !important;
+}
+
+/* WhatsApp sayfa FAB aralığı (#3633). */
+body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
+  gap: 0.45rem !important;
+}
+
+/* Vatandaş dashboard FAB hizası (#3634). */
+body:has(.dashboard-page-shell--citizen) .fixed-fab-stack {
+  bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap)) !important;
+}
+
+/* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */
+.social-messages-table thead th:nth-child(8),
+.social-messages-table tbody td:nth-child(8) {
+  min-width: 7.35rem !important;
+  width: 7.35rem !important;
+}
+
+/* Talep Oluştur mobil adres satırları (#3628). */
+@media (max-width: 767px) {
+  .citizen-create-address-row--split-mobile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: start;
+  }
+
+  .citizen-create-address-row--split-mobile > label.job-field {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .citizen-create-address-row--split-mobile .cbs-street-no-dropdowns--split-mobile {
+    display: contents;
+  }
+
+  .citizen-create-address-row--split-mobile .cbs-street-no-dropdowns--split-mobile > div:nth-child(1) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .citizen-create-address-row--split-mobile .cbs-street-no-dropdowns--split-mobile > div:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .citizen-create-address-row--split-mobile .cbs-street-no-dropdowns--split-mobile > div:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* Birimler / Kullanıcılar banner istatistikleri (#3642/#3641). */
+.admin-page-header-stats .status-pill {
+  font-size: 0.68rem;
+}

@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application;
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Abstractions.Identity;
 using CityCommunicationCenter.Application.Common.Tenancy;
 using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Entities;
@@ -60,18 +61,7 @@ public sealed class UserRoleAccessTests
     {
         await using var dbContext = CreateDbContext();
         var user = await SeedUsersAsync(dbContext);
-        var handler = new UpdateUserCommandHandler(
-            dbContext,
-            new TestTenantContextAccessor(new TenantContext(
-                TenantId,
-                user.UserId,
-                user.DisplayName,
-                nameof(RoleCode.SystemAdmin),
-                true,
-                "test",
-                null,
-                true)),
-            new TestLocalizer());
+        var handler = CreateUpdateUserHandler(dbContext, user);
 
         await Assert.ThrowsAsync<ValidationException>(async () =>
             await handler.Handle(
@@ -101,18 +91,7 @@ public sealed class UserRoleAccessTests
         });
         await dbContext.SaveChangesAsync();
 
-        var handler = new UpdateUserCommandHandler(
-            dbContext,
-            new TestTenantContextAccessor(new TenantContext(
-                TenantId,
-                user.UserId,
-                user.DisplayName,
-                nameof(RoleCode.SystemAdmin),
-                true,
-                "test",
-                null,
-                true)),
-            new TestLocalizer());
+        var handler = CreateUpdateUserHandler(dbContext, user);
 
         var exception = await Assert.ThrowsAsync<ValidationException>(async () =>
             await handler.Handle(
@@ -144,18 +123,7 @@ public sealed class UserRoleAccessTests
         });
         await dbContext.SaveChangesAsync();
 
-        var handler = new UpdateUserCommandHandler(
-            dbContext,
-            new TestTenantContextAccessor(new TenantContext(
-                TenantId,
-                user.UserId,
-                user.DisplayName,
-                nameof(RoleCode.SystemAdmin),
-                true,
-                "test",
-                null,
-                true)),
-            new TestLocalizer());
+        var handler = CreateUpdateUserHandler(dbContext, user);
 
         await handler.Handle(
             new UpdateUserCommand(
@@ -219,6 +187,30 @@ public sealed class UserRoleAccessTests
             });
         await dbContext.SaveChangesAsync();
         return user;
+    }
+
+    private static UpdateUserCommandHandler CreateUpdateUserHandler(
+        CityCommunicationCenterDbContext dbContext,
+        ApplicationUser actor) =>
+        new(
+            dbContext,
+            new TestTenantContextAccessor(new TenantContext(
+                TenantId,
+                actor.UserId,
+                actor.DisplayName,
+                nameof(RoleCode.SystemAdmin),
+                true,
+                "test",
+                null,
+                true)),
+            new TestLocalUserPasswordService(),
+            new TestLocalizer());
+
+    private sealed class TestLocalUserPasswordService : ILocalUserPasswordService
+    {
+        public string HashPassword(ApplicationUser user, string password) => $"hash:{password}";
+
+        public bool VerifyPassword(ApplicationUser user, string password) => false;
     }
 
     private sealed class TestTenantContextAccessor(TenantContext context) : ITenantContextAccessor

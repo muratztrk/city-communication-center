@@ -636,7 +636,7 @@ function ConversationProfilePanel({
   const labelClass = 'text-[10px] font-bold uppercase tracking-wide text-slate-500'
 
   return (
-    <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-hidden rounded-tr-xl border-l border-slate-200 bg-slate-50/80 lg:flex">
+    <aside className="whatsapp-conversation-profile-panel hidden min-h-0 w-72 shrink-0 flex-col overflow-hidden rounded-tr-xl border-l border-slate-200 bg-slate-50/80 lg:flex">
       <div
         className="flex justify-center rounded-t-xl border-b border-slate-200 p-4"
         style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
@@ -1240,7 +1240,7 @@ function ConversationDetail({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
-      <header className={`flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${headerTitleIsPhoneOnly ? 'items-center' : 'items-start'}`}>
+      <header className={`whatsapp-conversation-detail-header flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${headerTitleIsPhoneOnly ? 'items-center' : 'items-start'}`}>
         <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
@@ -1652,6 +1652,7 @@ export function WhatsAppConversationsPage() {
   const [statusFilter] = useState<ConversationStatusFilter>('all')
   const [blockedListOpen, setBlockedListOpen] = useState(false)
   const [blockedListSearch, setBlockedListSearch] = useState('')
+  const [blockedListSearchCompact, setBlockedListSearchCompact] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
   const mountedRef = useRef(true)
@@ -1661,6 +1662,14 @@ export function WhatsAppConversationsPage() {
     return () => {
       mountedRef.current = false
     }
+  }, [])
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 767px)')
+    const sync = () => setBlockedListSearchCompact(mediaQuery.matches)
+    sync()
+    mediaQuery.addEventListener('change', sync)
+    return () => mediaQuery.removeEventListener('change', sync)
   }, [])
 
   // Yanıt bekliyor 0 olunca sol menü rozeti hemen kaybolsun (card #6a6b6ec6).
@@ -2076,23 +2085,20 @@ export function WhatsAppConversationsPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t('nav.social', 'Vatandaş Talepleri')}</div>
             <h1 className="page-title">{t('whatsapp.title')}</h1>
             <p className="page-subtitle">{t('whatsapp.subtitle')}</p>
           </div>
-          <div className="ml-auto shrink-0 self-center">
-            <div className="scope-chips-filters">
-              <ScopeChipDateRange
-                from={filterFrom}
-                to={filterTo}
-                onFromChange={setFilterFrom}
-                onToChange={setFilterTo}
-                fromPlaceholder={t('filters.startDate', 'Başlangıç tarihi')}
-                toPlaceholder={t('filters.endDate', 'Bitiş tarihi')}
-                forceDown
-              />
-            </div>
-          </div>
+        </div>
+        <div className="scope-chips-filters">
+          <ScopeChipDateRange
+            from={filterFrom}
+            to={filterTo}
+            onFromChange={setFilterFrom}
+            onToChange={setFilterTo}
+            fromPlaceholder={t('filters.startDate', 'Başlangıç tarihi')}
+            toPlaceholder={t('filters.endDate', 'Bitiş tarihi')}
+            forceDown
+          />
         </div>
       </header>
 
@@ -2155,7 +2161,7 @@ export function WhatsAppConversationsPage() {
 
       {blockedListOpen ? createPortal(
         <ModalBackdrop onEscapeClose={closeBlockedList}>
-          <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white px-6 py-5 shadow-2xl">
+          <div className="whatsapp-blocked-list-modal relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white px-6 py-5 shadow-2xl">
             <button
               type="button"
               onClick={closeBlockedList}
@@ -2168,14 +2174,16 @@ export function WhatsAppConversationsPage() {
               <h2 className="shrink-0 text-lg font-bold text-slate-950">
                 {t('whatsapp.blockedList', 'Engellenenler')}
               </h2>
-              <div className="relative w-[13.75rem] shrink-0">
+              <div className="whatsapp-blocked-list-search-wrap relative w-[13.75rem] shrink-0">
                 <Search className="pointer-events-none absolute left-1.5 top-1/2 size-3 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                 <input
                   type="text"
                   value={blockedListSearch}
                   onChange={event => setBlockedListSearch(event.target.value)}
-                  placeholder={t('whatsapp.blockedListSearch', 'Telefon No, vatandaş adı...')}
-                  className="field-input h-[1.25rem] w-full min-w-0 pl-6 pr-7 text-[0.8125rem] leading-tight"
+                  placeholder={blockedListSearchCompact
+                    ? t('whatsapp.blockedListSearchMobile', 'Telefon No, isim...')
+                    : t('whatsapp.blockedListSearch', 'Telefon No, vatandaş adı...')}
+                  className="whatsapp-blocked-list-search field-input h-[1.25rem] w-full min-w-0 pl-6 pr-7 text-[0.8125rem] leading-tight"
                 />
                 {blockedListSearch.trim() ? (
                   <button

@@ -661,66 +661,55 @@ export function DepartmentsPage() {
             <h1 className="page-title">{t('departments.title')}</h1>
             <p className="page-subtitle">{t('departments.subtitle')}</p>
           </div>
-          <Button
-            type="button"
-            variant={showForm ? 'destructive' : 'primary'}
-            onClick={() => {
-              setShowForm(current => {
-                const next = !current
-                if (!next) {
-                  resetCreateForm()
-                } else {
-                  // Yeni Birim: varsayılan Oluşturma Modu LDAP (card #r449).
-                  setCreateMode(ldapEnabled ? 'ldap' : 'manual')
-                  // Açık/yarım kalan satır aksiyonlarını kapat (Yönetici Ata / Sil / Düzenle) (#r453).
-                  setManagerAssignId(null)
-                  setManagerAssignSavingId(null)
-                  setEditManagerUserId('')
-                  setEditResponsibleUserIds([])
-                  setDeleteConfirmId(null)
-                  setEditId(null)
-                }
-                return next
-              })
-            }}
-          >
-            {/* İptal = Yeni Birim Ekle genişliği (card #r459). */}
-            <span className="inline-grid place-items-center">
-              <span className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden="true">{t('departments.new')}</span>
-              <span className="col-start-1 row-start-1 whitespace-nowrap">{showForm ? t('common.cancel') : t('departments.new')}</span>
-            </span>
-          </Button>
-        </div>
-      </header>
-
-      <section className="metric-grid">
-        <div className="section-card">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-              <Building2 className="size-4.5" />
-            </div>
-            <div>
-              <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('departments.total')}</div>
-              <div className="mt-1.5 text-3xl font-extrabold text-slate-950">{departments.length}</div>
-            </div>
-          </div>
-        </div>
-        <div className="section-card">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-[color:var(--color-accent)]/18 text-[color:var(--color-primary)]">
-              <Layers3 className="size-4.5" />
-            </div>
-            <div className="space-y-1">
-              <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('departments.typeBreakdown')}</div>
-              <div className="inline-actions">
-                {Object.entries(typeSummary).map(([type, count]) => (
-                  <StatusPill key={type}>{getDepartmentTypeLabel(t, type)}: {count}</StatusPill>
-                ))}
+          <div className="ml-auto flex shrink-0 items-center gap-3">
+            <div className="admin-page-header-stats hidden items-center gap-3 lg:flex">
+              <div className="flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-white">
+                <Building2 className="size-4 shrink-0 text-white/90" aria-hidden="true" />
+                <div>
+                  <div className="text-[0.62rem] font-semibold uppercase tracking-[0.06em] text-white/75">{t('departments.total')}</div>
+                  <div className="text-lg font-extrabold leading-none tabular-nums">{departments.length}</div>
+                </div>
+              </div>
+              <div className="flex max-w-[18rem] flex-wrap items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5">
+                <Layers3 className="size-4 shrink-0 text-white/90" aria-hidden="true" />
+                <div className="inline-actions">
+                  {Object.entries(typeSummary).map(([type, count]) => (
+                    <StatusPill key={type} className="!bg-white/15 !text-white !ring-white/20">{getDepartmentTypeLabel(t, type)}: {count}</StatusPill>
+                  ))}
+                </div>
               </div>
             </div>
+            <Button
+              type="button"
+              variant={showForm ? 'destructive' : 'primary'}
+              onClick={() => {
+                setShowForm(current => {
+                  const next = !current
+                  if (!next) {
+                    resetCreateForm()
+                  } else {
+                    // Yeni Birim: varsayılan Oluşturma Modu LDAP (card #r449).
+                    setCreateMode(ldapEnabled ? 'ldap' : 'manual')
+                    // Açık/yarım kalan satır aksiyonlarını kapat (Yönetici Ata / Sil / Düzenle) (#r453).
+                    setManagerAssignId(null)
+                    setManagerAssignSavingId(null)
+                    setEditManagerUserId('')
+                    setEditResponsibleUserIds([])
+                    setDeleteConfirmId(null)
+                    setEditId(null)
+                  }
+                  return next
+                })
+              }}
+            >
+              <span className="inline-grid place-items-center">
+                <span className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden="true">{t('departments.bannerNew', 'Yeni Birim/Detaylar')}</span>
+                <span className="col-start-1 row-start-1 whitespace-nowrap">{showForm ? t('common.cancel') : t('departments.bannerNew', 'Yeni Birim/Detaylar')}</span>
+              </span>
+            </Button>
           </div>
         </div>
-      </section>
+      </header>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 

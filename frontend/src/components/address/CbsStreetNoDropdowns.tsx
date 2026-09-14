@@ -87,6 +87,8 @@ interface CbsStreetNoDropdownsProps {
   streetNoPlaceholder?: string
   triggerClassName?: string
   streetNoColumnClassName?: string
+  /** Mobilde mahalle+cadde / no+konum satırları (#3628). */
+  splitMobileLayout?: boolean
 }
 
 /** Cadde/Sokak + No: İzmir CBS kademeli dropdown (#2655). */
@@ -113,11 +115,12 @@ export function CbsStreetNoDropdowns({
   streetNoPlaceholder,
   triggerClassName,
   streetNoColumnClassName = 'lg:w-[8.25rem] lg:min-w-[8.25rem] lg:max-w-[8.25rem]',
+  splitMobileLayout = false,
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
-    ? 'address-street-no-row address-street-no-row--with-link grid min-w-0 grid-cols-[minmax(0,1.15fr)_6.5rem] gap-2 md:grid-cols-[minmax(0,1.15fr)_6.5rem_minmax(8.75rem,11rem)]'
-    : (className ?? 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2')
+    ? `address-street-no-row address-street-no-row--with-link grid min-w-0 grid-cols-[minmax(0,1.15fr)_6.5rem] gap-2 md:grid-cols-[minmax(0,1.15fr)_6.5rem_minmax(8.75rem,11rem)]${splitMobileLayout ? ' cbs-street-no-dropdowns--split-mobile' : ''}`
+    : (className ?? `address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2${splitMobileLayout ? ' cbs-street-no-dropdowns--split-mobile' : ''}`)
   const { t } = useTranslation()
   const districtId = useMunicipalityDistrictId()
   const hasNeighborhood = neighborhood.trim().length > 0

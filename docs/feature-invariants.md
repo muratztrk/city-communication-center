@@ -3341,7 +3341,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp OG görseli (#3566):** `frontend/index.html` `og:image` / `twitter:image` giriş
   logosu `/tire-belediyesi-logo.png` (mühür `favicon.png` değil); crawler JS çalıştırmaz.
 - **Telefon görüntüsü (#3567/#3573):** grid + detay + WA profil/Talep Oluştur kilitli numara
-  `+90 5XX XXX XX XX` (mevcut 10 haneli TR'ye +90 eklenir). WA profil etiketi `Telefon No` (#3568).
+  `+ülke kodu` + ulusal gruplama (`formatDirectoryPhone`; TR `+90 5XX XXX XX XX`). WA profil
+  etiketi `Telefon No` (#3568). Yabancı numaralar çağrı formu + düzenlenebilir Talep Oluştur
+  modalında ülke kodu + ITU hane doğrulamasıyla kaydedilir; WA kilitli numara tam uluslararası
+  hane ile doğrulanır (TR-only 10/5 kısıtı yok).
 - **Çağrı formu ülke kodu (#3569–#3572/#3575–#3581):** `(Başında 0 olmadan ekleyin)` yok; solda
   tüm ülkeler. Liste: bayrak görseli (`flagcdn`) solunda, ad + `+kod`; sıra Türkiye, Almanya,
   sonra alfabetik. Kapalı tetikleyicide bayrak + `+kod` (#3578); tetikleyici biraz geniş,

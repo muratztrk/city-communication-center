@@ -31,7 +31,18 @@ import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatCoordinatePair, originalGoogleMapsUrl } from '../utils/coordinates'
 import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { formatDisplayPhone, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
+import { CountryCallingCodeSelect } from './ui/country-calling-code-select'
+import {
+  composeStoredCitizenPhone,
+  DEFAULT_PHONE_COUNTRY_ISO,
+  getCountryCallingCode,
+  sanitizeForeignNationalInput,
+  splitCitizenPhone,
+  tryParsePastedCitizenPhone,
+  validateCitizenPhoneInput,
+} from '../utils/countryCallingCodes'
+import { getPhoneNsnLength } from '../utils/phoneNationalLengths'
+import { formatDisplayPhone, formatTrNationalGrouped, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -109,11 +120,11 @@ function looksLikePhone(value: string): boolean {
   return compact.length > 0 && digits.length / compact.length >= 0.85
 }
 
-function extractPhoneDigits(value: string): string {
+function resolveStoredCitizenPhone(value: string): string {
   const digits = stripWhatsAppJid(value).replace(/\D/g, '')
-  if (digits.length === 10) return digits
-  if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
-  return digits.length > 10 ? digits.slice(-10) : digits
+  if (!digits) return ''
+  const parsed = splitCitizenPhone(digits)
+  return composeStoredCitizenPhone(parsed.iso, parsed.national)
 }
 
 function isBlankCitizenLabel(value: string): boolean {
@@ -133,7 +144,7 @@ function resolveInitialCitizenName(message: SocialMessage): string {
 function resolveInitialCitizenPhone(message: SocialMessage): string {
   for (const candidate of [message.citizenPhone, message.citizenHandle, message.citizenName]) {
     if (!candidate?.trim()) continue
-    if (looksLikePhone(candidate)) return extractPhoneDigits(candidate)
+    if (looksLikePhone(candidate)) return resolveStoredCitizenPhone(candidate)
   }
   return ''
 }
@@ -168,7 +179,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [citizenHandle, setCitizenHandle] = useState(() => (
     forceNewRequest && !editJobId ? savedCitizenName : resolveInitialCitizenName(message)
   ))
-  const [citizenPhone, setCitizenPhone] = useState(() => resolveInitialCitizenPhone(message))
+  const initialStoredPhone = resolveInitialCitizenPhone(message)
+  const initialParsedPhone = splitCitizenPhone(initialStoredPhone)
+  const [phoneCountryIso, setPhoneCountryIso] = useState(() => initialParsedPhone.iso || DEFAULT_PHONE_COUNTRY_ISO)
+  const [citizenPhone, setCitizenPhone] = useState(() => (
+    citizenPhoneLocked ? initialStoredPhone : initialParsedPhone.national
+  ))
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [targetDepartmentId, setTargetDepartmentId] = useState('')
@@ -279,7 +295,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         setTargetDepartmentId(targetIds[0] ?? '')
         setPriority(job.priority)
         setCitizenHandle(sanitizeCitizenName(job.citizenName) || resolveInitialCitizenName(message))
-        setCitizenPhone(job.citizenPhone ? extractPhoneDigits(job.citizenPhone) : resolveInitialCitizenPhone(message))
+        const parsedJobPhone = splitCitizenPhone(job.citizenPhone ?? resolveInitialCitizenPhone(message))
+        setPhoneCountryIso(parsedJobPhone.iso)
+        setCitizenPhone(citizenPhoneLocked ? composeStoredCitizenPhone(parsedJobPhone.iso, parsedJobPhone.national) : parsedJobPhone.national)
         setStartDateUtc(job.startDateUtc ?? '')
         setDueDateUtc(job.dueDateUtc ?? '')
         setNeighborhood(job.neighborhood ?? '')
@@ -368,15 +386,20 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       setError(t('settings.citizen.citizenHandleRequired', 'Vatandaş / Gönderen gereklidir.'))
       return
     }
-    const trimmedPhone = citizenPhone.replace(/\D/g, '')
-    if (trimmedPhone.length !== 10) {
-      setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
+    const parsedPhone = citizenPhoneLocked ? splitCitizenPhone(citizenPhone) : null
+    const validationIso = parsedPhone?.iso ?? phoneCountryIso
+    const validationNational = parsedPhone?.national ?? citizenPhone
+    const phoneCountry = getCountryCallingCode(validationIso)
+    const countryName = i18n.language.toLocaleLowerCase('tr').startsWith('tr') ? phoneCountry.nameTr : phoneCountry.nameEn
+    const phoneValidation = validateCitizenPhoneInput(validationIso, validationNational, countryName)
+    if (!phoneValidation.ok) {
+      setError(t(phoneValidation.error.errorKey, {
+        defaultValue: phoneValidation.error.errorDefault,
+        ...phoneValidation.error.errorParams,
+      }))
       return
     }
-    if (!trimmedPhone.startsWith('5')) {
-      setError(t('settings.citizen.citizenPhoneMustStartWith5', 'Telefon numarası 5 ile başlamalıdır.'))
-      return
-    }
+    const storedPhone = phoneValidation.stored
     if (!targetDepartmentId) {
       setError(t('requests.create.targetDepartmentRequired', 'Talebin gideceği birim seçilmelidir.'))
       return
@@ -439,7 +462,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           dueDateUtc: toApiDateTime(dueDateUtc),
           isProject: false,
           citizenName: trimmedHandle,
-          citizenPhone: trimmedPhone,
+          citizenPhone: storedPhone,
           neighborhood: mapsAddress.neighborhood || null,
           street: normalizeTitleCaseField(mapsAddress.street),
           streetNo: mapsAddress.streetNo.trim() || null,
@@ -476,7 +499,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       if (shouldCreateFreshMessage) {
         convertMessageId = await api.createSocialMessage({
           channel: createChannel,
-          citizenHandle: trimmedPhone.length === 10 ? `90${trimmedPhone}` : trimmedPhone,
+          citizenHandle: storedPhone.length === 10 ? `90${storedPhone}` : storedPhone,
           content: description.trim(),
           category: message.category ?? undefined,
           latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
@@ -512,7 +535,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude ?? null,
         locationMapsUrl: originalGoogleMapsUrl(coordinates),
         citizenName: trimmedHandle,
-        citizenPhone: trimmedPhone,
+        citizenPhone: storedPhone,
       })
       await api.updateSocialMessage(convertMessageId, {
         channel: createChannel,
@@ -630,16 +653,53 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     {t('settings.citizen.citizenPhone', 'Vatandaş Telefon No')}{' '}
                     <span className="text-red-500">*</span>
                   </span>
-                  <DeferredComposerInput
-                    className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
-                    value={citizenPhoneLocked ? formatDisplayPhone(citizenPhone) : citizenPhone}
-                    required
-                    disabled={citizenPhoneLocked}
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    placeholder="5XXXXXXXXX"
-                    onChange={value => setCitizenPhone(current => sanitizeMobilePhoneInput(value, current))}
-                  />
+                  {citizenPhoneLocked ? (
+                    <DeferredComposerInput
+                      className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                      value={formatDisplayPhone(citizenPhone)}
+                      required
+                      disabled
+                      inputMode="numeric"
+                      onChange={() => {}}
+                    />
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <CountryCallingCodeSelect
+                        className="w-[6.35rem] shrink-0"
+                        value={phoneCountryIso}
+                        onChange={iso => {
+                          setPhoneCountryIso(iso)
+                          setCitizenPhone('')
+                        }}
+                      />
+                      <DeferredComposerInput
+                        className="field-input min-w-0 flex-1 text-[0.875rem] placeholder:text-[0.875rem] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                        value={phoneCountryIso === 'TR' ? formatTrNationalGrouped(citizenPhone) : citizenPhone}
+                        required
+                        inputMode="numeric"
+                        pattern={phoneCountryIso === 'TR' ? '[0-9 ]*' : '[0-9]*'}
+                        placeholder={phoneCountryIso === 'TR' ? '5XX XXX XX XX' : ''}
+                        onChange={value => {
+                          const nsn = getPhoneNsnLength(phoneCountryIso)
+                          if (phoneCountryIso === 'TR') {
+                            const pasted = tryParsePastedCitizenPhone('TR', value)
+                            if (pasted) {
+                              setPhoneCountryIso(pasted.iso)
+                              setCitizenPhone(pasted.national)
+                              return
+                            }
+                            setCitizenPhone(current => sanitizeMobilePhoneInput(value, current, nsn.max))
+                            return
+                          }
+                          setCitizenPhone(sanitizeForeignNationalInput(
+                            value,
+                            getCountryCallingCode(phoneCountryIso).dial,
+                            nsn.max,
+                          ))
+                        }}
+                      />
+                    </div>
+                  )}
                 </label>
               </div>
 

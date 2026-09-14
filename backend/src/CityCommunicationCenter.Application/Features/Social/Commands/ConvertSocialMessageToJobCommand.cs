@@ -176,7 +176,7 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
     private static bool LooksLikePhone(string value)
     {
         var digits = NormalizePhoneDigits(value);
-        return digits.Length is >= 10 and <= 12;
+        return digits.Length is >= 10 and <= 15;
     }
 
     private static string NormalizePhoneDigits(string value)

@@ -1,3 +1,5 @@
+import { getPhoneNsnLength } from './phoneNationalLengths'
+
 export interface CountryCallingCode {
   iso: string
   dial: string
@@ -307,5 +309,79 @@ export function formatNationalPhoneGroups(national: string): string {
     return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8)}`
   }
   return digits.replace(/(\d{3})(?=\d)/g, '$1 ').trim()
+}
+
+export type CitizenPhoneValidationError = {
+  errorKey: string
+  errorDefault: string
+  errorParams?: Record<string, string | number>
+}
+
+export function validateCitizenPhoneInput(
+  iso: string,
+  nationalDigits: string,
+  countryLabel: string,
+): { ok: true; stored: string } | { ok: false; error: CitizenPhoneValidationError } {
+  const nationalPhone = digitsOnly(nationalDigits)
+  const phoneCountry = getCountryCallingCode(iso)
+  const nsn = getPhoneNsnLength(phoneCountry.iso)
+  if (phoneCountry.iso === 'TR') {
+    if (nationalPhone.length !== 10) {
+      return {
+        ok: false,
+        error: {
+          errorKey: 'settings.citizen.citizenPhoneInvalid',
+          errorDefault: 'Vatandaş telefon numarası 10 haneli olmalıdır.',
+        },
+      }
+    }
+    if (!nationalPhone.startsWith('5')) {
+      return {
+        ok: false,
+        error: {
+          errorKey: 'settings.citizen.citizenPhoneMustStartWith5',
+          errorDefault: 'Telefon numarası 5 ile başlamalıdır.',
+        },
+      }
+    }
+  } else if (nationalPhone.length < nsn.min || nationalPhone.length > nsn.max) {
+    if (nsn.min === nsn.max) {
+      return {
+        ok: false,
+        error: {
+          errorKey: 'settings.citizen.citizenPhoneInvalidLength',
+          errorDefault: '{{country}} telefon numarası {{min}} haneli olmalıdır.',
+          errorParams: { country: countryLabel, min: nsn.min },
+        },
+      }
+    }
+    return {
+      ok: false,
+      error: {
+        errorKey: 'settings.citizen.citizenPhoneInvalidLengthRange',
+        errorDefault: '{{country}} telefon numarası {{min}}–{{max}} hane olmalıdır.',
+        errorParams: { country: countryLabel, min: nsn.min, max: nsn.max },
+      },
+    }
+  }
+  return { ok: true, stored: composeStoredCitizenPhone(phoneCountry.iso, nationalPhone) }
+}
+
+/** TR seçiliyken uluslararası yapıştırmayı ülke + ulusal numaraya ayırır. */
+export function tryParsePastedCitizenPhone(
+  iso: string,
+  rawInput: string,
+): { iso: string; national: string } | null {
+  const allDigits = digitsOnly(rawInput)
+  if (!allDigits || iso !== 'TR') return null
+  if (allDigits.length <= 10 && allDigits.startsWith('5')) return null
+  if (allDigits.length === 11 && allDigits.startsWith('0') && allDigits[1] === '5') {
+    return { iso: 'TR', national: allDigits.slice(1) }
+  }
+  const parsed = splitCitizenPhone(allDigits)
+  if (parsed.iso === 'TR') {
+    return parsed.national.length === 10 && parsed.national.startsWith('5') ? parsed : null
+  }
+  return { iso: parsed.iso, national: parsed.national }
 }
 

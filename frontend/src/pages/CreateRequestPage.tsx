@@ -58,11 +58,12 @@ import {
 import { CountryCallingCodeSelect } from '../components/ui/country-calling-code-select'
 import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
 import {
-  composeStoredCitizenPhone,
   DEFAULT_PHONE_COUNTRY_ISO,
   getCountryCallingCode,
   sanitizeForeignNationalInput,
   splitCitizenPhone,
+  tryParsePastedCitizenPhone,
+  validateCitizenPhoneInput,
 } from '../utils/countryCallingCodes'
 import { getPhoneNsnLength } from '../utils/phoneNationalLengths'
 import { formatTrNationalGrouped, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
@@ -1159,35 +1160,17 @@ export function CreateRequestPage() {
       setError(t('settings.citizen.citizenHandleRequired', 'Vatandaş / Gönderen gereklidir.'))
       return
     }
-    const nationalPhone = citizenForm.citizenPhone.replace(/\D/g, '')
     const phoneCountry = getCountryCallingCode(citizenForm.phoneCountryIso)
-    const nsn = getPhoneNsnLength(phoneCountry.iso)
-    if (phoneCountry.iso === 'TR') {
-      if (nationalPhone.length !== 10) {
-        setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
-        return
-      }
-      if (!nationalPhone.startsWith('5')) {
-        setError(t('settings.citizen.citizenPhoneMustStartWith5', 'Telefon numarası 5 ile başlamalıdır.'))
-        return
-      }
-    } else if (nationalPhone.length < nsn.min || nationalPhone.length > nsn.max) {
-      const countryName = i18n.language.toLocaleLowerCase('tr').startsWith('tr') ? phoneCountry.nameTr : phoneCountry.nameEn
-      setError(nsn.min === nsn.max
-        ? t('settings.citizen.citizenPhoneInvalidLength', {
-            defaultValue: '{{country}} telefon numarası {{min}} haneli olmalıdır.',
-            country: countryName,
-            min: nsn.min,
-          })
-        : t('settings.citizen.citizenPhoneInvalidLengthRange', {
-            defaultValue: '{{country}} telefon numarası {{min}}–{{max}} hane olmalıdır.',
-            country: countryName,
-            min: nsn.min,
-            max: nsn.max,
-          }))
+    const countryName = i18n.language.toLocaleLowerCase('tr').startsWith('tr') ? phoneCountry.nameTr : phoneCountry.nameEn
+    const phoneValidation = validateCitizenPhoneInput(citizenForm.phoneCountryIso, citizenForm.citizenPhone, countryName)
+    if (!phoneValidation.ok) {
+      setError(t(phoneValidation.error.errorKey, {
+        defaultValue: phoneValidation.error.errorDefault,
+        ...phoneValidation.error.errorParams,
+      }))
       return
     }
-    const trimmedPhone = composeStoredCitizenPhone(phoneCountry.iso, nationalPhone)
+    const trimmedPhone = phoneValidation.stored
     if (citizenForm.neighborhood.trim() && !citizenForm.street.trim()) {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
@@ -1768,15 +1751,27 @@ export function CreateRequestPage() {
                       : citizenForm.citizenPhone}
                     onChange={event => setCitizenForm(current => {
                       const nsn = getPhoneNsnLength(current.phoneCountryIso)
+                      if (current.phoneCountryIso === 'TR') {
+                        const pasted = tryParsePastedCitizenPhone('TR', event.target.value)
+                        if (pasted) {
+                          return {
+                            ...current,
+                            phoneCountryIso: pasted.iso,
+                            citizenPhone: pasted.national,
+                          }
+                        }
+                        return {
+                          ...current,
+                          citizenPhone: sanitizeMobilePhoneInput(event.target.value, current.citizenPhone, nsn.max),
+                        }
+                      }
                       return {
                         ...current,
-                        citizenPhone: current.phoneCountryIso === 'TR'
-                          ? sanitizeMobilePhoneInput(event.target.value, current.citizenPhone, nsn.max)
-                          : sanitizeForeignNationalInput(
-                            event.target.value,
-                            getCountryCallingCode(current.phoneCountryIso).dial,
-                            nsn.max,
-                          ),
+                        citizenPhone: sanitizeForeignNationalInput(
+                          event.target.value,
+                          getCountryCallingCode(current.phoneCountryIso).dial,
+                          nsn.max,
+                        ),
                       }
                     })}
                   />

@@ -2221,9 +2221,9 @@ export function WhatsAppConversationsPage() {
                         <div className="whatsapp-blocked-list-citizen-phone truncate pl-5 pt-1 text-[0.75rem] font-semibold leading-snug text-slate-900">{phoneLabel}</div>
                       ) : null}
                     </div>
-                    <div className="whatsapp-blocked-list-blocker flex shrink-0 items-start gap-2">
+                    <div className="whatsapp-blocked-list-actions flex shrink-0 items-start gap-2">
                       {blockerName || blockerWhen ? (
-                        <div className="flex min-w-[5.25rem] max-w-[7.5rem] flex-col items-center rounded-full bg-sky-100 px-2 py-1 text-sky-700 ring-1 ring-sky-200">
+                        <div className="whatsapp-blocked-list-blocker-meta flex min-w-[5.25rem] max-w-[7.5rem] flex-col items-center rounded-full bg-sky-100 px-2 py-1 text-sky-700 ring-1 ring-sky-200">
                           {blockerName ? (
                             <div className="w-full truncate text-center text-[0.6875rem] font-medium leading-snug">{blockerName}</div>
                           ) : null}

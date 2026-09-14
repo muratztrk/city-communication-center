@@ -2083,10 +2083,10 @@ export function WhatsAppConversationsPage() {
   return (
     <div className="page-stack desktop-page-shell whatsapp-page-shell">
       <header className="sticky-page-header whatsapp-page-banner">
-        <h1 className="page-title">{t('whatsapp.title')}</h1>
-        <div className="whatsapp-page-banner-toolbar">
+        <div className="whatsapp-page-banner-grid">
+          <h1 className="page-title whatsapp-page-banner-title">{t('whatsapp.title')}</h1>
           <p className="page-subtitle whatsapp-page-banner-subtitle">{t('whatsapp.subtitle')}</p>
-          <div className="scope-chips-filters">
+          <div className="scope-chips-filters whatsapp-page-banner-filters">
             <ScopeChipDateRange
               from={filterFrom}
               to={filterTo}

@@ -9083,30 +9083,40 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   gap: 0.45rem !important;
 }
 
-/* WhatsApp banner: kompakt + tarih filtresi alt başlık hizası (#3637 reopen). */
+/* WhatsApp banner: kompakt grid — tarih filtresi alt başlık hizası (#3637 reopen-2). */
 .whatsapp-page-shell .whatsapp-page-banner.sticky-page-header {
-  gap: 0.35rem;
-  padding-block: 0.75rem;
+  gap: 0;
+  padding-block: 0.625rem;
 }
 
-.whatsapp-page-shell .whatsapp-page-banner-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  min-height: 0;
+.whatsapp-page-shell .whatsapp-page-banner-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: end;
+  column-gap: 0.75rem;
+  row-gap: 0.125rem;
+}
+
+.whatsapp-page-shell .whatsapp-page-banner-title {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
 }
 
 .whatsapp-page-shell .whatsapp-page-banner-subtitle {
+  grid-column: 1;
+  grid-row: 2;
   margin: 0;
-  line-height: 1.35;
-  flex: 1 1 auto;
-  min-width: 0;
+  padding: 0;
+  line-height: 1.25;
 }
 
-.whatsapp-page-shell .whatsapp-page-banner-toolbar .scope-chips-filters {
+.whatsapp-page-shell .whatsapp-page-banner-filters {
+  grid-column: 2;
+  grid-row: 2;
   margin-left: 0;
-  align-self: center;
+  align-self: end;
 }
 
 /* Vatandaş Paneli FAB: WA bildirim balonu scroll düğmesine yaklaştır (#3634 reopen). */

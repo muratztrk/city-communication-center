@@ -992,6 +992,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         || incomingStatusFilter === 'approved'
       ))
     )
+  const canCancelSocialDetail = detailContext === 'social'
+    && detail != null
+    && isCitizenProcessingReceivedState(detail)
   const canCancelDetail = isIncomingRequestDetail
     ? canCancelIncomingDetail
     : isRequestDetailContext
@@ -2682,8 +2685,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 requestLabel: citizenSourceMessage?.category,
                 sourceChannel: citizenSourceMessage?.channel,
               })}
-              onCancel={socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined)}
-              showCancelDisabled={Boolean(socialActions && !socialActions.cancel)}
+              onCancel={detailContext === 'social'
+                ? (canCancelSocialDetail
+                  ? (socialActions?.cancel ?? (() => handleCancel(detail.jobId)))
+                  : undefined)
+                : (socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined))}
+              showCancelDisabled={detailContext === 'social'
+                ? detail != null && !canCancelSocialDetail
+                : Boolean(socialActions && !socialActions.cancel)}
               cancelDisabledTitle={socialActions?.cancelDisabledTitle}
               onEdit={socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? (canEditMyRequestDetailJob && !myRequestEditing ? startMyRequestEdit : undefined))}
               showEditDisabled={socialActions ? Boolean(!socialActions.edit && socialActions.editDisabledTitle) : (showMyRequestEditDisabled && !myRequestEditing)}

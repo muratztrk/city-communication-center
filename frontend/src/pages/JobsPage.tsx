@@ -197,7 +197,7 @@ function buildCancelledWithoutTaskInfoRows(
   t: TFunction,
   user: { role?: string; additionalRoles?: string[] } | null | undefined,
   showRequestInfoCitizenOutbound: boolean,
-): { label: string; value: React.ReactNode; valueClass?: string }[] {
+): { label: string; value: React.ReactNode; labelClass?: string; valueClass?: string }[] {
   if (!isCancelledCitizenRequestWithoutTasks(detail)) return []
   const cancelledNote = detail.cancelReason?.trim() || '—'
   const outboundDisplay = resolveCitizenCancelOutboundDisplay(detail, cancelledNote)
@@ -206,7 +206,7 @@ function buildCancelledWithoutTaskInfoRows(
     && cancelledNote !== '—'
     && outboundDisplay.localeCompare(cancelledNote, 'tr', { sensitivity: 'accent' }) !== 0,
   )
-  const rows: { label: string; value: React.ReactNode; valueClass?: string }[] = []
+  const rows: { label: string; value: React.ReactNode; labelClass?: string; valueClass?: string }[] = []
   if (shouldShowCitizenMessageApproverField(user, detail.cancelReason) || detail.cancelReason?.trim()) {
     rows.push({
       label: t('tasks.detail.cancelNote', 'İptal Notu'),
@@ -221,10 +221,13 @@ function buildCancelledWithoutTaskInfoRows(
     )
     rows.push({
       label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+      labelClass: 'text-red-600',
       value: outboundField.value,
       valueClass: outboundField.pending
-        ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
-        : outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
+        ? `${CITIZEN_OUTBOUND_PENDING_VALUE_CLASS} citizen-terminal-note-value--end`
+        : outboundDiffers
+          ? 'citizen-terminal-note-value citizen-terminal-note-value--end text-red-600'
+          : 'citizen-terminal-note-value citizen-terminal-note-value--end text-slate-900',
     })
     const editorField = buildCitizenOutboundEditorField(detail.citizenOutboundEditorDisplayName, t, true)
     if (editorField) {
@@ -3125,7 +3128,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       ...buildCancelledWithoutTaskInfoRows(detail, t, user, showRequestInfoCitizenOutbound),
                     ]).map((field, fieldIndex) => (
                       <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in field && field.rowClass ? ` ${field.rowClass}` : ''}`}>
-                        <div className="job-detail-field-row__label">{field.label}</div>
+                        <div className={`job-detail-field-row__label${'labelClass' in field && field.labelClass ? ` ${field.labelClass}` : ''}`}>{field.label}</div>
                         <div className={`job-detail-field-row__value ${'valueClass' in field && field.valueClass ? field.valueClass : typeof field.value === 'string' ? 'text-slate-900' : ''}`}>{field.value}</div>
                       </div>
                     ))}
@@ -3141,7 +3144,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         && cancelledNote !== '—'
                         && outboundDisplay.localeCompare(cancelledNote, 'tr', { sensitivity: 'accent' }) !== 0,
                       )
-                      const rows: { label: string; value: React.ReactNode; valueClass?: string }[] = []
+                      const rows: { label: string; value: React.ReactNode; labelClass?: string; valueClass?: string }[] = []
                       rows.push({
                         label: t('tasks.detail.cancelNote', 'İptal Notu'),
                         value: cancelledNote,
@@ -3154,10 +3157,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         )
                         rows.push({
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                          labelClass: 'text-red-600',
                           value: outboundField.value,
                           valueClass: outboundField.pending
-                            ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
-                            : outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
+                            ? `${CITIZEN_OUTBOUND_PENDING_VALUE_CLASS} citizen-terminal-note-value--end`
+                            : outboundDiffers
+                              ? 'citizen-terminal-note-value citizen-terminal-note-value--end text-red-600'
+                              : 'citizen-terminal-note-value citizen-terminal-note-value--end text-slate-900',
                         })
                         const editorField = buildCitizenOutboundEditorField(detail.citizenOutboundEditorDisplayName, t, true)
                         if (editorField) {
@@ -3170,7 +3176,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }
                       return rows.map(row => (
                         <div key={row.label} className="job-detail-field-row job-detail-field-row--request-info">
-                          <div className="job-detail-field-row__label">{row.label}</div>
+                          <div className={`job-detail-field-row__label${row.labelClass ? ` ${row.labelClass}` : ''}`}>{row.label}</div>
                           <div className={`job-detail-field-row__value ${row.valueClass ?? 'text-slate-900'}`}>{row.value}</div>
                         </div>
                       ))

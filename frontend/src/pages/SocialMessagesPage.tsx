@@ -897,13 +897,13 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
               ) : null}
               {t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
             </p>
-            <p className="helper-copy mb-0 mt-1 text-left text-[0.85rem] leading-snug text-slate-600">
+            <p className="helper-copy mb-0 mt-0.5 text-left text-[0.85rem] leading-snug text-slate-600">
               {t(
                 'jobs.actions.cancelCitizenMessageApprovalHint',
                 'Eklediğiniz Not vatandaşa gönderilmek üzere mesajlar bölümünde iletmeniz için onayınızı bekleyecektir.',
               )}
             </p>
-            <label className="job-field mt-2">
+            <label className="job-field mt-1">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max {CANCEL_JOB_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"

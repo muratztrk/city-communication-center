@@ -9037,8 +9037,8 @@
   }
 
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
-    height: 1.5rem !important;
-    min-height: 1.5rem !important;
+    height: 1.625rem !important;
+    min-height: 1.625rem !important;
     padding-right: 1.5rem !important;
   }
 
@@ -9116,7 +9116,7 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
 /* WhatsApp banner: kompakt grid — tarih filtresi alt başlık hizası (#3637 reopen-2). */
 .whatsapp-page-shell .whatsapp-page-banner.sticky-page-header {
   gap: 0;
-  padding-block: 0.625rem;
+  padding-block: 0.5rem;
 }
 
 .whatsapp-page-shell .whatsapp-page-banner-grid {
@@ -9125,7 +9125,7 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   grid-template-rows: auto auto;
   align-items: end;
   column-gap: 0.75rem;
-  row-gap: 0.125rem;
+  row-gap: 0;
 }
 
 .whatsapp-page-shell .whatsapp-page-banner-title {
@@ -9139,8 +9139,9 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   grid-column: 1;
   grid-row: 2;
   margin: 0;
+  margin-top: -0.0625rem;
   padding: 0;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .whatsapp-page-shell .whatsapp-page-banner-filters {
@@ -9223,6 +9224,11 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     grid-column: 1;
     grid-row: 2;
     text-align: left;
+  }
+
+  /* Mesajlar listesi ↔ alt konuşma paneli arası (#3662). */
+  .whatsapp-page-shell > .desktop-page-fill {
+    gap: 0.35rem;
   }
 
   /* Engellenenler mobil (#3623 reopen): engelleyen chip gizli, Engeli Kaldır kalır. */

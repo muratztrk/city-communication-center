@@ -718,6 +718,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hemen solunda; iç mesaj butonunun sağ kenarı textarea ile hizalıdır (grid spacer).
 - **WhatsApp operatör dosya eki (#2394 reopen):** Dosya ekle seçimi pending önizleme gösterir; iletim
   `Mesajı Gönder` ile onaylanır (doğrudan gönderim yok).
+- **WhatsApp konuşma balonu uzun metin:** boşluksuz/çok uzun içerik `max-w` içinde kırılmalı (`min-w-0 w-fit` + `overflow-wrap:anywhere`); balon ekran genişliğine şişmemeli.
 - **WhatsApp giden ek balonu (#2399 reopen):** iletilmiş ekler chip olarak gösterilir; görsel eklerde
   görsel ikonu, dokümanda FileText; orijinal dosya adı `[Dosya eki: …]` içeriğinden okunur (#2385 reopen);
   caption varken de marker her zaman yazılır (#6a75878c — yoksa UI `whatsapp-{tel}` fallback).

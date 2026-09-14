@@ -228,7 +228,7 @@ export function ConversationEntryBubble({
       <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
         <div
           ref={bubbleRef}
-          className={`${bubbleMaxWidth} ${
+          className={`${bubbleMaxWidth} min-w-0 w-fit ${
             isOutboundImage
               ? compact ? 'rounded-xl px-1.5 py-1.5 text-[11px]' : 'rounded-xl px-1.5 py-1.5 text-[13px]'
               : compact ? 'rounded-xl px-3 py-1.5 text-[11px]' : 'rounded-xl px-3 py-2 text-[13px]'
@@ -300,7 +300,7 @@ export function ConversationEntryBubble({
               >
                 <User className="size-3" aria-hidden="true" />
               </span>
-              <span className="min-w-0 whitespace-pre-wrap break-words">
+              <span className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                 {formatContactDisplayContent(entry.content)}
               </span>
             </p>
@@ -316,7 +316,7 @@ export function ConversationEntryBubble({
                 >
                   <MapPin className="size-3" aria-hidden="true" />
                 </span>
-                <span className="min-w-0 whitespace-pre-wrap break-words">
+                <span className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                   {locationDescription || t('whatsapp.locationMessage', 'Konum')}
                 </span>
               </p>
@@ -350,7 +350,7 @@ export function ConversationEntryBubble({
           ) : (
             <>
               {entry.content && !isPlaceholderBracketContent(entry.content) && (
-                <p className="whitespace-pre-wrap break-words leading-snug">{formatConversationDisplayContent(entry.content)}</p>
+                <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere] leading-snug">{formatConversationDisplayContent(entry.content)}</p>
               )}
               {isPlaceholderBracketContent(entry.content) && !hasMedia && (
                 <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>

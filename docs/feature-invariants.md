@@ -2987,10 +2987,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görevinde (Görevlerim/Birimdeki Görevler) ve Birime Gelen Talebi İptal Et popup'ında
   Tamamlama Notu / İptal Nedeni etiketinin hemen üstünde yönetici onayı bilgi satırı görünür
   (üst boşluk yok).
-- **Birime Gelen iptal → Mesaj Onayı (#3470):** görev oluşmadan vatandaş talebi `CancelJob`
-  ile iptal edilince `CitizenTerminalMessageReleasedAtUtc` sıfırlanır; **Çağrı (Phone)** kanalı
-  için talep Mesaj Onayı `to-send` listesinde kalır (Rejected + `CancelReason` da listelenir).
-  **WhatsApp** bağlı VT iptalinde `ReleaseTerminalMessagesAsync` hemen çağrılır (#3652).
+- **Birime Gelen iptal → Mesaj Onayı (#3470/#3668):** görev oluşmadan vatandaş talebi `CancelJob`
+  ile iptal edilince `CitizenTerminalMessageReleasedAtUtc` sıfırlanır; ardından **WhatsApp** ve
+  **görevsiz Çağrı (Phone)** kanalında `ReleaseTerminalMessagesAsync` hemen çağrılır — İptal Edildi
+  şablonu + `{İptal Notu}` kuyruğa; `{GönderilenBirim}` iptal eden operatör birimi (`actor.UserId`,
+  #3654/#3668). Görevli Phone iptali yalnız Mesaj Onayı `to-send` listesinde kalır.
+  **WhatsApp** bağlı VT iptalinde de aynı release yolu (#3652).
   Detay popup `Vatandaşa Giden Mesaj` alanı yine audit release + iletilmiş kanal kaydından dolar (#3504);
   `ReleasedAtUtc` null olsa da gösterim engellenmez.
 - **Vatandaş Talepleri iptal (#3646/#3652/#3654):** grid/detay `İptal Et` yalnız `isCitizenProcessingReceivedState`
@@ -3029,6 +3031,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev Süreç Gecikti mi (#3522):** Birime Gelen detay → İlgili Görev Detayları Süreç başlığında Evet/Hayır.
 - **Outbound yeşil (#3523/#3556):** Vatandaşa Giden Mesaj iletilmiş ve Tamamlama Notu ile aynıysa
   etiket+değer yeşil. İletim yoksa etiket yeşil değil; değer açık mavi `Onay Bekleyen` (`—` değil).
+  Outbound `Onay Bekleyen` iken **Vatandaşa Giden Mesajı Düzenleyen** satırı gösterilmez (#3667).
 - **Onaylayan yedeği (#3515/#3491):** `CitizenTerminalMessageReleasedAtUtc` dolu, döngü audit yoksa son release actor.
   `GetJobById` onaylayan + released not VT bağlantısı/WA-Phone/ReleasedAtUtc şartına bağlı değil; outbound terminal görev/job veya kanal bağlantısında çözülür (#3491/#3527).
 - **Personelimin Görevleri onaylayan (#3515 reopen):** `TasksPage` Görev Bilgileri terminal satırları

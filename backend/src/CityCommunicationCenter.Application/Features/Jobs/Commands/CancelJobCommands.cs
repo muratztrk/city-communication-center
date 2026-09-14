@@ -165,7 +165,7 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
                 previousDisplayStatus,
                 cancellationToken);
 
-            // VT iptal → İptal Edildi şablonu + {İptal Notu} operatör WA kuyruğuna (card #3652).
+            // VT iptal → İptal Edildi şablonu + {İptal Notu} operatör kuyruğuna (card #3652/#3668).
             var hasWhatsAppThread = await _dbContext.SocialMessages.AsNoTracking()
                 .AnyAsync(
                     message => message.TenantId == tenantId
@@ -173,7 +173,14 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
                         && (message.JobId == job.JobId
                             || (job.SourceRefId.HasValue && message.SocialMessageId == job.SourceRefId.Value)),
                     cancellationToken);
-            if (hasWhatsAppThread)
+            var hasPhoneThread = await _dbContext.SocialMessages.AsNoTracking()
+                .AnyAsync(
+                    message => message.TenantId == tenantId
+                        && message.Channel == SocialChannel.Phone
+                        && (message.JobId == job.JobId
+                            || (job.SourceRefId.HasValue && message.SocialMessageId == job.SourceRefId.Value)),
+                    cancellationToken);
+            if (hasWhatsAppThread || (hasPhoneThread && previousTaskCount == 0))
             {
                 await _citizenJobStatusNotifier.ReleaseTerminalMessagesAsync(
                     tenantId,

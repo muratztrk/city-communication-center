@@ -9020,8 +9020,8 @@
 }
 
 .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
-  height: 1.5rem !important;
-  min-height: 1.5rem !important;
+  height: 1.625rem !important;
+  min-height: 1.625rem !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
@@ -9132,7 +9132,7 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   grid-column: 1;
   grid-row: 1;
   margin: 0;
-  padding-top: 0.1875rem;
+  padding-top: 0.3125rem;
 }
 
 .whatsapp-page-shell .whatsapp-page-banner-subtitle {
@@ -9235,7 +9235,11 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     gap: 0.35rem;
   }
 
-  /* Engellenenler mobil (#3623 reopen): engelleyen chip gizli, Engeli Kaldır kalır. */
+  /* Engellenenler mobil (#3623 reopen): kapat X kırmızı; engelleyen chip gizli. */
+  .whatsapp-blocked-list-modal > button[aria-label] {
+    color: rgb(220 38 38) !important;
+  }
+
   .whatsapp-blocked-list-modal .whatsapp-blocked-list-blocker-meta {
     display: none !important;
   }

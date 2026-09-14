@@ -1499,7 +1499,7 @@ function ConversationDetail({
           {replySocialMessageId ? (
             <footer className="whatsapp-conversation-footer shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
               <div className="space-y-2">
-                <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+                <div className="whatsapp-composer-top-row grid grid-cols-[1fr_auto] items-center gap-2">
                   <div className="flex min-w-0 flex-wrap items-center gap-2 whatsapp-composer-toolbar">
                 <input
                   ref={fileInputRef}
@@ -1549,7 +1549,6 @@ function ConversationDetail({
                   }}
                 />
                 <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
-                </div>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -1559,6 +1558,7 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
+                </div>
                   </div>
                   <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />
                 </div>

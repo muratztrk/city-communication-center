@@ -164,6 +164,54 @@ internal static class CitizenMessageApprovalNoteResolver
     }
 
     /// <summary>
+    /// İptal edilen vatandaş talebinin WA beklemede balonundaki Onaylayan Yönetici — İptal Et
+    /// aksiyonunu başlatan kullanıcı (card #3646).
+    /// </summary>
+    public static async Task<string?> ResolveCancelledJobInitiatorDisplayNameAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken)
+    {
+        var cycle = await GetCycleBoundsAsync(dbContext, tenantId, jobId, cancellationToken);
+        var entityId = jobId.ToString();
+        var cancelAudit = dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityType == nameof(Job)
+                && audit.EntityId == entityId
+                && audit.Action == "JobCancelled");
+        if (cycle.ReopenedAt.HasValue)
+        {
+            cancelAudit = cancelAudit.Where(audit => audit.EventTimeUtc >= cycle.ReopenedAt.Value);
+        }
+
+        var actor = await cancelAudit
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => new { audit.ActorDisplayName, audit.ActorUserId })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (actor is null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(actor.ActorDisplayName))
+        {
+            return actor.ActorDisplayName.Trim();
+        }
+
+        if (!actor.ActorUserId.HasValue)
+        {
+            return null;
+        }
+
+        var actorName = await dbContext.Users.AsNoTracking()
+            .Where(user => user.UserId == actor.ActorUserId.Value)
+            .Select(user => user.DisplayName)
+            .FirstOrDefaultAsync(cancellationToken);
+        return string.IsNullOrWhiteSpace(actorName) ? null : actorName.Trim();
+    }
+
+    /// <summary>
     /// Vatandaş Bilgi Listesi detay popup'ında "Vatandaşa Giden Mesaj" alanı.
     /// WhatsApp: operatör bekleyen balonu düzenler (görev notu değişmez) → konuşma kaydı.
     /// SMS: operatör Sms Onayı'nda Notu Düzenle görev notunu ezer → serbest bırakmadan

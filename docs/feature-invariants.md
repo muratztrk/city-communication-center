@@ -2991,6 +2991,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `to-send` listesinde kalır (Rejected + `CancelReason` da listelenir). Detay popup
   `Vatandaşa Giden Mesaj` alanı yine audit release + iletilmiş kanal kaydından dolar (#3504);
   `ReleasedAtUtc` null olsa da gösterim engellenmez.
+- **Vatandaş Talepleri iptal (#3646):** grid/detay `İptal Et` yalnız `isCitizenProcessingReceivedState`
+  (İşleme Alındı); popup İptal Nedeni 400 karakter + mesaj onayı bilgi satırı. WA beklemede
+  balon `Onaylayan Yönetici` = `JobCancelled` audit actor (`ResolveCancelledJobInitiatorDisplayNameAsync`).
 - **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.

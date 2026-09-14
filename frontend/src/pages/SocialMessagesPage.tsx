@@ -186,10 +186,12 @@ function matchesSocialWasOverdueFilter(job: JobSummary | undefined, dueDateUtc: 
   })
 }
 
-function canCancelLinkedJob(status: JobSummary['status'] | undefined) {
-  return status === 'PendingOwnerApproval'
-    || status === 'PendingExternalApproval'
-    || status === 'Active'
+const CANCEL_JOB_REASON_MAX_LENGTH = 400
+
+/** Vatandaş Talepleri: yalnız İşleme Alındı iptal edilebilir (card #3646). */
+function canCancelLinkedJob(job: JobSummary | undefined) {
+  if (!job) return false
+  return isCitizenProcessingReceivedState(job)
 }
 
 const DEFAULT_CHANNEL_FILTER = ''
@@ -836,7 +838,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
             const message = messages.find(item => item.jobId === detailJobId)
             if (!message) return undefined
             const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
-            const canCancelJob = message.jobId && canCancelLinkedJob(linkedJob?.status)
+            const canCancelJob = message.jobId && canCancelLinkedJob(linkedJob)
             const isTargetApproved = !!linkedJob && (linkedJob.taskCount ?? 0) > 0
             const whatsAppPhone = getSocialMessageWhatsAppPhone(message)
             return {
@@ -879,12 +881,18 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
             <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
               {t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
             </p>
+            <p className="helper-copy mt-3 text-left text-[0.85rem] text-slate-600">
+              {t(
+                'jobs.actions.cancelCitizenMessageApprovalHint',
+                'Eklediğiniz Not vatandaşa gönderilmek üzere mesajlar bölümünde iletmeniz için onayınızı bekleyecektir.',
+              )}
+            </p>
             <label className="job-field mt-5">
-              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max {CANCEL_JOB_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
                 rows={3}
-                maxLength={100}
+                maxLength={CANCEL_JOB_REASON_MAX_LENGTH}
                 value={cancelModal.reason}
                 onChange={event => setCancelModal(current => current ? { ...current, reason: event.target.value } : null)}
                 placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}

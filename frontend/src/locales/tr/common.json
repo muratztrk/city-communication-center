@@ -1947,6 +1947,7 @@
       "cancel": "İptal Et",
       "cancelJob": "Talebi İptal Et",
       "cancelJobHelp": "Talebi iptal etmek için neden belirtiniz.",
+      "cancelCitizenMessageApprovalHint": "Eklediğiniz Not vatandaşa gönderilmek üzere mesajlar bölümünde iletmeniz için onayınızı bekleyecektir.",
       "return": "İade Et",
       "returnTitle": "Talebi İade Et",
       "returnHelp": "Talebi iade etmek için açıklama yazınız.",

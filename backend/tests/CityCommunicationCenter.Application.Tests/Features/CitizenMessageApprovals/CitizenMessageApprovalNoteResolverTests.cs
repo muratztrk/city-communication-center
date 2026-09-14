@@ -346,6 +346,35 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     }
 
     [Fact]
+    public async Task ResolveCancelledJobInitiatorDisplayName_returns_job_cancel_actor()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var cancelledAt = DateTimeOffset.UtcNow.AddMinutes(-5);
+        db.AddRange(
+            new Job
+            {
+                JobId = jobId,
+                TenantId = TenantId,
+                Title = "VT iptal",
+                Description = "Test",
+                OwnerDepartmentId = DepartmentId,
+                Status = JobStatus.Cancelled,
+                RequestType = JobRequestType.Citizen,
+                SourceType = JobSourceType.SocialMessage,
+                CancelReason = "iptal notu",
+                CompletionPercentage = 0,
+            },
+            BuildAudit(jobId, "JobCancelled", "iptal notu", cancelledAt, actorDisplayName: "VT Operatör"));
+        await db.SaveChangesAsync();
+
+        var initiator = await CitizenMessageApprovalNoteResolver.ResolveCancelledJobInitiatorDisplayNameAsync(
+            db, TenantId, jobId, CancellationToken.None);
+
+        Assert.Equal("VT Operatör", initiator);
+    }
+
+    [Fact]
     public async Task ResolveMessageApproverDisplayName_works_for_active_reopened_job()
     {
         await using var db = CreateDbContext();

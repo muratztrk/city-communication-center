@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
 using CityCommunicationCenter.Application.Features.Reports;
 using CityCommunicationCenter.Domain;
 
@@ -378,15 +379,23 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 continue;
             }
 
-            var messageApproverDisplayName = await _dbContext.AuditLogs
-                .AsNoTracking()
-                .Where(a => a.TenantId == tenantId
-                    && a.EntityType == nameof(Job)
-                    && a.EntityId == job.JobId.ToString()
-                    && a.Action == "CitizenMessageApprovalReleased")
-                .OrderByDescending(a => a.EventTimeUtc)
-                .Select(a => a.ActorDisplayName)
-                .FirstOrDefaultAsync(cancellationToken);
+            string? messageApproverDisplayName;
+            if (job.Status == JobStatus.Cancelled)
+            {
+                messageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveCancelledJobInitiatorDisplayNameAsync(
+                    _dbContext,
+                    tenantId,
+                    job.JobId,
+                    cancellationToken);
+            }
+            else
+            {
+                messageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
+                    _dbContext,
+                    tenantId,
+                    job.JobId,
+                    cancellationToken);
+            }
 
             if (job.Status == JobStatus.Completed)
             {

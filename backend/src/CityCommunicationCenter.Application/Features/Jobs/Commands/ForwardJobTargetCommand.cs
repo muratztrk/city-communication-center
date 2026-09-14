@@ -51,10 +51,6 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         var isSystemAdmin = JobWorkflowAuthorization.IsSystemAdmin(actor);
-        if (isCitizenRequest && !UserRoleAccess.IsCitizenRequestManager(actor))
-        {
-            throw new ForbiddenAccessException("Talebi yönlendirme yetkiniz yok.");
-        }
 
         var targets = await _dbContext.JobDepartments
             .Where(jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target)
@@ -68,7 +64,8 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
         foreach (var target in targets)
         {
             if (isSystemAdmin
-                || await JobWorkflowAuthorization.ManagesDepartmentAsync(_dbContext, actor, target.DepartmentId, cancellationToken)
+                || await JobWorkflowAuthorization.CanManageJobAsDepartmentLeaderAsync(
+                    _dbContext, actor, target.DepartmentId, cancellationToken)
                 || (isCitizenRequest && await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
                     _dbContext,
                     tenantId,

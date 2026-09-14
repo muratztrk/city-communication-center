@@ -506,10 +506,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   doluysa Birime Gelen detayında `Talebi Yönlendir` butonu çıkmaz; grid Talep No yanında koyu
   turkuaz `(Yönlendirilen Talep)` rozeti görünür. Detay `Talebin Yönlenme Sebebi` değerinde
   yönlendiren birim + yönlenme sebebi koyu turkuaz ama bold olmayan metinle gösterilir.
-- **VTY vatandaş talebi yönlendirme (#3449):** Birime Gelen detay popup'ta VTY `Talebi Yönlendir`
-  görebilir; dropdown mevcut hedef hariç **tüm birimleri** listeler (başkanlık/owner filtresi yok).
-  Backend `ForwardJobTargetCommand` Citizen + VTY için hedef taşımayı destekler. VTY için departman
-  kataloğu `canManageCoordination` dışında yüklenir — aksi halde dropdown boş kalır (#3449 reopen).
+- **Talep yönlendirme yetkisi (#3449/#3629):** Birime Gelen detay popup'ta hedef birimin müdürü,
+  vekil müdürü, birim sorumlusu veya o hedefteki VTY `Talebi Yönlendir` kullanabilir; BE
+  `CanManageJobAsDepartmentLeaderAsync` + VTY `CanManageCitizenRequestInTargetDepartmentAsync`.
+  SocialMessage kaynaklı taleplerde yalnızca VTY şartı yok (#3629). VTY dropdown için departman
+  kataloğu `canManageCoordination` dışında yüklenir (#3449 reopen).
 - **Sorumlu rol (#3443/#3558):** Kullanıcılar rol dropdown'unda `Sorumlu` **Müdür'ün altında** durur;
   kayıt `roleCode=Manager` + `skipManagerQuota`. VT-only gizleme kart #3558 ile geri alındı.
 - **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`; max 400 karakter (#3451/#3466); placeholder `Talep yönlendirme sebebini yazınız...` (#3453); birim seçimi metni «…seçiniz.» (#3454); birim dropdown yüksekliği hafif düşük (#3452).

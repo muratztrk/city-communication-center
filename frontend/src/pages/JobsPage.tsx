@@ -922,7 +922,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // ama henüz atanmamış (Active, görev yok) hedefler kapsanır; atama yapılınca buton kaybolur (cards #1405/#1407).
   // Bir kez yönlendirilmiş talep yeniden yönlendirilemez (card #1413).
   const canForwardCitizenTargetDetail = detail?.requestType === 'Citizen'
-    && isCitizenRequestManager
     && isIncomingRequestDetail
     && incomingDetailManager
     && !forwardReason

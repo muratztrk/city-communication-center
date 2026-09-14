@@ -7906,6 +7906,11 @@
     white-space: pre-wrap;
   }
 
+  .citizen-terminal-note-value--end {
+    text-align: end;
+    text-justify: auto;
+  }
+
   .nav-pending-badge--wide {
     width: auto;
     min-width: 1.125rem;
@@ -8992,8 +8997,8 @@
 }
 
 .whatsapp-blocked-list-modal .whatsapp-blocked-list-search {
-  height: 1.125rem !important;
-  min-height: 1.125rem !important;
+  height: 1.375rem !important;
+  min-height: 1.375rem !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
 }
@@ -9102,6 +9107,7 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   grid-column: 1;
   grid-row: 1;
   margin: 0;
+  padding-top: 0.125rem;
 }
 
 .whatsapp-page-shell .whatsapp-page-banner-subtitle {
@@ -9168,4 +9174,47 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 /* Birimler / Kullanıcılar banner istatistikleri (#3642/#3641). */
 .admin-page-header-stats .status-pill {
   font-size: 0.68rem;
+}
+
+/* Mobil banner alt başlık (#3657–#3660). */
+@media (max-width: 767px) {
+  .page-hero-subtitle {
+    font-size: 0.8125rem !important;
+    line-height: 1.35 !important;
+  }
+
+  /* WA banner mobil (#3646): tarih filtresi kaldır, alt başlık sol hizada. */
+  .whatsapp-page-shell .whatsapp-page-banner-filters {
+    display: none !important;
+  }
+
+  .whatsapp-page-shell .whatsapp-page-banner-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: start;
+  }
+
+  .whatsapp-page-shell .whatsapp-page-banner-subtitle {
+    grid-column: 1;
+    grid-row: 2;
+    text-align: left;
+  }
+
+  /* Engellenenler mobil (#3623): yalnız vatandaş adı + telefon. */
+  .whatsapp-blocked-list-modal .whatsapp-blocked-list-blocker {
+    display: none !important;
+  }
+
+  .whatsapp-blocked-list-modal .whatsapp-blocked-list-citizen-name,
+  .whatsapp-blocked-list-modal .whatsapp-blocked-list-citizen-phone {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    word-break: break-word;
+  }
+
+  .whatsapp-blocked-list-modal li > .min-w-0 {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }

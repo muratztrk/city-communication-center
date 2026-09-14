@@ -34,6 +34,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
         string? citizenMessageApproverDisplayName = null;
         string? citizenApprovalReleasedNote = null;
         string? citizenOutboundMessage = null;
+        string? citizenOutboundEditorDisplayName = null;
         if (jobEntity is not null && JobCitizenRequestHelper.IsCitizenRequest(jobEntity))
         {
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
@@ -106,6 +107,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                             m.ReceivedAtUtc,
                         })
                         .ToListAsync(cancellationToken);
+                Guid? outboundSocialMessageId = null;
                 foreach (var linkedMessage in linkedMessages
                     .OrderByDescending(m => jobEntity.SourceRefId.HasValue && m.SocialMessageId == jobEntity.SourceRefId.Value)
                     .ThenByDescending(m => citizenRequest is not null && m.SocialMessageId == citizenRequest.SocialMessageId)
@@ -126,9 +128,17 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                     if (!string.IsNullOrWhiteSpace(note))
                     {
                         citizenOutboundMessage = note;
+                        outboundSocialMessageId = linkedMessage.SocialMessageId;
                         break;
                     }
                 }
+
+                citizenOutboundEditorDisplayName = await CitizenMessageApprovalNoteResolver.ResolveOutboundEditorDisplayNameAsync(
+                    _dbContext,
+                    tenantId,
+                    task.JobId,
+                    outboundSocialMessageId ?? jobEntity.SourceRefId,
+                    cancellationToken);
             }
         }
 
@@ -316,6 +326,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             citizenMessageApproverDisplayName,
             citizenApprovalReleasedNote,
             citizenOutboundMessage,
+            citizenOutboundEditorDisplayName,
             JobCancelReason: jobEntity?.CancelReason);
     }
 

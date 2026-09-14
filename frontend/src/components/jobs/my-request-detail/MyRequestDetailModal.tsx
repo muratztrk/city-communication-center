@@ -216,6 +216,7 @@ export function MyRequestDetailModal({
           priorityInInfoHeader
           hideProjectRow={forceCitizenDetailCards}
           citizenOutboundMessage={outboundMessage}
+          citizenOutboundEditorDisplayName={detail.citizenOutboundEditorDisplayName}
           operatorSocialEdit={operatorSocialEdit}
           infoExtraTrailingRows={isStandardUser && !forceCitizenDetailCards ? [
             ...(showManagerNoteColumn && detail.managerNote?.trim()
@@ -316,6 +317,7 @@ export function MyRequestDetailModal({
           citizenOutboundMessage={outboundMessage}
           citizenApprovalReleasedNote={releasedNote}
           citizenMessageApproverDisplayName={detail.citizenMessageApproverDisplayName}
+          citizenOutboundEditorDisplayName={detail.citizenOutboundEditorDisplayName}
         />
       </div>
     </section>

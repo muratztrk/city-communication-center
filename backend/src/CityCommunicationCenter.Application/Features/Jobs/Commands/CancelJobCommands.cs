@@ -178,6 +178,7 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
                 await _citizenJobStatusNotifier.ReleaseTerminalMessagesAsync(
                     tenantId,
                     job.JobId,
+                    actor.UserId,
                     cancellationToken);
             }
         }

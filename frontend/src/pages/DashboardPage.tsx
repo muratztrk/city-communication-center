@@ -848,7 +848,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <div className="space-y-1">
             <div className="live-summary-kicker text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('dashboard.liveSummary')}</div>
             <h1 className="page-title !text-white">{pageTitle}</h1>
-            <p className="max-w-3xl text-sm leading-6 text-white/82">
+            <p className="page-hero-subtitle max-w-3xl text-sm leading-6 text-white/82">
               {effectiveView === 'citizen'
                 ? t('dashboard.citizenSubtitle', 'Vatandaştan gelen talepleri durumlarına göre takip edin.')
                 : t('dashboard.subtitle')}

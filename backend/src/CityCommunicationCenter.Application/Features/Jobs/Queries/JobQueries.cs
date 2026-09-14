@@ -634,6 +634,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         string? citizenOutboundMessage = null;
         string? citizenApprovalReleasedNote = null;
         string? citizenMessageApproverDisplayName = null;
+        string? citizenOutboundEditorDisplayName = null;
         var hasCitizenWaPhoneLink = citizenRequest is not null
             && (citizenRequest.Channel == SocialChannel.WhatsApp
                 || citizenRequest.Channel == SocialChannel.Phone);
@@ -717,7 +718,15 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                         break;
                     }
                 }
+
             }
+
+            citizenOutboundEditorDisplayName = await CitizenMessageApprovalNoteResolver.ResolveOutboundEditorDisplayNameAsync(
+                _dbContext,
+                tenantId,
+                job.JobId,
+                sourceSocialMessageId,
+                cancellationToken);
         }
 
         return new JobDetailResponse(
@@ -740,6 +749,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.LocationMapsUrl,
             sourceChannel, sourceSocialMessageId,
             citizenMessageApproverDisplayName,
+            citizenOutboundEditorDisplayName,
             SplitRequestTags(citizenRequest?.Tags, citizenRequest?.Category));
     }
 

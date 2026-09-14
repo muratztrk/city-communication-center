@@ -25,5 +25,6 @@ public interface ICitizenJobStatusNotifier
     Task<bool> ReleaseTerminalMessagesAsync(
         Guid tenantId,
         Guid jobId,
+        Guid? routingDepartmentUserId = null,
         CancellationToken cancellationToken = default);
 }

@@ -263,6 +263,7 @@ export interface TaskDetail {
   citizenMessageApproverDisplayName?: string | null;
   citizenApprovalReleasedNote?: string | null;
   citizenOutboundMessage?: string | null;
+  citizenOutboundEditorDisplayName?: string | null;
   jobCancelReason?: string | null;
 }
 
@@ -457,6 +458,8 @@ export interface JobDetail {
   sourceSocialMessageId?: string | null;
   /** Vatandaşa gönderilecek mesaj onayı — Mesajı Onayla yapan kullanıcı (#3487/#3488). */
   citizenMessageApproverDisplayName?: string | null;
+  /** Vatandaşa giden mesajı düzenleyen operatör (#3655/#3656). */
+  citizenOutboundEditorDisplayName?: string | null;
 }
 
 export interface SocialConversationEntry {

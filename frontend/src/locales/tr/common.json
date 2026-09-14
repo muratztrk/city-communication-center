@@ -2011,6 +2011,7 @@
       "projectOwner": "Proje Sahibi",
       "assignee": "Görevi Yapan",
       "requestApprover": "Talebi Onaylayan",
+      "citizenOutboundEditor": "Vatandaşa Giden Mesajı Düzenleyen",
       "citizenRequest": "Vatandaş Talebi",
       "cancelNote": "İptal Notu",
       "completionNote": "Tamamlama Notu",

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { richTextToPlainText } from './richText'
 
 function notePlain(value?: string | null) {
@@ -55,6 +56,19 @@ export function formatCitizenCancelOutboundDisplay(outbound: string, _cancelNote
   }
 
   return outboundTrim
+}
+
+export function buildCitizenOutboundEditorField(
+  editorName: string | null | undefined,
+  t: TFunction,
+  forceShow = false,
+): { label: string; value: string } | null {
+  const trimmed = editorName?.trim()
+  if (!forceShow && !trimmed) return null
+  return {
+    label: t('jobs.detail.citizenOutboundEditor', 'Vatandaşa Giden Mesajı Düzenleyen'),
+    value: trimmed || '—',
+  }
 }
 
 export function resolveCitizenCancelOutboundDisplay(

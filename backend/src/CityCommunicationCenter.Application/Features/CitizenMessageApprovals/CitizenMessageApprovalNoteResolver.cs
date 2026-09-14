@@ -212,6 +212,64 @@ internal static class CitizenMessageApprovalNoteResolver
     }
 
     /// <summary>
+    /// Vatandaşa Giden Mesajı düzenleyen operatör — Mesaj Onayı not düzenleme veya WA
+    /// beklemede balon düzenleme (#3655 / #3656).
+    /// </summary>
+    public static async Task<string?> ResolveOutboundEditorDisplayNameAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        Guid? socialMessageId,
+        CancellationToken cancellationToken)
+    {
+        var cycle = await GetCycleBoundsAsync(dbContext, tenantId, jobId, cancellationToken);
+        var lastEditActor = await QueryNoteEditsInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => new { audit.ActorDisplayName, audit.ActorUserId })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (lastEditActor is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(lastEditActor.ActorDisplayName))
+            {
+                return lastEditActor.ActorDisplayName.Trim();
+            }
+
+            if (lastEditActor.ActorUserId.HasValue)
+            {
+                var editedByUser = await dbContext.Users.AsNoTracking()
+                    .Where(user => user.UserId == lastEditActor.ActorUserId.Value)
+                    .Select(user => user.DisplayName)
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (!string.IsNullOrWhiteSpace(editedByUser))
+                {
+                    return editedByUser.Trim();
+                }
+            }
+        }
+
+        if (socialMessageId.HasValue)
+        {
+            var editedByDisplayName = await dbContext.ConversationEntries.AsNoTracking()
+                .Where(entry => entry.SocialMessageId == socialMessageId.Value
+                    && entry.Direction == ConversationEntryDirection.Outbound
+                    && entry.EditedByDisplayName != null)
+                .OrderByDescending(entry => entry.EditedAtUtc ?? entry.SentAt)
+                .Select(entry => entry.EditedByDisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (!string.IsNullOrWhiteSpace(editedByDisplayName))
+            {
+                return editedByDisplayName.Trim();
+            }
+        }
+
+        return await ResolveCancelledJobInitiatorDisplayNameAsync(
+            dbContext,
+            tenantId,
+            jobId,
+            cancellationToken);
+    }
+
+    /// <summary>
     /// Vatandaş Bilgi Listesi detay popup'ında "Vatandaşa Giden Mesaj" alanı.
     /// WhatsApp: operatör bekleyen balonu düzenler (görev notu değişmez) → konuşma kaydı.
     /// SMS: operatör Sms Onayı'nda Notu Düzenle görev notunu ezer → serbest bırakmadan

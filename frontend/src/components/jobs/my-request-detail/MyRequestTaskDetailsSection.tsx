@@ -16,7 +16,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldLabel, StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
-import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
 
 interface MyRequestTaskDetailsSectionProps {
@@ -29,6 +29,8 @@ interface MyRequestTaskDetailsSectionProps {
   citizenApprovalReleasedNote?: string | null
   /** Mesajı Onayla yapan kullanıcı (#3487/#3488). */
   citizenMessageApproverDisplayName?: string | null
+  /** Vatandaşa giden mesajı düzenleyen operatör (#3655/#3656). */
+  citizenOutboundEditorDisplayName?: string | null
   /** Mesaj Onayı Bekleyen detay popup — onaylayan/outbound satırları gizle (#3519). */
   hideMessageApprovalPendingFields?: boolean
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
@@ -154,6 +156,7 @@ export function MyRequestTaskDetailsSection({
   citizenOutboundMessage,
   citizenApprovalReleasedNote,
   citizenMessageApproverDisplayName,
+  citizenOutboundEditorDisplayName,
   hideMessageApprovalPendingFields = false,
   addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
@@ -241,6 +244,11 @@ export function MyRequestTaskDetailsSection({
             displayedOutbound,
             t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
           )
+          const outboundEditorField = buildCitizenOutboundEditorField(
+            citizenOutboundEditorDisplayName ?? detail.citizenOutboundEditorDisplayName,
+            t,
+            isCancelledTask,
+          )
           const primaryTerminalTaskId = detail.tasks.find(item =>
             item.currentStatus === 'Completed'
             || item.currentStatus === 'Cancelled'
@@ -325,14 +333,23 @@ export function MyRequestTaskDetailsSection({
                     ...(isCitizenRequestJob(detail)
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
-                      ? [{
-                          label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: outboundField.value,
-                          tone: (outboundField.pending
-                            ? 'outbound-pending'
-                            : outboundDiffersFromCompletion ? outboundTone : 'completion') as 'completion' | 'outbound-diff' | 'outbound-pending',
-                          fullRow: true as const,
-                        }]
+                      ? [
+                          {
+                            label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                            value: outboundField.value,
+                            tone: (outboundField.pending
+                              ? 'outbound-pending'
+                              : outboundDiffersFromCompletion ? outboundTone : 'completion') as 'completion' | 'outbound-diff' | 'outbound-pending',
+                            fullRow: true as const,
+                          },
+                          ...(outboundEditorField
+                            ? [{
+                                label: outboundEditorField.label,
+                                value: outboundEditorField.value,
+                                fullRow: true as const,
+                              }]
+                            : []),
+                        ]
                       : []),
                     ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
                       ? [{

@@ -88,7 +88,7 @@ import { DetailModalTitle } from '../utils/detailModalTitle'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
-import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, resolveCitizenCancelOutboundDisplay } from '../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, resolveCitizenCancelOutboundDisplay } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey } from '../utils/dateTimePicker'
@@ -211,7 +211,7 @@ function buildCancelledWithoutTaskInfoRows(
     rows.push({
       label: t('tasks.detail.cancelNote', 'İptal Notu'),
       value: cancelledNote,
-      valueClass: 'citizen-terminal-note-value text-slate-900',
+      valueClass: 'citizen-terminal-note-value citizen-terminal-note-value--end text-slate-900',
     })
   }
   if (showRequestInfoCitizenOutbound) {
@@ -226,6 +226,14 @@ function buildCancelledWithoutTaskInfoRows(
         ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
         : outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
     })
+    const editorField = buildCitizenOutboundEditorField(detail.citizenOutboundEditorDisplayName, t, true)
+    if (editorField) {
+      rows.push({
+        label: editorField.label,
+        value: editorField.value,
+        valueClass: 'text-slate-900',
+      })
+    }
   }
   return rows
 }
@@ -3137,7 +3145,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       rows.push({
                         label: t('tasks.detail.cancelNote', 'İptal Notu'),
                         value: cancelledNote,
-                        valueClass: 'citizen-terminal-note-value text-slate-900',
+                        valueClass: 'citizen-terminal-note-value citizen-terminal-note-value--end text-slate-900',
                       })
                       if (showRequestInfoCitizenOutbound) {
                         const outboundField = citizenOutboundOrPending(
@@ -3151,6 +3159,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
                             : outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
                         })
+                        const editorField = buildCitizenOutboundEditorField(detail.citizenOutboundEditorDisplayName, t, true)
+                        if (editorField) {
+                          rows.push({
+                            label: editorField.label,
+                            value: editorField.value,
+                            valueClass: 'text-slate-900',
+                          })
+                        }
                       }
                       return rows.map(row => (
                         <div key={row.label} className="job-detail-field-row job-detail-field-row--request-info">

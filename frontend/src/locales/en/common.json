@@ -1968,6 +1968,7 @@
       "projectOwner": "Project Owner",
       "assignee": "Assignee",
       "requestApprover": "Request Approver",
+      "citizenOutboundEditor": "Outbound Message Editor",
       "citizenRequest": "Citizen Request",
       "cancelNote": "Cancellation Note",
       "completionNote": "Completion Note",

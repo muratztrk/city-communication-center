@@ -388,7 +388,7 @@ export function CitizenDirectoryPage() {
               {t('citizenDirectory.eyebrow', 'Vatandaş kayıtları')}
             </div>
             <h1 className="page-title !text-white">{t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')}</h1>
-            <p className="max-w-3xl text-sm leading-6 text-white/82">
+            <p className="page-hero-subtitle max-w-3xl text-sm leading-6 text-white/82">
               {t('citizenDirectory.subtitle', 'Operatörlerin kaydettiği vatandaş bilgileri ve talepleri.')}
             </p>
           </div>

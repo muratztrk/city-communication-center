@@ -16,6 +16,7 @@ import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platfo
 import { useAuth } from '../../../context/AuthContext'
 import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
 import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks } from '../../../utils/jobDetails'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, resolveCitizenCancelOutboundDisplay } from '../../../utils/citizenOutboundDisplay'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
@@ -247,6 +248,7 @@ interface MyRequestDetailMainCardProps {
   forceShowOwnerApproval?: boolean
   /** Görev oluşmadan iptal edilen VT — Talep Bilgileri kırmızı notlar (#3490). */
   citizenOutboundMessage?: string | null
+  citizenOutboundEditorDisplayName?: string | null
   /** Operatör + Vatandaş Talepleri Düzenle: yalnız öncelik/etiket (#3597). */
   operatorSocialEdit?: boolean
 }
@@ -287,6 +289,8 @@ export function MyRequestDetailMainCard({
   hideProjectRow = false,
   forceShowOwnerApproval = false,
   operatorSocialEdit = false,
+  citizenOutboundMessage,
+  citizenOutboundEditorDisplayName,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -341,6 +345,17 @@ export function MyRequestDetailMainCard({
     && (detail.status === 'Cancelled' || detail.status === 'Rejected')
     && (detail.tasks?.length ?? 0) > 0
   const cancelledWithoutTaskNote = detail.cancelReason?.trim() || '—'
+  const outboundMessage = citizenOutboundMessage ?? detail.citizenOutboundMessage
+  const outboundEditorName = citizenOutboundEditorDisplayName ?? detail.citizenOutboundEditorDisplayName
+  const cancelledOutboundDisplay = resolveCitizenCancelOutboundDisplay(
+    { citizenOutboundMessage: outboundMessage },
+    cancelledWithoutTaskNote,
+  )
+  const cancelledOutboundField = citizenOutboundOrPending(
+    cancelledOutboundDisplay,
+    t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+  )
+  const cancelledEditorField = buildCitizenOutboundEditorField(outboundEditorName, t, true)
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
     ...(showCancelledWithoutTaskNotes || showCancelledWithTaskNotes
@@ -349,10 +364,28 @@ export function MyRequestDetailMainCard({
             ? [{
                 label: <span className="text-red-600">{t('tasks.detail.cancelNote', 'İptal Notu')}</span>,
                 value: (
-                  <span className="citizen-terminal-note-value text-red-600">
+                  <span className="citizen-terminal-note-value citizen-terminal-note-value--end text-red-600">
                     {cancelledWithoutTaskNote}
                   </span>
                 ),
+              }]
+            : []),
+          ...(isCitizenRequestJob(detail) && (showCancelledWithoutTaskNotes || showCancelledWithTaskNotes)
+            ? [{
+                label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                value: (
+                  <span className={cancelledOutboundField.pending
+                    ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
+                    : 'citizen-terminal-note-value text-red-600'}>
+                    {cancelledOutboundField.value}
+                  </span>
+                ),
+              }]
+            : []),
+          ...(cancelledEditorField
+            ? [{
+                label: cancelledEditorField.label,
+                value: <span className="text-slate-900">{cancelledEditorField.value}</span>,
               }]
             : []),
         ]

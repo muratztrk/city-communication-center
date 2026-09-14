@@ -100,6 +100,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     public async Task<bool> ReleaseTerminalMessagesAsync(
         Guid tenantId,
         Guid jobId,
+        Guid? routingDepartmentUserId = null,
         CancellationToken cancellationToken = default)
     {
         var job = await _dbContext.Jobs.FirstOrDefaultAsync(
@@ -148,17 +149,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             && job.CitizenTerminalMessageReleasedAtUtc is not null)
         {
             var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, message.Channel, cancellationToken);
-            var targetDepartmentNames = await _dbContext.JobDepartments
-                .AsNoTracking()
-                .Where(link => link.TenantId == tenantId
-                    && link.JobId == job.JobId
-                    && link.Role == JobDepartmentRole.Target
-                    && link.ApprovalStatus != JobApprovalStatus.Rejected)
-                .OrderBy(link => link.Department.Name)
-                .Select(link => link.Department.Name)
-                .Distinct()
-                .ToListAsync(cancellationToken);
-            var departmentNames = string.Join(", ", targetDepartmentNames);
+            var departmentNames = await ResolveRoutingDepartmentNamesAsync(
+                tenantId, job.JobId, routingDepartmentUserId, cancellationToken);
             var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
             var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
                 message,
@@ -191,17 +183,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             // Şablon yoksa BuildStatusMessage varsayılan metni kullanır; release yine Pending
             // kuyruğa düşmeli (card #2058 reopen — operatör WA ekranına iletilmeli).
             var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, message.Channel, cancellationToken);
-            var targetDepartmentNames = await _dbContext.JobDepartments
-                .AsNoTracking()
-                .Where(link => link.TenantId == tenantId
-                    && link.JobId == job.JobId
-                    && link.Role == JobDepartmentRole.Target
-                    && link.ApprovalStatus != JobApprovalStatus.Rejected)
-                .OrderBy(link => link.Department.Name)
-                .Select(link => link.Department.Name)
-                .Distinct()
-                .ToListAsync(cancellationToken);
-            var departmentNames = string.Join(", ", targetDepartmentNames);
+            var departmentNames = await ResolveRoutingDepartmentNamesAsync(
+                tenantId, job.JobId, routingDepartmentUserId, cancellationToken);
             var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
             var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
                 message,
@@ -367,6 +350,46 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         // Terminal Phone SMS bu yoldan gelmez (RequiresOperatorApproval defer); release yolunda not eklenir.
         content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
         await SendSmsAsync(tenantId, message, content, statusLabel, cancellationToken);
+    }
+
+    /// <summary>VT iptal beklemede mesajında {GönderilenBirim} = operatör birimi (#3654).</summary>
+    private async Task<string> ResolveRoutingDepartmentNamesAsync(
+        Guid tenantId,
+        Guid jobId,
+        Guid? routingDepartmentUserId,
+        CancellationToken cancellationToken)
+    {
+        if (routingDepartmentUserId.HasValue)
+        {
+            var operatorDepartmentId = await _dbContext.Users.AsNoTracking()
+                .Where(user => user.UserId == routingDepartmentUserId.Value && user.TenantId == tenantId)
+                .Select(user => (Guid?)user.DepartmentId)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (operatorDepartmentId is Guid departmentId && departmentId != Guid.Empty)
+            {
+                var operatorDepartmentName = await _dbContext.Departments.AsNoTracking()
+                    .Where(department => department.DepartmentId == departmentId
+                        && department.TenantId == tenantId)
+                    .Select(department => department.Name)
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (!string.IsNullOrWhiteSpace(operatorDepartmentName))
+                {
+                    return operatorDepartmentName.Trim();
+                }
+            }
+        }
+
+        var targetDepartmentNames = await _dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(link => link.TenantId == tenantId
+                && link.JobId == jobId
+                && link.Role == JobDepartmentRole.Target
+                && link.ApprovalStatus != JobApprovalStatus.Rejected)
+            .OrderBy(link => link.Department.Name)
+            .Select(link => link.Department.Name)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        return string.Join(", ", targetDepartmentNames);
     }
 
     /// <summary>

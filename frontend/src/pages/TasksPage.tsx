@@ -51,7 +51,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
 import { printHtmlDocument } from '../utils/printDocument'
-import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -2469,6 +2469,18 @@ const pageKicker = isMyTasksView
                                   value: outboundField.value,
                                   tone: outboundField.pending ? 'outbound-pending' : outboundTone,
                                 })
+                                const outboundEditorField = buildCitizenOutboundEditorField(
+                                  citizenParent?.citizenOutboundEditorDisplayName
+                                    ?? taskDetail.citizenOutboundEditorDisplayName,
+                                  t,
+                                  isCancelledTask,
+                                )
+                                if (outboundEditorField) {
+                                  rows.push({
+                                    label: outboundEditorField.label,
+                                    value: outboundEditorField.value,
+                                  })
+                                }
                               }
                               return rows
                             })(),

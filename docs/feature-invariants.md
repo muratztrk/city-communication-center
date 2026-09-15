@@ -2132,8 +2132,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Birimlerde Açık Talepler` (#3055). Vatandaş pie sırası (#3054): mahalle Tamamlanan → Açık → Tüm;
   birim Tamamlanan → Açık → Tüm; Vatandaş Talepleri; Talep Etiketleri; Vatandaş Talep Kanalları.
   İşleme Alınan ve Yapılmakta ayrı pie'ları vatandaş
-  anasayfada gösterilmez. Tüm Talepler pie dilimleri mahalle veya birim entity'sidir, durum adı değil
-  (#2965). Drilldown gridde Durum her zaman vardır; Mahalle kolonu yalnız birim tüm/açık pie popup'ında.
+  anasayfada gösterilmez.   Tüm Talepler pie dilimleri mahalle veya birim entity'sidir, durum adı değil
+  (#2965). Birleşik mahalle/birim `Tüm` ve `Açık` pie lejantları sayı azalan sıralıdır
+  (eşitlikte ada göre `tr`); kaynak durum pie sırasına bağlı kalınmaz — lejant 5 satır
+  scroll ile kısıtlı olduğundan en büyük dilimler üstte görünür. Drilldown gridde Durum her zaman vardır; Mahalle kolonu yalnız birim tüm/açık pie popup'ında.
   İşleme Alınan pie `Classify` ProcessingReceived: açık görev yok (geciken İşleme Alındı dahil);
   Yapılmakta pie Yapılmakta + in-progress overdue (#2605/#2890). Vatandaş Talepleri pie ayrı
   `ClassifyCitizenRequestsPie` kullanır. Drilldown Durum etiketi sahte taskCount=1 kullanmaz —

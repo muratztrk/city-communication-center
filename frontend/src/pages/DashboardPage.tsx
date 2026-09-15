@@ -151,6 +151,17 @@ const CITIZEN_DASHBOARD_CHART_ORDER = [
   'dashboard.citizenChannels.title',
 ]
 
+const ENTITY_SLICE_GUID_PREFIX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\|/i
+
+/** Mahalle/birim pie dilimlerinde arama ve sıralama için görünen ad (GUID|ad → ad). */
+function resolveCitizenEntitySliceName(rawLabel: string): string {
+  const pipeIdx = rawLabel.indexOf('|')
+  if (pipeIdx > 0 && ENTITY_SLICE_GUID_PREFIX.test(rawLabel)) {
+    return rawLabel.slice(pipeIdx + 1)
+  }
+  return rawLabel
+}
+
 function mergeCitizenEntitySlices(
   charts: DashboardChartResponse[],
   sourceKeys: readonly string[],
@@ -169,6 +180,14 @@ function mergeCitizenEntitySlices(
   }
   return [...totals.entries()]
     .filter(([, item]) => item.value > 0)
+    .sort((left, right) => {
+      const valueDiff = right[1].value - left[1].value
+      if (valueDiff !== 0) return valueDiff
+      return resolveCitizenEntitySliceName(left[0]).localeCompare(
+        resolveCitizenEntitySliceName(right[0]),
+        'tr',
+      )
+    })
     .map(([label, item]) => ({
       label,
       value: item.value,
@@ -769,8 +788,11 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         return {
           ...card,
           slices: card.slices.filter(slice => {
-            const label = slice.label.toLocaleLowerCase('tr')
-            return label.includes(panelSearchQuery) || (allowed?.has(label) ?? false)
+            const rawLabel = slice.label.toLocaleLowerCase('tr')
+            const entityName = resolveCitizenEntitySliceName(slice.label).toLocaleLowerCase('tr')
+            return rawLabel.includes(panelSearchQuery)
+              || entityName.includes(panelSearchQuery)
+              || (allowed?.has(entityName) ?? false)
           }),
         }
       })

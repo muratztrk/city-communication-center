@@ -2917,7 +2917,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sorgu: `GET /api/v1/admin/sms-outbound-logs?fromUtc=&toUtc=&kind=` (PlatformAdmin);
   yanıtta `totalMatching`, `successCount`, `failureCount` ve en yeni 5000 kayıt döner.
   Log sayfası (`/audit`): `scope=citizen-sms` → `kind=CitizenStatus`; `scope=internal-sms` →
-  `AfterHoursManager` + `AfterHoursStaff` (card #3666).
+  `AfterHoursManager` + `AfterHoursStaff` (card #3666). SMS grid: ayrı **Tür** + **Mesaj İçeriği**
+  sütunları; Detay yalnız sağlayıcı/teknik bilgi (#3670).
+- **Görevsiz iptal outbound Onay Bekleyen (#3664 reopen):** pending değerde başlık ve metin
+  kırmızı değil — açık mavi `text-sky-500`.
 - **Phone terminal outbound önizleme (#3664/#3665):** `citizenOutboundMessage` yalnız
   `CitizenTerminalMessageReleasedAtUtc` sonrası ve `RespondedAtUtc >= ReleasedAt` terminal SMS'te
   dolar; İşleme Alındı/Yapılmakta ara SMS `Saygılarımızla` vb. outbound alanına düşmez.

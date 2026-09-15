@@ -1196,6 +1196,7 @@
     "smsProvider": "Sağlayıcı",
     "smsProviderCode": "Kod",
     "smsKind": "Tür",
+    "smsBodyPreview": "Mesaj İçeriği",
     "smsLength": "Uzunluk",
     "smsKinds": {
       "citizenStatus": "Vatandaş durum",

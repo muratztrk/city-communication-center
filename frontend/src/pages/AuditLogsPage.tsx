@@ -148,6 +148,7 @@ type AuditLogRow = AuditLog & {
 type SmsOutboundLogRow = SmsOutboundLogItem & {
   dateText: string
   kindLabel: string
+  bodyPreview: string
   statusLabel: string
   detailText: string
 }
@@ -312,18 +313,18 @@ export function AuditLogsPage() {
     const items = (smsOutboundLogsQuery.data?.items ?? [])
       .filter(item => activeScope !== 'internalSms' || INTERNAL_SMS_KINDS.has(item.kind))
     const rows: SmsOutboundLogRow[] = items.map(item => {
+      const bodyPreview = item.bodyPreview?.trim() || '—'
       const detailParts = [
-        item.bodyPreview?.trim(),
         item.provider ? `${t('audit.smsProvider', 'Sağlayıcı')}: ${item.provider}` : null,
         item.providerCode ? `${t('audit.smsProviderCode', 'Kod')}: ${item.providerCode}` : null,
         item.providerMessage?.trim(),
-        `${t('audit.smsKind', 'Tür')}: ${getSmsKindLabel(item.kind)}`,
         `${t('audit.smsLength', 'Uzunluk')}: ${item.textLength}`,
       ].filter((part): part is string => Boolean(part?.trim()))
       return {
         ...item,
         dateText: new Date(item.createdAtUtc).toLocaleString(locale),
         kindLabel: getSmsKindLabel(item.kind),
+        bodyPreview,
         statusLabel: item.success
           ? t('audit.smsSuccess', 'Başarılı')
           : t('audit.smsFailure', 'Başarısız'),
@@ -337,6 +338,7 @@ export function AuditLogsPage() {
           row.detailText,
           row.statusLabel,
           row.kindLabel,
+          row.bodyPreview,
           row.recipientPhoneMasked,
           row.requestNumber ?? '',
           row.smsOutboundLogId,
@@ -347,6 +349,8 @@ export function AuditLogsPage() {
         if (key === 'createdAtUtc') return item.dateText
         if (key === 'recipientPhoneMasked') return item.recipientPhoneMasked
         if (key === 'requestNumber') return item.requestNumber ?? ''
+        if (key === 'kindLabel') return item.kindLabel
+        if (key === 'bodyPreview') return item.bodyPreview
         if (key === 'success') return item.statusLabel
         if (key === 'detailText') return item.detailText
         return String((item as unknown as Record<string, unknown>)[key] ?? '')
@@ -517,6 +521,28 @@ export function AuditLogsPage() {
                     {t('audit.jobNumberPrefix', 'Talep No')}
                   </FilterableTh>
                   <FilterableTh
+                    filterKey="kindLabel"
+                    filterValue={filters.kindLabel ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="kindLabel"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.smsKind', 'Tür')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="bodyPreview"
+                    filterValue={filters.bodyPreview ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="bodyPreview"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.smsBodyPreview', 'Mesaj İçeriği')}
+                  </FilterableTh>
+                  <FilterableTh
                     filterKey="success"
                     filterValue={filters.success ?? ''}
                     onFilter={handleFilter}
@@ -546,6 +572,8 @@ export function AuditLogsPage() {
                     <td>{log.dateText}</td>
                     <td className="font-mono text-sm text-slate-700">{log.recipientPhoneMasked}</td>
                     <td>{log.requestNumber?.trim() || '—'}</td>
+                    <td>{log.kindLabel}</td>
+                    <td className="max-w-[18rem] truncate text-sm text-slate-700" title={log.bodyPreview}>{log.bodyPreview}</td>
                     <td>
                       <StatusPill tone={log.success ? 'success' : 'danger'}>{log.statusLabel}</StatusPill>
                     </td>
@@ -560,7 +588,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {smsRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={5} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={7} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>

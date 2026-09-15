@@ -377,7 +377,9 @@ export function MyRequestDetailMainCard({
             : []),
           ...(isCitizenRequestJob(detail) && (showCancelledWithoutTaskNotes || showCancelledWithTaskNotes)
             ? [{
-                label: <span className="text-red-600">{t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')}</span>,
+                label: cancelledOutboundField.pending
+                  ? t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')
+                  : <span className="text-red-600">{t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')}</span>,
                 value: (
                   <span className={cancelledOutboundField.pending
                     ? `${CITIZEN_OUTBOUND_PENDING_VALUE_CLASS} citizen-terminal-note-value--end`

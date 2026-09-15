@@ -221,7 +221,7 @@ function buildCancelledWithoutTaskInfoRows(
     )
     rows.push({
       label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-      labelClass: 'text-red-600',
+      labelClass: outboundField.pending ? undefined : 'text-red-600',
       value: outboundField.value,
       valueClass: outboundField.pending
         ? `${CITIZEN_OUTBOUND_PENDING_VALUE_CLASS} citizen-terminal-note-value--end`
@@ -3166,7 +3166,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         )
                         rows.push({
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          labelClass: 'text-red-600',
+                          labelClass: outboundField.pending ? undefined : 'text-red-600',
                           value: outboundField.value,
                           valueClass: outboundField.pending
                             ? `${CITIZEN_OUTBOUND_PENDING_VALUE_CLASS} citizen-terminal-note-value--end`

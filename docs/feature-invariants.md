@@ -2941,6 +2941,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `JobDepartment` (Target, Pending); yetki: Operator / SystemAdmin / VTY.
 - **İade Edilen Talepler nav (#3690):** sol menüde tek satır; operatörde kırmızı rozet =
   `GET /jobs?scope=returned-to-operator` kayıt sayısı (Sms Onayı ile aynı desen).
+- **İade Edilen Talepler grid (#3696):** sosyal mesaj `citizenHandle` null/boş olabilir; ad
+  çözümlemesinde `.replace` öncesi guard — aksi halde sayfa ErrorBoundary'ye düşer.
 - **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
   kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
   `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).

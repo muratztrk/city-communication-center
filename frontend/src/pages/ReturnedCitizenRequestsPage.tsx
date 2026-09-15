@@ -1,3 +1,4 @@
+import { Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -7,11 +8,13 @@ import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
+import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { JobSummary, SocialMessage } from '../types/platform'
+import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { looksLikePhone } from '../utils/phoneDisplay'
@@ -25,7 +28,6 @@ type ReturnedCitizenRequestRow = {
   requestDateUtc: string
   requestDateText: string
   destinationName: string
-  labelText: string
   channel?: string | null
 }
 
@@ -71,7 +73,6 @@ function toReturnedRow(
     requestDateUtc,
     requestDateText: requestDateUtc ? new Date(requestDateUtc).toLocaleString(locale) : '—',
     destinationName: resolveDestinationName(job),
-    labelText: linkedMessage?.category?.trim() || '—',
     channel: linkedMessage?.channel ?? null,
   }
 }
@@ -81,6 +82,9 @@ export function ReturnedCitizenRequestsPage() {
   const locale = getLocale(i18n.language)
   const [pageSize, setPageSize] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
+  const [searchText, setSearchText] = useState('')
+  const [filterFrom, setFilterFrom] = useState('')
+  const [filterTo, setFilterTo] = useState('')
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
@@ -117,14 +121,26 @@ export function ReturnedCitizenRequestsPage() {
     if (key === 'citizenPhone') return row.citizenPhone
     if (key === 'requestDateUtc') return row.requestDateText
     if (key === 'destinationName') return row.destinationName
-    if (key === 'labelText') return row.labelText
     return String((row as unknown as Record<string, unknown>)[key] ?? '')
   }
 
-  const filteredRows = useMemo(
-    () => rows.filter(row => matchesFilters(row, getColumnValue)),
-    [matchesFilters, rows],
-  )
+  const filteredRows = useMemo(() => rows.filter(row => {
+    if (filterFrom || filterTo) {
+      const requestDate = row.requestDateUtc.slice(0, 10)
+      if (filterFrom && requestDate < filterFrom.slice(0, 10)) return false
+      if (filterTo && requestDate > filterTo.slice(0, 10)) return false
+    }
+    if (!matchesBannerSearch(searchText, [
+      row.displayNumber,
+      row.citizenName,
+      row.citizenPhone,
+      row.destinationName,
+      row.requestDateText,
+    ])) {
+      return false
+    }
+    return matchesFilters(row, getColumnValue)
+  }), [filterFrom, filterTo, matchesFilters, rows, searchText])
 
   const sortedRows = useMemo(() => {
     if (!sortKey) {
@@ -163,6 +179,49 @@ export function ReturnedCitizenRequestsPage() {
             <div className="page-kicker">{t('returnedCitizenRequests.title', 'İade Edilen Talepler')}</div>
             <h1 className="page-title">{t('nav.returnedCitizenRequests', 'İade Edilen Talepler').replace('\n', ' ')}</h1>
             <p className="page-subtitle">{t('returnedCitizenRequests.subtitle', 'Birimlerden operatöre iade edilen vatandaş talepleri.')}</p>
+          </div>
+          <div className="ml-auto mt-auto shrink-0">
+            <div className="scope-chips-filters">
+              <div className="scope-chip-search-wrap">
+                <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
+                <input
+                  type="text"
+                  className="scope-chip-search-input"
+                  placeholder={t('common.search', 'Ara...')}
+                  value={searchText}
+                  onChange={event => {
+                    setSearchText(event.target.value)
+                    setCurrentPage(1)
+                  }}
+                />
+                {searchText ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchText('')
+                      setCurrentPage(1)
+                    }}
+                    className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
+                    aria-label={t('common.clear', 'Temizle')}
+                  >
+                    <X className="size-3.5" strokeWidth={3} />
+                  </button>
+                ) : null}
+              </div>
+              <ScopeChipDateRange
+                from={filterFrom}
+                to={filterTo}
+                onFromChange={value => {
+                  setFilterFrom(value)
+                  setCurrentPage(1)
+                }}
+                onToChange={value => {
+                  setFilterTo(value)
+                  setCurrentPage(1)
+                }}
+                forceDown
+              />
+            </div>
           </div>
         </div>
       </header>
@@ -234,17 +293,6 @@ export function ReturnedCitizenRequestsPage() {
                 >
                   {t('returnedCitizenRequests.columns.destination', 'Geldiği Yer')}
                 </FilterableTh>
-                <FilterableTh
-                  filterKey="labelText"
-                  filterValue={filters.labelText ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="labelText"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('whatsapp.label', 'Talep Etiketi')}
-                </FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>
@@ -262,7 +310,6 @@ export function ReturnedCitizenRequestsPage() {
                   <td className="citizen-grid-phone-value text-sm font-semibold text-slate-500 tabular-nums">{row.citizenPhone}</td>
                   <td><DateCell value={row.requestDateUtc} locale={locale} /></td>
                   <td><span className="font-semibold text-slate-700">{row.destinationName}</span></td>
-                  <td>{row.labelText}</td>
                   <td>
                     <div className="flex justify-center">
                       <Button
@@ -278,7 +325,7 @@ export function ReturnedCitizenRequestsPage() {
                 </tr>
               ))}
               {sortedRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={8} message={t('returnedCitizenRequests.empty', 'İade edilmiş talep yok.')} />
+                <TableEmptyStateRows columnCount={7} message={t('returnedCitizenRequests.empty', 'İade edilmiş talep yok.')} />
               ) : null}
             </tbody>
           </table>

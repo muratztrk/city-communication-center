@@ -133,6 +133,11 @@ public sealed class SendPendingConversationEntryCommandHandler
                 entry.DeliveryError = null;
                 entry.SentAt = utcNow;
             }
+            else if (WhatsAppServiceWindow.ShouldRemainPendingAfterSendFailure(sendResult.Error, windowOpen))
+            {
+                entry.DeliveryStatus = ConversationDeliveryStatus.Pending;
+                entry.DeliveryError = sendResult.Error;
+            }
             else
             {
                 entry.DeliveryStatus = ConversationDeliveryStatus.Failed;

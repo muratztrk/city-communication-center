@@ -137,13 +137,13 @@ export function ConversationEntryBubble({
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [lockedBubbleSize, setLockedBubbleSize] = useState<{ width: number; height: number } | null>(null)
   const isInbound = entry.direction === 'Inbound'
-  const isPending = !isInbound && entry.deliveryStatus === 'Pending'
-  const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
-  const editedByName = entry.editedByDisplayName?.trim() || null
-  const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
   const isReEngagementFailure = !isInbound
     && entry.deliveryStatus === 'Failed'
     && isWhatsAppReEngagementError(entry.deliveryError)
+  const isPending = !isInbound && (entry.deliveryStatus === 'Pending' || isReEngagementFailure)
+  const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
+  const editedByName = entry.editedByDisplayName?.trim() || null
+  const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
   // Onaylayan Yönetici yalnız bekleyen terminal / re-engagement hatalarında — otomatik
   // zamanlı şablon yanıtları (Sent) dahil değil (card #2545).
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
@@ -173,7 +173,7 @@ export function ConversationEntryBubble({
         time: formatConversationMessageTime(queuedAt, locale, t),
       })
     : undefined
-  const showPendingActions = (isPending || isReEngagementFailure) && canSendPending
+  const showPendingActions = isPending && canSendPending
 
   const syncTextareaHeight = () => {
     const textarea = textareaRef.current
@@ -389,7 +389,7 @@ export function ConversationEntryBubble({
             {!isInbound && entry.deliveryStatus ? <span aria-hidden="true">·</span> : null}
             <span title={queuedTimeTitle}>{sentTime}</span>
           </p>
-          {!isInbound && entry.deliveryStatus === 'Failed' && deliveryErrorMessage ? (
+          {!isInbound && entry.deliveryStatus === 'Failed' && !isReEngagementFailure && deliveryErrorMessage ? (
             <p className={`mt-1 text-[10px] leading-snug ${theme === 'light' ? 'text-red-100' : 'text-red-200'}`}>
               {deliveryErrorMessage}
             </p>

@@ -384,6 +384,24 @@ export function AppShell() {
 
   const pendingSmsDeliveryApprovalCount = pendingSmsDeliveryApprovalQuery.data ?? 0
 
+  const canSeeReturnedCitizenRequests = useMemo(
+    () => user?.role === 'Operator'
+      && canAnyRoleAccessPage(getEffectiveUserRoles(user), 'returnedCitizenRequests'),
+    [user, accessVersion],
+  )
+
+  const returnedCitizenRequestsCountQuery = useQuery({
+    queryKey: queryKeys.jobs.list('returned-to-operator'),
+    queryFn: async () => {
+      const rows = await api.getJobs('returned-to-operator')
+      return rows.length
+    },
+    enabled: Boolean(user?.userId) && canSeeReturnedCitizenRequests,
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  })
+  const returnedCitizenRequestsNavCount = returnedCitizenRequestsCountQuery.data ?? 0
+
   const waitingWhatsAppReplyQuery = useQuery({
     queryKey: queryKeys.conversations.waitingReplyCount(),
     queryFn: async () => {
@@ -418,6 +436,7 @@ export function AppShell() {
   useNavBadgeCountSound(navDashboardCounts?.outgoingPendingCount ?? 0, navCountsQuery.isSuccess, '/outgoing-requests')
   useNavBadgeCountSound(pendingCitizenMessageApprovalCount, pendingCitizenMessageApprovalQuery.isSuccess, '/citizen-message-approval')
   useNavBadgeCountSound(pendingSmsDeliveryApprovalCount, pendingSmsDeliveryApprovalQuery.isSuccess, '/sms-delivery-approval')
+  useNavBadgeCountSound(returnedCitizenRequestsNavCount, returnedCitizenRequestsCountQuery.isSuccess, '/returned-citizen-requests')
 
   const isReporterNav = user?.role === 'Reporter'
   const isOperatorNav = user?.role === 'Operator'
@@ -462,7 +481,7 @@ export function AppShell() {
       { path: '/whatsapp', label: t('whatsapp.navTitle', 'WhatsApp'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true, badgeCount: waitingWhatsAppReplyCount || undefined },
       { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), icon: MessageSquareText, emphasized: true, badgeCount: pendingSmsDeliveryApprovalCount },
     ] },
-    { pageKey: 'returnedCitizenRequests' as const, path: '/returned-citizen-requests', label: t('nav.returnedCitizenRequests', 'İade Edilen\nTalepler'), icon: Undo2, emphasized: true, multilineLabel: true, requiredRole: 'Operator' },
+    { pageKey: 'returnedCitizenRequests' as const, path: '/returned-citizen-requests', label: t('nav.returnedCitizenRequests', 'İade Edilen Talepler').replace('\n', ' '), icon: Undo2, emphasized: true, badgeCount: returnedCitizenRequestsNavCount || undefined, requiredRole: 'Operator' },
     // Sistem Admin vb.: dizin Vatandaş Talepleri grubundan sonra (eski konum).
     ...(!isCitizenDashboardNav
       ? [

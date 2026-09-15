@@ -88,6 +88,7 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
             if (client is not null)
             {
                 var recipientId = message.CitizenHandle;
+                var whatsAppWindowOpen = false;
                 if (isWhatsApp)
                 {
                     var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
@@ -103,6 +104,10 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
                         deliveryStatus = ConversationDeliveryStatus.Failed;
                         deliveryError = "WhatsApp alıcı telefonu bulunamadı. Konuşma kaydındaki telefon numarasını kontrol edin.";
                     }
+
+                    whatsAppWindowOpen = WhatsAppServiceWindow.IsWindowOpen(
+                        await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(_dbContext, tenantId, message, cancellationToken),
+                        utcNow);
                 }
 
                 if (deliveryStatus != ConversationDeliveryStatus.Failed)
@@ -142,6 +147,11 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
                         externalEntryId = sendResult.MessageId;
                         deliveryStatus = ConversationDeliveryStatus.Sent;
                         deliveryError = null;
+                    }
+                    else if (WhatsAppServiceWindow.ShouldRemainPendingAfterSendFailure(sendResult.Error, whatsAppWindowOpen))
+                    {
+                        deliveryStatus = ConversationDeliveryStatus.Pending;
+                        deliveryError = sendResult.Error;
                     }
                     else
                     {

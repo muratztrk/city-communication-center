@@ -12,6 +12,10 @@ internal static class WhatsAppServiceWindow
         !string.IsNullOrWhiteSpace(error)
         && error.Contains("re-engagement", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>24s penceresi / re-engagement hatasında kuyruk mesajı Beklemede kalır (#3691).</summary>
+    public static bool ShouldRemainPendingAfterSendFailure(string? error, bool windowOpen) =>
+        !windowOpen || IsReEngagementError(error);
+
     public static bool IsRetryableOutboundEntry(SocialConversationEntry entry, bool windowOpen) =>
         entry.Direction == ConversationEntryDirection.Outbound
         && (entry.DeliveryStatus == ConversationDeliveryStatus.Pending

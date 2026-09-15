@@ -1077,14 +1077,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail.status !== 'Completed' && detail.status !== 'Cancelled'
   // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); vatandaş talebinde gizlenir (#895).
   const isCitizenRequestDetail = detail != null && isCitizenRequestJob(detail)
-  const returnToOperatorDepartmentId = jobTargetDepartment?.departmentId ?? activeIncomingTarget?.departmentId ?? activeDeptId
+  const incomingReturnTargetDepartment = activeIncomingTarget ?? jobTargetDepartment
+  const returnToOperatorDepartmentId = incomingReturnTargetDepartment?.departmentId ?? activeDeptId
   const canReturnToOperatorDetail = isIncomingRequestDetail
     && isCitizenRequestDetail
     && incomingDetailManager
     && detail != null
     && isCitizenProcessingReceivedState(detail)
     && Boolean(returnToOperatorDepartmentId)
-    && jobTargetDepartment?.approvalStatus === 'Approved'
+    && incomingReturnTargetDepartment?.approvalStatus === 'Approved'
   const showCancelledCitizenOutboundInRequestInfo = showRequestInfoCitizenOutbound
     || (detailContextOverride === 'social'
       && detail != null

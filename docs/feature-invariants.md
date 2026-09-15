@@ -2937,6 +2937,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `ReturnedToOperatorAtUtc` temizlenerek operatör listesinden çıkarılır (`ForwardJobTarget`,
   `ForwardReturnedCitizenRequest`). `POST /jobs/{id}/forward-returned` — iade edilmiş VT için yeni
   `JobDepartment` (Target, Pending); yetki: Operator / SystemAdmin / VTY.
+- **İade Edilen Talepler nav (#3690):** sol menüde tek satır; operatörde kırmızı rozet =
+  `GET /jobs?scope=returned-to-operator` kayıt sayısı (Sms Onayı ile aynı desen).
+- **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
+  kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
+  `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).
 - **WA Yanıt Bekleyen (#3674):** Konuşma listesinde son mesaj yönü `ConversationEntryTimelineTime
   .ResolveSortKey` ile belirlenir; son outbound operatör mesajıysa **Yanıt Bekleyen** olmaz.
 - **Görevsiz iptal outbound Onay Bekleyen (#3664 reopen):** pending değerde başlık ve metin

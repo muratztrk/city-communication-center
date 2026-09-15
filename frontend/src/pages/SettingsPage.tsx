@@ -990,9 +990,8 @@ export function SettingsPage() {
     }
     if (page.key === 'returnedCitizenRequests') {
       return (
-        <span className="role-matrix-page-label role-matrix-page-label--emphasis pl-5">
+        <span className="role-matrix-page-label">
           <span className="role-matrix-page-label-title">{t('settings.roles.pages.returnedCitizenRequestsTitle', 'İade Edilen Talepler')}</span>
-          <span className="role-matrix-page-label-hint">{t('settings.roles.pages.returnedCitizenRequestsHint', '(Operatör iade kuyruğu)')}</span>
         </span>
       )
     }

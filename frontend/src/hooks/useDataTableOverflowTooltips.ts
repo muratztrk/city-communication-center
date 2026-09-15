@@ -14,6 +14,7 @@ function mayEllipsis(el: HTMLElement): boolean {
     || el.classList.contains('cell-title')
     || el.classList.contains('line-clamp-1')
     || el.classList.contains('line-clamp-2')
+    || el.classList.contains('line-clamp-3')
   ) {
     return true
   }
@@ -40,7 +41,7 @@ function resolveOverflowTarget(eventTarget: Element): { anchor: HTMLElement; tex
       }
       node = node.parentElement
     }
-    const candidates = dropdownItem.querySelectorAll('.truncate, .line-clamp-1, .line-clamp-2, .cell-title')
+    const candidates = dropdownItem.querySelectorAll('.truncate, .line-clamp-1, .line-clamp-2, .line-clamp-3, .cell-title')
     for (const candidate of candidates) {
       if (!(candidate instanceof HTMLElement)) continue
       const text = cellText(candidate)

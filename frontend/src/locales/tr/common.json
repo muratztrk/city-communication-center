@@ -1191,6 +1191,7 @@
       "internalSms": "Kurum İçi Giden SMS"
     },
     "smsRecipient": "Alıcı",
+    "smsPhoneNo": "Telefon No",
     "smsSuccess": "Başarılı",
     "smsFailure": "Başarısız",
     "smsProvider": "Sağlayıcı",

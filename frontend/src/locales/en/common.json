@@ -1184,6 +1184,7 @@
       "internalSms": "Internal Outbound SMS"
     },
     "smsRecipient": "Recipient",
+    "smsPhoneNo": "Phone No",
     "smsSuccess": "Successful",
     "smsFailure": "Failed",
     "smsProvider": "Provider",

@@ -2918,7 +2918,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yanıtta `totalMatching`, `successCount`, `failureCount` ve en yeni 5000 kayıt döner.
   Log sayfası (`/audit`): `scope=citizen-sms` → `kind=CitizenStatus`; `scope=internal-sms` →
   `AfterHoursManager` + `AfterHoursStaff` (card #3666). SMS grid: ayrı **Tür** + **Mesaj İçeriği**
-  sütunları; Detay yalnız sağlayıcı/teknik bilgi (#3670).
+  sütunları; Detay yalnız sağlayıcı/teknik bilgi (#3670). **Telefon No** başlığı (#3672);
+  Mesaj İçeriği `line-clamp-3` + overflow tooltip (#3670 reopen).
 - **Görevsiz iptal outbound Onay Bekleyen (#3664 reopen):** pending değerde başlık ve metin
   kırmızı değil — açık mavi `text-sky-500`.
 - **Phone terminal outbound önizleme (#3664/#3665):** `citizenOutboundMessage` yalnız

@@ -507,7 +507,7 @@ export function AuditLogsPage() {
                     sortDir={sortDir}
                     onSort={handleSort}
                   >
-                    {t('audit.smsRecipient', 'Alıcı')}
+                    {t('audit.smsPhoneNo', 'Telefon No')}
                   </FilterableTh>
                   <FilterableTh
                     filterKey="requestNumber"
@@ -573,7 +573,9 @@ export function AuditLogsPage() {
                     <td className="font-mono text-sm text-slate-700">{log.recipientPhoneMasked}</td>
                     <td>{log.requestNumber?.trim() || '—'}</td>
                     <td>{log.kindLabel}</td>
-                    <td className="max-w-[18rem] truncate text-sm text-slate-700" title={log.bodyPreview}>{log.bodyPreview}</td>
+                    <td className="max-w-[18rem] text-sm text-slate-700">
+                      <div className="line-clamp-3 whitespace-pre-wrap break-words">{log.bodyPreview}</div>
+                    </td>
                     <td>
                       <StatusPill tone={log.success ? 'success' : 'danger'}>{log.statusLabel}</StatusPill>
                     </td>

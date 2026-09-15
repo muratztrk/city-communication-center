@@ -9139,7 +9139,7 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   grid-column: 1;
   grid-row: 2;
   margin: 0;
-  margin-top: -0.3125rem;
+  margin-top: -0.4375rem;
   padding: 0;
   line-height: 1.2;
 }

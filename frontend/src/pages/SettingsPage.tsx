@@ -990,7 +990,7 @@ export function SettingsPage() {
     }
     if (page.key === 'returnedCitizenRequests') {
       return (
-        <span className="role-matrix-page-label">
+        <span className="role-matrix-page-label role-matrix-page-label--returned">
           <span className="role-matrix-page-label-title">{t('settings.roles.pages.returnedCitizenRequestsTitle', 'İade Edilen Talepler')}</span>
         </span>
       )

@@ -4007,7 +4007,7 @@
   }
 
   .citizen-request-form .citizen-request-address-trigger span.text-slate-400 {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
   }
 
   .citizen-request-form .citizen-request-placeholder-trigger span.text-slate-400 {
@@ -4501,6 +4501,10 @@
 
   .role-matrix-page-label--emphasis .role-matrix-page-label-hint {
     font-size: 0.76rem;
+  }
+
+  .role-matrix-page-label--returned .role-matrix-page-label-title {
+    font-size: 0.84rem;
   }
 
   .admin-surface-menu .dropdown-menu-item {

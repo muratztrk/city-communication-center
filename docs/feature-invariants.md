@@ -2925,6 +2925,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Grid Telefon No **maskelenmez** — API `recipientPhone` (tam numara) döner; eski kayıtlarda
   `recipientPhoneMasked` yedek (#3673). Kurum İçi Giden SMS gridinde Tarih sonrası **Personel Adı**
   (`recipientDisplayName`, #3671).
+- **İade Edilen Talepler grid (#3688/#3689):** banner'da Vatandaş Talepleri ile aynı arama +
+  başlangıç/bitiş tarihi; gridde **Talep Etiketi** sütunu yok.
 - **Operatöre iade edilen VT (#3675–#3678):** Birime Gelen detayda yalnız **İşleme Alındı**
   (görevsiz `Active`) durumda turuncu **Operatöre İade Et**; modal İade Sebebi max 400 karakter.
   `POST /jobs/{id}/return-to-operator` — hedef birim onaylı `JobDepartment` kaldırılır, job

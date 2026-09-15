@@ -99,16 +99,28 @@ export function buildMyRequestDetailFields(
 
   if (isCitizenRequestJob(detail)) {
     const returnedTargetDepartment = detail.departments?.find(department => department.role === 'Target')
+    const returnedDestinationLabel = (
+      <StackedFieldLabel
+        top={t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')}
+        bottom={t('social.label', 'Talep Etiketi')}
+      />
+    )
+    const returnedDestinationValue = (departmentName: string) => (
+      <div className="stacked-field-value">
+        <span>{departmentName}</span>
+        <span className="stacked-field-value__secondary">{citizenSourceMessage?.category?.trim() || '—'}</span>
+      </div>
+    )
     const destinationFields: MyRequestDetailField[] = returnedRequestDetail
       ? (returnedTargetDepartment
         ? [{
-            label: destinationFieldLabel(detail, t, { includeAssignee: false, splitLayout: true }),
-            value: returnedTargetDepartment.departmentName ?? '—',
+            label: returnedDestinationLabel,
+            value: returnedDestinationValue(returnedTargetDepartment.departmentName ?? '—'),
           }]
         : [
             {
-              label: destinationFieldLabel(detail, t, { includeAssignee: false, splitLayout: true }),
-              value: detail.returnedFromDepartmentName?.trim() || '—',
+              label: returnedDestinationLabel,
+              value: returnedDestinationValue(detail.returnedFromDepartmentName?.trim() || '—'),
             },
             {
               label: t('jobs.detail.returnedReason', 'Talep İade Sebebi'),
@@ -177,22 +189,8 @@ export function buildMyRequestDetailFields(
         : []),
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
       {
-        label: returnedRequestDetail
-          ? (
-            <StackedFieldLabel
-              top={t('jobs.detail.requestRouter', 'Talebi Yönlendiren')}
-              bottom={t('social.label', 'Talep Etiketi')}
-            />
-          )
-          : locationLabel,
-        value: returnedRequestDetail
-          ? (
-            <div className="stacked-field-value">
-              <span>{locationCreatorValue}</span>
-              <span className="stacked-field-value__secondary">{citizenSourceMessage?.category?.trim() || '—'}</span>
-            </div>
-          )
-          : locationCreatorValue,
+        label: locationLabel,
+        value: locationCreatorValue,
         rowClass: 'job-detail-field-row--location-creator',
       },
       ...destinationFields,

@@ -128,7 +128,7 @@ function buildCitizenAutoReplyTemplate(
   // Not token'ı birim ekinden sonra boş satır olmadan, tek boşlukla eklenir (#3250).
   const notePart = noteToken ? ` ${noteToken}${normalizedNoteSuffix}` : ''
   if (!includeTargetDepartment) {
-    return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}.${notePart}`
+    return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}.${normalizedSuffix}${notePart}`
   }
   return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}${notePart}`
 }
@@ -137,10 +137,39 @@ function stripTargetDepartmentToken(template: string) {
   for (const token of [TARGET_DEPARTMENT_TOKEN, '{Gönderilen Birim}']) {
     const tokenIndex = template.indexOf(token)
     if (tokenIndex >= 0) {
-      return template.slice(0, tokenIndex).trimEnd()
+      const beforeToken = template.slice(0, tokenIndex).trimEnd()
+      const afterToken = template.slice(tokenIndex + token.length)
+      return `${beforeToken}${afterToken}`
     }
   }
   return template.trimEnd()
+}
+
+function extractProcessingReceivedSuffixText(template: string, statusLabel: string, noteToken?: string) {
+  const tokenSuffix = extractCitizenAutoReplySuffixText(template, noteToken)
+  if (tokenSuffix || template.includes(TARGET_DEPARTMENT_TOKEN)) {
+    return tokenSuffix
+  }
+  const quotedStatus = statusLabel.startsWith('"') ? statusLabel : `"${statusLabel}"`
+  const statusIndex = template.indexOf(quotedStatus)
+  if (statusIndex < 0) {
+    return ''
+  }
+  let afterStatus = template.slice(statusIndex + quotedStatus.length)
+  const dotIndex = afterStatus.indexOf('.')
+  if (dotIndex < 0) {
+    return ''
+  }
+  afterStatus = afterStatus.slice(dotIndex + 1)
+  if (noteToken) {
+    const noteIndex = afterStatus.indexOf(noteToken)
+    if (noteIndex >= 0) {
+      afterStatus = afterStatus.slice(0, noteIndex)
+      if (afterStatus.endsWith('\n\n')) afterStatus = afterStatus.slice(0, -2)
+      else if (afterStatus.endsWith(' ')) afterStatus = afterStatus.slice(0, -1)
+    }
+  }
+  return afterStatus
 }
 
 function removeTemplateSeparatorSpaces(value: string) {
@@ -234,7 +263,9 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
       ? 'border-orange-200 bg-orange-50 text-orange-700'
       : 'border-emerald-200 bg-emerald-50 text-emerald-700'
 
-  const suffixText = extractCitizenAutoReplySuffixText(value, noteToken)
+  const suffixText = includeTargetDepartment
+    ? extractCitizenAutoReplySuffixText(value, noteToken)
+    : extractProcessingReceivedSuffixText(value, templateStatusLabel, noteToken)
   const noteSuffixText = noteToken ? extractCitizenAutoReplyNoteSuffixText(value, noteToken) : ''
 
   return (
@@ -273,22 +304,22 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
           <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 font-bold text-sky-700">{TARGET_DEPARTMENT_TOKEN}</span>
         ) : null}
       </div>
-      {includeTargetDepartment ? (
-        <textarea
-          className="field-textarea min-h-[4.5rem]"
-          value={suffixText}
-          onChange={event => onChange(buildCitizenAutoReplyTemplate(
-            extractCitizenAutoReplyBodyText(value, templateStatusLabel),
-            templateStatusLabel,
-            event.target.value,
-            false,
-            noteToken,
-            noteSuffixText,
-            includeTargetDepartment,
-          ))}
-          placeholder="Gönderilen birim bilgisinden sonra gelecek metin"
-        />
-      ) : null}
+      <textarea
+        className="field-textarea min-h-[4.5rem]"
+        value={suffixText}
+        onChange={event => onChange(buildCitizenAutoReplyTemplate(
+          extractCitizenAutoReplyBodyText(value, templateStatusLabel),
+          templateStatusLabel,
+          event.target.value,
+          false,
+          noteToken,
+          noteSuffixText,
+          includeTargetDepartment,
+        ))}
+        placeholder={includeTargetDepartment
+          ? 'Gönderilen birim bilgisinden sonra gelecek metin'
+          : 'Durum bilgisinden sonra gelecek metin'}
+      />
       {noteToken ? (
         <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
           <span className="rounded-md border border-violet-200 bg-violet-50 px-2 py-1 font-bold text-violet-700">{noteToken}</span>
@@ -1759,7 +1790,7 @@ export function SettingsPage() {
         processingReceived: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.processingReceived, t('social.requestStatus.processingReceived', 'İşleme Alındı')),
           t('social.requestStatus.processingReceived', 'İşleme Alındı'),
-          '',
+          extractProcessingReceivedSuffixText(citizenAutoReplyTemplates.processingReceived, t('social.requestStatus.processingReceived', 'İşleme Alındı')),
           true,
           undefined,
           '',
@@ -1801,7 +1832,10 @@ export function SettingsPage() {
             t('social.requestStatus.processingReceived', 'İşleme Alındı'),
           ),
           t('social.requestStatus.processingReceived', 'İşleme Alındı'),
-          '',
+          extractProcessingReceivedSuffixText(
+            citizenAutoReplyTemplates.smsProcessingReceived ?? citizenAutoReplyTemplates.processingReceived,
+            t('social.requestStatus.processingReceived', 'İşleme Alındı'),
+          ),
           true,
           undefined,
           '',

@@ -174,7 +174,9 @@ public static class CitizenAutoReplyTemplateJson
                 continue;
             }
 
-            return template[..tokenIndex].TrimEnd();
+            var beforeToken = template[..tokenIndex].TrimEnd();
+            var afterToken = template[(tokenIndex + token.Length)..];
+            return $"{beforeToken}{afterToken}";
         }
 
         return template.TrimEnd();

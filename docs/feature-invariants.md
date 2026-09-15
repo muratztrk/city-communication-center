@@ -1027,8 +1027,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kartının hemen altında durur; `{VatandaşTalepNo}` öncesinde düzenlenebilir hitap
   (`Değerli vatandaşımız,` varsayılan, #2901) `field-textarea min-h-[4.5rem]` — gövde ve ek metin
   kutularıyla aynı boyut (#2911). `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
-  kullanıcı tarafından düzenlenemez. **İşleme Alındı** kartında (Vatandaşa Giden Cevaplar + Phone
-  SMS İşleme Alındı) `{GönderilenBirim}` ve birim sonrası ek metin **yoktur**; diğer durumlarda
+  kullanıcı tarafından düzenlenemez.   **İşleme Alındı** kartında (Vatandaşa Giden Cevaplar + Phone
+  SMS İşleme Alındı) `{GönderilenBirim}` **yoktur**; durum sonrası serbest metin textarea'sı
+  kalır (#3686 reopen). Diğer durumlarda
   durum adından sonra sabit `{GönderilenBirim}` gelir ve aktif hedef birim adlarıyla değiştirilir,
   ardından ikinci serbest metin düzenlenebilir. Eski İşleme Alındı kayıtlarından birim token'ı
   okunurken/yazılırken temizlenir; diğer durumlara eksik token otomatik eklenir (card #1594, #3686).

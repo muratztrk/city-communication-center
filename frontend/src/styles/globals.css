@@ -2509,12 +2509,10 @@
     font-size: 0.75rem;
   }
 
-  .citizen-request-department-menu .dropdown-menu-item,
-  .citizen-request-department-menu .dropdown-menu-item span {
-    font-size: 0.68rem;
-    min-height: 1.85rem;
-    padding: 0.3rem 0.6rem;
-    line-height: 1.2;
+  .citizen-request-department-menu .dropdown-menu-item {
+    font-size: 0.75rem;
+    min-height: 2rem;
+    padding: 0.35rem 0.65rem;
   }
 
   .citizen-call-address-menu .dropdown-menu-item,
@@ -2587,9 +2585,9 @@
     font-size: 0.85rem !important;
   }
 
-  /* WA Vatandaş Talebi Oluştur: dropdown arama kutusu puntosu (#2760 / #3692). */
+  /* WA Vatandaş Talebi Oluştur: dropdown arama kutusu puntosu (#2760). */
   .dropdown-menu-panel.citizen-request-department-menu input {
-    font-size: 0.68rem !important;
+    font-size: 0.7rem !important;
     line-height: 1.25 !important;
   }
 
@@ -4008,14 +4006,8 @@
     font-size: 0.8rem;
   }
 
-  .citizen-request-form .citizen-request-address-trigger span.text-slate-400,
-  .citizen-request-form .citizen-request-address-trigger span.text-slate-400 span {
-    font-size: 0.64rem;
-  }
-
-  .detail-modal-shell--citizen-create .citizen-request-form .citizen-request-address-trigger.field-select span.text-slate-400,
-  .detail-modal-shell--citizen-create .citizen-request-form .citizen-request-address-trigger.field-select span.text-slate-400 span {
-    font-size: 0.64rem;
+  .citizen-request-form .citizen-request-address-trigger span.text-slate-400 {
+    font-size: 0.72rem;
   }
 
   .citizen-request-form .citizen-request-placeholder-trigger span.text-slate-400 {

@@ -910,7 +910,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const jobTargetDepartment = detail?.departments?.find(department => department.role === 'Target')
   const returnedTargetDepartment = jobTargetDepartment
   const canForwardReturnedDetail = isReturnedRequestDetail
-    && user?.role === 'Operator'
+    && (user?.role === 'Operator' || isCitizenRequestManager)
     && detail != null
     && Boolean(detail.returnedToOperatorAtUtc)
     && !returnedTargetDepartment
@@ -977,7 +977,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       && department.departmentId !== detail?.ownerDepartmentId
       && !isPresidencyLevelDepartment(department)))
     .map(department => ({ value: department.departmentId, label: department.name }))
-  const needsDepartmentCatalog = canManageCoordination || (isIncomingRequestDetail && (isManagerLike || isCitizenRequestManager))
+  const needsDepartmentCatalog = canManageCoordination
+    || (isIncomingRequestDetail && (isManagerLike || isCitizenRequestManager))
+    || canForwardReturnedDetail
   const incomingPendingCloseTask = isIncomingRequestDetail && incomingDetailManager
     ? detail?.tasks.find(task => task.currentStatus === 'PendingCloseApproval') ?? null
     : null
@@ -3230,13 +3232,33 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       ...(isReturnedRequestDetail
                         ? (returnedTargetDepartment
                           ? [{
-                              label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
-                              value: <ExternalDestinationValue detail={detail} framed={false} />,
+                              label: (
+                                <StackedFieldLabel
+                                  top={t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')}
+                                  bottom={t('social.label', 'Talep Etiketi')}
+                                />
+                              ),
+                              value: (
+                                <div className="stacked-field-value">
+                                  <ExternalDestinationValue detail={detail} framed={false} />
+                                  <span className="stacked-field-value__secondary">{citizenSourceMessage?.category?.trim() || '—'}</span>
+                                </div>
+                              ),
                             }]
                           : [
                               {
-                                label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
-                                value: detail.returnedFromDepartmentName?.trim() || '—',
+                                label: (
+                                  <StackedFieldLabel
+                                    top={t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')}
+                                    bottom={t('social.label', 'Talep Etiketi')}
+                                  />
+                                ),
+                                value: (
+                                  <div className="stacked-field-value">
+                                    <span>{detail.returnedFromDepartmentName?.trim() || '—'}</span>
+                                    <span className="stacked-field-value__secondary">{citizenSourceMessage?.category?.trim() || '—'}</span>
+                                  </div>
+                                ),
                               },
                               {
                                 label: t('jobs.detail.returnedReason', 'Talep İade Sebebi'),
@@ -3252,11 +3274,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getRequestApproverDisplayName(detail) ?? '—',
-                      }] : []),
-                      // Operatör / Vatandaş Talep Yöneticisi: Talep Etiketi en altta (card #1896).
-                      ...((user?.role === 'Operator' || hasCitizenRequestManagerRole(user)) && citizenSourceMessage?.category?.trim() ? [{
-                        label: t('social.label', 'Talep Etiketi'),
-                        value: citizenSourceMessage.category.trim(),
                       }] : []),
                       ...buildCancelledWithoutTaskInfoRows(detail, t, user, showCancelledCitizenOutboundInRequestInfo),
                     ] : [

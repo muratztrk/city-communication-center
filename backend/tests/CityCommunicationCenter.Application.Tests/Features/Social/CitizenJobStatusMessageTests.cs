@@ -44,7 +44,7 @@ public sealed class CitizenJobStatusMessageTests
 
         var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
 
-        Assert.Equal("İşleme Alındı.", templates.ProcessingReceived);
+        Assert.Equal("İşleme Alındı.'ne iletilmiştir.", templates.ProcessingReceived);
         Assert.Contains("{GönderilenBirim}   ekiplerce inceleniyor.", templates.InProgress);
         Assert.Contains("{GönderilenBirim} ekiplerce incelendi.", templates.Completed);
         Assert.Contains("{GönderilenBirim}", templates.Cancelled);

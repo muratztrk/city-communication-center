@@ -4006,8 +4006,10 @@
     font-size: 0.8rem;
   }
 
-  .citizen-request-form .citizen-request-address-trigger span.text-slate-400 {
-    font-size: 0.72rem;
+  /* WA Vatandaş Talebi: yalnız kapalı trigger placeholder küçük; açılan liste 0.75rem (#3692). */
+  .citizen-request-form .citizen-request-address-trigger span.text-slate-400,
+  .citizen-request-form .citizen-request-address-trigger span.text-slate-400 span {
+    font-size: 0.68rem;
   }
 
   .citizen-request-form .citizen-request-placeholder-trigger span.text-slate-400 {

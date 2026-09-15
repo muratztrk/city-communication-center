@@ -2973,7 +2973,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button
                     type="button"
                     size="lg"
-                    className="inline-flex items-center gap-1.5 bg-orange-600 text-white hover:bg-orange-700"
+                    className="inline-flex items-center gap-1.5 !bg-orange-600 !text-white hover:!bg-orange-700"
                     onClick={openReturnedForwardModal}
                   >
                     <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -4088,7 +4088,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             <div className="flex flex-col gap-2">
               <Button
                 type="button"
-                className="bg-teal-700 text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className={forwardModal.mode === 'returned'
+                  ? 'bg-orange-600 text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50'
+                  : 'bg-teal-700 text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-50'}
                 disabled={forwardModal.saving || !forwardModal.departmentId || !forwardModal.note.trim()}
                 onClick={() => void handleForwardConfirm()}
               >

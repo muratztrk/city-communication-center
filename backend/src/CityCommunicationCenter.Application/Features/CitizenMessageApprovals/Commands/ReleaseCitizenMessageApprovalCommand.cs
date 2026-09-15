@@ -91,6 +91,24 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
             });
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+        else
+        {
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = tenantId,
+                EntityType = nameof(Job),
+                EntityId = job.JobId.ToString(),
+                Action = "CitizenTerminalSmsSent",
+                ActorUserId = actor.UserId,
+                ActorDisplayName = actor.DisplayName,
+                EventTimeUtc = DateTimeOffset.UtcNow,
+                StatusAtEvent = job.Status.ToString(),
+                Notes = note,
+                Details = note,
+            });
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
 
         return true;
     }

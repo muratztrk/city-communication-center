@@ -712,6 +712,32 @@ export interface AuditLog {
   entityTitle?: string | null;
 }
 
+export interface SmsOutboundLogItem {
+  smsOutboundLogId: string;
+  tenantId: string;
+  kind: string;
+  recipientPhoneMasked: string;
+  recipientUserId?: string | null;
+  jobId?: string | null;
+  socialMessageId?: string | null;
+  taskId?: string | null;
+  requestNumber?: string | null;
+  success: boolean;
+  provider?: string | null;
+  providerCode?: string | null;
+  providerMessage?: string | null;
+  textLength: number;
+  bodyPreview?: string | null;
+  createdAtUtc: string;
+}
+
+export interface SmsOutboundLogsResponse {
+  totalMatching: number;
+  successCount: number;
+  failureCount: number;
+  items: SmsOutboundLogItem[];
+}
+
 export interface SupportRequest {
   supportRequestId: string;
   subject: string;

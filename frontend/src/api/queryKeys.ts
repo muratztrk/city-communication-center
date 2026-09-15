@@ -22,6 +22,11 @@ export const queryKeys = {
     list: () => ['ccc', 'audit-logs', 'list'] as const,
     entity: (entityType: string, entityId: string) => ['ccc', 'audit-logs', 'entity', entityType, entityId] as const,
   },
+  smsOutboundLogs: {
+    all: ['ccc', 'sms-outbound-logs'] as const,
+    list: (params: { fromUtc?: string; toUtc?: string; kind?: string }) =>
+      ['ccc', 'sms-outbound-logs', 'list', normalize(params)] as const,
+  },
   supportRequests: {
     all: ['ccc', 'support-requests'] as const,
     list: () => ['ccc', 'support-requests', 'list'] as const,

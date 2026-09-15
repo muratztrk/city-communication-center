@@ -26,6 +26,7 @@ function decodeOriginalFileNameHeader(header: string | null): string | null {
 }
 import type {
   AuditLog,
+  SmsOutboundLogsResponse,
   SupportRequest,
   Attachment,
   DashboardSnapshot,
@@ -1774,6 +1775,20 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/admin/audit-logs`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.auditLoadFailed'))
     return response.json() as Promise<AuditLog[]>
+  },
+
+  async getSmsOutboundLogs(params?: { fromUtc?: string; toUtc?: string; kind?: string }): Promise<SmsOutboundLogsResponse> {
+    const search = new URLSearchParams()
+    if (params?.fromUtc) search.set('fromUtc', params.fromUtc)
+    if (params?.toUtc) search.set('toUtc', params.toUtc)
+    if (params?.kind) search.set('kind', params.kind)
+    const query = search.toString()
+    const response = await fetchWithCredentials(
+      `${API_BASE}/admin/sms-outbound-logs${query ? `?${query}` : ''}`,
+      { headers: await getAuthHeaders() },
+    )
+    await ensureOk(response, i18n.t('errors.auditLoadFailed'))
+    return response.json() as Promise<SmsOutboundLogsResponse>
   },
 
   async getSocialSettingsStatus(): Promise<SocialSettingsStatus> {

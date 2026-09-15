@@ -1179,7 +1179,22 @@
     "scopes": {
       "system": "System Log",
       "job": "Request Log",
-      "task": "Task Log"
+      "task": "Task Log",
+      "citizenSms": "Citizen Outbound SMS",
+      "internalSms": "Internal Outbound SMS"
+    },
+    "smsRecipient": "Recipient",
+    "smsSuccess": "Successful",
+    "smsFailure": "Failed",
+    "smsProvider": "Provider",
+    "smsProviderCode": "Code",
+    "smsKind": "Type",
+    "smsLength": "Length",
+    "smsKinds": {
+      "citizenStatus": "Citizen status",
+      "afterHoursManager": "After-hours manager",
+      "afterHoursStaff": "After-hours staff",
+      "test": "Test"
     }
   },
   "settings": {

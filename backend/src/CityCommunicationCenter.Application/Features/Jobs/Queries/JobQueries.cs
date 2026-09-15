@@ -700,8 +700,12 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 // VT numarası veya SourceRefId ile eşleşen WA/Phone konuşmalarında outbound aranır.
                 foreach (var linkedMessage in orderedLinkedMessages)
                 {
+                    // Phone: İşleme Alındı/Yapılmakta SMS'i RespondedAtUtc'yi erken set eder;
+                    // terminal outbound yalnız yönetici release sonrası gerçek terminal SMS'te (#3664/#3665).
                     var smsResponse = linkedMessage.Channel == SocialChannel.Phone
+                        && job.CitizenTerminalMessageReleasedAtUtc.HasValue
                         && linkedMessage.RespondedAtUtc.HasValue
+                        && linkedMessage.RespondedAtUtc >= job.CitizenTerminalMessageReleasedAtUtc
                         ? linkedMessage.ResponseContent
                         : null;
                     var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(

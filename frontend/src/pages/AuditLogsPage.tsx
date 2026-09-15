@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState, type ReactNode } from 'react'
+import { Fragment, useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -12,7 +12,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
-import type { AuditLog } from '../types/platform'
+import type { AuditLog, SmsOutboundLogItem } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getRoleLabel } from '../utils/localization'
 import type { RoutineTaskEditSnapshot } from '../utils/routineTaskEditHistory'
 import { richTextToPlainText } from '../utils/richText'
@@ -136,7 +136,7 @@ function buildDetailText(t: TFunction, log: AuditLog): string {
   return parts.length > 0 ? parts.join(' — ') : '—'
 }
 
-type AuditLogScope = 'system' | 'job' | 'task'
+type AuditLogScope = 'system' | 'job' | 'task' | 'citizenSms' | 'internalSms'
 
 type AuditLogRow = AuditLog & {
   actionLabel: string
@@ -145,8 +145,31 @@ type AuditLogRow = AuditLog & {
   dateText: string
 }
 
+type SmsOutboundLogRow = SmsOutboundLogItem & {
+  dateText: string
+  kindLabel: string
+  statusLabel: string
+  detailText: string
+}
+
+const INTERNAL_SMS_KINDS = new Set(['AfterHoursManager', 'AfterHoursStaff'])
+
 function readScope(value: string | null): AuditLogScope {
-  return value === 'job' || value === 'task' ? value : 'system'
+  if (value === 'job' || value === 'task' || value === 'citizen-sms' || value === 'internal-sms') {
+    return value === 'citizen-sms' ? 'citizenSms' : value === 'internal-sms' ? 'internalSms' : value
+  }
+  return 'system'
+}
+
+function isSmsScope(scope: AuditLogScope): boolean {
+  return scope === 'citizenSms' || scope === 'internalSms'
+}
+
+function scopeToSearchParam(scope: AuditLogScope): string | null {
+  if (scope === 'job' || scope === 'task') return scope
+  if (scope === 'citizenSms') return 'citizen-sms'
+  if (scope === 'internalSms') return 'internal-sms'
+  return null
 }
 
 function resolveLogScope(entityType: string): AuditLogScope {
@@ -181,12 +204,29 @@ export function AuditLogsPage() {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
 
+  const smsQueryParams = useMemo(() => {
+    const params: { fromUtc?: string; toUtc?: string; kind?: string } = {}
+    if (filterFrom) params.fromUtc = new Date(`${filterFrom}T00:00:00`).toISOString()
+    if (filterTo) params.toUtc = new Date(`${filterTo}T23:59:59.999`).toISOString()
+    if (activeScope === 'citizenSms') params.kind = 'CitizenStatus'
+    return params
+  }, [activeScope, filterFrom, filterTo])
+
   const auditLogsQuery = useQuery({
     queryKey: queryKeys.auditLogs.list(),
     queryFn: () => api.getAuditLogs(),
+    enabled: !isSmsScope(activeScope),
   })
-  const error = auditLogsQuery.error
-    ? auditLogsQuery.error instanceof Error ? auditLogsQuery.error.message : t('common.error')
+
+  const smsOutboundLogsQuery = useQuery({
+    queryKey: queryKeys.smsOutboundLogs.list(smsQueryParams),
+    queryFn: () => api.getSmsOutboundLogs(smsQueryParams),
+    enabled: isSmsScope(activeScope),
+  })
+
+  const activeQuery = isSmsScope(activeScope) ? smsOutboundLogsQuery : auditLogsQuery
+  const error = activeQuery.error
+    ? activeQuery.error instanceof Error ? activeQuery.error.message : t('common.error')
     : ''
 
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
@@ -248,12 +288,79 @@ export function AuditLogsPage() {
     ? t('audit.scopes.job')
     : activeScope === 'task'
       ? t('audit.scopes.task')
-      : t('audit.scopes.system')
+      : activeScope === 'citizenSms'
+        ? t('audit.scopes.citizenSms', 'Vatandaşa Giden SMS')
+        : activeScope === 'internalSms'
+          ? t('audit.scopes.internalSms', 'Kurum İçi Giden SMS')
+          : t('audit.scopes.system')
 
   const setScope = (scope: AuditLogScope) => {
-    setSearchParams(scope === 'system' ? {} : { scope }, { replace: true })
+    const param = scopeToSearchParam(scope)
+    setSearchParams(param ? { scope: param } : {}, { replace: true })
     setCurrentPage(1)
   }
+
+  const getSmsKindLabel = useCallback((kind: string) => {
+    if (kind === 'CitizenStatus') return t('audit.smsKinds.citizenStatus', 'Vatandaş durum')
+    if (kind === 'AfterHoursManager') return t('audit.smsKinds.afterHoursManager', 'Mesai dışı yönetici')
+    if (kind === 'AfterHoursStaff') return t('audit.smsKinds.afterHoursStaff', 'Mesai dışı personel')
+    if (kind === 'Test') return t('audit.smsKinds.test', 'Test')
+    return kind
+  }, [t])
+
+  const smsRows = useMemo(() => {
+    const items = (smsOutboundLogsQuery.data?.items ?? [])
+      .filter(item => activeScope !== 'internalSms' || INTERNAL_SMS_KINDS.has(item.kind))
+    const rows: SmsOutboundLogRow[] = items.map(item => {
+      const detailParts = [
+        item.bodyPreview?.trim(),
+        item.provider ? `${t('audit.smsProvider', 'Sağlayıcı')}: ${item.provider}` : null,
+        item.providerCode ? `${t('audit.smsProviderCode', 'Kod')}: ${item.providerCode}` : null,
+        item.providerMessage?.trim(),
+        `${t('audit.smsKind', 'Tür')}: ${getSmsKindLabel(item.kind)}`,
+        `${t('audit.smsLength', 'Uzunluk')}: ${item.textLength}`,
+      ].filter((part): part is string => Boolean(part?.trim()))
+      return {
+        ...item,
+        dateText: new Date(item.createdAtUtc).toLocaleString(locale),
+        kindLabel: getSmsKindLabel(item.kind),
+        statusLabel: item.success
+          ? t('audit.smsSuccess', 'Başarılı')
+          : t('audit.smsFailure', 'Başarısız'),
+        detailText: detailParts.join(' — '),
+      }
+    })
+    const searchNormalized = searchText.trim().toLocaleLowerCase('tr')
+    const filtered = rows.filter(row => {
+      if (searchNormalized) {
+        const haystack = [
+          row.detailText,
+          row.statusLabel,
+          row.kindLabel,
+          row.recipientPhoneMasked,
+          row.requestNumber ?? '',
+          row.smsOutboundLogId,
+        ].join(' ').toLocaleLowerCase('tr')
+        if (!haystack.includes(searchNormalized)) return false
+      }
+      return matchesFilters(row, (key, item) => {
+        if (key === 'createdAtUtc') return item.dateText
+        if (key === 'recipientPhoneMasked') return item.recipientPhoneMasked
+        if (key === 'requestNumber') return item.requestNumber ?? ''
+        if (key === 'success') return item.statusLabel
+        if (key === 'detailText') return item.detailText
+        return String((item as unknown as Record<string, unknown>)[key] ?? '')
+      })
+    })
+    if (!sortKey) {
+      return [...filtered].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc))
+    }
+    return sortItems(filtered)
+  }, [activeScope, getSmsKindLabel, locale, matchesFilters, searchText, smsOutboundLogsQuery.data?.items, sortItems, sortKey, t])
+
+  const smsTotalCount = smsRows.length
+  const smsSafePage = Math.min(currentPage, Math.max(1, Math.ceil(smsTotalCount / pageSize) || 1))
+  const pagedSmsRows = smsRows.slice((smsSafePage - 1) * pageSize, smsSafePage * pageSize)
 
   const handleFilter = (key: string, value: string) => {
     setFilter(key, value)
@@ -270,7 +377,7 @@ export function AuditLogsPage() {
     setCurrentPage(1)
   }
 
-  if (auditLogsQuery.isLoading) {
+  if (activeQuery.isLoading) {
     return <div className="loading">{t('common.loading')}</div>
   }
 
@@ -346,6 +453,24 @@ export function AuditLogsPage() {
             >
               {t('audit.scopes.task')}
             </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeScope === 'citizenSms'}
+              className={`tab-button ${activeScope === 'citizenSms' ? 'active' : ''}`}
+              onClick={() => setScope('citizenSms')}
+            >
+              {t('audit.scopes.citizenSms', 'Vatandaşa Giden SMS')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeScope === 'internalSms'}
+              className={`tab-button ${activeScope === 'internalSms' ? 'active' : ''}`}
+              onClick={() => setScope('internalSms')}
+            >
+              {t('audit.scopes.internalSms', 'Kurum İçi Giden SMS')}
+            </button>
           </div>
         </div>
       </section>
@@ -354,71 +479,158 @@ export function AuditLogsPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table audit-logs-table">
-            <thead>
-              <tr>
-                <FilterableTh
-                  filterKey="eventTimeUtc"
-                  filterValue={filters.eventTimeUtc ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="eventTimeUtc"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('audit.date')}
-                </FilterableTh>
-                <FilterableTh
-                  filterKey="action"
-                  filterValue={filters.action ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="actionLabel"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('audit.action')}
-                </FilterableTh>
-                <FilterableTh
-                  filterKey="details"
-                  filterValue={filters.details ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="detailText"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('audit.detail')}
-                </FilterableTh>
-              </tr>
-            </thead>
-            <tbody>
-              {pagedRows.map(log => (
-                <tr key={log.auditLogId}>
-                  <td>{log.dateText}</td>
-                  <td>
-                    <StatusPill tone={getActionTone(log.action)}>{log.actionLabel}</StatusPill>
-                  </td>
-                  <td>
-                    <div className="space-y-0.5">
-                      <div className="text-sm font-semibold text-slate-600">
-                        {t('audit.logId', 'Log ID')}: <span className="font-mono text-base font-bold text-slate-800" title={log.auditLogId}>{log.auditLogId.slice(0, 8)}</span>
-                      </div>
-                      <div>{joinWithGreenDash(log.detailParts)}</div>
-                    </div>
-                  </td>
+          {isSmsScope(activeScope) ? (
+            <table className="data-table audit-logs-table">
+              <thead>
+                <tr>
+                  <FilterableTh
+                    filterKey="createdAtUtc"
+                    filterValue={filters.createdAtUtc ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="createdAtUtc"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.date')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="recipientPhoneMasked"
+                    filterValue={filters.recipientPhoneMasked ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="recipientPhoneMasked"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.smsRecipient', 'Alıcı')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="requestNumber"
+                    filterValue={filters.requestNumber ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="requestNumber"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.jobNumberPrefix', 'Talep No')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="success"
+                    filterValue={filters.success ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="statusLabel"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.action')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="detailText"
+                    filterValue={filters.detailText ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="detailText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.detail')}
+                  </FilterableTh>
                 </tr>
-              ))}
-              {pagedRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={3} message={t('audit.empty')} />
-              ) : null}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {pagedSmsRows.map(log => (
+                  <tr key={log.smsOutboundLogId}>
+                    <td>{log.dateText}</td>
+                    <td className="font-mono text-sm text-slate-700">{log.recipientPhoneMasked}</td>
+                    <td>{log.requestNumber?.trim() || '—'}</td>
+                    <td>
+                      <StatusPill tone={log.success ? 'success' : 'danger'}>{log.statusLabel}</StatusPill>
+                    </td>
+                    <td>
+                      <div className="space-y-0.5">
+                        <div className="text-sm font-semibold text-slate-600">
+                          {t('audit.logId', 'Log ID')}: <span className="font-mono text-base font-bold text-slate-800" title={log.smsOutboundLogId}>{log.smsOutboundLogId.slice(0, 8)}</span>
+                        </div>
+                        <div>{log.detailText || '—'}</div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {smsRows.length === 0 ? (
+                  <TableEmptyStateRows columnCount={5} message={t('audit.empty')} />
+                ) : null}
+              </tbody>
+            </table>
+          ) : (
+            <table className="data-table audit-logs-table">
+              <thead>
+                <tr>
+                  <FilterableTh
+                    filterKey="eventTimeUtc"
+                    filterValue={filters.eventTimeUtc ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="eventTimeUtc"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.date')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="action"
+                    filterValue={filters.action ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="actionLabel"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.action')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="details"
+                    filterValue={filters.details ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="detailText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.detail')}
+                  </FilterableTh>
+                </tr>
+              </thead>
+              <tbody>
+                {pagedRows.map(log => (
+                  <tr key={log.auditLogId}>
+                    <td>{log.dateText}</td>
+                    <td>
+                      <StatusPill tone={getActionTone(log.action)}>{log.actionLabel}</StatusPill>
+                    </td>
+                    <td>
+                      <div className="space-y-0.5">
+                        <div className="text-sm font-semibold text-slate-600">
+                          {t('audit.logId', 'Log ID')}: <span className="font-mono text-base font-bold text-slate-800" title={log.auditLogId}>{log.auditLogId.slice(0, 8)}</span>
+                        </div>
+                        <div>{joinWithGreenDash(log.detailParts)}</div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {pagedRows.length === 0 ? (
+                  <TableEmptyStateRows columnCount={3} message={t('audit.empty')} />
+                ) : null}
+              </tbody>
+            </table>
+          )}
         </div>
         <TablePagination
-          totalCount={totalCount}
+          totalCount={isSmsScope(activeScope) ? smsTotalCount : totalCount}
           pageSize={pageSize}
-          currentPage={safePage}
+          currentPage={isSmsScope(activeScope) ? smsSafePage : safePage}
           onPageSizeChange={handlePageSizeChange}
           onPageChange={setCurrentPage}
         />

@@ -413,14 +413,20 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                     <td>
                       {showMessageApproverColumn ? (
                         row.messageApproverDisplayName?.trim() && row.messageApprovedAtUtc
-                          ? (
-                            <StatusPill className={`${getStatusPillClass(getJobStatusTone({ status: 'Completed', dueDateUtc: null }))} citizen-message-approval-actor-pill`}>
+                          ? (() => {
+                            const isTerminalCancelled = row.status === 'Cancelled' || row.status === 'Rejected'
+                            const actorStatusTone = getJobStatusTone({
+                              status: isTerminalCancelled ? row.status : 'Completed',
+                              dueDateUtc: null,
+                            })
+                            return (
+                            <StatusPill className={`${getStatusPillClass(actorStatusTone)} citizen-message-approval-actor-pill`}>
                               <GridStatusLabel
                                 t={t}
                                 label={row.messageApproverDisplayName.trim()}
                                 labelClassName="citizen-message-approval-actor-name"
                                 footer={(
-                                  <span className="inline-flex items-baseline gap-1 whitespace-nowrap text-[0.68rem] font-bold text-emerald-700">
+                                  <span className={`inline-flex items-baseline gap-1 whitespace-nowrap text-[0.68rem] font-bold ${isTerminalCancelled ? 'text-red-700' : 'text-emerald-700'}`}>
                                     {(() => {
                                       const parts = formatDateTimeInline(row.messageApprovedAtUtc, locale)
                                       return parts ? <><span>{parts.date}</span><span>{parts.time}</span></> : formatDateTime(row.messageApprovedAtUtc, locale)
@@ -429,7 +435,8 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                                 )}
                               />
                             </StatusPill>
-                          )
+                            )
+                          })()
                           : <span className="text-[0.875rem] font-semibold text-sky-500">{t('citizenMessageApproval.pendingApprover', 'Onay Bekleyen')}</span>
                       ) : (() => {
                         const statusDate = row.status === 'Completed' ? row.completedAtUtc

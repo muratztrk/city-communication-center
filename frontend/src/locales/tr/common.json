@@ -1186,7 +1186,22 @@
     "scopes": {
       "system": "Sistem Log",
       "job": "Talep Log",
-      "task": "Görev Log"
+      "task": "Görev Log",
+      "citizenSms": "Vatandaşa Giden SMS",
+      "internalSms": "Kurum İçi Giden SMS"
+    },
+    "smsRecipient": "Alıcı",
+    "smsSuccess": "Başarılı",
+    "smsFailure": "Başarısız",
+    "smsProvider": "Sağlayıcı",
+    "smsProviderCode": "Kod",
+    "smsKind": "Tür",
+    "smsLength": "Uzunluk",
+    "smsKinds": {
+      "citizenStatus": "Vatandaş durum",
+      "afterHoursManager": "Mesai dışı yönetici",
+      "afterHoursStaff": "Mesai dışı personel",
+      "test": "Test"
     }
   },
   "settings": {

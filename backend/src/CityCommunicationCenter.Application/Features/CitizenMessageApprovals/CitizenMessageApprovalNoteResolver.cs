@@ -11,6 +11,7 @@ namespace CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
 internal static class CitizenMessageApprovalNoteResolver
 {
     private const string ReleasedAction = "CitizenMessageApprovalReleased";
+    private const string TerminalSmsSentAction = "CitizenTerminalSmsSent";
     private const string ReopenedAction = "CitizenMessageJobReopenedToProcessingReceived";
     private const string CompletionNoteEditedAction = "CitizenMessageApprovalCompletionNoteEdited";
     private const string CancelNoteEditedAction = "CitizenMessageApprovalCancelNoteEdited";
@@ -112,6 +113,53 @@ internal static class CitizenMessageApprovalNoteResolver
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Operatörün Sms Onayı'da gönderdiği terminal SMS — grid Mesaj Onayı Yapan (#3669).
+    /// Yönetici ilk <see cref="ReleasedAction"/> notunu ezmemek için ikinci release audit yazılmaz.
+    /// </summary>
+    public static async Task<string?> ResolveTerminalSmsSenderDisplayNameAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken)
+    {
+        var cycle = await GetCycleBoundsAsync(dbContext, tenantId, jobId, cancellationToken);
+        var entityId = jobId.ToString();
+        var smsAudit = dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityId == entityId
+                && audit.Action == TerminalSmsSentAction);
+        if (cycle.ReopenedAt.HasValue)
+        {
+            smsAudit = smsAudit.Where(audit => audit.EventTimeUtc > cycle.ReopenedAt.Value);
+        }
+
+        var actor = await smsAudit
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => new { audit.ActorDisplayName, audit.ActorUserId })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (actor is null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(actor.ActorDisplayName))
+        {
+            return actor.ActorDisplayName.Trim();
+        }
+
+        if (!actor.ActorUserId.HasValue)
+        {
+            return null;
+        }
+
+        var actorName = await dbContext.Users.AsNoTracking()
+            .Where(user => user.UserId == actor.ActorUserId.Value)
+            .Select(user => user.DisplayName)
+            .FirstOrDefaultAsync(cancellationToken);
+        return string.IsNullOrWhiteSpace(actorName) ? null : actorName.Trim();
     }
 
     /// <summary>Mesajı Onayla yapan yönetici — Tamamlama/İptal Notu Onaylayan (#3490).</summary>

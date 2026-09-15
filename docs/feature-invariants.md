@@ -2916,6 +2916,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`LiveSendEnabled=false`) ve ayar kapalıyken gateway'e hiç gelmeyen denemeler loglanmaz.
   Sorgu: `GET /api/v1/admin/sms-outbound-logs?fromUtc=&toUtc=&kind=` (PlatformAdmin);
   yanıtta `totalMatching`, `successCount`, `failureCount` ve en yeni 5000 kayıt döner.
+  Log sayfası (`/audit`): `scope=citizen-sms` → `kind=CitizenStatus`; `scope=internal-sms` →
+  `AfterHoursManager` + `AfterHoursStaff` (card #3666).
+- **Phone terminal outbound önizleme (#3664/#3665):** `citizenOutboundMessage` yalnız
+  `CitizenTerminalMessageReleasedAtUtc` sonrası ve `RespondedAtUtc >= ReleasedAt` terminal SMS'te
+  dolar; İşleme Alındı/Yapılmakta ara SMS `Saygılarımızla` vb. outbound alanına düşmez.
+- **Sms Onayı grid gönderen (#3669):** terminal SMS sonrası `Mesaj Onayı Yapan` = operatör adı
+  (`CitizenTerminalSmsSent` audit); iptal taleplerde kırmızı StatusPill + kırmızı tarih.
 - **Cep telefonu girişi ilk hane 5 (#3205/#3210/#3211):** Kullanıcılar (yeni kayıt + gridview
   Düzenle), Vatandaş Çağrı Talebi ve talep detay düzenleme alanları `sanitizeMobilePhoneInput(next,
   previous)` kullanır: rakam dışı karakter yazılmaz, ilk hane 5 değilse **tuş vuruşu yazılmaz**

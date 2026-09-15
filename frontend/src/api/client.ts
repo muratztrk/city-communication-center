@@ -1287,6 +1287,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobForwardFailed', 'Talep yönlendirilemedi'))
   },
 
+  async returnCitizenRequestToOperator(jobId: string, departmentId: string, reason: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/return-to-operator`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ departmentId, reason }),
+    })
+    await ensureOk(response, i18n.t('errors.jobReturnToOperatorFailed', 'Talep operatöre iade edilemedi'))
+  },
+
   async addJobCoordinatingDepartments(jobId: string, departmentIds: string[]): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/coordinating-departments`, {
       method: 'POST',

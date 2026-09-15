@@ -151,6 +151,12 @@ type SmsOutboundLogRow = SmsOutboundLogItem & {
   bodyPreview: string
   statusLabel: string
   detailText: string
+  recipientPhoneDisplay: string
+  recipientStaffName: string
+}
+
+function getSmsRecipientPhoneDisplay(item: SmsOutboundLogItem): string {
+  return item.recipientPhone?.trim() || item.recipientPhoneMasked
 }
 
 const INTERNAL_SMS_KINDS = new Set(['AfterHoursManager', 'AfterHoursStaff'])
@@ -325,6 +331,8 @@ export function AuditLogsPage() {
         dateText: new Date(item.createdAtUtc).toLocaleString(locale),
         kindLabel: getSmsKindLabel(item.kind),
         bodyPreview,
+        recipientPhoneDisplay: getSmsRecipientPhoneDisplay(item),
+        recipientStaffName: item.recipientDisplayName?.trim() || '—',
         statusLabel: item.success
           ? t('audit.smsSuccess', 'Başarılı')
           : t('audit.smsFailure', 'Başarısız'),
@@ -339,7 +347,8 @@ export function AuditLogsPage() {
           row.statusLabel,
           row.kindLabel,
           row.bodyPreview,
-          row.recipientPhoneMasked,
+          row.recipientPhoneDisplay,
+          row.recipientStaffName,
           row.requestNumber ?? '',
           row.smsOutboundLogId,
         ].join(' ').toLocaleLowerCase('tr')
@@ -347,7 +356,8 @@ export function AuditLogsPage() {
       }
       return matchesFilters(row, (key, item) => {
         if (key === 'createdAtUtc') return item.dateText
-        if (key === 'recipientPhoneMasked') return item.recipientPhoneMasked
+        if (key === 'recipientPhoneMasked') return item.recipientPhoneDisplay
+        if (key === 'recipientDisplayName') return item.recipientStaffName
         if (key === 'requestNumber') return item.requestNumber ?? ''
         if (key === 'kindLabel') return item.kindLabel
         if (key === 'bodyPreview') return item.bodyPreview
@@ -498,6 +508,19 @@ export function AuditLogsPage() {
                   >
                     {t('audit.date')}
                   </FilterableTh>
+                  {activeScope === 'internalSms' ? (
+                    <FilterableTh
+                      filterKey="recipientDisplayName"
+                      filterValue={filters.recipientDisplayName ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="recipientDisplayName"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('audit.smsStaffName', 'Personel Adı')}
+                    </FilterableTh>
+                  ) : null}
                   <FilterableTh
                     filterKey="recipientPhoneMasked"
                     filterValue={filters.recipientPhoneMasked ?? ''}
@@ -570,11 +593,12 @@ export function AuditLogsPage() {
                 {pagedSmsRows.map(log => (
                   <tr key={log.smsOutboundLogId}>
                     <td>{log.dateText}</td>
-                    <td className="font-mono text-sm text-slate-700">{log.recipientPhoneMasked}</td>
+                    {activeScope === 'internalSms' ? <td>{log.recipientStaffName}</td> : null}
+                    <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
                     <td>{log.requestNumber?.trim() || '—'}</td>
                     <td>{log.kindLabel}</td>
                     <td className="max-w-[18rem] text-sm text-slate-700">
-                      <div className="line-clamp-3 whitespace-pre-wrap break-words">{log.bodyPreview}</div>
+                      <div className="line-clamp-3 whitespace-pre-wrap break-words leading-[1.25]">{log.bodyPreview}</div>
                     </td>
                     <td>
                       <StatusPill tone={log.success ? 'success' : 'danger'}>{log.statusLabel}</StatusPill>
@@ -590,7 +614,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {smsRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={7} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={activeScope === 'internalSms' ? 8 : 7} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>

@@ -182,6 +182,7 @@
     "jobApproveFailed": "İş onaylanamadı.",
     "jobRejectFailed": "İş reddedilemedi.",
     "jobCancelFailed": "İş iptal edilemedi.",
+    "jobReturnToOperatorFailed": "Talep operatöre iade edilemedi.",
     "jobDeleteFailed": "İş silinemedi.",
     "socialDeleteFailed": "Mesaj silinemedi.",
     "socialSettingsLoadFailed": "Sosyal medya ayarları alınamadı.",
@@ -246,6 +247,7 @@
     "myRequestsRejected": "İptal Taleplerim",
     "myRequestsAll": "Tüm Taleplerim",
     "incomingRequests": "Birime Gelen Talepler",
+    "returnedCitizenRequests": "Operatöre İade Edilen\nTalepler",
     "incomingRequestsInternal": "Birime Gelen Talepler",
     "incomingRequestsAll": "Birime Gelen Tüm Talepler",
     "outgoingRequests": "Birimden Giden Talepler",
@@ -772,6 +774,18 @@
     "createSuccess": "{{name}} kullanıcısı oluşturuldu.",
     "managerConflict": "Bu müdürlükte zaten bir Müdür mevcut: {{name}}. Her müdürlüğün yalnızca 1 müdür kontenjanı vardır."
   },
+  "returnedCitizenRequests": {
+    "title": "Operatöre İade Edilen Talepler",
+    "subtitle": "Birimlerden operatöre iade edilen vatandaş talepleri.",
+    "empty": "Operatöre iade edilmiş talep yok.",
+    "columns": {
+      "requestNumber": "Talep No",
+      "title": "Başlık",
+      "returnedFromDepartment": "İade Eden Birim",
+      "reason": "İade Sebebi",
+      "returnedAt": "İade Tarihi"
+    }
+  },
   "requests": {
     "create": {
       "kicker": "Talep Akışı",
@@ -1192,6 +1206,7 @@
     },
     "smsRecipient": "Alıcı",
     "smsPhoneNo": "Telefon No",
+    "smsStaffName": "Personel Adı",
     "smsSuccess": "Başarılı",
     "smsFailure": "Başarısız",
     "smsProvider": "Sağlayıcı",
@@ -1956,6 +1971,8 @@
       "approveOwner": "Onayla",
       "approveSuccess": "Talep onaylandı.",
       "forwardSuccess": "Talep yönlendirildi.",
+      "returnToOperator": "Operatöre İade Et",
+      "returnToOperatorSuccess": "Talep operatöre iade edildi.",
       "cancelSuccess": "Talep iptal edildi.",
       "rejectOwner": "Reddet",
       "assignStaff": "Personel Ata",
@@ -2056,12 +2073,18 @@
       "NotRequired": "Gerekmiyor"
     },
     "forward": {
+      "title": "Talebi Yönlendir",
       "badge": "Yönlendirilen Talep",
       "sourceFallback": "Talebi Yönlendiren Birim",
       "reasonLabel": "Talep Yönlenme Sebebi",
       "noteLabel": "Talep Yönlendirme Notu",
       "selectDepartment": "Talebi yönlendirmek istediğiniz birimi seçiniz.",
       "notePlaceholder": "Talep yönlendirme sebebini yazınız..."
+    },
+    "returnToOperator": {
+      "title": "Operatöre İade Et",
+      "reasonLabel": "İade Sebebi",
+      "reasonPlaceholder": "Operatöre iade nedenini yazınız..."
     },
     "directions": {
       "internalOutgoing": "Birim İçi Giden",

@@ -4,6 +4,7 @@ public sealed record SmsOutboundLogEntry(
     Guid TenantId,
     SmsSendContext Context,
     string RecipientPhoneMasked,
+    string? RecipientPhone,
     string Text,
     bool Success,
     string? Provider,

@@ -72,14 +72,6 @@ public sealed class GetCitizenConversationsQueryHandler
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.Content)
                     .FirstOrDefault(),
-                LastMessageDirection = _dbContext.ConversationEntries
-                    .Where(e => _dbContext.SocialMessages
-                        .Any(m => m.CitizenConversationId == c.CitizenConversationId
-                                  && m.SocialMessageId == e.SocialMessageId
-                                  && m.Channel == SocialChannel.WhatsApp))
-                    .OrderByDescending(e => e.SentAt)
-                    .Select(e => (ConversationEntryDirection?)e.Direction)
-                    .FirstOrDefault(),
                 // Son mesaj kurum içi ileti ise, bildirim çanında kimin gönderdiğini göstermek için (card #1497).
                 LastMessageSenderLabel = _dbContext.ConversationEntries
                     .Where(e => _dbContext.SocialMessages
@@ -106,6 +98,38 @@ public sealed class GetCitizenConversationsQueryHandler
         }
 
         var conversationIds = conversations.Select(c => c.CitizenConversationId).ToList();
+
+        var whatsAppEntryRows = await _dbContext.ConversationEntries
+            .AsNoTracking()
+            .Join(
+                _dbContext.SocialMessages.AsNoTracking().Where(m =>
+                    m.CitizenConversationId != null
+                    && conversationIds.Contains(m.CitizenConversationId.Value)
+                    && m.Channel == SocialChannel.WhatsApp),
+                entry => entry.SocialMessageId,
+                message => message.SocialMessageId,
+                (entry, message) => new
+                {
+                    ConversationId = message.CitizenConversationId!.Value,
+                    entry.Direction,
+                    entry.SentAt,
+                    entry.DeliveryStatus,
+                    entry.DeliveryStatusUpdatedAtUtc,
+                })
+            .ToListAsync(cancellationToken);
+        var lastDirectionByConversation = whatsAppEntryRows
+            .GroupBy(row => row.ConversationId)
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .OrderByDescending(row => ConversationEntryTimelineTime.ResolveSortKey(
+                        row.Direction,
+                        row.SentAt,
+                        row.DeliveryStatus,
+                        row.DeliveryStatusUpdatedAtUtc))
+                    .ThenByDescending(row => row.SentAt)
+                    .First()
+                    .Direction);
 
         // "BEKLEMEDE" personel yanıtı — FAB'da görünsün (card #1472).
         // İşleme Alındı/Yapılmakta/Tamamlandı/İptal otomatik durum şablonları (belediye
@@ -333,8 +357,13 @@ public sealed class GetCitizenConversationsQueryHandler
                     : conversationMessages.Any(m => m.JobId is Guid messageJobId && relevantJobIds.Contains(messageJobId)
                         && m.JobStatus is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected));
                 var hasWhatsAppChannel = conversationMessages.Any(m => m.Channel == SocialChannel.WhatsApp);
+                ConversationEntryDirection? lastMessageDirection = lastDirectionByConversation.TryGetValue(
+                    c.CitizenConversationId,
+                    out var resolvedDirection)
+                    ? resolvedDirection
+                    : null;
                 var lastMessageIsAutomaticOutbound = ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
-                    c.LastMessageDirection,
+                    lastMessageDirection,
                     c.LastMessageDeliveryStatus,
                     c.LastMessageSenderLabel,
                     c.LastMessagePreview);
@@ -380,7 +409,7 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.IsBlocked,
                     c.LastMessagePreview,
                     c.OpenTicketCount,
-                    c.LastMessageDirection?.ToString(),
+                    lastMessageDirection?.ToString(),
                     ticket?.CitizenRequestNumber,
                     ticket?.CitizenRequestNumberYear,
                     ticket?.Priority,

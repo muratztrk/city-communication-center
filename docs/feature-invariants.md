@@ -2921,7 +2921,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Log sayfası (`/audit`): `scope=citizen-sms` → `kind=CitizenStatus`; `scope=internal-sms` →
   `AfterHoursManager` + `AfterHoursStaff` (card #3666). SMS grid: ayrı **Tür** + **Mesaj İçeriği**
   sütunları; Detay yalnız sağlayıcı/teknik bilgi (#3670). **Telefon No** başlığı (#3672);
-  Mesaj İçeriği `line-clamp-3` + overflow tooltip (#3670 reopen).
+  Mesaj İçeriği `line-clamp-3` + `leading-[1.25]` + overflow tooltip (#3670 reopen).
+  Grid Telefon No **maskelenmez** — API `recipientPhone` (tam numara) döner; eski kayıtlarda
+  `recipientPhoneMasked` yedek (#3673). Kurum İçi Giden SMS gridinde Tarih sonrası **Personel Adı**
+  (`recipientDisplayName`, #3671).
+- **Operatöre iade edilen VT (#3675–#3678):** Birime Gelen detayda yalnız **İşleme Alındı**
+  (görevsiz `Active`) durumda turuncu **Operatöre İade Et**; modal İade Sebebi max 400 karakter.
+  `POST /jobs/{id}/return-to-operator` — hedef birim onaylı `JobDepartment` kaldırılır, job
+  `ReturnedToOperatorAtUtc` set edilir; birim gelen listelerinden düşer. Operatör listesi
+  `GET /jobs?scope=returned-to-operator` + `/returned-citizen-requests` (Operator varsayılan yetki;
+  Vatandaş Talepleri grubunun alt hizasında, alt menü değil). Yönlendirme (`ForwardJobTarget`)
+  iade alanlarını temizler.
+- **WA Yanıt Bekleyen (#3674):** Konuşma listesinde son mesaj yönü `ConversationEntryTimelineTime
+  .ResolveSortKey` ile belirlenir; son outbound operatör mesajıysa **Yanıt Bekleyen** olmaz.
 - **Görevsiz iptal outbound Onay Bekleyen (#3664 reopen):** pending değerde başlık ve metin
   kırmızı değil — açık mavi `text-sky-500`.
 - **Phone terminal outbound önizleme (#3664/#3665):** `citizenOutboundMessage` yalnız

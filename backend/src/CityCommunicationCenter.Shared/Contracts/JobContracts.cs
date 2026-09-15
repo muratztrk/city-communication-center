@@ -51,6 +51,8 @@ public sealed record AddCoordinatingDepartmentsRequest(IReadOnlyCollection<Guid>
 
 public sealed record ForwardJobTargetRequest(Guid TargetDepartmentId, string Note);
 
+public sealed record ReturnCitizenRequestToOperatorRequest(Guid DepartmentId, string Reason);
+
 public sealed record SetJobManagerNoteRequest(string? Note);
 
 public sealed record JobDepartmentResponse(
@@ -103,7 +105,13 @@ public sealed record JobSummaryResponse(
     // görev gridindeki ile aynı "(Ek süre talebi)" işareti için (cards #1385/#1388).
     bool HasPendingExtraTimeRequest = false,
     // Talebin görevlerindeki sonuçlanmış en güncel ek süre kararı (Approved/Rejected).
-    string? LastExtraTimeRequestDecision = null);
+    string? LastExtraTimeRequestDecision = null,
+    DateTimeOffset? ReturnedToOperatorAtUtc = null,
+    string? ReturnedToOperatorReason = null,
+    Guid? ReturnedToOperatorByUserId = null,
+    Guid? ReturnedToOperatorFromDepartmentId = null,
+    string? ReturnedFromDepartmentName = null,
+    string? ReturnedByDisplayName = null);
 
 public sealed record JobDetailResponse(
     Guid JobId,

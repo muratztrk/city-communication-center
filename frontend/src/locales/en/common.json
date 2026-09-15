@@ -182,6 +182,7 @@
     "jobApproveFailed": "Failed to approve job.",
     "jobRejectFailed": "Failed to reject job.",
     "jobCancelFailed": "Failed to cancel job.",
+    "jobReturnToOperatorFailed": "Failed to return request to operator.",
     "jobDeleteFailed": "Failed to delete job.",
     "socialDeleteFailed": "Failed to delete social message.",
     "socialSettingsLoadFailed": "Failed to load social settings.",
@@ -246,6 +247,7 @@
     "myRequestsRejected": "Rejected/Cancelled/Returned My Requests",
     "myRequestsAll": "All My Requests",
     "incomingRequests": "Incoming Unit Requests",
+    "returnedCitizenRequests": "Requests Returned\nto Operator",
     "incomingRequestsInternal": "Incoming Unit Requests",
     "incomingRequestsAll": "All Incoming Unit Requests",
     "outgoingRequests": "Outgoing Unit Requests",
@@ -982,6 +984,18 @@
       "cancelReturnStatus": "Status"
     }
   },
+  "returnedCitizenRequests": {
+    "title": "Requests Returned to Operator",
+    "subtitle": "Citizen requests returned to the operator from departments.",
+    "empty": "No requests returned to the operator.",
+    "columns": {
+      "requestNumber": "Request No",
+      "title": "Title",
+      "returnedFromDepartment": "Returned From",
+      "reason": "Return Reason",
+      "returnedAt": "Return Date"
+    }
+  },
   "citizenMessageApproval": {
     "kicker": "Citizen Requests",
     "title": "Citizen Message Approval",
@@ -1185,6 +1199,7 @@
     },
     "smsRecipient": "Recipient",
     "smsPhoneNo": "Phone No",
+    "smsStaffName": "Staff Name",
     "smsSuccess": "Successful",
     "smsFailure": "Failed",
     "smsProvider": "Provider",
@@ -1916,6 +1931,8 @@
       "approveOwner": "Approve",
       "approveSuccess": "Request approved.",
       "forwardSuccess": "Request forwarded.",
+      "returnToOperator": "Return to Operator",
+      "returnToOperatorSuccess": "Request returned to operator.",
       "cancelSuccess": "Request cancelled.",
       "rejectOwner": "Reject",
       "assignStaff": "Assign Staff",
@@ -2013,12 +2030,18 @@
       "NotRequired": "Not Required"
     },
     "forward": {
+      "title": "Forward Request",
       "badge": "Forwarded Request",
       "sourceFallback": "Forwarding Department",
       "reasonLabel": "Forwarding Reason",
       "noteLabel": "Request Routing Note",
       "selectDepartment": "Please select the department you want to forward the request to.",
       "notePlaceholder": "Enter the request routing reason..."
+    },
+    "returnToOperator": {
+      "title": "Return to Operator",
+      "reasonLabel": "Return Reason",
+      "reasonPlaceholder": "Enter the reason for returning to the operator..."
     },
     "directions": {
       "internalOutgoing": "Internal Outgoing",

@@ -47,6 +47,7 @@ internal sealed class SmsOutboundLogWriter : ISmsOutboundLogWriter
             TenantId = entry.TenantId,
             Kind = entry.Context.Kind,
             RecipientPhoneMasked = entry.RecipientPhoneMasked,
+            RecipientPhone = entry.RecipientPhone,
             RecipientUserId = entry.Context.RecipientUserId,
             JobId = entry.Context.JobId,
             SocialMessageId = entry.Context.SocialMessageId,

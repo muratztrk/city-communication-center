@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { LicenseModuleSync } from '../context/LicenseModuleContext'
@@ -11,6 +11,7 @@ const CreateRequestPage = lazy(() => import('../pages/CreateRequestPage').then(m
 const DepartmentsPage = lazy(() => import('../pages/DepartmentsPage').then(module => ({ default: module.DepartmentsPage })))
 const DashboardPage = lazy(() => import('../pages/DashboardPage').then(module => ({ default: module.DashboardPage })))
 const IncomingRequestsPage = lazy(() => import('../pages/IncomingRequestsPage').then(module => ({ default: module.IncomingRequestsPage })))
+const ReturnedCitizenRequestsPage = lazy(() => import('../pages/ReturnedCitizenRequestsPage').then(module => ({ default: module.ReturnedCitizenRequestsPage })))
 const CitizenMessageApprovalPage = lazy(() => import('../pages/CitizenMessageApprovalPage').then(module => ({ default: module.CitizenMessageApprovalPage })))
 const SmsDeliveryApprovalPage = lazy(() => import('../pages/CitizenMessageApprovalPage').then(module => ({ default: module.SmsDeliveryApprovalPage })))
 const LoginPage = lazy(() => import('../pages/LoginPage').then(module => ({ default: module.LoginPage })))
@@ -44,6 +45,12 @@ function LoadingScreen() {
 
 function PageAccessGate({ pageKey, user, children }: { pageKey: PageAccessKey; user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
   return canAnyRoleAccessPage(getEffectiveUserRoles(user), pageKey) ? children : <Navigate to={getDefaultLandingPath(user)} replace />
+}
+
+function RequestDetailsGate({ user, children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
+  const [searchParams] = useSearchParams()
+  const pageKey: PageAccessKey = searchParams.get('context') === 'returned' ? 'returnedCitizenRequests' : 'incomingRequests'
+  return <PageAccessGate pageKey={pageKey} user={user}>{children}</PageAccessGate>
 }
 
 function CitizenDashboardGate({ children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
@@ -98,8 +105,9 @@ export default function App() {
           <Route path="/staff-tasks" element={<ManagerOnlyGate role={user?.role}><TasksPage mode="staffTasks" fixedScope="all" /></ManagerOnlyGate>} />
           <Route path="/tasks" element={<Navigate to="/incoming-requests?kind=all" replace />} />
           <Route path="/jobs" element={<Navigate to="/incoming-requests?kind=all" replace />} />
-          <Route path="/request-details" element={<PageAccessGate pageKey="incomingRequests" user={user}><JobsPage /></PageAccessGate>} />
+          <Route path="/request-details" element={<RequestDetailsGate user={user}><JobsPage /></RequestDetailsGate>} />
           <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" user={user}><IncomingRequestsPage /></PageAccessGate>} />
+          <Route path="/returned-citizen-requests" element={<PageAccessGate pageKey="returnedCitizenRequests" user={user}><ReturnedCitizenRequestsPage /></PageAccessGate>} />
           <Route path="/citizen-message-approval" element={<PageAccessGate pageKey="citizenMessageApproval" user={user}><CitizenMessageApprovalPage /></PageAccessGate>} />
           <Route path="/sms-delivery-approval" element={<PageAccessGate pageKey="smsDeliveryApproval" user={user}><SmsDeliveryApprovalPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" user={user}><SocialMessagesPage /></PageAccessGate>} />

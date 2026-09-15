@@ -245,8 +245,8 @@ internal sealed class SmsGateway : ISmsGateway
         SmsSendResult result,
         CancellationToken cancellationToken)
     {
-        var maskedPhone = MaskPhone(SmsPhoneNumber.TryNormalize(phoneNumber) ?? phoneNumber);
-        await WriteLogAsync(tenantId, maskedPhone, text, provider, context, result, cancellationToken);
+        var normalizedPhone = SmsPhoneNumber.TryNormalize(phoneNumber) ?? phoneNumber;
+        await WriteLogAsync(tenantId, normalizedPhone, text, provider, context, result, cancellationToken);
         return result;
     }
 
@@ -263,6 +263,7 @@ internal sealed class SmsGateway : ISmsGateway
             tenantId,
             context,
             MaskPhone(phoneForMasking),
+            SmsPhoneNumber.TryNormalize(phoneForMasking) ?? phoneForMasking,
             text,
             result.Success,
             provider.ToString(),

@@ -350,6 +350,7 @@ function formatJobDisplayNumber(job: Pick<JobSummary, 'requestType' | 'sourceTyp
 }
 
 const FORWARD_NOTE_MAX_LENGTH = 400
+const RETURN_TO_OPERATOR_REASON_MAX_LENGTH = 400
 const CANCEL_JOB_REASON_MAX_LENGTH = 400
 
 const JOB_SEARCH_COLUMN_KEYS = [
@@ -741,7 +742,7 @@ interface JobsPageProps {
   mode?: 'external' | 'myRequests' | 'departmentOutgoing'
   notificationJobId?: string | null
   detailOnly?: boolean
-  detailContextOverride?: 'incoming' | 'social'
+  detailContextOverride?: 'incoming' | 'social' | 'returned'
   onNotificationDetailClose?: () => void
   /** Vatandaşa Gönderilecek Mesaj Onayı detayında "Talep Durumu Değiştir" (card #2057). */
   onChangeStatusToInProgress?: (jobId: string) => void
@@ -867,8 +868,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         ? t('nav.outgoingRequests', 'Birimden Giden Talepler')
         : detailContext === 'incoming'
           ? t('nav.incomingRequests', 'Birime Gelen Talepler')
+          : detailContext === 'returned'
+            ? t('nav.returnedCitizenRequests', 'Operatöre İade Edilen Talepler')
           : t('jobs.detail.title', 'İş Detayı')
   const isIncomingRequestDetail = detailContext === 'incoming'
+  const isReturnedRequestDetail = detailContext === 'returned'
   const incomingStatusFilter = searchParams.get('status') ?? 'pending-approval'
   const hideIncomingApproveCancelByView = isIncomingRequestDetail
     && (incomingStatusFilter === 'in-progress' || incomingStatusFilter === 'approved')
@@ -890,7 +894,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         || task.currentStatus === 'InProgress'
         || task.currentStatus === 'PendingCloseApproval') ?? false)
     )
-  const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail
+  const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail || isReturnedRequestDetail
   const canManageCoordination = isManagerLike || isReporter
   const hideIncomingCancelAfterMessageReopen = isIncomingRequestDetail
     && detail != null
@@ -1025,6 +1029,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const showWorkflowSections = !isMyRequestsView
     && !isDepartmentOutgoingView
     && detailContext !== 'incoming'
+    && detailContext !== 'returned'
     && detailContext !== 'social'
   // Birime Gelen (hedef yönetici/sorumlu/VTY) + Birimden Giden (sahip yönetici/sorumlu) Son Tarih Değiştir
   // (#1673/#1666). Terminal durumlar hariç.
@@ -1059,6 +1064,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail.status !== 'Completed' && detail.status !== 'Cancelled'
   // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); vatandaş talebinde gizlenir (#895).
   const isCitizenRequestDetail = detail != null && isCitizenRequestJob(detail)
+  const returnToOperatorDepartmentId = jobTargetDepartment?.departmentId ?? activeIncomingTarget?.departmentId ?? activeDeptId
+  const canReturnToOperatorDetail = isIncomingRequestDetail
+    && isCitizenRequestDetail
+    && incomingDetailManager
+    && detail != null
+    && isCitizenProcessingReceivedState(detail)
+    && Boolean(returnToOperatorDepartmentId)
+    && jobTargetDepartment?.approvalStatus === 'Approved'
   const showCancelledCitizenOutboundInRequestInfo = showRequestInfoCitizenOutbound
     || (detailContextOverride === 'social'
       && detail != null
@@ -1554,6 +1567,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     error: string | null
   } | null>(null)
 
+  const [returnToOperatorModal, setReturnToOperatorModal] = useState<{
+    jobId: string
+    departmentId: string
+    reason: string
+    saving: boolean
+    error: string | null
+  } | null>(null)
+
   const openJobExtraTimeReview = async () => {
     if (!detail) return
     const pendingTask = detail.tasks.find(task => task.hasPendingExtraTimeRequest)
@@ -1833,7 +1854,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         || incomingReturnStatus === 'all'
         ? `/incoming-requests?kind=all&status=${incomingReturnStatus}`
         : '/incoming-requests?kind=all'
-      navigate(detailContext === 'social' ? '/social' : returnToIncoming, { replace: true })
+      navigate(
+        detailContext === 'social'
+          ? '/social'
+          : detailContext === 'returned'
+            ? '/returned-citizen-requests'
+            : returnToIncoming,
+        { replace: true },
+      )
     }
   }
 
@@ -1841,9 +1869,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   useEscapeKey(() => {
     if (cancelModal) setCancelModal(null)
     else if (forwardModal && !forwardModal.saving) setForwardModal(null)
+    else if (returnToOperatorModal && !returnToOperatorModal.saving) setReturnToOperatorModal(null)
     else if (staffAssignModal && !staffAssignModal.saving) setStaffAssignModal(null)
     else if (editModal) setEditModal(null)
-  }, Boolean(cancelModal || forwardModal || staffAssignModal || editModal), 'high')
+  }, Boolean(cancelModal || forwardModal || returnToOperatorModal || staffAssignModal || editModal), 'high')
 
   // Talep oluştururken opsiyonel olarak girilen adres alanlarını gösterir; veri yoksa boş durum (card 442).
   // Gelen/Giden detayda Taleplerim ile aynı `my-request` adres tipografisi kullanılır.
@@ -2036,6 +2065,38 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       const message = err instanceof Error ? err.message : t('common.error')
       if (!detailOnly) setError(message)
       setForwardModal(current => (current ? { ...current, saving: false, error: message } : current))
+    }
+  }
+
+  const openReturnToOperatorModal = () => {
+    if (!detail || !returnToOperatorDepartmentId) return
+    setError(null)
+    setReturnToOperatorModal({
+      jobId: detail.jobId,
+      departmentId: returnToOperatorDepartmentId,
+      reason: '',
+      saving: false,
+      error: null,
+    })
+  }
+
+  const handleReturnToOperatorConfirm = async () => {
+    if (!returnToOperatorModal || !returnToOperatorModal.reason.trim()) return
+    setReturnToOperatorModal(current => (current ? { ...current, saving: true, error: null } : current))
+    try {
+      await api.returnCitizenRequestToOperator(
+        returnToOperatorModal.jobId,
+        returnToOperatorModal.departmentId,
+        returnToOperatorModal.reason.trim(),
+      )
+      invalidateJobs(queryClient, returnToOperatorModal.jobId)
+      setReturnToOperatorModal(null)
+      emitPageToast(t('jobs.actions.returnToOperatorSuccess', 'Talep operatöre iade edildi.'))
+      closeDetail()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t('common.error')
+      if (!detailOnly) setError(message)
+      setReturnToOperatorModal(current => (current ? { ...current, saving: false, error: message } : current))
     }
   }
 
@@ -2981,8 +3042,19 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   kutularıyla aynı kart tasarımı (form-card page-stack) — üstte sadece çizgi yerine tam
                   kenarlıklı kart (card 650/386). */}
               <section className="my-request-detail-main form-card page-stack mb-5">
-                <MyRequestSectionHeading icon={ClipboardList} tone="primary">
-                  {t('jobs.detail.requestInfo', 'Talep Detayları')}
+                <MyRequestSectionHeading icon={ClipboardList} tone="primary" className={canReturnToOperatorDetail ? 'job-detail-card-title--spread' : undefined}>
+                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                    <span>{t('jobs.detail.requestInfo', 'Talep Detayları')}</span>
+                    {canReturnToOperatorDetail ? (
+                      <button
+                        type="button"
+                        className="ml-auto shrink-0 text-sm font-bold text-orange-600 hover:text-orange-700 hover:underline"
+                        onClick={openReturnToOperatorModal}
+                      >
+                        {t('jobs.actions.returnToOperator', 'Operatöre İade Et')}
+                      </button>
+                    ) : null}
+                  </span>
                 </MyRequestSectionHeading>
                 {/* İlk satır Taleplerim gibi yekpare tek dış çerçeve (card #1536); kolon içleri border-r ile ayrılır. */}
                 <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
@@ -3934,6 +4006,48 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {forwardModal.saving ? t('common.loading') : t('jobs.actions.forwardConfirm', 'Yönlendir')}
               </Button>
               <Button type="button" variant="secondary" disabled={forwardModal.saving} onClick={() => setForwardModal(null)}>
+                {t('common.cancel', 'İptal')}
+              </Button>
+            </div>
+          </section>
+        </div>,
+        document.body
+      )}
+      {returnToOperatorModal && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" role="presentation">
+          <section className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="return-to-operator-dialog-title">
+            <button type="button" onClick={() => !returnToOperatorModal.saving && setReturnToOperatorModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
+              <XIcon className="size-4" />
+            </button>
+            <h3 id="return-to-operator-dialog-title" className="mb-3 border-b border-slate-200 pb-3 text-base font-bold text-slate-950">
+              {t('jobs.returnToOperator.title', 'Operatöre İade Et')}
+            </h3>
+            <div className="mb-4">
+              <label className="job-field-label" htmlFor="return-to-operator-reason">
+                {t('jobs.returnToOperator.reasonLabel', 'İade Sebebi')} <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                id="return-to-operator-reason"
+                className="field-textarea workflow-note-dialog__textarea"
+                rows={3}
+                maxLength={RETURN_TO_OPERATOR_REASON_MAX_LENGTH}
+                value={returnToOperatorModal.reason}
+                onChange={event => setReturnToOperatorModal(current => (current ? { ...current, reason: event.target.value, error: null } : current))}
+                placeholder={t('jobs.returnToOperator.reasonPlaceholder', 'Operatöre iade nedenini yazınız...')}
+              />
+              <div className="mt-0.5 text-right text-[0.7rem] text-slate-400">{returnToOperatorModal.reason.length}/{RETURN_TO_OPERATOR_REASON_MAX_LENGTH}</div>
+            </div>
+            {returnToOperatorModal.error ? <div className="error mb-3">{returnToOperatorModal.error}</div> : null}
+            <div className="flex flex-col gap-2">
+              <Button
+                type="button"
+                className="bg-orange-600 text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={returnToOperatorModal.saving || !returnToOperatorModal.reason.trim()}
+                onClick={() => void handleReturnToOperatorConfirm()}
+              >
+                {returnToOperatorModal.saving ? t('common.loading') : t('jobs.actions.returnToOperator', 'Operatöre İade Et')}
+              </Button>
+              <Button type="button" variant="secondary" disabled={returnToOperatorModal.saving} onClick={() => setReturnToOperatorModal(null)}>
                 {t('common.cancel', 'İptal')}
               </Button>
             </div>

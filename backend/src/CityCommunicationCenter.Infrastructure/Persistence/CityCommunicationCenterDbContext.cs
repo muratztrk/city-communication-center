@@ -369,6 +369,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.Status).HasConversion<string>();
         builder.Property(entity => entity.RequestType).HasConversion<string>();
         builder.Property(entity => entity.SourceType).HasConversion<string>();
+        builder.Property(entity => entity.ReturnedToOperatorReason).HasMaxLength(400);
         builder.HasOne(entity => entity.Tenant)
             .WithMany()
             .HasForeignKey(entity => entity.TenantId)
@@ -471,6 +472,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.HasKey(entity => entity.SmsOutboundLogId);
         builder.Property(entity => entity.Kind).HasConversion<string>().HasMaxLength(32);
         builder.Property(entity => entity.RecipientPhoneMasked).HasMaxLength(32);
+        builder.Property(entity => entity.RecipientPhone).HasMaxLength(32);
         builder.Property(entity => entity.RequestNumber).HasMaxLength(64);
         builder.Property(entity => entity.Provider).HasMaxLength(32);
         builder.Property(entity => entity.ProviderCode).HasMaxLength(64);

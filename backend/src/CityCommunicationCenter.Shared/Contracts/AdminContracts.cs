@@ -226,7 +226,9 @@ public sealed record SmsOutboundLogItemResponse(
     string? ProviderMessage,
     int TextLength,
     string? BodyPreview,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    string? RecipientPhone = null,
+    string? RecipientDisplayName = null);
 
 public sealed record SmsOutboundLogsResponse(
     int TotalMatching,

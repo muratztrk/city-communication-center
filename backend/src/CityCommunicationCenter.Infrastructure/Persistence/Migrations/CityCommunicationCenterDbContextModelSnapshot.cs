@@ -1138,6 +1138,23 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("requesttype");
 
+                    b.Property<DateTimeOffset?>("ReturnedToOperatorAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("returnedtooperatoratutc");
+
+                    b.Property<Guid?>("ReturnedToOperatorByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("returnedtooperatorbyuserid");
+
+                    b.Property<Guid?>("ReturnedToOperatorFromDepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("returnedtooperatorfromdepartmentid");
+
+                    b.Property<string>("ReturnedToOperatorReason")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)")
+                        .HasColumnName("returnedtooperatorreason");
+
                     b.Property<Guid?>("SourceRefId")
                         .HasColumnType("uuid")
                         .HasColumnName("sourcerefid");
@@ -1636,6 +1653,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("providermessage");
+
+                    b.Property<string>("RecipientPhone")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("recipientphone");
 
                     b.Property<string>("RecipientPhoneMasked")
                         .IsRequired()

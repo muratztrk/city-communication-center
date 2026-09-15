@@ -56,6 +56,18 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
     /// <summary>Talep sahibinin yöneticisinin, hedef birim onaylayana kadar eklediği not (card 453).</summary>
     public string? ManagerNote { get; set; }
 
+    /// <summary>Vatandaş talebi hedef birimden operatöre iade edildiğinde zaman damgası (cards #3675-#3677).</summary>
+    public DateTimeOffset? ReturnedToOperatorAtUtc { get; set; }
+
+    /// <summary>Operatöre iade nedeni (cards #3675-#3677).</summary>
+    public string? ReturnedToOperatorReason { get; set; }
+
+    /// <summary>Operatöre iade eden kullanıcı (cards #3675-#3677).</summary>
+    public Guid? ReturnedToOperatorByUserId { get; set; }
+
+    /// <summary>Operatöre iade edilen hedef birim (cards #3675-#3677).</summary>
+    public Guid? ReturnedToOperatorFromDepartmentId { get; set; }
+
     /// <summary>Cached completion percentage (0-100), computed from sub-tasks.</summary>
     public int? CompletionPercentage { get; set; }
 

@@ -19,6 +19,7 @@ public sealed class SmsOutboundLogWriterTests
                 SocialMessageId: Guid.NewGuid(),
                 RequestNumber: "VT-2026-42"),
             "905551234****",
+            "9055512345678",
             longText,
             Success: true,
             Provider: "Asistel",
@@ -30,6 +31,7 @@ public sealed class SmsOutboundLogWriterTests
         Assert.Equal(SmsOutboundKind.CitizenStatus, entity.Kind);
         Assert.Equal(entry.TenantId, entity.TenantId);
         Assert.Equal("905551234****", entity.RecipientPhoneMasked);
+        Assert.Equal("9055512345678", entity.RecipientPhone);
         Assert.Equal("VT-2026-42", entity.RequestNumber);
         Assert.Equal(600, entity.TextLength);
         Assert.Equal(500, entity.BodyPreview!.Length);

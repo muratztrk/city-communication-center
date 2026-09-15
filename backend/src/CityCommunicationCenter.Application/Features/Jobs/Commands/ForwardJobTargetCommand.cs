@@ -135,6 +135,10 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
 
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
+        job.ReturnedToOperatorAtUtc = null;
+        job.ReturnedToOperatorReason = null;
+        job.ReturnedToOperatorByUserId = null;
+        job.ReturnedToOperatorFromDepartmentId = null;
 
         _dbContext.AuditLogs.Add(new AuditLog
         {

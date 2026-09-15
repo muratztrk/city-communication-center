@@ -316,7 +316,8 @@ export type JobListScope =
   | 'department-pool'
   | 'pending-approval'
   | 'outgoing-department'
-  | 'rejected';
+  | 'rejected'
+  | 'returned-to-operator';
 
 export interface UpdateJobRequest {
   title: string;
@@ -373,6 +374,12 @@ export interface JobSummary {
   // Talebin görevlerinde bekleyen/sonuçlanmış ek süre talebi — talep gridlerindeki işaretler (cards #1385/#1388).
   hasPendingExtraTimeRequest?: boolean;
   lastExtraTimeRequestDecision?: string | null;
+  returnedToOperatorAtUtc?: string | null;
+  returnedToOperatorReason?: string | null;
+  returnedToOperatorByUserId?: string | null;
+  returnedToOperatorFromDepartmentId?: string | null;
+  returnedFromDepartmentName?: string | null;
+  returnedByDisplayName?: string | null;
 }
 
 export interface JobDepartmentInfo {
@@ -717,6 +724,8 @@ export interface SmsOutboundLogItem {
   tenantId: string;
   kind: string;
   recipientPhoneMasked: string;
+  recipientPhone?: string | null;
+  recipientDisplayName?: string | null;
   recipientUserId?: string | null;
   jobId?: string | null;
   socialMessageId?: string | null;

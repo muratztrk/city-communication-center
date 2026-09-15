@@ -108,6 +108,18 @@ public sealed class JobsController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{jobId:guid}/return-to-operator")]
+    public async Task<IActionResult> ReturnToOperator(
+        Guid jobId,
+        [FromBody] ReturnCitizenRequestToOperatorRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new ReturnCitizenRequestToOperatorCommand(jobId, CurrentContext.UserId, request.DepartmentId, request.Reason),
+            cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPost("{jobId:guid}/coordinating-departments")]
     public async Task<IActionResult> AddCoordinatingDepartments(
         Guid jobId,

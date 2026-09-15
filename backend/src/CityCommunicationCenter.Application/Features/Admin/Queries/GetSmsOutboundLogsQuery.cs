@@ -62,7 +62,15 @@ public sealed class GetSmsOutboundLogsQueryHandler : IQueryHandler<GetSmsOutboun
                 entity.ProviderMessage,
                 entity.TextLength,
                 entity.BodyPreview,
-                entity.CreatedAtUtc))
+                entity.CreatedAtUtc,
+                entity.RecipientPhone ?? entity.RecipientPhoneMasked,
+                entity.RecipientUserId.HasValue
+                    ? _dbContext.Users
+                        .AsNoTracking()
+                        .Where(user => user.UserId == entity.RecipientUserId.Value)
+                        .Select(user => (string?)user.DisplayName)
+                        .FirstOrDefault()
+                    : null))
             .ToListAsync(cancellationToken);
 
         return new SmsOutboundLogsResponse(totalMatching, successCount, failureCount, items);

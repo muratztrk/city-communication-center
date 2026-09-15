@@ -13,6 +13,7 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'departmentTasks', path: '/department-tasks', labelKey: 'nav.departmentTasks' },
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
   { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequests' },
+  { key: 'returnedCitizenRequests', path: '/returned-citizen-requests', labelKey: 'nav.returnedCitizenRequests' },
   { key: 'outgoingRequests', path: '/outgoing-requests', labelKey: 'nav.outgoingRequests' },
   { key: 'citizenMessageApproval', path: '/citizen-message-approval', labelKey: 'nav.citizenMessageApproval' },
   { key: 'smsDeliveryApproval', path: '/sms-delivery-approval', labelKey: 'nav.smsDeliveryApproval' },
@@ -64,6 +65,7 @@ export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, PageLicenseRequi
   citizenDirectory: 'citizen',
   citizenMessageApproval: 'citizen',
   smsDeliveryApproval: 'citizen',
+  returnedCitizenRequests: 'citizen',
   // Vatandaş İş Takip Sistemi'nde olmamalı (#MHrIEwuE): birim-içi iş takibine özgü sayfalar.
   myRequests: 'internal',
   outgoingRequests: 'internal',
@@ -125,6 +127,7 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
     'citizenRequestMap',
     'departmentRequestMap',
     'citizenDirectory',
+    'returnedCitizenRequests',
     'display',
     'departments',
     'users',

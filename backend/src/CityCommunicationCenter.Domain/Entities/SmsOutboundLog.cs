@@ -10,6 +10,8 @@ public sealed class SmsOutboundLog : AuditableTenantEntity, IHasDatabaseIndexDef
 
     public string RecipientPhoneMasked { get; set; } = string.Empty;
 
+    public string? RecipientPhone { get; set; }
+
     public Guid? RecipientUserId { get; set; }
 
     public Guid? JobId { get; set; }

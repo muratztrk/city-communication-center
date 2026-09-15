@@ -81,8 +81,9 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         else if ((scope == "my-department" || scope == "department-pool") && actor is not null)
         {
             q = q.Where(j =>
-                visibleDepartmentIds.Contains(j.OwnerDepartmentId) ||
-                _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId && visibleDepartmentIds.Contains(jd.DepartmentId)));
+                j.ReturnedToOperatorAtUtc == null
+                && (visibleDepartmentIds.Contains(j.OwnerDepartmentId) ||
+                _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId && visibleDepartmentIds.Contains(jd.DepartmentId))));
         }
         else if (scope == "pending-approval")
         {
@@ -110,6 +111,21 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         else if (scope == "rejected")
         {
             q = q.Where(j => j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled);
+        }
+        else if (scope == "returned-to-operator")
+        {
+            q = q.Where(j => j.ReturnedToOperatorAtUtc != null
+                && (j.RequestType == JobRequestType.Citizen
+                    || j.SourceType == JobSourceType.SocialMessage
+                    || j.SourceType == JobSourceType.CitizenRequest
+                    || j.SourceType == JobSourceType.EDevlet));
+            if (actor is null
+                || (actor.RoleCode != RoleCode.Operator
+                    && actor.RoleCode != RoleCode.SystemAdmin
+                    && !UserRoleAccess.IsCitizenRequestManager(actor)))
+            {
+                q = q.Where(_ => false);
+            }
         }
 
         if (string.Equals(request.RequestType, "Citizen", StringComparison.OrdinalIgnoreCase))
@@ -243,6 +259,31 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                 g => g.Key,
                 g => (string?)g.OrderByDescending(x => x.DecisionDateUtc).First().Decision.ToString());
 
+        var returnedByUserIds = rows
+            .Where(row => row.Job.ReturnedToOperatorByUserId.HasValue)
+            .Select(row => row.Job.ReturnedToOperatorByUserId!.Value)
+            .Distinct()
+            .ToList();
+        var returnedFromDepartmentIds = rows
+            .Where(row => row.Job.ReturnedToOperatorFromDepartmentId.HasValue)
+            .Select(row => row.Job.ReturnedToOperatorFromDepartmentId!.Value)
+            .Distinct()
+            .ToList();
+        var returnedByDisplayNameMap = returnedByUserIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await _dbContext.Users
+                .AsNoTracking()
+                .Where(user => returnedByUserIds.Contains(user.UserId))
+                .Select(user => new { user.UserId, user.DisplayName })
+                .ToDictionaryAsync(user => user.UserId, user => user.DisplayName, cancellationToken);
+        var returnedFromDepartmentNameMap = returnedFromDepartmentIds.Count == 0
+            ? new Dictionary<Guid, string>()
+            : await _dbContext.Departments
+                .AsNoTracking()
+                .Where(department => returnedFromDepartmentIds.Contains(department.DepartmentId))
+                .Select(department => new { department.DepartmentId, department.Name })
+                .ToDictionaryAsync(department => department.DepartmentId, department => department.Name, cancellationToken);
+
         return rows.Select(r => new JobSummaryResponse(
             r.Job.JobId,
             r.Job.TenantId,
@@ -275,7 +316,17 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             citizenNumberMap.GetValueOrDefault(r.Job.JobId)?.CitizenRequestNumber,
             citizenNumberMap.GetValueOrDefault(r.Job.JobId)?.CitizenRequestNumberYear,
             pendingExtraTimeJobIds.Contains(r.Job.JobId),
-            lastExtraTimeDecisionMap.GetValueOrDefault(r.Job.JobId))).ToArray();
+            lastExtraTimeDecisionMap.GetValueOrDefault(r.Job.JobId),
+            r.Job.ReturnedToOperatorAtUtc,
+            r.Job.ReturnedToOperatorReason,
+            r.Job.ReturnedToOperatorByUserId,
+            r.Job.ReturnedToOperatorFromDepartmentId,
+            r.Job.ReturnedToOperatorFromDepartmentId is Guid returnedFromDepartmentId
+                ? returnedFromDepartmentNameMap.GetValueOrDefault(returnedFromDepartmentId)
+                : null,
+            r.Job.ReturnedToOperatorByUserId is Guid returnedByUserId
+                ? returnedByDisplayNameMap.GetValueOrDefault(returnedByUserId)
+                : null)).ToArray();
     }
 }
 

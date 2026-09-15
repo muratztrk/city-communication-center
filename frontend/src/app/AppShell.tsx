@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, CircleHelp, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, Contact, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, MapPin, Menu, MessageSquareText, MonitorUp, MessageSquareMore, Phone, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, CircleHelp, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, Contact, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, MapPin, Menu, MessageSquareText, MonitorUp, MessageSquareMore, Phone, ScrollText, Send, Settings2, SquareKanban, Undo2, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
@@ -462,6 +462,7 @@ export function AppShell() {
       { path: '/whatsapp', label: t('whatsapp.navTitle', 'WhatsApp'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true, badgeCount: waitingWhatsAppReplyCount || undefined },
       { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), icon: MessageSquareText, emphasized: true, badgeCount: pendingSmsDeliveryApprovalCount },
     ] },
+    { pageKey: 'returnedCitizenRequests' as const, path: '/returned-citizen-requests', label: t('nav.returnedCitizenRequests', 'Operatöre İade Edilen\nTalepler'), icon: Undo2, emphasized: true, multilineLabel: true },
     // Sistem Admin vb.: dizin Vatandaş Talepleri grubundan sonra (eski konum).
     ...(!isCitizenDashboardNav
       ? [
@@ -656,6 +657,7 @@ export function AppShell() {
     'department-tasks': (flowParam && departmentTasksViewLabels[flowParam]) || t('nav.departmentTasks', 'Birimdeki Görevler'),
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
     'incoming-requests': incomingRequestsStatusLabels[incomingStatusKey] || t('jobs.scopes.pendingApprovalRequests', 'Onay Bekleyen Talepler'),
+    'returned-citizen-requests': t('nav.returnedCitizenRequests', 'Operatöre İade Edilen Talepler'),
     tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
@@ -681,6 +683,7 @@ export function AppShell() {
     'department-tasks': t('nav.departmentTasks', 'Birimdeki Görevler'),
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
     'incoming-requests': t('nav.incomingRequests', 'Birime Gelen Talepler'),
+    'returned-citizen-requests': t('nav.returnedCitizenRequests', 'Operatöre İade Edilen Talepler'),
     tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     coordinated: t('nav.incomingRequests', 'Birime Gelen Talepler'),
@@ -701,6 +704,7 @@ export function AppShell() {
     'department-tasks': SquareKanban,
     'staff-tasks': Users,
     'incoming-requests': FolderKanban,
+    'returned-citizen-requests': Undo2,
     tasks: SquareKanban,
     directorate: FolderKanban,
     coordinated: Workflow,
@@ -726,6 +730,7 @@ export function AppShell() {
     'department-tasks': (flowParam && departmentTasksViewIcons[flowParam]) || SquareKanban,
     'staff-tasks': Users,
     'incoming-requests': (incomingRequestsStatusIcons[incomingStatusKey]) || FolderKanban,
+    'returned-citizen-requests': Undo2,
     tasks: SquareKanban,
     directorate: FolderKanban,
     coordinated: Workflow,

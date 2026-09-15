@@ -1027,9 +1027,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kartının hemen altında durur; `{VatandaşTalepNo}` öncesinde düzenlenebilir hitap
   (`Değerli vatandaşımız,` varsayılan, #2901) `field-textarea min-h-[4.5rem]` — gövde ve ek metin
   kutularıyla aynı boyut (#2911). `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
-  kullanıcı tarafından düzenlenemez. Durum adından sonra sabit `{GönderilenBirim}` gelir ve aktif
-  hedef birim adlarıyla değiştirilir; bu alanın ardından ikinci serbest metin düzenlenebilir. Eski
-  kayıtlı şablonlara eksik birim token'ı okunurken/yazılırken otomatik eklenir (card #1594).
+  kullanıcı tarafından düzenlenemez. **İşleme Alındı** kartında (Vatandaşa Giden Cevaplar + Phone
+  SMS İşleme Alındı) `{GönderilenBirim}` ve birim sonrası ek metin **yoktur**; diğer durumlarda
+  durum adından sonra sabit `{GönderilenBirim}` gelir ve aktif hedef birim adlarıyla değiştirilir,
+  ardından ikinci serbest metin düzenlenebilir. Eski İşleme Alındı kayıtlarından birim token'ı
+  okunurken/yazılırken temizlenir; diğer durumlara eksik token otomatik eklenir (card #1594, #3686).
   Her iki textarea yazım sırasında baştaki/sondaki boşluğu korur; trim ve boş gövde varsayılanına
   dönüş yalnız `Kaydet` normalizasyonunda yapılır, böylece kelimeler arasına boşluk girilebilir
   (card #1594 reopen).   İlk gövde textarea kompakt `min-h-[4.5rem]`; Kaydet `bodyText.trim()` yapar

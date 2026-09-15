@@ -100,7 +100,7 @@ public static class CitizenAutoReplyTemplateJson
 
             var defaults = Defaults();
             return new CitizenAutoReplyTemplateModel(
-                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived)),
+                EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived)),
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.InProgress) ? defaults.InProgress : parsed.InProgress)),
                 EnsureQuotedCitizenStatuses(EnsureCompletionNoteToken(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed))),
                 EnsureQuotedCitizenStatuses(EnsureCancelNoteToken(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled))),
@@ -112,7 +112,7 @@ public static class CitizenAutoReplyTemplateJson
                 parsed.AfterHoursStaffSmsEnabled,
                 string.IsNullOrWhiteSpace(parsed.SmsProcessingReceived)
                     ? null
-                    : EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(parsed.SmsProcessingReceived)),
+                    : EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(parsed.SmsProcessingReceived)),
                 parsed.SmsProcessingReceivedEnabled);
         }
         catch (JsonException)
@@ -123,7 +123,7 @@ public static class CitizenAutoReplyTemplateJson
 
     public static string Serialize(CitizenAutoReplyTemplateModel model) =>
         JsonSerializer.Serialize(new CitizenAutoReplyTemplateModel(
-            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.ProcessingReceived)),
+            EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(model.ProcessingReceived)),
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.InProgress)),
             EnsureQuotedCitizenStatuses(EnsureCompletionNoteToken(EnsureTargetDepartmentToken(model.Completed))),
             EnsureQuotedCitizenStatuses(EnsureCancelNoteToken(EnsureTargetDepartmentToken(model.Cancelled))),
@@ -135,7 +135,7 @@ public static class CitizenAutoReplyTemplateJson
             model.AfterHoursStaffSmsEnabled,
             string.IsNullOrWhiteSpace(model.SmsProcessingReceived)
                 ? null
-                : EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.SmsProcessingReceived)),
+                : EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(model.SmsProcessingReceived)),
             model.SmsProcessingReceivedEnabled));
 
     /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
@@ -160,6 +160,25 @@ public static class CitizenAutoReplyTemplateJson
 
     private static string EnsureQuotedCitizenStatuses(string template) =>
         CitizenJobStatusLabelHelper.EnsureQuotedCitizenStatuses(template);
+
+    /// <summary>
+    /// İşleme Alındı şablonlarında birim token'ı kullanılmaz; eski kayıtlardan token ve sonrası temizlenir (card #3686).
+    /// </summary>
+    private static string StripTargetDepartmentToken(string template)
+    {
+        foreach (var token in new[] { "{GönderilenBirim}", "{Gönderilen Birim}" })
+        {
+            var tokenIndex = template.IndexOf(token, StringComparison.Ordinal);
+            if (tokenIndex < 0)
+            {
+                continue;
+            }
+
+            return template[..tokenIndex].TrimEnd();
+        }
+
+        return template.TrimEnd();
+    }
 
     private static string EnsureTargetDepartmentToken(string template)
     {

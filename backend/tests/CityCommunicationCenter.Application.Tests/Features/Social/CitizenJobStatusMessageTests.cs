@@ -21,11 +21,11 @@ public sealed class CitizenJobStatusMessageTests
 
         var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
 
-        Assert.Contains("{GönderilenBirim}", templates.ProcessingReceived);
+        Assert.DoesNotContain("{GönderilenBirim}", templates.ProcessingReceived);
         Assert.Contains("{GönderilenBirim}", templates.InProgress);
         Assert.Contains("{GönderilenBirim}", templates.Completed);
         Assert.Contains("{GönderilenBirim}", templates.Cancelled);
-        Assert.EndsWith("{GönderilenBirim}", templates.ProcessingReceived);
+        Assert.EndsWith("{GönderilenBirim}", templates.InProgress);
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public sealed class CitizenJobStatusMessageTests
 
         var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
 
-        Assert.Contains("{GönderilenBirim}'ne iletilmiştir.", templates.ProcessingReceived);
+        Assert.Equal("İşleme Alındı.", templates.ProcessingReceived);
         Assert.Contains("{GönderilenBirim}   ekiplerce inceleniyor.", templates.InProgress);
         Assert.Contains("{GönderilenBirim} ekiplerce incelendi.", templates.Completed);
         Assert.Contains("{GönderilenBirim}", templates.Cancelled);

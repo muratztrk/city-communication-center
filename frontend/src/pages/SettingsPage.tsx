@@ -80,7 +80,7 @@ type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBin
 const DEFAULT_CITIZEN_OUTBOUND_GREETING = 'Değerli vatandaşımız,'
 
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
-  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\". {GönderilenBirim}",
+  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".",
   inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Yapılmakta\". {GönderilenBirim}",
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Tamamlandı\". {GönderilenBirim}",
   cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İptal Edildi\". {GönderilenBirim}",
@@ -95,7 +95,7 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   afterHoursStaffSms: '',
   afterHoursManagerSmsEnabled: true,
   afterHoursStaffSmsEnabled: false,
-  smsProcessingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\". {GönderilenBirim}",
+  smsProcessingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".",
   smsProcessingReceivedEnabled: true,
 }
 
@@ -116,6 +116,7 @@ function buildCitizenAutoReplyTemplate(
   normalize = false,
   noteToken?: string,
   noteSuffix = '',
+  includeTargetDepartment = true,
 ) {
   const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
   // {GönderilenBirim} sonrası otomatik ayraç yok: kullanıcı "'ne iletilmiştir." gibi bitişik metin
@@ -126,7 +127,20 @@ function buildCitizenAutoReplyTemplate(
   const quotedStatus = statusLabel.startsWith('"') ? statusLabel : `"${statusLabel}"`
   // Not token'ı birim ekinden sonra boş satır olmadan, tek boşlukla eklenir (#3250).
   const notePart = noteToken ? ` ${noteToken}${normalizedNoteSuffix}` : ''
+  if (!includeTargetDepartment) {
+    return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}.${notePart}`
+  }
   return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}${notePart}`
+}
+
+function stripTargetDepartmentToken(template: string) {
+  for (const token of [TARGET_DEPARTMENT_TOKEN, '{Gönderilen Birim}']) {
+    const tokenIndex = template.indexOf(token)
+    if (tokenIndex >= 0) {
+      return template.slice(0, tokenIndex).trimEnd()
+    }
+  }
+  return template.trimEnd()
 }
 
 function removeTemplateSeparatorSpaces(value: string) {
@@ -210,9 +224,10 @@ interface CitizenAutoReplyTemplateFieldProps {
   onChange: (value: string) => void
   onGreetingChange: (value: string) => void
   noteToken?: string
+  includeTargetDepartment?: boolean
 }
 
-function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange, noteToken }: CitizenAutoReplyTemplateFieldProps) {
+function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange, noteToken, includeTargetDepartment = true }: CitizenAutoReplyTemplateFieldProps) {
   const statusToneClass = tone === 'danger'
     ? 'border-red-200 bg-red-50 text-red-700'
     : tone === 'warning'
@@ -246,6 +261,7 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
           false,
           noteToken,
           noteSuffixText,
+          includeTargetDepartment,
         ))}
       />
       <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
@@ -253,21 +269,26 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
           {statusLabel.startsWith('"') ? statusLabel : `"${statusLabel}"`}
         </span>
         <span>.</span>
-        <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 font-bold text-sky-700">{TARGET_DEPARTMENT_TOKEN}</span>
+        {includeTargetDepartment ? (
+          <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 font-bold text-sky-700">{TARGET_DEPARTMENT_TOKEN}</span>
+        ) : null}
       </div>
-      <textarea
-        className="field-textarea min-h-[4.5rem]"
-        value={suffixText}
-        onChange={event => onChange(buildCitizenAutoReplyTemplate(
-          extractCitizenAutoReplyBodyText(value, templateStatusLabel),
-          templateStatusLabel,
-          event.target.value,
-          false,
-          noteToken,
-          noteSuffixText,
-        ))}
-        placeholder="Gönderilen birim bilgisinden sonra gelecek metin"
-      />
+      {includeTargetDepartment ? (
+        <textarea
+          className="field-textarea min-h-[4.5rem]"
+          value={suffixText}
+          onChange={event => onChange(buildCitizenAutoReplyTemplate(
+            extractCitizenAutoReplyBodyText(value, templateStatusLabel),
+            templateStatusLabel,
+            event.target.value,
+            false,
+            noteToken,
+            noteSuffixText,
+            includeTargetDepartment,
+          ))}
+          placeholder="Gönderilen birim bilgisinden sonra gelecek metin"
+        />
+      ) : null}
       {noteToken ? (
         <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
           <span className="rounded-md border border-violet-200 bg-violet-50 px-2 py-1 font-bold text-violet-700">{noteToken}</span>
@@ -839,6 +860,9 @@ export function SettingsPage() {
         const loadedTemplates: CitizenAutoReplyTemplates = {
           ...DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES,
           ...autoReplyResponse,
+          processingReceived: stripTargetDepartmentToken(
+            autoReplyResponse.processingReceived ?? DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES.processingReceived,
+          ),
           greeting: generalGreeting,
           greetings: {
             processingReceived: loadedGreetings?.processingReceived?.trim() || generalGreeting,
@@ -847,7 +871,11 @@ export function SettingsPage() {
             cancelled: loadedGreetings?.cancelled?.trim() || generalGreeting,
             smsProcessingReceived: loadedGreetings?.smsProcessingReceived?.trim() || generalGreeting,
           },
-          smsProcessingReceived: autoReplyResponse.smsProcessingReceived ?? autoReplyResponse.processingReceived,
+          smsProcessingReceived: stripTargetDepartmentToken(
+            autoReplyResponse.smsProcessingReceived
+              ?? autoReplyResponse.processingReceived
+              ?? DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES.smsProcessingReceived,
+          ),
           smsProcessingReceivedEnabled: autoReplyResponse.smsProcessingReceivedEnabled ?? true,
           afterHoursManagerSmsEnabled: autoReplyResponse.afterHoursManagerSmsEnabled ?? true,
           afterHoursStaffSmsEnabled: autoReplyResponse.afterHoursStaffSmsEnabled ?? false,
@@ -1731,8 +1759,11 @@ export function SettingsPage() {
         processingReceived: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.processingReceived, t('social.requestStatus.processingReceived', 'İşleme Alındı')),
           t('social.requestStatus.processingReceived', 'İşleme Alındı'),
-          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.processingReceived),
+          '',
           true,
+          undefined,
+          '',
+          false,
         ),
         inProgress: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.inProgress, t('social.requestStatus.inProgress', 'Yapılmakta')),
@@ -1770,8 +1801,11 @@ export function SettingsPage() {
             t('social.requestStatus.processingReceived', 'İşleme Alındı'),
           ),
           t('social.requestStatus.processingReceived', 'İşleme Alındı'),
-          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.smsProcessingReceived ?? citizenAutoReplyTemplates.processingReceived),
+          '',
           true,
+          undefined,
+          '',
+          false,
         ),
         smsProcessingReceivedEnabled: citizenAutoReplyTemplates.smsProcessingReceivedEnabled ?? true,
         afterHoursManagerSms: citizenAutoReplyTemplates.afterHoursManagerSms ?? '',
@@ -3580,11 +3614,11 @@ export function SettingsPage() {
             </div>
             <div className="grid gap-4 md:grid-cols-4">
               {([
-                { key: 'processingReceived', label: t('social.requestStatus.processingReceived', 'İşleme Alındı'), tone: 'warning' },
+                { key: 'processingReceived', label: t('social.requestStatus.processingReceived', 'İşleme Alındı'), tone: 'warning', includeTargetDepartment: false },
                 { key: 'inProgress', label: t('social.requestStatus.inProgress', 'Yapılmakta'), tone: 'warning' },
                 { key: 'completed', label: t('social.requestStatus.completed', 'Tamamlandı'), tone: 'success', noteToken: COMPLETION_NOTE_TOKEN },
                 { key: 'cancelled', label: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), templateLabel: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), tone: 'danger', noteToken: CANCEL_NOTE_TOKEN },
-              ] as Array<{ key: CitizenAutoReplyTemplateKey; label: string; templateLabel?: string; tone: 'success' | 'warning' | 'danger'; noteToken?: string }>).map(({ key, label, templateLabel, tone, noteToken }) => (
+              ] as Array<{ key: CitizenAutoReplyTemplateKey; label: string; templateLabel?: string; tone: 'success' | 'warning' | 'danger'; noteToken?: string; includeTargetDepartment?: boolean }>).map(({ key, label, templateLabel, tone, noteToken, includeTargetDepartment }) => (
                 <CitizenAutoReplyTemplateField
                   key={key}
                   label={label}
@@ -3594,6 +3628,7 @@ export function SettingsPage() {
                   value={citizenAutoReplyTemplates[key]}
                   greeting={citizenAutoReplyTemplates.greetings[key]}
                   noteToken={noteToken}
+                  includeTargetDepartment={includeTargetDepartment}
                   onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, [key]: value }))}
                   onGreetingChange={value => setCitizenAutoReplyTemplates(current => ({
                     ...current,
@@ -3603,7 +3638,7 @@ export function SettingsPage() {
               ))}
             </div>
             <p className="text-xs font-medium text-slate-500">
-              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı, {GönderilenBirim}, {Tamamlama Notu} ve {İptal Notu}.')}
+              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı; Yapılmakta/Tamamlandı/İptal kartlarında {GönderilenBirim}; Tamamlandı/İptal kartlarında {Tamamlama Notu} ve {İptal Notu}. İşleme Alındı kartında {GönderilenBirim} yoktur.')}
             </p>
           </section>
 
@@ -3630,6 +3665,7 @@ export function SettingsPage() {
                 label={t('social.requestStatus.processingReceived', 'İşleme Alındı')}
                 statusLabel={t('social.requestStatus.processingReceived', 'İşleme Alındı')}
                 tone="warning"
+                includeTargetDepartment={false}
                 value={citizenAutoReplyTemplates.smsProcessingReceived ?? citizenAutoReplyTemplates.processingReceived}
                 greeting={citizenAutoReplyTemplates.greetings.smsProcessingReceived ?? citizenAutoReplyTemplates.greetings.processingReceived}
                 onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, smsProcessingReceived: value }))}

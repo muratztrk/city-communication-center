@@ -46,7 +46,9 @@ public static class CitizenJobStatusLabelHelper
             ? "İlgili birim"
             : targetDepartmentNames.Trim();
         var messageTemplate = EnsureQuotedCitizenStatuses(string.IsNullOrWhiteSpace(template)
-            ? "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"{VatandaşTalepDurumu}\". {GönderilenBirim}"
+            ? statusLabel == "İşleme Alındı"
+                ? "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"{VatandaşTalepDurumu}\"."
+                : "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"{VatandaşTalepDurumu}\". {GönderilenBirim}"
             : template);
 
         var content = messageTemplate

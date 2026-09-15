@@ -2943,6 +2943,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `GET /jobs?scope=returned-to-operator` kayıt sayısı (Sms Onayı ile aynı desen).
 - **İade Edilen Talepler grid (#3696):** sosyal mesaj `citizenHandle` null/boş olabilir; ad
   çözümlemesinde `.replace` öncesi guard — aksi halde sayfa ErrorBoundary'ye düşer.
+- **İade detay popup (#3695/#3698):** `detailContext=returned` + `mode=myRequests` iken başlık
+  `Taleplerim` değil `İade Edilen Talep`; `detailOnly` gömülü detayda 30 sn jobs poll yok.
+- **İade detay yönlendirilmemiş (#3687):** hedef `JobDepartment` yoksa **Talep Yapılan Birim**
+  + **Talep İade Sebebi** (Talebi İade Eden Birim satırı yerine).
 - **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
   kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
   `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).

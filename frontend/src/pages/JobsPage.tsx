@@ -862,15 +862,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const incomingReturnStatus = searchParams.get('returnStatus')
   const detailHeaderTitle = detailContext === 'social'
     ? t('jobs.detail.citizenRequest', 'Vatandaş Talebi')
-    : isMyRequestsView
-      ? t('nav.myRequests', 'Taleplerim')
-      : isDepartmentOutgoingView
-        ? t('nav.outgoingRequests', 'Birimden Giden Talepler')
-        : detailContext === 'incoming'
-          ? t('nav.incomingRequests', 'Birime Gelen Talepler')
-          : detailContext === 'returned'
-            ? t('returnedCitizenRequests.detailTitle', 'İade Edilen Talep')
-          : t('jobs.detail.title', 'İş Detayı')
+    : detailContext === 'returned'
+      ? t('returnedCitizenRequests.detailTitle', 'İade Edilen Talep')
+      : isMyRequestsView
+        ? t('nav.myRequests', 'Taleplerim')
+        : isDepartmentOutgoingView
+          ? t('nav.outgoingRequests', 'Birimden Giden Talepler')
+          : detailContext === 'incoming'
+            ? t('nav.incomingRequests', 'Birime Gelen Talepler')
+            : t('jobs.detail.title', 'İş Detayı')
   const isIncomingRequestDetail = detailContext === 'incoming'
   const isReturnedRequestDetail = detailContext === 'returned'
   const operatorReturnedEdit = isReturnedRequestDetail && user?.role === 'Operator'
@@ -1233,6 +1233,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   useEffect(() => {
     let cancelled = false
     if (!hasLoadedJobsRef.current) setLoading(true)
+    if (detailOnly && autoOpenJobId) {
+      void openDetail(autoOpenJobId)
+        .finally(() => {
+          if (!cancelled) {
+            hasLoadedJobsRef.current = true
+            setLoading(false)
+          }
+        })
+      return () => { cancelled = true }
+    }
     loadJobsForView(scope, reporterDepartmentId, includeDepartmentJobs)
       .then(jobList => {
         if (cancelled) return
@@ -1246,6 +1256,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }, [scope, t, activeDeptId, reporterDepartmentId, includeDepartmentJobs]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (detailOnly) return
+
     const intervalId = window.setInterval(() => {
       loadJobsForView(scope, reporterDepartmentId, includeDepartmentJobs)
         .then(jobList => {
@@ -1262,7 +1274,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }, 30000)
 
     return () => window.clearInterval(intervalId)
-  }, [detail?.jobId, scope, t, activeDeptId, reporterDepartmentId, includeDepartmentJobs])
+  }, [detail?.jobId, detailOnly, scope, t, activeDeptId, reporterDepartmentId, includeDepartmentJobs])
 
   const reload = async () => {
     try { setJobs(await loadJobsForView(scope, reporterDepartmentId, includeDepartmentJobs)) }
@@ -3223,7 +3235,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             }]
                           : [
                               {
-                                label: t('jobs.detail.returnedFromDepartment', 'Talebi İade Eden Birim'),
+                                label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
                                 value: detail.returnedFromDepartmentName?.trim() || '—',
                               },
                               {

@@ -313,7 +313,7 @@ export function MyRequestDetailMainCard({
       ? false
       : (isManagerLike || user?.role === 'Reporter')
   // Talep detayında bekleyen ek süre isteği yönetici tarafından karara bağlanabilir (card #1404).
-  const hasPendingExtraTime = detail.tasks.some(task => task.hasPendingExtraTimeRequest)
+  const hasPendingExtraTime = (detail.tasks ?? []).some(task => task.hasPendingExtraTimeRequest)
   const canReviewExtraTime = isManagerLike && hasPendingExtraTime && Boolean(onOpenExtraTimeReview)
   const isExtraTimeReviewOpen = jobExtraTimeReview?.jobId === detail.jobId
   const titleLabel = t('jobs.form.title', 'Talep Başlığı')

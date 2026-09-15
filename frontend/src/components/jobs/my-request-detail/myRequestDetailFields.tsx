@@ -72,7 +72,7 @@ export function buildMyRequestDetailFields(
   // Sadece Taleplerim'de "Talep Yapılan Birim / Görevi Yapan" iki ayrı başlığa bölünür; "Görevi
   // Yapan" satırı yalnızca talebin görevi oluşup bir personele atanmışsa gösterilir (card #1460).
   const assigneeNames = [...new Set(
-    detail.tasks.map(task => task.assignedUserDisplayName).filter((name): name is string => Boolean(name)),
+    (detail.tasks ?? []).map(task => task.assignedUserDisplayName).filter((name): name is string => Boolean(name)),
   )]
   const isExternal = detail.requestType === 'ExternalUnit'
   // Dış birimde yeşil çerçeve kaldırıldı — eski StackedFieldValue / düz metin (card #r455).
@@ -107,7 +107,7 @@ export function buildMyRequestDetailFields(
           }]
         : [
             {
-              label: t('jobs.detail.returnedFromDepartment', 'Talebi İade Eden Birim'),
+              label: destinationFieldLabel(detail, t, { includeAssignee: false, splitLayout: true }),
               value: detail.returnedFromDepartmentName?.trim() || '—',
             },
             {
@@ -177,7 +177,7 @@ export function buildMyRequestDetailFields(
         : []),
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
       {
-        label: returnedRequestDetail && showCitizenRequestLabel
+        label: returnedRequestDetail
           ? (
             <StackedFieldLabel
               top={t('jobs.detail.requestRouter', 'Talebi Yönlendiren')}
@@ -185,7 +185,7 @@ export function buildMyRequestDetailFields(
             />
           )
           : locationLabel,
-        value: returnedRequestDetail && showCitizenRequestLabel
+        value: returnedRequestDetail
           ? (
             <div className="stacked-field-value">
               <span>{locationCreatorValue}</span>

@@ -2509,10 +2509,12 @@
     font-size: 0.75rem;
   }
 
-  .citizen-request-department-menu .dropdown-menu-item {
-    font-size: 0.75rem;
-    min-height: 2rem;
-    padding: 0.35rem 0.65rem;
+  .citizen-request-department-menu .dropdown-menu-item,
+  .citizen-request-department-menu .dropdown-menu-item span {
+    font-size: 0.68rem;
+    min-height: 1.85rem;
+    padding: 0.3rem 0.6rem;
+    line-height: 1.2;
   }
 
   .citizen-call-address-menu .dropdown-menu-item,
@@ -2585,9 +2587,9 @@
     font-size: 0.85rem !important;
   }
 
-  /* WA Vatandaş Talebi Oluştur: dropdown arama kutusu puntosu (#2760). */
+  /* WA Vatandaş Talebi Oluştur: dropdown arama kutusu puntosu (#2760 / #3692). */
   .dropdown-menu-panel.citizen-request-department-menu input {
-    font-size: 0.7rem !important;
+    font-size: 0.68rem !important;
     line-height: 1.25 !important;
   }
 

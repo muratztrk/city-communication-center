@@ -43,6 +43,7 @@ export interface MyRequestDetailModalProps {
   showCancelDisabled?: boolean
   cancelDisabledTitle?: string
   onEdit?: () => void
+  onForwardReturned?: () => void
   showEditDisabled?: boolean
   editDisabledTitle?: string
   onGoToConversation?: () => void
@@ -85,6 +86,8 @@ export interface MyRequestDetailModalProps {
   citizenApprovalReleasedNote?: string | null
   /** Operatör + Vatandaş Talepleri Düzenle stili (#3588). */
   operatorSocialEdit?: boolean
+  /** İade edilen talep detayında Talep Bilgileri alan düzeni (#3686). */
+  returnedRequestDetail?: boolean
 }
 
 export function MyRequestDetailModal({
@@ -113,6 +116,7 @@ export function MyRequestDetailModal({
   showCancelDisabled,
   cancelDisabledTitle,
   onEdit,
+  onForwardReturned,
   showEditDisabled,
   editDisabledTitle,
   onGoToConversation,
@@ -149,6 +153,7 @@ export function MyRequestDetailModal({
   citizenOutboundMessage,
   citizenApprovalReleasedNote,
   operatorSocialEdit = false,
+  returnedRequestDetail = false,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
   const outboundMessage = citizenOutboundMessage ?? detail.citizenOutboundMessage
@@ -176,6 +181,7 @@ export function MyRequestDetailModal({
         showCancelDisabled={showCancelDisabled}
         cancelDisabledTitle={cancelDisabledTitle}
         onEdit={onEdit}
+        onForwardReturned={onForwardReturned}
         showEditDisabled={showEditDisabled}
         editDisabledTitle={editDisabledTitle}
         onGoToConversation={onGoToConversation}
@@ -218,6 +224,7 @@ export function MyRequestDetailModal({
           citizenOutboundMessage={outboundMessage}
           citizenOutboundEditorDisplayName={detail.citizenOutboundEditorDisplayName}
           operatorSocialEdit={operatorSocialEdit}
+          returnedRequestDetail={returnedRequestDetail}
           infoExtraTrailingRows={isStandardUser && !forceCitizenDetailCards ? [
             ...(showManagerNoteColumn && detail.managerNote?.trim()
               ? [{

@@ -699,6 +699,24 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 || job.CitizenTerminalMessageReleasedAtUtc.HasValue
                 || job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.Completed
                 || hasTerminalCitizenTask);
+        string? returnedFromDepartmentName = null;
+        string? returnedByDisplayName = null;
+        if (job.ReturnedToOperatorFromDepartmentId is Guid returnedFromDepartmentId)
+        {
+            returnedFromDepartmentName = await _dbContext.Departments.AsNoTracking()
+                .Where(department => department.DepartmentId == returnedFromDepartmentId)
+                .Select(department => department.Name)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        if (job.ReturnedToOperatorByUserId is Guid returnedByUserId)
+        {
+            returnedByDisplayName = await _dbContext.Users.AsNoTracking()
+                .Where(user => user.UserId == returnedByUserId)
+                .Select(user => user.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         if (isCitizenRequest)
         {
             // #3508/#3513/#3515/#3491: Onaylayan/release sosyal mesaj eşlemesi olmadan da audit'ten çözülür.
@@ -805,7 +823,12 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             sourceChannel, sourceSocialMessageId,
             citizenMessageApproverDisplayName,
             citizenOutboundEditorDisplayName,
-            SplitRequestTags(citizenRequest?.Tags, citizenRequest?.Category));
+            SplitRequestTags(citizenRequest?.Tags, citizenRequest?.Category),
+            job.ReturnedToOperatorAtUtc,
+            job.ReturnedToOperatorReason,
+            job.ReturnedToOperatorFromDepartmentId,
+            returnedFromDepartmentName,
+            returnedByDisplayName);
     }
 
     private static IReadOnlyCollection<string> SplitRequestTags(string? tags, string? category = null)

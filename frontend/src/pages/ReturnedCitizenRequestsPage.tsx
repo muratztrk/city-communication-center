@@ -1,89 +1,134 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
-import { Search } from 'lucide-react'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
+import { Button } from '../components/ui/button'
+import { ChannelIcon } from '../components/ui/channel-icon'
+import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
-import { TruncatedText } from '../components/ui/TruncatedText'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
-import type { JobSummary } from '../types/platform'
-import { formatCitizenRequestNumber } from '../utils/citizenRequests'
-import { matchesBannerSearch } from '../utils/bannerSearch'
+import type { JobSummary, SocialMessage } from '../types/platform'
+import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
+import { looksLikePhone } from '../utils/phoneDisplay'
+import { JobsPage } from './JobsPage'
 
 type ReturnedCitizenRequestRow = {
   jobId: string
   displayNumber: string
-  title: string
-  returnedFromDepartmentName: string
-  returnReason: string
-  returnedAtText: string
-  returnedAtUtc: string | null
+  citizenName: string
+  citizenPhone: string
+  requestDateUtc: string
+  requestDateText: string
+  destinationName: string
+  labelText: string
+  channel?: string | null
 }
 
-function toReturnedRow(job: JobSummary, locale: string): ReturnedCitizenRequestRow {
-  const returnedAtUtc = job.returnedToOperatorAtUtc ?? null
+function getSocialMessageCitizenName(message: SocialMessage): string {
+  if (message.citizenName?.trim()) return message.citizenName.trim()
+  if (looksLikePhone(message.citizenHandle)) return '—'
+  return message.citizenHandle.replace(/^@+/, '')
+}
+
+function getSocialMessageCitizenPhone(message: SocialMessage): string {
+  if (message.citizenPhone?.trim()) return formatCitizenPhoneDisplay(message.citizenPhone)
+  if (looksLikePhone(message.citizenHandle)) return formatCitizenPhoneDisplay(message.citizenHandle)
+  return '—'
+}
+
+function resolveDestinationName(job: JobSummary): string {
+  const targetDepartment = job.departments?.find(department => department.role === 'Target')
+  return targetDepartment?.departmentName?.trim()
+    || job.returnedFromDepartmentName?.trim()
+    || '—'
+}
+
+function toReturnedRow(
+  job: JobSummary,
+  locale: string,
+  socialByJobId: Map<string, SocialMessage>,
+): ReturnedCitizenRequestRow {
+  const linkedMessage = socialByJobId.get(job.jobId)
+  const requestDateUtc = linkedMessage?.receivedAtUtc ?? job.createdAtUtc
+  const citizenName = job.citizenName?.trim()
+    || (linkedMessage ? getSocialMessageCitizenName(linkedMessage) : '—')
+  const citizenPhone = job.citizenPhone?.trim()
+    ? formatCitizenPhoneDisplay(job.citizenPhone)
+    : linkedMessage
+      ? getSocialMessageCitizenPhone(linkedMessage)
+      : '—'
+
   return {
     jobId: job.jobId,
-    displayNumber: formatCitizenRequestNumber(job, locale),
-    title: job.title,
-    returnedFromDepartmentName: job.returnedFromDepartmentName?.trim() || '—',
-    returnReason: job.returnedToOperatorReason?.trim() || '—',
-    returnedAtText: returnedAtUtc ? new Date(returnedAtUtc).toLocaleString(locale) : '—',
-    returnedAtUtc,
+    displayNumber: formatCitizenRequestNumber(linkedMessage ?? job, locale),
+    citizenName,
+    citizenPhone,
+    requestDateUtc,
+    requestDateText: requestDateUtc ? new Date(requestDateUtc).toLocaleString(locale) : '—',
+    destinationName: resolveDestinationName(job),
+    labelText: linkedMessage?.category?.trim() || '—',
+    channel: linkedMessage?.channel ?? null,
   }
 }
 
 export function ReturnedCitizenRequestsPage() {
   const { t, i18n } = useTranslation()
-  const navigate = useNavigate()
   const locale = getLocale(i18n.language)
   const [pageSize, setPageSize] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
-  const [searchText, setSearchText] = useState('')
+  const [detailJobId, setDetailJobId] = useState<string | null>(null)
+  const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
   const jobsQuery = useQuery({
     queryKey: queryKeys.jobs.list('returned-to-operator'),
     queryFn: () => api.getJobs('returned-to-operator'),
   })
 
+  const socialQuery = useQuery({
+    queryKey: queryKeys.socialMessages.list(),
+    queryFn: () => api.getSocialMessages(),
+    enabled: (jobsQuery.data?.length ?? 0) > 0,
+  })
+
+  const socialByJobId = useMemo(() => {
+    const map = new Map<string, SocialMessage>()
+    for (const message of socialQuery.data ?? []) {
+      if (message.jobId) map.set(message.jobId, message)
+    }
+    return map
+  }, [socialQuery.data])
+
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
   const { filters, setFilter, matchesFilters } = useColumnFilters()
 
   const rows = useMemo(
-    () => (jobsQuery.data ?? []).map(job => toReturnedRow(job, locale)),
-    [jobsQuery.data, locale],
+    () => (jobsQuery.data ?? []).map(job => toReturnedRow(job, locale, socialByJobId)),
+    [jobsQuery.data, locale, socialByJobId],
   )
 
   const getColumnValue = (key: string, row: ReturnedCitizenRequestRow): string => {
     if (key === 'displayNumber') return row.displayNumber
-    if (key === 'returnedFromDepartmentName') return row.returnedFromDepartmentName
-    if (key === 'returnReason') return row.returnReason
-    if (key === 'returnedAtUtc') return row.returnedAtText
+    if (key === 'citizenName') return row.citizenName
+    if (key === 'citizenPhone') return row.citizenPhone
+    if (key === 'requestDateUtc') return row.requestDateText
+    if (key === 'destinationName') return row.destinationName
+    if (key === 'labelText') return row.labelText
     return String((row as unknown as Record<string, unknown>)[key] ?? '')
   }
 
-  const filteredRows = useMemo(() => {
-    const searchNormalized = searchText.trim()
-    return rows.filter(row => {
-      if (searchNormalized && !matchesBannerSearch(
-        searchNormalized,
-        ['displayNumber', 'title', 'returnedFromDepartmentName', 'returnReason', 'returnedAtText'].map(key => getColumnValue(key, row)),
-      )) {
-        return false
-      }
-      return matchesFilters(row, getColumnValue)
-    })
-  }, [matchesFilters, rows, searchText])
+  const filteredRows = useMemo(
+    () => rows.filter(row => matchesFilters(row, getColumnValue)),
+    [matchesFilters, rows],
+  )
 
   const sortedRows = useMemo(() => {
     if (!sortKey) {
-      return [...filteredRows].sort((a, b) => (b.returnedAtUtc ?? '').localeCompare(a.returnedAtUtc ?? ''))
+      return [...filteredRows].sort((a, b) => b.requestDateUtc.localeCompare(a.requestDateUtc))
     }
     return sortItems(filteredRows)
   }, [filteredRows, sortItems, sortKey])
@@ -106,43 +151,30 @@ export function ReturnedCitizenRequestsPage() {
     setCurrentPage(1)
   }
 
-  const openDetail = (jobId: string) => {
-    navigate(`/request-details?context=returned&jobId=${encodeURIComponent(jobId)}`)
+  if (jobsQuery.isLoading) {
+    return <div className="loading">{t('common.loading')}</div>
   }
 
   return (
-    <div className="page-stack desktop-page-fill">
-      <section className="section-card">
-        <div className="section-header">
-          <div>
-            <h1 className="page-title">{t('returnedCitizenRequests.title', 'Operatöre İade Edilen Talepler')}</h1>
-            <p className="helper-copy">{t('returnedCitizenRequests.subtitle', 'Birimlerden operatöre iade edilen vatandaş talepleri.')}</p>
+    <div className="page-stack desktop-page-shell">
+      <header className="sticky-page-header">
+        <div className="page-header-row">
+          <div className="space-y-1">
+            <div className="page-kicker">{t('returnedCitizenRequests.title', 'İade Edilen Talepler')}</div>
+            <h1 className="page-title">{t('nav.returnedCitizenRequests', 'İade Edilen Talepler').replace('\n', ' ')}</h1>
+            <p className="page-subtitle">{t('returnedCitizenRequests.subtitle', 'Birimlerden operatöre iade edilen vatandaş talepleri.')}</p>
           </div>
         </div>
-      </section>
+      </header>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
       <section className="section-card desktop-page-fill">
-        <div className="table-toolbar">
-          <label className="search-field">
-            <Search className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
-            <input
-              type="search"
-              value={searchText}
-              onChange={event => {
-                setSearchText(event.target.value)
-                setCurrentPage(1)
-              }}
-              placeholder={t('common.search', 'Ara...')}
-            />
-          </label>
-        </div>
-
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table">
+          <table className="data-table jobs-table data-table--zebra social-messages-table">
             <thead>
               <tr>
+                <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                 <FilterableTh
                   filterKey="displayNumber"
                   filterValue={filters.displayNumber ?? ''}
@@ -152,75 +184,105 @@ export function ReturnedCitizenRequestsPage() {
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('returnedCitizenRequests.columns.requestNumber', 'Talep No')}
+                  <span className="inline-flex whitespace-nowrap leading-tight">
+                    <span>{t('returnedCitizenRequests.columns.requestNumber', 'Vatandaş Talep No')}</span>
+                  </span>
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="title"
-                  filterValue={filters.title ?? ''}
+                  filterKey="citizenName"
+                  filterValue={filters.citizenName ?? ''}
                   onFilter={handleFilter}
-                  sortKey="title"
+                  sortKey="citizenName"
                   currentSortKey={sortKey}
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('returnedCitizenRequests.columns.title', 'Başlık')}
+                  {t('returnedCitizenRequests.columns.citizenName', 'Vatandaş Adı')}
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="returnedFromDepartmentName"
-                  filterValue={filters.returnedFromDepartmentName ?? ''}
+                  filterKey="citizenPhone"
+                  filterValue={filters.citizenPhone ?? ''}
                   onFilter={handleFilter}
-                  sortKey="returnedFromDepartmentName"
+                  sortKey="citizenPhone"
                   currentSortKey={sortKey}
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('returnedCitizenRequests.columns.returnedFromDepartment', 'İade Eden Birim')}
+                  {t('jobs.detail.citizenPhone', 'Telefon No')}
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="returnReason"
-                  filterValue={filters.returnReason ?? ''}
+                  filterKey="requestDateUtc"
+                  filterValue={filters.requestDateUtc ?? ''}
                   onFilter={handleFilter}
-                  sortKey="returnReason"
+                  sortKey="requestDateUtc"
                   currentSortKey={sortKey}
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('returnedCitizenRequests.columns.reason', 'İade Sebebi')}
+                  <span className="inline-flex whitespace-nowrap leading-tight">
+                    <span>{t('returnedCitizenRequests.columns.requestDate', 'Vatandaş Talep Tarihi')}</span>
+                  </span>
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="returnedAtUtc"
-                  filterValue={filters.returnedAtUtc ?? ''}
+                  filterKey="destinationName"
+                  filterValue={filters.destinationName ?? ''}
                   onFilter={handleFilter}
-                  sortKey="returnedAtUtc"
+                  sortKey="destinationName"
                   currentSortKey={sortKey}
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('returnedCitizenRequests.columns.returnedAt', 'İade Tarihi')}
+                  {t('returnedCitizenRequests.columns.destination', 'Geldiği Yer')}
                 </FilterableTh>
+                <FilterableTh
+                  filterKey="labelText"
+                  filterValue={filters.labelText ?? ''}
+                  onFilter={handleFilter}
+                  sortKey="labelText"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                >
+                  {t('whatsapp.label', 'Talep Etiketi')}
+                </FilterableTh>
+                <th>{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {pagedRows.map(row => (
-                <tr
-                  key={row.jobId}
-                  className="cursor-pointer hover:bg-slate-50"
-                  onClick={() => openDetail(row.jobId)}
-                >
-                  <td className="font-semibold text-slate-700">{row.displayNumber}</td>
-                  <td><TruncatedText text={row.title} /></td>
-                  <td>{row.returnedFromDepartmentName}</td>
-                  <td className="max-w-[18rem]"><TruncatedText text={row.returnReason} /></td>
-                  <td>{row.returnedAtText}</td>
+              {pagedRows.map((row, index) => (
+                <tr key={row.jobId}>
+                  <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
+                  <td className="table-number-cell font-mono text-xs text-slate-500">
+                    <div className="table-number-cell__value inline-flex items-center gap-1.5">
+                      {row.channel ? <ChannelIcon channel={row.channel} className="size-3.5 shrink-0" /> : null}
+                      <span>{row.displayNumber}</span>
+                    </div>
+                  </td>
+                  <td className="font-semibold">{row.citizenName}</td>
+                  <td className="citizen-grid-phone-value text-sm font-semibold text-slate-500 tabular-nums">{row.citizenPhone}</td>
+                  <td><DateCell value={row.requestDateUtc} locale={locale} /></td>
+                  <td><span className="font-semibold text-slate-700">{row.destinationName}</span></td>
+                  <td>{row.labelText}</td>
+                  <td>
+                    <div className="flex justify-center">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => setDetailJobId(row.jobId)}
+                      >
+                        {t('jobs.actions.details', 'Detaylar')}
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
               ))}
-              {sortedRows.length === 0 && !jobsQuery.isLoading ? (
-                <TableEmptyStateRows columnCount={5} message={t('returnedCitizenRequests.empty', 'Operatöre iade edilmiş talep yok.')} />
+              {sortedRows.length === 0 ? (
+                <TableEmptyStateRows columnCount={8} message={t('returnedCitizenRequests.empty', 'İade edilmiş talep yok.')} />
               ) : null}
             </tbody>
           </table>
         </div>
-
         <TablePagination
           totalCount={totalCount}
           pageSize={pageSize}
@@ -232,6 +294,21 @@ export function ReturnedCitizenRequestsPage() {
           }}
         />
       </section>
+
+      {detailJobId ? (
+        <JobsPage
+          key={`${detailJobId}-${detailRefreshKey}`}
+          mode="myRequests"
+          fixedScope="mine"
+          detailOnly
+          detailContextOverride="returned"
+          notificationJobId={detailJobId}
+          onNotificationDetailClose={() => {
+            setDetailJobId(null)
+            setDetailRefreshKey(current => current + 1)
+          }}
+        />
+      ) : null}
     </div>
   )
 }

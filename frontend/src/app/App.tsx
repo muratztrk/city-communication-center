@@ -49,8 +49,10 @@ function PageAccessGate({ pageKey, user, children }: { pageKey: PageAccessKey; u
 
 function RequestDetailsGate({ user, children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
   const [searchParams] = useSearchParams()
-  const pageKey: PageAccessKey = searchParams.get('context') === 'returned' ? 'returnedCitizenRequests' : 'incomingRequests'
-  return <PageAccessGate pageKey={pageKey} user={user}>{children}</PageAccessGate>
+  if (searchParams.get('context') === 'returned') {
+    return <OperatorReturnedRequestsGate user={user}>{children}</OperatorReturnedRequestsGate>
+  }
+  return <PageAccessGate pageKey="incomingRequests" user={user}>{children}</PageAccessGate>
 }
 
 function CitizenDashboardGate({ children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
@@ -62,6 +64,11 @@ function CitizenDashboardGate({ children }: { user?: { role?: string; additional
 
 function ManagerOnlyGate({ role, children }: { role?: string; children: ReactNode }) {
   return role === 'Manager' ? children : <Navigate to={getDefaultLandingPath({ role })} replace />
+}
+
+function OperatorReturnedRequestsGate({ user, children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
+  const allowed = user?.role === 'Operator' && canAnyRoleAccessPage(getEffectiveUserRoles(user), 'returnedCitizenRequests')
+  return allowed ? children : <Navigate to={getDefaultLandingPath(user)} replace />
 }
 
 export default function App() {
@@ -107,7 +114,7 @@ export default function App() {
           <Route path="/jobs" element={<Navigate to="/incoming-requests?kind=all" replace />} />
           <Route path="/request-details" element={<RequestDetailsGate user={user}><JobsPage /></RequestDetailsGate>} />
           <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" user={user}><IncomingRequestsPage /></PageAccessGate>} />
-          <Route path="/returned-citizen-requests" element={<PageAccessGate pageKey="returnedCitizenRequests" user={user}><ReturnedCitizenRequestsPage /></PageAccessGate>} />
+          <Route path="/returned-citizen-requests" element={<OperatorReturnedRequestsGate user={user}><ReturnedCitizenRequestsPage /></OperatorReturnedRequestsGate>} />
           <Route path="/citizen-message-approval" element={<PageAccessGate pageKey="citizenMessageApproval" user={user}><CitizenMessageApprovalPage /></PageAccessGate>} />
           <Route path="/sms-delivery-approval" element={<PageAccessGate pageKey="smsDeliveryApproval" user={user}><SmsDeliveryApprovalPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" user={user}><SocialMessagesPage /></PageAccessGate>} />

@@ -467,6 +467,11 @@ export interface JobDetail {
   citizenMessageApproverDisplayName?: string | null;
   /** Vatandaşa giden mesajı düzenleyen operatör (#3655/#3656). */
   citizenOutboundEditorDisplayName?: string | null;
+  returnedToOperatorAtUtc?: string | null;
+  returnedToOperatorReason?: string | null;
+  returnedToOperatorFromDepartmentId?: string | null;
+  returnedFromDepartmentName?: string | null;
+  returnedByDisplayName?: string | null;
 }
 
 export interface SocialConversationEntry {

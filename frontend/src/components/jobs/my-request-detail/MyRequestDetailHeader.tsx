@@ -1,4 +1,4 @@
-import { MessageSquareText, PenLine, Printer, X as XIcon, XCircle } from 'lucide-react'
+import { MessageSquareText, PenLine, Printer, Send, X as XIcon, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { DetailModalHeaderBrand } from '../../branding/DetailModalHeaderBrand'
 import { Button } from '../../ui/button'
@@ -13,6 +13,7 @@ interface MyRequestDetailHeaderProps {
   showCancelDisabled?: boolean
   cancelDisabledTitle?: string
   onEdit?: () => void
+  onForwardReturned?: () => void
   onGoToConversation?: () => void
   showEditDisabled?: boolean
   editDisabledTitle?: string
@@ -32,6 +33,7 @@ export function MyRequestDetailHeader({
   showCancelDisabled,
   cancelDisabledTitle,
   onEdit,
+  onForwardReturned,
   onGoToConversation,
   showEditDisabled,
   editDisabledTitle,
@@ -74,6 +76,17 @@ export function MyRequestDetailHeader({
           </>
         ) : (
           <>
+            {onForwardReturned && (
+              <Button
+                type="button"
+                size="lg"
+                className="inline-flex items-center gap-1.5 bg-sky-500 text-white hover:bg-sky-600"
+                onClick={onForwardReturned}
+              >
+                <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                {t('jobs.actions.forward', 'Talebi Yönlendir')}
+              </Button>
+            )}
             {onEdit && (
               <Button
                 type="button"

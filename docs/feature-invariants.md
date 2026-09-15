@@ -2930,8 +2930,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `POST /jobs/{id}/return-to-operator` — hedef birim onaylı `JobDepartment` kaldırılır, job
   `ReturnedToOperatorAtUtc` set edilir; birim gelen listelerinden düşer. Operatör listesi
   `GET /jobs?scope=returned-to-operator` + `/returned-citizen-requests` (Operator varsayılan yetki;
-  Vatandaş Talepleri grubunun alt hizasında, alt menü değil). Yönlendirme (`ForwardJobTarget`)
-  iade alanlarını temizler.
+  Vatandaş Talepleri grubunun alt hizasında, alt menü değil). İade geçmişi (`ReturnedToOperatorReason`,
+  `ReturnedToOperatorFromDepartmentId`, `ReturnedToOperatorByUserId`) korunur; yalnızca
+  `ReturnedToOperatorAtUtc` temizlenerek operatör listesinden çıkarılır (`ForwardJobTarget`,
+  `ForwardReturnedCitizenRequest`). `POST /jobs/{id}/forward-returned` — iade edilmiş VT için yeni
+  `JobDepartment` (Target, Pending); yetki: Operator / SystemAdmin / VTY.
 - **WA Yanıt Bekleyen (#3674):** Konuşma listesinde son mesaj yönü `ConversationEntryTimelineTime
   .ResolveSortKey` ile belirlenir; son outbound operatör mesajıysa **Yanıt Bekleyen** olmaz.
 - **Görevsiz iptal outbound Onay Bekleyen (#3664 reopen):** pending değerde başlık ve metin

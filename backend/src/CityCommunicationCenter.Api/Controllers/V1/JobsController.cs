@@ -120,6 +120,18 @@ public sealed class JobsController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{jobId:guid}/forward-returned")]
+    public async Task<IActionResult> ForwardReturned(
+        Guid jobId,
+        [FromBody] ForwardReturnedCitizenRequestRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new ForwardReturnedCitizenRequestCommand(jobId, request.TargetDepartmentId, CurrentContext.UserId, request.Note),
+            cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPost("{jobId:guid}/coordinating-departments")]
     public async Task<IActionResult> AddCoordinatingDepartments(
         Guid jobId,

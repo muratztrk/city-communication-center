@@ -462,7 +462,7 @@ export function AppShell() {
       { path: '/whatsapp', label: t('whatsapp.navTitle', 'WhatsApp'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true, badgeCount: waitingWhatsAppReplyCount || undefined },
       { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), icon: MessageSquareText, emphasized: true, badgeCount: pendingSmsDeliveryApprovalCount },
     ] },
-    { pageKey: 'returnedCitizenRequests' as const, path: '/returned-citizen-requests', label: t('nav.returnedCitizenRequests', 'Operatöre İade Edilen\nTalepler'), icon: Undo2, emphasized: true, multilineLabel: true },
+    { pageKey: 'returnedCitizenRequests' as const, path: '/returned-citizen-requests', label: t('nav.returnedCitizenRequests', 'İade Edilen\nTalepler'), icon: Undo2, emphasized: true, multilineLabel: true, requiredRole: 'Operator' },
     // Sistem Admin vb.: dizin Vatandaş Talepleri grubundan sonra (eski konum).
     ...(!isCitizenDashboardNav
       ? [
@@ -657,7 +657,7 @@ export function AppShell() {
     'department-tasks': (flowParam && departmentTasksViewLabels[flowParam]) || t('nav.departmentTasks', 'Birimdeki Görevler'),
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
     'incoming-requests': incomingRequestsStatusLabels[incomingStatusKey] || t('jobs.scopes.pendingApprovalRequests', 'Onay Bekleyen Talepler'),
-    'returned-citizen-requests': t('nav.returnedCitizenRequests', 'Operatöre İade Edilen Talepler'),
+    'returned-citizen-requests': t('nav.returnedCitizenRequests', 'İade Edilen Talepler'),
     tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
@@ -683,7 +683,7 @@ export function AppShell() {
     'department-tasks': t('nav.departmentTasks', 'Birimdeki Görevler'),
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
     'incoming-requests': t('nav.incomingRequests', 'Birime Gelen Talepler'),
-    'returned-citizen-requests': t('nav.returnedCitizenRequests', 'Operatöre İade Edilen Talepler'),
+    'returned-citizen-requests': t('nav.returnedCitizenRequests', 'İade Edilen Talepler'),
     tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     coordinated: t('nav.incomingRequests', 'Birime Gelen Talepler'),

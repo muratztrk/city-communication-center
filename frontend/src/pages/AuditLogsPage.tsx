@@ -13,7 +13,9 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { AuditLog, SmsOutboundLogItem } from '../types/platform'
+import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getRoleLabel } from '../utils/localization'
+import { looksLikePhone } from '../utils/phoneDisplay'
 import type { RoutineTaskEditSnapshot } from '../utils/routineTaskEditHistory'
 import { richTextToPlainText } from '../utils/richText'
 import type { TFunction } from 'i18next'
@@ -156,7 +158,11 @@ type SmsOutboundLogRow = SmsOutboundLogItem & {
 }
 
 function getSmsRecipientPhoneDisplay(item: SmsOutboundLogItem): string {
-  return item.recipientPhone?.trim() || item.recipientPhoneMasked
+  const raw = item.recipientPhone?.trim()
+  if (raw) {
+    return looksLikePhone(raw) ? formatCitizenPhoneDisplay(raw) : raw
+  }
+  return item.recipientPhoneMasked
 }
 
 const INTERNAL_SMS_KINDS = new Set(['AfterHoursManager', 'AfterHoursStaff'])
@@ -598,7 +604,7 @@ export function AuditLogsPage() {
                     <td>{log.requestNumber?.trim() || '—'}</td>
                     <td>{log.kindLabel}</td>
                     <td className="max-w-[18rem] text-sm text-slate-700">
-                      <div className="line-clamp-3 whitespace-pre-wrap break-words leading-[1.25]">{log.bodyPreview}</div>
+                      <div className="line-clamp-3 whitespace-pre-wrap break-words leading-[1.15]">{log.bodyPreview}</div>
                     </td>
                     <td>
                       <StatusPill tone={log.success ? 'success' : 'danger'}>{log.statusLabel}</StatusPill>

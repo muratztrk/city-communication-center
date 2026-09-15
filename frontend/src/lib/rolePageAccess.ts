@@ -13,11 +13,11 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'departmentTasks', path: '/department-tasks', labelKey: 'nav.departmentTasks' },
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
   { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequests' },
-  { key: 'returnedCitizenRequests', path: '/returned-citizen-requests', labelKey: 'nav.returnedCitizenRequests' },
   { key: 'outgoingRequests', path: '/outgoing-requests', labelKey: 'nav.outgoingRequests' },
   { key: 'citizenMessageApproval', path: '/citizen-message-approval', labelKey: 'nav.citizenMessageApproval' },
   { key: 'smsDeliveryApproval', path: '/sms-delivery-approval', labelKey: 'nav.smsDeliveryApproval' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },
+  { key: 'returnedCitizenRequests', path: '/returned-citizen-requests', labelKey: 'nav.returnedCitizenRequests' },
   { key: 'citizenRequestMap', path: '/citizen-request-map', labelKey: 'nav.citizenRequestMap' },
   { key: 'departmentRequestMap', path: '/department-request-map', labelKey: 'nav.departmentRequestMap' },
   { key: 'citizenDirectory', path: '/citizen-directory', labelKey: 'nav.citizenDirectory' },
@@ -110,7 +110,8 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
       && pageKey !== 'settings'
       && pageKey !== 'edevletActivityPlan'
       && pageKey !== 'edevletActivityPlansList'
-      && pageKey !== 'smsDeliveryApproval',
+      && pageKey !== 'smsDeliveryApproval'
+      && pageKey !== 'returnedCitizenRequests',
     ),
   CitizenRequestManager: [
     'dashboard',
@@ -226,6 +227,8 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     if (role === 'Manager') {
       // Kayıtlı matriste açık olsa bile Manager Sms Onayı'na girmez (#6a6b6c8e).
       matrix[role].smsDeliveryApproval = false
+      // İade edilen talepler yalnız Operatör sayfasıdır (#3680).
+      matrix[role].returnedCitizenRequests = false
     }
     // departmentTasks (Birimdeki Görevler) ve citizenDirectory (Vatandaş Bilgi Listesi) artık
     // rol matrisinden yapılandırılabilir; zorla açma/kapatma yok (card #2242). Varsayılanlar

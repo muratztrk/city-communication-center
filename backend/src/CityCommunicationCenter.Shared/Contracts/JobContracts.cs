@@ -51,6 +51,8 @@ public sealed record AddCoordinatingDepartmentsRequest(IReadOnlyCollection<Guid>
 
 public sealed record ForwardJobTargetRequest(Guid TargetDepartmentId, string Note);
 
+public sealed record ForwardReturnedCitizenRequestRequest(Guid TargetDepartmentId, string Note);
+
 public sealed record ReturnCitizenRequestToOperatorRequest(Guid DepartmentId, string Reason);
 
 public sealed record SetJobManagerNoteRequest(string? Note);
@@ -177,4 +179,9 @@ public sealed record JobDetailResponse(
     /// <summary>Vatandaşa giden mesajı düzenleyen operatör (#3655/#3656).</summary>
     string? CitizenOutboundEditorDisplayName = null,
     /// <summary>VT kaynak sosyal mesajındaki Talep Etiketi değerleri.</summary>
-    IReadOnlyCollection<string>? RequestTags = null);
+    IReadOnlyCollection<string>? RequestTags = null,
+    DateTimeOffset? ReturnedToOperatorAtUtc = null,
+    string? ReturnedToOperatorReason = null,
+    Guid? ReturnedToOperatorFromDepartmentId = null,
+    string? ReturnedFromDepartmentName = null,
+    string? ReturnedByDisplayName = null);

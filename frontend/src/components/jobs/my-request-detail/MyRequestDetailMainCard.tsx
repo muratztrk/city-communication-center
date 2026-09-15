@@ -251,6 +251,8 @@ interface MyRequestDetailMainCardProps {
   citizenOutboundEditorDisplayName?: string | null
   /** Operatör + Vatandaş Talepleri Düzenle: yalnız öncelik/etiket (#3597). */
   operatorSocialEdit?: boolean
+  /** İade edilen talep detayında hedef/iade alanları (#3686). */
+  returnedRequestDetail?: boolean
 }
 
 export function MyRequestDetailMainCard({
@@ -289,6 +291,7 @@ export function MyRequestDetailMainCard({
   hideProjectRow = false,
   forceShowOwnerApproval = false,
   operatorSocialEdit = false,
+  returnedRequestDetail = false,
   citizenOutboundMessage,
   citizenOutboundEditorDisplayName,
 }: MyRequestDetailMainCardProps) {
@@ -319,8 +322,19 @@ export function MyRequestDetailMainCard({
   const citizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
   const projectLabel = t('jobs.form.isProject', 'Proje mi')
   const fields = useMemo(
-    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, useMyRequestsFieldLayout, showCitizenRequestLabel),
-    [citizenSourceMessage, detail, extraFields, includeAssigneeField, locale, requestNumberSuffix, showCitizenRequestLabel, t, useMyRequestsFieldLayout],
+    () => buildMyRequestDetailFields(
+      detail,
+      t,
+      locale,
+      citizenSourceMessage,
+      requestNumberSuffix,
+      extraFields,
+      includeAssigneeField,
+      useMyRequestsFieldLayout,
+      showCitizenRequestLabel,
+      { returnedRequestDetail },
+    ),
+    [citizenSourceMessage, detail, extraFields, includeAssigneeField, locale, requestNumberSuffix, returnedRequestDetail, showCitizenRequestLabel, t, useMyRequestsFieldLayout],
   )
   const visibleFields = fields.filter(field => {
     if (field.label === titleLabel) return false

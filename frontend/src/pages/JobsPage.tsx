@@ -869,10 +869,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         : detailContext === 'incoming'
           ? t('nav.incomingRequests', 'Birime Gelen Talepler')
           : detailContext === 'returned'
-            ? t('nav.returnedCitizenRequests', 'Operatöre İade Edilen Talepler')
+            ? t('nav.returnedCitizenRequests', 'İade Edilen Talepler').replace('\n', ' ')
           : t('jobs.detail.title', 'İş Detayı')
   const isIncomingRequestDetail = detailContext === 'incoming'
   const isReturnedRequestDetail = detailContext === 'returned'
+  const operatorReturnedEdit = isReturnedRequestDetail && user?.role === 'Operator'
+  const operatorCitizenListEdit = operatorSocialEdit || operatorReturnedEdit
   const incomingStatusFilter = searchParams.get('status') ?? 'pending-approval'
   const hideIncomingApproveCancelByView = isIncomingRequestDetail
     && (incomingStatusFilter === 'in-progress' || incomingStatusFilter === 'approved')
@@ -906,6 +908,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     department => department.role === 'Target' && department.departmentId === activeDeptId,
   )
   const jobTargetDepartment = detail?.departments?.find(department => department.role === 'Target')
+  const returnedTargetDepartment = jobTargetDepartment
+  const canForwardReturnedDetail = isReturnedRequestDetail
+    && user?.role === 'Operator'
+    && detail != null
+    && Boolean(detail.returnedToOperatorAtUtc)
+    && !returnedTargetDepartment
+  const canEditReturnedDetailJob = canForwardReturnedDetail
+  const returnedForwardDepartmentOptions = departments.map(department => ({
+    value: department.departmentId,
+    label: department.name,
+  }))
   const canApproveTargetDetail = isIncomingRequestDetail
     && incomingDetailManager
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
@@ -1565,6 +1578,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     note: string
     saving: boolean
     error: string | null
+    mode?: 'incoming' | 'returned'
   } | null>(null)
 
   const [returnToOperatorModal, setReturnToOperatorModal] = useState<{
@@ -1682,13 +1696,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }
 
   const handleSaveMyRequestEdit = async () => {
-    if (!detail || !myRequestEditDraft || (!operatorSocialEdit && !myRequestEditDraft.title.trim())) return
+    if (!detail || !myRequestEditDraft || (!operatorCitizenListEdit && !myRequestEditDraft.title.trim())) return
     setMyRequestEditSaving(true)
     setError(null)
     try {
       // Çağrı kanalı — 10 hane zorunlu; uyarı modal içinde (#6a6d903e).
       // Operatör VT Düzenle vatandaş ad/telefon kilidi (#3597).
-      const isPhoneCitizenEdit = !operatorSocialEdit && citizenSourceMessage?.channel === 'Phone'
+      const isPhoneCitizenEdit = !operatorCitizenListEdit && citizenSourceMessage?.channel === 'Phone'
       const nextCitizenName = isPhoneCitizenEdit
         ? (myRequestEditDraft.citizenName.trim() || null)
         : undefined
@@ -1722,15 +1736,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         setMyRequestEditSaving(false)
         return
       }
-      const resolvedCoordinates = operatorSocialEdit && myRequestEditDraft.coordinates.trim()
+      const resolvedCoordinates = operatorCitizenListEdit && myRequestEditDraft.coordinates.trim()
         ? await resolveGoogleMapsCoordinatePair(myRequestEditDraft.coordinates)
         : null
       await api.updateJob(detail.jobId, {
-        title: operatorSocialEdit ? detail.title : myRequestEditDraft.title.trim(),
-        description: operatorSocialEdit ? (detail.description ?? '') : myRequestEditDraft.description,
+        title: operatorCitizenListEdit ? detail.title : myRequestEditDraft.title.trim(),
+        description: operatorCitizenListEdit ? (detail.description ?? '') : myRequestEditDraft.description,
         priority: myRequestEditDraft.priority,
         startDateUtc: detail.startDateUtc,
-        dueDateUtc: operatorSocialEdit
+        dueDateUtc: operatorCitizenListEdit
           ? detail.dueDateUtc
           : (myRequestEditDraft.dueDateUtc ? new Date(myRequestEditDraft.dueDateUtc).toISOString() : null),
         latitude: resolvedCoordinates?.latitude ?? detail.latitude,
@@ -1740,7 +1754,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         street: normalizeTitleCaseField(myRequestEditDraft.street),
         streetNo: myRequestEditDraft.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(myRequestEditDraft.openAddress),
-        ...(operatorSocialEdit ? {
+        ...(operatorCitizenListEdit ? {
           locationMapsUrl: originalGoogleMapsUrl(myRequestEditDraft.coordinates)
             ?? (myRequestEditDraft.coordinates.trim() || ''),
         } : {}),
@@ -1750,7 +1764,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         } : {}),
       })
       // Operator/CRM: Talep Etiketi sosyal mesaj kategorisinde saklanır (card #1896 reopen).
-      if (citizenSourceMessage?.socialMessageId && (operatorSocialEdit || user?.role === 'Operator' || hasCitizenRequestManagerRole(user) || isPhoneCitizenEdit)) {
+      if (citizenSourceMessage?.socialMessageId && (operatorCitizenListEdit || user?.role === 'Operator' || hasCitizenRequestManagerRole(user) || isPhoneCitizenEdit)) {
         const nextCategory = myRequestEditDraft.category.trim() || null
         const phoneHandle = isPhoneCitizenEdit && nextCitizenPhoneDigits.length === 10
           ? `90${nextCitizenPhoneDigits}`
@@ -2048,18 +2062,27 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const openForwardModal = () => {
     if (!detail) return
     setError(null)
-    setForwardModal({ jobId: detail.jobId, departmentId: '', note: '', saving: false, error: null })
+    setForwardModal({ jobId: detail.jobId, departmentId: '', note: '', saving: false, error: null, mode: 'incoming' })
+  }
+
+  const openReturnedForwardModal = () => {
+    if (!detail) return
+    setError(null)
+    setForwardModal({ jobId: detail.jobId, departmentId: '', note: '', saving: false, error: null, mode: 'returned' })
   }
 
   const handleForwardConfirm = async () => {
     if (!forwardModal || !forwardModal.departmentId || !forwardModal.note.trim()) return
     setForwardModal(current => (current ? { ...current, saving: true, error: null } : current))
     try {
-      await api.forwardJobTarget(forwardModal.jobId, forwardModal.departmentId, forwardModal.note.trim())
+      if (forwardModal.mode === 'returned') {
+        await api.forwardReturnedCitizenRequest(forwardModal.jobId, forwardModal.departmentId, forwardModal.note.trim())
+      } else {
+        await api.forwardJobTarget(forwardModal.jobId, forwardModal.departmentId, forwardModal.note.trim())
+      }
       invalidateJobs(queryClient, forwardModal.jobId)
       setForwardModal(null)
       emitPageToast(t('jobs.actions.forwardSuccess', 'Talep yönlendirildi.'))
-      // Yönlendirildikten sonra Birime Gelen Talepler sayfasına dön (card #1408).
       closeDetail()
     } catch (err) {
       const message = err instanceof Error ? err.message : t('common.error')
@@ -2775,7 +2798,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 ? detail != null && !canCancelSocialDetail
                 : Boolean(socialActions && !socialActions.cancel)}
               cancelDisabledTitle={socialActions?.cancelDisabledTitle}
-              onEdit={socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? (canEditMyRequestDetailJob && !myRequestEditing ? startMyRequestEdit : undefined))}
+              onForwardReturned={canForwardReturnedDetail ? openReturnedForwardModal : undefined}
+              onEdit={socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? ((canEditReturnedDetailJob || canEditMyRequestDetailJob) && !myRequestEditing ? startMyRequestEdit : undefined))}
               showEditDisabled={socialActions ? Boolean(!socialActions.edit && socialActions.editDisabledTitle) : (showMyRequestEditDisabled && !myRequestEditing)}
               editDisabledTitle={socialActions?.editDisabledTitle}
               onGoToConversation={socialActions?.goToConversation ?? (isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage, user) ? openCitizenConversationModal : undefined)}
@@ -2827,10 +2851,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               onCancelEdit={cancelMyRequestEdit}
               editError={myRequestEditing ? error : null}
               useMyRequestsFieldLayout
-              forceCitizenDetailCards={detailContext === 'social'}
+              forceCitizenDetailCards={detailContext === 'social' || detailContext === 'returned'}
               citizenOutboundMessage={detail.citizenOutboundMessage}
               citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
-              operatorSocialEdit={operatorSocialEdit}
+              operatorSocialEdit={operatorCitizenListEdit}
+              returnedRequestDetail={isReturnedRequestDetail}
             />
           ) : (
           <section
@@ -2923,6 +2948,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     </DisabledActionButton>
                   ) : null
                 })()}
+                {canForwardReturnedDetail && (
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="inline-flex items-center gap-1.5 bg-sky-500 text-white hover:bg-sky-600"
+                    onClick={openReturnedForwardModal}
+                  >
+                    <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    {t('jobs.actions.forward', 'Talebi Yönlendir')}
+                  </Button>
+                )}
                 {canForwardTargetDetail && (
                   <Button
                     type="button"
@@ -3171,12 +3207,28 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                         rowClass: 'job-detail-field-row--location-creator',
                       },
-                      {
-                        // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
-                        // gösterilmez (codex review, cards #1544/#1546).
-                        label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
-                        value: <ExternalDestinationValue detail={detail} framed={false} />,
-                      },
+                      ...(isReturnedRequestDetail
+                        ? (returnedTargetDepartment
+                          ? [{
+                              label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
+                              value: <ExternalDestinationValue detail={detail} framed={false} />,
+                            }]
+                          : [
+                              {
+                                label: t('jobs.detail.returnedFromDepartment', 'Talebi İade Eden Birim'),
+                                value: detail.returnedFromDepartmentName?.trim() || '—',
+                              },
+                              {
+                                label: t('jobs.detail.returnedReason', 'Talep İade Sebebi'),
+                                value: detail.returnedToOperatorReason?.trim() || '—',
+                              },
+                            ])
+                        : [{
+                            // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
+                            // gösterilmez (codex review, cards #1544/#1546).
+                            label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
+                            value: <ExternalDestinationValue detail={detail} framed={false} />,
+                          }]),
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getRequestApproverDisplayName(detail) ?? '—',
@@ -3973,8 +4025,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <SingleSelectDropdown
                 className="job-forward-dept-dropdown"
                 triggerClassName="text-sm font-medium"
-                searchable={forwardDepartmentOptions.length >= 7}
-                options={forwardDepartmentOptions}
+                searchable={(forwardModal.mode === 'returned' ? returnedForwardDepartmentOptions : forwardDepartmentOptions).length >= 7}
+                options={forwardModal.mode === 'returned' ? returnedForwardDepartmentOptions : forwardDepartmentOptions}
                 value={forwardModal.departmentId}
                 onChange={departmentId => setForwardModal(current => (current ? { ...current, departmentId, error: null } : current))}
                 placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}

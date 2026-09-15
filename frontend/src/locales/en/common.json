@@ -247,7 +247,7 @@
     "myRequestsRejected": "Rejected/Cancelled/Returned My Requests",
     "myRequestsAll": "All My Requests",
     "incomingRequests": "Incoming Unit Requests",
-    "returnedCitizenRequests": "Requests Returned\nto Operator",
+    "returnedCitizenRequests": "Returned\nRequests",
     "incomingRequestsInternal": "Incoming Unit Requests",
     "incomingRequestsAll": "All Incoming Unit Requests",
     "outgoingRequests": "Outgoing Unit Requests",
@@ -985,15 +985,16 @@
     }
   },
   "returnedCitizenRequests": {
-    "title": "Requests Returned to Operator",
+    "title": "Returned Requests",
     "subtitle": "Citizen requests returned to the operator from departments.",
-    "empty": "No requests returned to the operator.",
+    "empty": "No returned requests.",
     "columns": {
-      "requestNumber": "Request No",
-      "title": "Title",
-      "returnedFromDepartment": "Returned From",
-      "reason": "Return Reason",
-      "returnedAt": "Return Date"
+      "requestNumber": "Citizen Request No",
+      "citizenName": "Citizen Name",
+      "citizenPhone": "Phone No",
+      "requestDate": "Citizen Request Date",
+      "destination": "Source",
+      "label": "Request Label"
     }
   },
   "citizenMessageApproval": {

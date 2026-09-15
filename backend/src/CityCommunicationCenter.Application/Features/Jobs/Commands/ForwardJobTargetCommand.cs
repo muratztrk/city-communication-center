@@ -135,10 +135,8 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
 
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
+        // İade geçmişi alanları korunur; yalnızca operatör listesinden çıkar (#3685/#3686).
         job.ReturnedToOperatorAtUtc = null;
-        job.ReturnedToOperatorReason = null;
-        job.ReturnedToOperatorByUserId = null;
-        job.ReturnedToOperatorFromDepartmentId = null;
 
         _dbContext.AuditLogs.Add(new AuditLog
         {

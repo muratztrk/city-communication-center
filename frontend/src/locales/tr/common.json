@@ -247,7 +247,7 @@
     "myRequestsRejected": "İptal Taleplerim",
     "myRequestsAll": "Tüm Taleplerim",
     "incomingRequests": "Birime Gelen Talepler",
-    "returnedCitizenRequests": "Operatöre İade Edilen\nTalepler",
+    "returnedCitizenRequests": "İade Edilen\nTalepler",
     "incomingRequestsInternal": "Birime Gelen Talepler",
     "incomingRequestsAll": "Birime Gelen Tüm Talepler",
     "outgoingRequests": "Birimden Giden Talepler",
@@ -775,15 +775,16 @@
     "managerConflict": "Bu müdürlükte zaten bir Müdür mevcut: {{name}}. Her müdürlüğün yalnızca 1 müdür kontenjanı vardır."
   },
   "returnedCitizenRequests": {
-    "title": "Operatöre İade Edilen Talepler",
+    "title": "İade Edilen Talepler",
     "subtitle": "Birimlerden operatöre iade edilen vatandaş talepleri.",
-    "empty": "Operatöre iade edilmiş talep yok.",
+    "empty": "İade edilmiş talep yok.",
     "columns": {
-      "requestNumber": "Talep No",
-      "title": "Başlık",
-      "returnedFromDepartment": "İade Eden Birim",
-      "reason": "İade Sebebi",
-      "returnedAt": "İade Tarihi"
+      "requestNumber": "Vatandaş Talep No",
+      "citizenName": "Vatandaş Adı",
+      "citizenPhone": "Telefon No",
+      "requestDate": "Vatandaş Talep Tarihi",
+      "destination": "Geldiği Yer",
+      "label": "Talep Etiketi"
     }
   },
   "requests": {

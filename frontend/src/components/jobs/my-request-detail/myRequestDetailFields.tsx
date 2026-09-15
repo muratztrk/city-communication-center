@@ -47,7 +47,9 @@ function destinationFieldLabel(
   return t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')
 }
 
-export type BuildMyRequestDetailFieldsOptions = Record<string, never>
+export type BuildMyRequestDetailFieldsOptions = {
+  returnedRequestDetail?: boolean
+}
 
 export function buildMyRequestDetailFields(
   detail: JobDetail,
@@ -64,8 +66,9 @@ export function buildMyRequestDetailFields(
   useMyRequestsFieldLayout = false,
   // Operatör / CRM: Talep Etiketi satırı (card #1896).
   showCitizenRequestLabel = false,
-  _options: BuildMyRequestDetailFieldsOptions = {},
+  options: BuildMyRequestDetailFieldsOptions = {},
 ): MyRequestDetailField[] {
+  const returnedRequestDetail = options.returnedRequestDetail === true
   // Sadece Taleplerim'de "Talep Yapılan Birim / Görevi Yapan" iki ayrı başlığa bölünür; "Görevi
   // Yapan" satırı yalnızca talebin görevi oluşup bir personele atanmışsa gösterilir (card #1460).
   const assigneeNames = [...new Set(
@@ -95,6 +98,35 @@ export function buildMyRequestDetailFields(
     )
 
   if (isCitizenRequestJob(detail)) {
+    const returnedTargetDepartment = detail.departments?.find(department => department.role === 'Target')
+    const destinationFields: MyRequestDetailField[] = returnedRequestDetail
+      ? (returnedTargetDepartment
+        ? [{
+            label: destinationFieldLabel(detail, t, { includeAssignee: false, splitLayout: true }),
+            value: returnedTargetDepartment.departmentName ?? '—',
+          }]
+        : [
+            {
+              label: t('jobs.detail.returnedFromDepartment', 'Talebi İade Eden Birim'),
+              value: detail.returnedFromDepartmentName?.trim() || '—',
+            },
+            {
+              label: t('jobs.detail.returnedReason', 'Talep İade Sebebi'),
+              value: detail.returnedToOperatorReason?.trim() || '—',
+            },
+          ])
+      : (useMyRequestsFieldLayout
+        ? [
+            { label: destinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
+            ...(!isExternal && assigneeNames.length > 0
+              ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
+              : []),
+          ]
+        : [{
+            label: destinationFieldLabel(detail, t, { includeAssignee }),
+            value: destinationValue,
+          }])
+
     return [
       {
         label: t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No'),
@@ -149,18 +181,7 @@ export function buildMyRequestDetailFields(
         value: locationCreatorValue,
         rowClass: 'job-detail-field-row--location-creator',
       },
-      ...(useMyRequestsFieldLayout
-        ? [
-            { label: destinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
-            ...(!isExternal && assigneeNames.length > 0
-              ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
-              : []),
-          ]
-        : [{
-            label: destinationFieldLabel(detail, t, { includeAssignee }),
-            value: destinationValue,
-          },
-          ]),
+      ...destinationFields,
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel
         ? [{ label: t('social.label', 'Talep Etiketi'), value: citizenSourceMessage?.category?.trim() || '—' }]

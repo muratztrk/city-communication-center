@@ -776,6 +776,7 @@
   },
   "returnedCitizenRequests": {
     "title": "İade Edilen Talepler",
+    "detailTitle": "İade Edilen Talep",
     "subtitle": "Birimlerden operatöre iade edilen vatandaş talepleri.",
     "empty": "İade edilmiş talep yok.",
     "columns": {
@@ -2084,6 +2085,7 @@
     },
     "returnToOperator": {
       "title": "Operatöre İade Et",
+      "help": "Talebi operatöre iade etmek için neden belirtiniz.",
       "reasonLabel": "İade Sebebi",
       "reasonPlaceholder": "Operatöre iade nedenini yazınız..."
     },

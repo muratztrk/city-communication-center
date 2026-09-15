@@ -869,7 +869,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         : detailContext === 'incoming'
           ? t('nav.incomingRequests', 'Birime Gelen Talepler')
           : detailContext === 'returned'
-            ? t('nav.returnedCitizenRequests', 'İade Edilen Talepler').replace('\n', ' ')
+            ? t('returnedCitizenRequests.detailTitle', 'İade Edilen Talep')
           : t('jobs.detail.title', 'İş Detayı')
   const isIncomingRequestDetail = detailContext === 'incoming'
   const isReturnedRequestDetail = detailContext === 'returned'
@@ -1590,6 +1590,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     reason: string
     saving: boolean
     error: string | null
+    displayNumber?: string
   } | null>(null)
 
   const openJobExtraTimeReview = async () => {
@@ -2103,6 +2104,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       reason: '',
       saving: false,
       error: null,
+      displayNumber: isCitizenRequestDetail
+        ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
+        : formatJobDisplayNumber(detail),
     })
   }
 
@@ -2955,7 +2959,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button
                     type="button"
                     size="lg"
-                    className="inline-flex items-center gap-1.5 bg-sky-500 text-white hover:bg-sky-600"
+                    className="inline-flex items-center gap-1.5 bg-orange-600 text-white hover:bg-orange-700"
                     onClick={openReturnedForwardModal}
                   >
                     <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -3087,7 +3091,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {canReturnToOperatorDetail ? (
                       <button
                         type="button"
-                        className="ml-auto inline-flex shrink-0 items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline"
+                        className="ml-auto mr-2 inline-flex shrink-0 items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline"
                         onClick={openReturnToOperatorModal}
                       >
                         <Undo2 className="size-3.5 shrink-0" aria-hidden />
@@ -4078,6 +4082,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             <h3 id="return-to-operator-dialog-title" className="mb-3 border-b border-slate-200 pb-3 text-base font-bold text-slate-950">
               {t('jobs.returnToOperator.title', 'Operatöre İade Et')}
             </h3>
+            <p className="helper-copy mb-4 text-left" style={{ fontSize: '0.85rem' }}>
+              {returnToOperatorModal.displayNumber ? (
+                <>
+                  <span className="font-semibold text-orange-600">{returnToOperatorModal.displayNumber}</span>
+                  {' '}
+                </>
+              ) : null}
+              {t('jobs.returnToOperator.help', 'Talebi operatöre iade etmek için neden belirtiniz.')}
+            </p>
             <div className="mb-4">
               <label className="job-field-label" htmlFor="return-to-operator-reason">
                 {t('jobs.returnToOperator.reasonLabel', 'İade Sebebi')} <span className="text-red-500">*</span>

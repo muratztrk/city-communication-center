@@ -986,6 +986,7 @@
   },
   "returnedCitizenRequests": {
     "title": "Returned Requests",
+    "detailTitle": "Returned Request",
     "subtitle": "Citizen requests returned to the operator from departments.",
     "empty": "No returned requests.",
     "columns": {
@@ -2041,6 +2042,7 @@
     },
     "returnToOperator": {
       "title": "Return to Operator",
+      "help": "Please specify a reason to return this request to the operator.",
       "reasonLabel": "Return Reason",
       "reasonPlaceholder": "Enter the reason for returning to the operator..."
     },

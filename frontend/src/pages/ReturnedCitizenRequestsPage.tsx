@@ -33,8 +33,9 @@ type ReturnedCitizenRequestRow = {
 
 function getSocialMessageCitizenName(message: SocialMessage): string {
   if (message.citizenName?.trim()) return message.citizenName.trim()
-  if (looksLikePhone(message.citizenHandle)) return '—'
-  return message.citizenHandle.replace(/^@+/, '')
+  const handle = message.citizenHandle?.trim() ?? ''
+  if (!handle || looksLikePhone(handle)) return '—'
+  return handle.replace(/^@+/, '') || '—'
 }
 
 function getSocialMessageCitizenPhone(message: SocialMessage): string {

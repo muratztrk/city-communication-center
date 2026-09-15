@@ -177,13 +177,27 @@ export function buildMyRequestDetailFields(
         : []),
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
       {
-        label: locationLabel,
-        value: locationCreatorValue,
+        label: returnedRequestDetail && showCitizenRequestLabel
+          ? (
+            <StackedFieldLabel
+              top={t('jobs.detail.requestRouter', 'Talebi Yönlendiren')}
+              bottom={t('social.label', 'Talep Etiketi')}
+            />
+          )
+          : locationLabel,
+        value: returnedRequestDetail && showCitizenRequestLabel
+          ? (
+            <div className="stacked-field-value">
+              <span>{locationCreatorValue}</span>
+              <span className="stacked-field-value__secondary">{citizenSourceMessage?.category?.trim() || '—'}</span>
+            </div>
+          )
+          : locationCreatorValue,
         rowClass: 'job-detail-field-row--location-creator',
       },
       ...destinationFields,
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
-      ...(showCitizenRequestLabel
+      ...(showCitizenRequestLabel && !returnedRequestDetail
         ? [{ label: t('social.label', 'Talep Etiketi'), value: citizenSourceMessage?.category?.trim() || '—' }]
         : []),
       ...extraFields,

@@ -53,6 +53,29 @@ export function isLocationConversationContent(content: string | null | undefined
 
 const CONTACT_PHONE_HINT_RE = /(\+?\d[\d\s\-().]{6,}\d)/
 
+function contactPhoneDigitCount(value: string): number {
+  return value.replace(/\D/g, '').length
+}
+
+/** Eski kayıtlar için: uzun rakam zinciri (klavye girdisi vb.) kişi kartı sayılmaz. */
+function isPlausibleContactPhoneHint(value: string): boolean {
+  const digits = contactPhoneDigitCount(value)
+  if (digits < 10 || digits > 13) return false
+  const normalized = value.replace(/\D/g, '')
+  if (normalized.length === 10 && normalized.startsWith('5')) return true
+  if (normalized.length === 11 && normalized.startsWith('05')) return true
+  if (normalized.length === 12 && normalized.startsWith('90')) return true
+  return value.trim().startsWith('+') && digits >= 10 && digits <= 15
+}
+
+/** Marker'sız eski kayıt: yalnızca ad+telefon yapısı (Ad ·/+90, Ad - +90, Ad satır +90). */
+function hasLegacyContactStructure(content: string): boolean {
+  if (/^[^\n·•]+[·•]\s*\+?\d/.test(content)) return true
+  if (/^[^\n]+?\s+-\s+\+?\d/.test(content)) return true
+  if (/^[^\n]+\n\s*\+?\d/.test(content)) return true
+  return /^\+?[\d\s\-().]{10,18}$/.test(content)
+}
+
 /** WhatsApp rehber / kişi kartı içeriği (#6a75a9c2 / #6a75ccfa / #6a75cd3f). */
 export function isContactConversationContent(content: string | null | undefined): boolean {
   if (!content?.trim()) return false
@@ -69,14 +92,15 @@ export function isContactConversationContent(content: string | null | undefined)
   }
   // Eski kayıt: "Ad · +90…" / "Ad - +90…" / "Ad\n+90…" (konum marker'ı yok).
   if (
-    CONTACT_PHONE_HINT_RE.test(trimmed)
-    && !lower.includes('[konum')
-    && !lower.includes('konum mesajı')
-    && !LOCATION_COORDS_RE.test(trimmed)
+    lower.includes('[konum')
+    || lower.includes('konum mesajı')
+    || LOCATION_COORDS_RE.test(trimmed)
+    || !hasLegacyContactStructure(trimmed)
   ) {
-    return true
+    return false
   }
-  return false
+  const phoneHint = CONTACT_PHONE_HINT_RE.exec(trimmed)?.[0]
+  return Boolean(phoneHint && isPlausibleContactPhoneHint(phoneHint))
 }
 
 /** Kişi kartı görünen metin — marker + bullet/tire ayraçları temizlenir; isim/numara ayrı satır (#6a75cccc). */

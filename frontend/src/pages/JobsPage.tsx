@@ -12,7 +12,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, ClipboardList, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Route, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
+import { Check, ClipboardList, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Route, Search, Send, PenLine, Undo2, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -3087,9 +3087,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {canReturnToOperatorDetail ? (
                       <button
                         type="button"
-                        className="ml-auto shrink-0 text-sm font-bold text-orange-600 hover:text-orange-700 hover:underline"
+                        className="ml-auto inline-flex shrink-0 items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline"
                         onClick={openReturnToOperatorModal}
                       >
+                        <Undo2 className="size-3.5 shrink-0" aria-hidden />
                         {t('jobs.actions.returnToOperator', 'Operatöre İade Et')}
                       </button>
                     ) : null}

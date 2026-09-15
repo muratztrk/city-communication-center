@@ -2928,7 +2928,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **İade Edilen Talepler grid (#3688/#3689):** banner'da Vatandaş Talepleri ile aynı arama +
   başlangıç/bitiş tarihi; gridde **Talep Etiketi** sütunu yok.
 - **Operatöre iade edilen VT (#3675–#3678):** Birime Gelen detayda yalnız **İşleme Alındı**
-  (görevsiz `Active`) durumda turuncu **Operatöre İade Et**; modal İade Sebebi max 400 karakter.
+  (görevsiz `Active`) durumda turuncu **Operatöre İade Et** — Talep Detayları başlığı ile
+  aynı satırda sağa yaslı; hedef birim `Pending` veya `Approved` olabilir (#3675 reopen).
+  Modal İade Sebebi max 400 karakter.
   `POST /jobs/{id}/return-to-operator` — hedef birim onaylı `JobDepartment` kaldırılır, job
   `ReturnedToOperatorAtUtc` set edilir; birim gelen listelerinden düşer. Operatör listesi
   `GET /jobs?scope=returned-to-operator` + `/returned-citizen-requests` (Operator varsayılan yetki;

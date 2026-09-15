@@ -104,11 +104,12 @@ public sealed class ReturnCitizenRequestToOperatorCommandHandler : ICommandHandl
             jd => jd.JobId == job.JobId
                 && jd.Role == JobDepartmentRole.Target
                 && jd.DepartmentId == request.DepartmentId
-                && jd.ApprovalStatus == JobApprovalStatus.Approved,
+                && (jd.ApprovalStatus == JobApprovalStatus.Approved
+                    || jd.ApprovalStatus == JobApprovalStatus.Pending),
             cancellationToken);
         if (targetDepartment is null)
         {
-            throw Validation(nameof(request.DepartmentId), "Onaylanmış hedef birim kaydı bulunamadı.");
+            throw Validation(nameof(request.DepartmentId), "Hedef birim kaydı bulunamadı.");
         }
 
         var trimmedReason = request.Reason.Trim();

@@ -1085,7 +1085,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail != null
     && isCitizenProcessingReceivedState(detail)
     && Boolean(returnToOperatorDepartmentId)
-    && incomingReturnTargetDepartment?.approvalStatus === 'Approved'
+    && incomingReturnTargetDepartment != null
+    && (incomingReturnTargetDepartment.approvalStatus === 'Approved'
+      || incomingReturnTargetDepartment.approvalStatus === 'Pending')
   const showCancelledCitizenOutboundInRequestInfo = showRequestInfoCitizenOutbound
     || (detailContextOverride === 'social'
       && detail != null
@@ -3080,7 +3082,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   kenarlıklı kart (card 650/386). */}
               <section className="my-request-detail-main form-card page-stack mb-5">
                 <MyRequestSectionHeading icon={ClipboardList} tone="primary" className={canReturnToOperatorDetail ? 'job-detail-card-title--spread' : undefined}>
-                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                  <span className={canReturnToOperatorDetail ? 'my-request-detail-info-heading flex min-w-0 flex-1 items-center justify-between gap-2' : undefined}>
                     <span>{t('jobs.detail.requestInfo', 'Talep Detayları')}</span>
                     {canReturnToOperatorDetail ? (
                       <button

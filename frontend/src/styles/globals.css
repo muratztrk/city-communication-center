@@ -448,7 +448,8 @@
   }
 
   .detail-modal-shell .job-detail-card-title.my-request-title-heading,
-  .detail-modal-shell .job-detail-card-title.job-detail-card-title--spread {
+  .detail-modal-shell .job-detail-card-title.job-detail-card-title--spread,
+  .detail-modal-shell .job-detail-section-title.job-detail-card-title--spread {
     display: flex;
     width: 100%;
   }

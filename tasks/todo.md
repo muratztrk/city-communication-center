@@ -1,3 +1,18 @@
+## Round 1220 — Trello Doing (15 web)
+
+- **#3692:** WA adres placeholder `0.68rem` (önceki commit doğrulandı).
+- **#3705:** Vatandaş Bilgi Listesi arama X kırmızı.
+- **#3704/#3653:** WA banner mobil başlık / masaüstü alt başlık hizası.
+- **#3703:** Yönlendirilen talep detayda Vatandaş Talebi rozeti gizle.
+- **#3697:** İade detay Talep Etiketi ayrı zebra satır.
+- **#3702:** Otomatik İşleme Alındı WA pending onay kaldırıldı.
+- **#3708:** Harita sarı İşleme Alındı + durum filtresi + Tümü.
+- **#3701:** İşleme Alındı şablon satır sonu koruma (FE normalize + BE TrimStart).
+- **#3710–#3713:** İade grid sekmeleri, kolonlar, crash fix (lazy JobsPage).
+- **#3441:** Personelimin görevleri çip wrap.
+- **#3670:** SMS grid Mesaj İçeriği 3 satır + tooltip.
+- develop `ee5e08bf`, testtim deploy.
+
 ## Round 1189 — Trello Doing (2 web)
 
 - **#3619 reopen-2:** X ikonu `right-2` + `pr-7`.

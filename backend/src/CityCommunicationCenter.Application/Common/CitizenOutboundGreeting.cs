@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Features.Social;
+
 namespace CityCommunicationCenter.Application.Common;
 
 /// <summary>
@@ -16,7 +18,7 @@ public static class CitizenOutboundGreeting
 
     public static string Ensure(string text, string? greetingLine = null)
     {
-        var body = text.Trim();
+        var body = CitizenJobStatusLabelHelper.TrimOutboundMessageBody(text);
         if (body.Length == 0)
         {
             return body;

@@ -65,13 +65,21 @@ public static class CitizenJobStatusLabelHelper
         if (terminalNote is not null)
         {
             content = ReplaceTerminalNoteToken(content, terminalNote);
+            if (string.IsNullOrWhiteSpace(terminalNote))
+            {
+                content = content.TrimEnd('\r', '\n', ' ', '\t');
+            }
         }
 
-        return content.Trim();
+        return TrimOutboundMessageBody(content);
     }
 
+    /// <summary>WA/SMS gövdesinde satır sonlarını korur; yalnız baş/son boşluk ve tab temizlenir (#3701).</summary>
+    internal static string TrimOutboundMessageBody(string content) =>
+        content.TrimStart().TrimEnd(' ', '\t');
+
     public static string ApplyTerminalNote(string content, string? note) =>
-        ReplaceTerminalNoteToken(content, note).Trim();
+        TrimOutboundMessageBody(ReplaceTerminalNoteToken(content, note));
 
     public static bool ContainsTerminalNoteToken(string? template)
     {

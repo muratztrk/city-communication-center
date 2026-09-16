@@ -714,7 +714,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 <div className="job-field min-w-0">
                   <label className="job-field-label" htmlFor="citizen-req-title">
                     {t('tasks.newRequest.title', 'Talep Başlığı')}{' '}
-                    <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </label>
                   <DeferredComposerTextarea

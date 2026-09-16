@@ -110,6 +110,44 @@ public sealed class CitizenJobStatusMessageTests
     }
 
     [Fact]
+    public void ParseOrDefault_EnsuresBlankLineAfterProcessingReceivedStatus()
+    {
+        const string json = """
+            {
+              "ProcessingReceived": "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".Saygılarımızla",
+              "InProgress": "{VatandaşTalepNo} Yapılmakta. {GönderilenBirim}",
+              "Completed": "{VatandaşTalepNo} Tamamlandı. {GönderilenBirim}",
+              "Cancelled": "{VatandaşTalepNo} İptal Edildi. {GönderilenBirim}"
+            }
+            """;
+
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.Contains("\"İşleme Alındı\".\n\nSaygılarımızla", templates.ProcessingReceived);
+    }
+
+    [Fact]
+    public void BuildStatusMessage_PreservesBlankLineAfterProcessingReceivedStatus()
+    {
+        var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);
+        var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+            new SocialMessage
+            {
+                CitizenRequestNumber = 42,
+                CitizenRequestNumberYear = 2026,
+                ReceivedAtUtc = receivedAt,
+            },
+            new Job { Title = "Yol bakım", Status = JobStatus.Active, DueDateUtc = receivedAt.AddDays(3) },
+            0,
+            receivedAt,
+            "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".\n\nSaygılarımızla");
+
+        Assert.Equal(
+            "VT-2026-42 no'lu Yol bakım talebinizin durumu \"İşleme Alındı\".\n\nSaygılarımızla",
+            content);
+    }
+
+    [Fact]
     public void BuildStatusMessage_ReplacesTargetDepartmentToken()
     {
         var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);

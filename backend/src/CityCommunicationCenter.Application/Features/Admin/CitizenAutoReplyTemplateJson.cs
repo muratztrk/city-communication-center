@@ -100,7 +100,7 @@ public static class CitizenAutoReplyTemplateJson
 
             var defaults = Defaults();
             return new CitizenAutoReplyTemplateModel(
-                EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived)),
+                EnsureProcessingReceivedSuffixSeparator(EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived))),
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.InProgress) ? defaults.InProgress : parsed.InProgress)),
                 EnsureQuotedCitizenStatuses(EnsureCompletionNoteToken(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed))),
                 EnsureQuotedCitizenStatuses(EnsureCancelNoteToken(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled))),
@@ -112,7 +112,7 @@ public static class CitizenAutoReplyTemplateJson
                 parsed.AfterHoursStaffSmsEnabled,
                 string.IsNullOrWhiteSpace(parsed.SmsProcessingReceived)
                     ? null
-                    : EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(parsed.SmsProcessingReceived)),
+                    : EnsureProcessingReceivedSuffixSeparator(EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(parsed.SmsProcessingReceived))),
                 parsed.SmsProcessingReceivedEnabled);
         }
         catch (JsonException)
@@ -123,7 +123,7 @@ public static class CitizenAutoReplyTemplateJson
 
     public static string Serialize(CitizenAutoReplyTemplateModel model) =>
         JsonSerializer.Serialize(new CitizenAutoReplyTemplateModel(
-            EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(model.ProcessingReceived)),
+            EnsureProcessingReceivedSuffixSeparator(EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(model.ProcessingReceived))),
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.InProgress)),
             EnsureQuotedCitizenStatuses(EnsureCompletionNoteToken(EnsureTargetDepartmentToken(model.Completed))),
             EnsureQuotedCitizenStatuses(EnsureCancelNoteToken(EnsureTargetDepartmentToken(model.Cancelled))),
@@ -135,7 +135,7 @@ public static class CitizenAutoReplyTemplateJson
             model.AfterHoursStaffSmsEnabled,
             string.IsNullOrWhiteSpace(model.SmsProcessingReceived)
                 ? null
-                : EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(model.SmsProcessingReceived)),
+                : EnsureProcessingReceivedSuffixSeparator(EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(model.SmsProcessingReceived))),
             model.SmsProcessingReceivedEnabled));
 
     /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
@@ -160,6 +160,55 @@ public static class CitizenAutoReplyTemplateJson
 
     private static string EnsureQuotedCitizenStatuses(string template) =>
         CitizenJobStatusLabelHelper.EnsureQuotedCitizenStatuses(template);
+
+    /// <summary>İşleme Alındı durum cümlesinden sonra gönderilen mesajda boş satır (#3701).</summary>
+    private static string EnsureProcessingReceivedSuffixSeparator(string template)
+    {
+        if (string.IsNullOrWhiteSpace(template))
+        {
+            return template;
+        }
+
+        if (!template.Contains("talebinizin durumu", StringComparison.OrdinalIgnoreCase)
+            && !template.Contains("\"İşleme Alındı\".", StringComparison.Ordinal))
+        {
+            return template;
+        }
+
+        var statusEnd = FindProcessingReceivedStatusEnd(template);
+        if (statusEnd is null)
+        {
+            return template;
+        }
+
+        var headEnd = statusEnd.Value;
+        var tail = template[headEnd..];
+        if (tail.StartsWith("\n\n", StringComparison.Ordinal))
+        {
+            return template;
+        }
+
+        if (string.IsNullOrWhiteSpace(tail))
+        {
+            return template[..headEnd] + "\n\n";
+        }
+
+        return template[..headEnd] + "\n\n" + tail.TrimStart('\r', '\n', ' ', '\t');
+    }
+
+    private static int? FindProcessingReceivedStatusEnd(string template)
+    {
+        foreach (var statusEnd in new[] { "\"İşleme Alındı\".", "İşleme Alındı." })
+        {
+            var markerIndex = template.IndexOf(statusEnd, StringComparison.Ordinal);
+            if (markerIndex >= 0)
+            {
+                return markerIndex + statusEnd.Length;
+            }
+        }
+
+        return null;
+    }
 
     /// <summary>
     /// İşleme Alındı şablonlarında birim token'ı kullanılmaz; eski kayıtlardan token ve sonrası temizlenir (card #3686).

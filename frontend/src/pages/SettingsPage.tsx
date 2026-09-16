@@ -146,14 +146,6 @@ function stripTargetDepartmentToken(template: string) {
   return template.trimEnd()
 }
 
-function formatProcessingReceivedSuffixForDisplay(suffix: string) {
-  return suffix ? `\n${suffix}` : '\n'
-}
-
-function parseProcessingReceivedSuffixFromDisplay(value: string) {
-  return value.replace(/^\n/, '')
-}
-
 function extractProcessingReceivedSuffixText(template: string, statusLabel: string, noteToken?: string) {
   const tokenSuffix = extractCitizenAutoReplySuffixText(template, noteToken)
   if (tokenSuffix || template.includes(TARGET_DEPARTMENT_TOKEN)) {
@@ -315,11 +307,11 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
       </div>
       <textarea
         className="field-textarea min-h-[4.5rem]"
-        value={includeTargetDepartment ? suffixText : formatProcessingReceivedSuffixForDisplay(suffixText)}
+        value={suffixText}
         onChange={event => onChange(buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(value, templateStatusLabel),
           templateStatusLabel,
-          includeTargetDepartment ? event.target.value : parseProcessingReceivedSuffixFromDisplay(event.target.value),
+          event.target.value,
           false,
           noteToken,
           noteSuffixText,

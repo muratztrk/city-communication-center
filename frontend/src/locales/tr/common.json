@@ -618,6 +618,7 @@
     "directoryDepartmentRequired": "Lütfen listeden bir birim seçin.",
     "directoryDepartmentMissing": "Bu LDAP kaydında birim bilgisi yok.",
     "directoryDepartmentSelected": "Seçilen birim adı yeni birim olarak kullanılacak. Oluştur ile kaydedilir.",
+    "updateSuccess": "{{name}} birimi güncellendi.",
     "name": "Birim Adı",
     "namePlaceholder": "Birim adı giriniz...",
     "type": "Tür",

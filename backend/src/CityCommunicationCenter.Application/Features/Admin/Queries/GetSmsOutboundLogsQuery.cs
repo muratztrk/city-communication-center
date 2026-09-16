@@ -63,7 +63,16 @@ public sealed class GetSmsOutboundLogsQueryHandler : IQueryHandler<GetSmsOutboun
                 entity.TextLength,
                 entity.BodyPreview,
                 entity.CreatedAtUtc,
-                entity.RecipientPhone ?? entity.RecipientPhoneMasked,
+                entity.RecipientUserId.HasValue
+                    && (entity.Kind == SmsOutboundKind.AfterHoursManager || entity.Kind == SmsOutboundKind.AfterHoursStaff)
+                    ? _dbContext.Users
+                        .AsNoTracking()
+                        .Where(user => user.UserId == entity.RecipientUserId.Value)
+                        .Select(user => user.MobilePhone)
+                        .FirstOrDefault()
+                        ?? entity.RecipientPhone
+                        ?? entity.RecipientPhoneMasked
+                    : entity.RecipientPhone ?? entity.RecipientPhoneMasked,
                 entity.RecipientUserId.HasValue
                     ? _dbContext.Users
                         .AsNoTracking()

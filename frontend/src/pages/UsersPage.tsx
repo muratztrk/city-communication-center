@@ -1059,6 +1059,9 @@ export function UsersPage() {
         } : {}),
       })
       setEditingUserId(null)
+      emitPageToast(t('users.updateSuccess', '{{name}} kullanıcısı güncellendi.', {
+        name: editForm.displayName.trim() || t('users.title'),
+      }))
       invalidateUsers(queryClient)
       invalidateDepartments(queryClient)
       loadData()

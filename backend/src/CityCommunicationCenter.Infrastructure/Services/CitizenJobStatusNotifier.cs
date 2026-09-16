@@ -232,7 +232,13 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             // Phone: yönetici onayı yalnız bayrağı basar; SMS operatör Sms Onayı'nda gider.
         }
 
-        job.CitizenTerminalMessageReleasedAtUtc = DateTimeOffset.UtcNow;
+        // İptal/tamamlama onay kuyruğu: cancel yolu routingDepartmentUserId ile çağrılır;
+        // ReleasedAtUtc yalnızca yönetici "Mesajı Onayla" ile set edilir (#3731).
+        if (!RequiresOperatorApproval(statusLabel) || !routingDepartmentUserId.HasValue)
+        {
+            job.CitizenTerminalMessageReleasedAtUtc = DateTimeOffset.UtcNow;
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

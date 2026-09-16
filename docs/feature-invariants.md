@@ -2953,6 +2953,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yönlendirme sonrası güncel Target birimi gösterilmez.
 - **İade Bekleyen liste (#3727):** detaydan `forward-returned` sonrası `returned-citizen-requests`
   sorgusu invalidate edilir; satır Bekleyen'den düşer.
+- **WA mesaj sarma (#3728):** konuşma balonu `max-w-full overflow-hidden break-words`; pane
+  `overflow-x-hidden`.
+- **Grid Kaydet toast (#3729):** Kullanıcılar/Birimler inline düzenleme `emitPageToast`.
+- **Kurum içi SMS telefon (#3732):** log grid Telefon No = personel `MobilePhone` (AfterHours).
+- **İptal Mesaj Onayı (#3731):** görevsiz iptalde `ReleaseTerminalMessagesAsync` Pending kuyruğa
+  alır; `ReleasedAtUtc` yalnızca yönetici onayında set edilir.
 - **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
   kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
   `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).

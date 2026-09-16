@@ -1394,7 +1394,7 @@ function ConversationDetail({
           <div
             ref={scrollContainerRef}
             onScroll={updatePinnedToBottom}
-            className="whatsapp-chat-bg whatsapp-message-pane min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4"
+            className="whatsapp-chat-bg whatsapp-message-pane min-h-0 flex-1 space-y-2.5 overflow-x-hidden overflow-y-auto px-4 py-4"
           >
             {loading && !activeDetail ? (
               null

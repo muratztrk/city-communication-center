@@ -236,11 +236,11 @@ export function ConversationEntryBubble({
   )
 
   return (
-    <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
-      <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
+    <div className={`flex min-w-0 w-full flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
+      <div className={`flex min-w-0 w-full ${isInbound ? 'justify-start' : 'justify-end'}`}>
         <div
           ref={bubbleRef}
-          className={`${bubbleMaxWidth} min-w-0 w-fit ${
+          className={`${bubbleMaxWidth} max-w-full min-w-0 w-fit overflow-hidden break-words [overflow-wrap:anywhere] ${
             isOutboundImage
               ? compact ? 'rounded-xl px-1.5 py-1.5 text-[11px]' : 'rounded-xl px-1.5 py-1.5 text-[13px]'
               : compact ? 'rounded-xl px-3 py-1.5 text-[11px]' : 'rounded-xl px-3 py-2 text-[13px]'

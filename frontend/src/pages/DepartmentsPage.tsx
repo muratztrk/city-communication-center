@@ -19,6 +19,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
+import { emitPageToast } from '../components/ui/pageToast'
 import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User } from '../types/platform'
@@ -485,6 +486,7 @@ export function DepartmentsPage() {
         responsibleUserIds: editResponsibleUserIds,
       })
       cancelEdit()
+      emitPageToast(t('departments.updateSuccess', '{{name}} birimi güncellendi.', { name: editName.trim() }))
       invalidateDepartments(queryClient)
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : t('common.error'))

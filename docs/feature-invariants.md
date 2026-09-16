@@ -1057,9 +1057,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider.
   Standart personel aynı; salt müdür atlanır. Atanan VTY veya birim sorumlusu talep SMS'inden
   sonra yalnız kendisine ikinci (görev) SMS alır (#3601). Müdür/sorumlu/VTY görevi **kendine**
-  atadığında yönetici SMS'i atlanır; yalnız görev SMS'i gider (#3620). Atanmış görev
-  yoksa yönetici SMS'i ilk atamaya ertelenir; self-assign eden müdür/sorumlu/VTY o turda
-  yönetici SMS'i almaz.
+  atadığında yönetici SMS'i atlanır; yalnız görev SMS'i gider (#3620). Mesai dışında talep
+  oluşturulunca/yönlendirilince (görev atanmadan) hedef birim müdür/sorumlu/VTY SMS'i gider
+  (#3741). Yönetici SMS yalnız **hedef birim** kapsamında çözülür — sahip/operatör birime
+  gitmez. Talep mesai içinde açılıp ilk atama mesai dışındaysa yönetici SMS ilk atamada gider;
+  talep zaten mesai dışında açıldıysa ilk atamada mükerrer yönetici SMS atlanır. Self-assign
+  eden müdür/sorumlu/VTY o turda yönetici SMS'i almaz.
   **Vatandaşa Giden SMS Gönderimi "İşleme Alındı" Durumu** (#3386/#3604): Vatandaşa Giden Cevaplar ile mesai dışı SMS
   kutularının arasında ayrı bölüm; yalnız `Phone` kanalından gelen taleplerde `İşleme Alındı`
   otomatik SMS'i bu şablonu kullanır (WhatsApp/sosyal kanallar genel İşleme Alındı şablonunda

@@ -87,12 +87,7 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
 
     private async Task NotifyJobCreatedCoreAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken)
     {
-        if (!await HasAssignedTasksAsync(job, cancellationToken))
-        {
-            return;
-        }
-
-        var distinctDepartmentIds = ResolveDistinctDepartmentIds(departmentIds, job);
+        var distinctDepartmentIds = await ResolveManagerSmsDepartmentIdsAsync(job, departmentIds, cancellationToken);
         await SendManagerSmsAsync(job, distinctDepartmentIds, additionalExclusions: null, cancellationToken);
     }
 
@@ -107,7 +102,14 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             return;
         }
 
-        var distinctDepartmentIds = await ResolveAssignmentDepartmentIdsAsync(job, assignedDepartmentId, cancellationToken);
+        var distinctDepartmentIds = await ResolveManagerSmsDepartmentIdsAsync(job, [], cancellationToken);
+
+        // Talep mesai dışında oluşturulduysa yönetici SMS'i zaten gitti (#3741).
+        if (await IsAfterHoursForAnyDepartmentAtUtcAsync(job.TenantId, distinctDepartmentIds, job.CreatedAtUtc, cancellationToken))
+        {
+            return;
+        }
+
         HashSet<Guid>? additionalExclusions = null;
         if (await IsAfterHoursManagerSmsRecipientAsync(job, assigneeUserId, distinctDepartmentIds, cancellationToken))
         {
@@ -194,11 +196,18 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             cancellationToken);
     }
 
-    private async Task<bool> IsAfterHoursAsync(Guid tenantId, Guid? departmentId, CancellationToken cancellationToken)
+    private async Task<bool> IsAfterHoursAsync(Guid tenantId, Guid? departmentId, CancellationToken cancellationToken) =>
+        await IsAfterHoursAtUtcAsync(tenantId, departmentId, DateTimeOffset.UtcNow, cancellationToken);
+
+    private async Task<bool> IsAfterHoursAtUtcAsync(
+        Guid tenantId,
+        Guid? departmentId,
+        DateTimeOffset utcAt,
+        CancellationToken cancellationToken)
     {
         var settings = await _workingHoursService.GetSettingsAsync(tenantId, cancellationToken);
         var schedule = WorkingHoursEvaluator.ResolveSchedule(settings, departmentId);
-        return WorkingHoursEvaluator.IsAfterHours(schedule, DateTimeOffset.UtcNow, TurkeyTimeZone);
+        return WorkingHoursEvaluator.IsAfterHours(schedule, utcAt, TurkeyTimeZone);
     }
 
     /// <summary>
@@ -207,17 +216,52 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
     private async Task<bool> IsAfterHoursForAnyDepartmentAsync(
         Guid tenantId,
         Guid[] departmentIds,
+        CancellationToken cancellationToken) =>
+        await IsAfterHoursForAnyDepartmentAtUtcAsync(tenantId, departmentIds, DateTimeOffset.UtcNow, cancellationToken);
+
+    private async Task<bool> IsAfterHoursForAnyDepartmentAtUtcAsync(
+        Guid tenantId,
+        Guid[] departmentIds,
+        DateTimeOffset utcAt,
         CancellationToken cancellationToken)
     {
         foreach (var departmentId in departmentIds)
         {
-            if (await IsAfterHoursAsync(tenantId, departmentId, cancellationToken))
+            if (await IsAfterHoursAtUtcAsync(tenantId, departmentId, utcAt, cancellationToken))
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Yönetici SMS yalnız talebin hedef birim(ler)ine gider; operatör/sahip birim dahil değil (#3741).
+    /// </summary>
+    private async Task<Guid[]> ResolveManagerSmsDepartmentIdsAsync(
+        Job job,
+        IReadOnlyCollection<Guid> departmentIds,
+        CancellationToken cancellationToken)
+    {
+        var targetIds = await _dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+            .Select(link => link.DepartmentId)
+            .ToListAsync(cancellationToken);
+
+        if (targetIds.Count > 0)
+        {
+            return DistinctDepartmentIds(targetIds);
+        }
+
+        var nonOwnerIds = DistinctDepartmentIds(departmentIds.Where(id => id != job.OwnerDepartmentId));
+        if (nonOwnerIds.Length > 0)
+        {
+            return nonOwnerIds;
+        }
+
+        return DistinctDepartmentIds([job.OwnerDepartmentId]);
     }
 
     private async Task<CitizenAutoReplyTemplateModel> LoadTemplatesAsync(Guid tenantId, CancellationToken cancellationToken)
@@ -518,23 +562,6 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             .Distinct()
             .ToArray();
 
-    private static Guid[] ResolveDistinctDepartmentIds(IReadOnlyCollection<Guid> departmentIds, Job job)
-    {
-        var distinctDepartmentIds = DistinctDepartmentIds(departmentIds);
-        return distinctDepartmentIds.Length == 0
-            ? DistinctDepartmentIds([job.OwnerDepartmentId])
-            : distinctDepartmentIds;
-    }
-
-    private Task<bool> HasAssignedTasksAsync(Job job, CancellationToken cancellationToken) =>
-        _dbContext.Tasks
-            .AsNoTracking()
-            .AnyAsync(
-                task => task.TenantId == job.TenantId
-                    && task.JobId == job.JobId
-                    && task.AssignedUserId != null,
-                cancellationToken);
-
     private Task<bool> HasOtherAssignedTasksAsync(
         Job job,
         Guid assigneeUserId,
@@ -547,21 +574,6 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
                     && task.AssignedUserId != null
                     && task.AssignedUserId != assigneeUserId,
                 cancellationToken);
-
-    private async Task<Guid[]> ResolveAssignmentDepartmentIdsAsync(
-        Job job,
-        Guid? assignedDepartmentId,
-        CancellationToken cancellationToken)
-    {
-        var notifyDepartmentIds = await ResolveJobNotifyDepartmentIdsAsync(job, cancellationToken);
-        if (assignedDepartmentId is Guid departmentId && departmentId != Guid.Empty)
-        {
-            var ids = new List<Guid>(notifyDepartmentIds) { departmentId };
-            return DistinctDepartmentIds(ids);
-        }
-
-        return notifyDepartmentIds;
-    }
 
     private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)
     {

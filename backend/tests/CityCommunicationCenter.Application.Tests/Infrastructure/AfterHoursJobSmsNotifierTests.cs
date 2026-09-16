@@ -54,7 +54,7 @@ public sealed class AfterHoursJobSmsNotifierTests
     }
 
     [Fact]
-    public async Task NotifyJobCreatedAsync_defers_manager_sms_until_first_assignment()
+    public async Task NotifyJobCreatedAsync_sends_on_job_create_without_assigned_task()
     {
         await using var db = CreateDbContext();
         await SeedAsync(db);
@@ -64,7 +64,45 @@ public sealed class AfterHoursJobSmsNotifierTests
         var job = CreateJob();
         await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
 
-        Assert.Empty(gateway.Sends);
+        Assert.Single(gateway.Sends);
+        Assert.Equal("Yönetici mesajı", gateway.Sends[0].Text);
+        Assert.Equal("905551111111", gateway.Sends[0].Phone);
+    }
+
+    [Fact]
+    public async Task NotifyJobCreatedAsync_sends_only_to_target_department_not_owner()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+        var otherManagerId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+        db.Departments.Add(new Department
+        {
+            TenantId = TenantId,
+            DepartmentId = OtherDepartmentId,
+            Name = "Veteriner",
+            DepartmentType = "Müdürlük",
+            ManagerUserId = otherManagerId,
+        });
+        db.Users.Add(User(otherManagerId, RoleCode.Manager, "905557777777", OtherDepartmentId));
+        db.JobDepartments.Add(new JobDepartment
+        {
+            JobDepartmentId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            TenantId = TenantId,
+            JobId = JobId,
+            DepartmentId = OtherDepartmentId,
+            Role = JobDepartmentRole.Target,
+            ApprovalStatus = JobApprovalStatus.Pending,
+        });
+        await db.SaveChangesAsync();
+
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+        var job = CreateJob();
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId, OtherDepartmentId], CancellationToken.None);
+
+        Assert.Single(gateway.Sends);
+        Assert.Equal("905557777777", gateway.Sends[0].Phone);
+        Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905551111111");
     }
 
     [Fact]
@@ -214,15 +252,26 @@ public sealed class AfterHoursJobSmsNotifierTests
     {
         await using var db = CreateDbContext();
         await SeedAsync(db);
+        var otherManagerId = Guid.Parse("99999999-9999-9999-9999-999999999999");
         db.Departments.Add(new Department
         {
             TenantId = TenantId,
             DepartmentId = OtherDepartmentId,
             Name = "Fen İşleri",
             DepartmentType = "Müdürlük",
+            ManagerUserId = otherManagerId,
+        });
+        db.Users.Add(User(otherManagerId, RoleCode.Manager, "905557777777", OtherDepartmentId));
+        db.JobDepartments.Add(new JobDepartment
+        {
+            JobDepartmentId = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            TenantId = TenantId,
+            JobId = JobId,
+            DepartmentId = OtherDepartmentId,
+            Role = JobDepartmentRole.Target,
+            ApprovalStatus = JobApprovalStatus.Pending,
         });
         await db.SaveChangesAsync();
-        await SeedAssignedTaskAsync(db, StaffId);
         var gateway = new RecordingSmsGateway();
         var notifier = new AfterHoursJobSmsNotifier(
             db,
@@ -234,7 +283,8 @@ public sealed class AfterHoursJobSmsNotifierTests
         await notifier.NotifyJobCreatedAsync(job, [DepartmentId, OtherDepartmentId], CancellationToken.None);
 
         Assert.Single(gateway.Sends);
-        Assert.Equal("905551111111", gateway.Sends[0].Phone);
+        Assert.Equal("905557777777", gateway.Sends[0].Phone);
+        Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905551111111");
     }
 
     [Fact]

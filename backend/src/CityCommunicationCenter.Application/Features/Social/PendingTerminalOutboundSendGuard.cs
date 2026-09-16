@@ -59,29 +59,35 @@ public static class PendingTerminalOutboundSendGuard
             .ToListAsync(cancellationToken);
     }
 
-    public static async Task<bool> HasTransmittedDuplicateAsync(
+    public static async Task<IReadOnlyList<Guid>> ResolveJobMessageIdsFromMessageAsync(
         IApplicationDbContext dbContext,
-        IReadOnlyCollection<Guid> messageIds,
-        Guid entryId,
-        string content,
+        Guid tenantId,
+        SocialMessage message,
         CancellationToken cancellationToken)
     {
-        if (messageIds.Count == 0 || string.IsNullOrWhiteSpace(content))
+        if (message.JobId is not Guid jobId)
         {
-            return false;
+            return [message.SocialMessageId];
         }
 
-        return await dbContext.ConversationEntries
+        var job = await dbContext.Jobs
             .AsNoTracking()
-            .AnyAsync(
-                entity => messageIds.Contains(entity.SocialMessageId)
-                    && entity.EntryId != entryId
-                    && entity.Direction == ConversationEntryDirection.Outbound
-                    && (entity.DeliveryStatus == ConversationDeliveryStatus.Sent
-                        || entity.DeliveryStatus == ConversationDeliveryStatus.Delivered
-                        || entity.DeliveryStatus == ConversationDeliveryStatus.Read)
-                    && entity.Content == content,
-                cancellationToken);
+            .FirstOrDefaultAsync(entity => entity.JobId == jobId && entity.TenantId == tenantId, cancellationToken);
+        if (job is null)
+        {
+            return [message.SocialMessageId];
+        }
+
+        var messageIds = await ResolveJobMessageIdsAsync(dbContext, tenantId, job, cancellationToken);
+        return messageIds.Count == 0 ? [message.SocialMessageId] : messageIds;
+    }
+
+    public static void ClearSendClaimIfPresent(SocialConversationEntry entry)
+    {
+        if (entry.ExternalEntryId?.StartsWith(SendClaimPrefix, StringComparison.Ordinal) == true)
+        {
+            entry.ExternalEntryId = null;
+        }
     }
 
     public static async Task<int> TryClaimPendingSendAsync(

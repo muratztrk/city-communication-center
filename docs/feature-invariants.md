@@ -2963,10 +2963,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WA timeline'da görünmez; onay sonrası `hasPendingMessageApproval` + operatör gönderimi.
   Yönetici onayı ikinci Pending terminal balonu oluşturmaz — iptal yolunda kuyruğa alınmış
   terminal Pending varsa `ReleaseTerminalMessagesAsync` yalnızca `ReleasedAtUtc` set eder (#3736 reopen).
-- **WA terminal çift gönderim (#3737):** `SendPendingConversationEntryCommand` aynı konuşmada
-  iletilmiş mükerrer terminal Pending'i API'ye çıkmadan Sent işaretler; gönderimde atomik claim +
-  kardeş Pending kayıtları bastırılır. `ReleaseTerminalMessagesAsync` kuyruk mükerrer kontrolü
-  yalnızca **aynı talep** mesajlarında; konuşma genelinde başka talebin gizli Pending'i sayılmaz.
+- **WA terminal çift gönderim (#3737/#3738):** `SendPendingConversationEntryCommand` terminal Pending
+  için atomik claim kullanır; gerçek API gönderimi sonrası yalnızca **aynı talep** içindeki kardeş
+  Pending kayıtları Sent işaretlenir — konuşmadaki eski Sent ile API atlanmaz (#3738). Kuyruk oluşturma
+  mükerrer kontrolü de talep bazlıdır (`ReleaseTerminalMessagesAsync`).
 - **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
   kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
   `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).

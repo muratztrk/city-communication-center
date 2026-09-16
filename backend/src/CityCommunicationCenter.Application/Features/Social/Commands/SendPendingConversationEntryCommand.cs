@@ -70,42 +70,12 @@ public sealed class SendPendingConversationEntryCommandHandler
             entry.DeliveryError = null;
         }
 
-        var conversationMessageIds = await PendingTerminalOutboundSendGuard.ResolveConversationMessageIdsAsync(
+        var jobMessageIds = await PendingTerminalOutboundSendGuard.ResolveJobMessageIdsFromMessageAsync(
             _dbContext,
             tenantId,
             message,
             cancellationToken);
         var isTerminalAutomaticPending = PendingTerminalOutboundSendGuard.IsTerminalAutomaticOutbound(entry);
-        if (isTerminalAutomaticPending
-            && await PendingTerminalOutboundSendGuard.HasTransmittedDuplicateAsync(
-                _dbContext,
-                conversationMessageIds,
-                entry.EntryId,
-                entry.Content,
-                cancellationToken))
-        {
-            entry.DeliveryStatus = ConversationDeliveryStatus.Sent;
-            entry.DeliveryError = null;
-            entry.ExternalEntryId = null;
-            entry.SentAt = utcNow;
-            entry.DeliveryStatusUpdatedAtUtc = utcNow;
-            message.ResponseContent = entry.Content;
-            message.RespondedAtUtc = utcNow;
-            if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)
-            {
-                message.Status = SocialMessageStatus.Responded;
-            }
-
-            await PendingTerminalOutboundSendGuard.MarkDuplicatePendingSiblingsAsTransmittedAsync(
-                _dbContext,
-                conversationMessageIds,
-                entry.EntryId,
-                entry.Content,
-                utcNow,
-                cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-            return new SendPendingConversationEntryResult(true, true);
-        }
 
         if (isTerminalAutomaticPending)
         {
@@ -208,11 +178,13 @@ public sealed class SendPendingConversationEntryCommandHandler
             {
                 entry.DeliveryStatus = ConversationDeliveryStatus.Pending;
                 entry.DeliveryError = sendResult.Error;
+                PendingTerminalOutboundSendGuard.ClearSendClaimIfPresent(entry);
             }
             else
             {
                 entry.DeliveryStatus = ConversationDeliveryStatus.Failed;
                 entry.DeliveryError = sendResult.Error;
+                PendingTerminalOutboundSendGuard.ClearSendClaimIfPresent(entry);
             }
         }
         else if (client is not null)
@@ -244,21 +216,20 @@ public sealed class SendPendingConversationEntryCommandHandler
                 message.Status = SocialMessageStatus.Responded;
             }
 
-            if (isTerminalAutomaticPending)
+            if (isTerminalAutomaticPending && entry.DeliveryStatus == ConversationDeliveryStatus.Sent)
             {
                 await PendingTerminalOutboundSendGuard.MarkDuplicatePendingSiblingsAsTransmittedAsync(
                     _dbContext,
-                    conversationMessageIds,
+                    jobMessageIds,
                     entry.EntryId,
                     entry.Content,
                     utcNow,
                     cancellationToken);
             }
         }
-        else if (isTerminalAutomaticPending
-            && entry.ExternalEntryId?.StartsWith(PendingTerminalOutboundSendGuard.SendClaimPrefix, StringComparison.Ordinal) == true)
+        else if (isTerminalAutomaticPending)
         {
-            entry.ExternalEntryId = null;
+            PendingTerminalOutboundSendGuard.ClearSendClaimIfPresent(entry);
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);

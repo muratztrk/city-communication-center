@@ -604,8 +604,8 @@ export function AuditLogsPage() {
                     <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
                     <td>{log.requestNumber?.trim() || '—'}</td>
                     <td>{log.kindLabel}</td>
-                    <td className="max-w-[18rem] text-sm text-slate-700">
-                      <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body line-clamp-3 whitespace-pre-wrap break-words leading-[1.25]" />
+                    <td className="max-w-[18rem] text-left text-sm text-slate-700">
+                      <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body break-words" />
                     </td>
                     <td>
                       <StatusPill tone={log.success ? 'success' : 'danger'}>{log.statusLabel}</StatusPill>

@@ -993,6 +993,7 @@
       "requestNumber": "Citizen Request No",
       "citizenName": "Citizen Name",
       "citizenPhone": "Phone No",
+      "title": "Title",
       "requestDate": "Citizen Request Date",
       "destination": "Source",
       "label": "Request Label"

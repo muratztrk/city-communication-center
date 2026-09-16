@@ -287,7 +287,7 @@ export function ReturnedCitizenRequestsPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table jobs-table data-table--zebra social-messages-table">
+          <table className="data-table jobs-table data-table--zebra social-messages-table returned-citizen-requests-table">
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -327,7 +327,7 @@ export function ReturnedCitizenRequestsPage() {
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('jobs.form.title', 'Başlık')}
+                  {t('returnedCitizenRequests.columns.title', 'Başlık')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="requestDateUtc"
@@ -375,9 +375,9 @@ export function ReturnedCitizenRequestsPage() {
                       <span>{row.displayNumber}</span>
                     </div>
                   </td>
-                  <td className="font-semibold">
-                    <div className="grid-stack-primary">{row.citizenName}</div>
-                    <div className="citizen-message-approval-phone-value grid-stack-secondary font-medium text-slate-600 tabular-nums">{row.citizenPhone}</div>
+                  <td className="citizen-message-approval-citizen-cell">
+                    <div className="font-semibold">{row.citizenName}</div>
+                    <div className="citizen-message-approval-phone-value font-medium text-slate-600">{row.citizenPhone}</div>
                   </td>
                   <td className="font-semibold">
                     <TruncatedText text={row.title} className="cell-title" />

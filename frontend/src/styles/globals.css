@@ -3436,8 +3436,10 @@
     line-clamp: 3;
     max-width: 18rem;
     overflow: hidden;
-    white-space: pre-wrap;
+    white-space: normal;
     word-break: break-word;
+    line-height: 1.25;
+    text-align: left;
   }
 
   .cell-title {
@@ -4017,10 +4019,10 @@
     font-size: 0.8rem;
   }
 
-  /* WA Vatandaş Talebi: yalnız kapalı trigger placeholder küçük; açılan liste 0.75rem (#3692). */
+  /* WA Vatandaş Talebi: yalnız kapalı trigger placeholder küçük; açılan liste 0.75rem (#3692/#3715). */
   .citizen-request-form .citizen-request-address-trigger span.text-slate-400,
   .citizen-request-form .citizen-request-address-trigger span.text-slate-400 span {
-    font-size: 0.68rem;
+    font-size: 0.64rem;
   }
 
   .citizen-request-form .citizen-request-placeholder-trigger span.text-slate-400 {
@@ -7428,7 +7430,8 @@
     line-height: 1.25;
   }
 
-  .citizen-message-approval-table .citizen-message-approval-phone-value {
+  .citizen-message-approval-table .citizen-message-approval-phone-value,
+  .returned-citizen-requests-table .citizen-message-approval-phone-value {
     font-size: 0.7rem !important;
     line-height: 1.25;
   }
@@ -7648,7 +7651,8 @@
 
 /* ≥768: Sms Onayı stacked telefon — 0.80rem yetmedi, VT Telefon No ile hizala (#3283). */
 @media (min-width: 768px) {
-  .citizen-message-approval-table .citizen-message-approval-phone-value {
+  .citizen-message-approval-table .citizen-message-approval-phone-value,
+  .returned-citizen-requests-table .citizen-message-approval-phone-value {
     font-size: 0.72rem !important;
     line-height: 1.25;
   }
@@ -7779,9 +7783,14 @@
     filter: brightness(0) saturate(100%) invert(27%) sepia(93%) saturate(4348%) hue-rotate(349deg) brightness(93%) contrast(93%);
   }
 
-  /* Vatandaş Bilgi Listesi — yerel arama X kırmızı (#3705 reopen). */
+  /* Vatandaş Bilgi Listesi — yerel arama X kırmızı + hafif sola (#3705 reopen). */
+  .citizen-directory-search-input {
+    padding-inline-end: 1.35rem;
+  }
+
   .citizen-directory-search-input::-webkit-search-cancel-button {
     cursor: pointer;
+    margin-inline-end: -0.15rem;
     filter: brightness(0) saturate(100%) invert(27%) sepia(93%) saturate(4348%) hue-rotate(349deg) brightness(93%) contrast(93%);
   }
 
@@ -9166,7 +9175,7 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
 
 @media (min-width: 768px) {
   .whatsapp-page-shell .whatsapp-page-banner-subtitle {
-    margin-top: -0.125rem;
+    margin-top: 0.0625rem;
     align-self: start;
   }
 }

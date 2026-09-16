@@ -11,7 +11,8 @@ function cellText(el: HTMLElement): string {
 function mayEllipsis(el: HTMLElement): boolean {
   if (
     el.classList.contains('truncate')
-    || el.classList.contains('cell-title')
+    ||     el.classList.contains('cell-title')
+    || el.classList.contains('cell-sms-body')
     || el.classList.contains('line-clamp-1')
     || el.classList.contains('line-clamp-2')
     || el.classList.contains('line-clamp-3')

@@ -783,6 +783,7 @@
       "requestNumber": "Vatandaş Talep No",
       "citizenName": "Vatandaş Adı",
       "citizenPhone": "Telefon No",
+      "title": "Başlık",
       "requestDate": "Vatandaş Talep Tarihi",
       "destination": "Geldiği Yer",
       "label": "Talep Etiketi"

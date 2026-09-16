@@ -181,13 +181,13 @@ public sealed class SendPendingConversationEntryCommandHandler
             else if (WhatsAppServiceWindow.ShouldRemainPendingAfterSendFailure(sendResult.Error, windowOpen))
             {
                 entry.DeliveryStatus = ConversationDeliveryStatus.Pending;
-                entry.DeliveryError = sendResult.Error;
+                entry.DeliveryError = WhatsAppDeliveryErrorFormatter.StoreValue(sendResult.Error);
                 PendingTerminalOutboundSendGuard.ClearSendClaimIfPresent(entry);
             }
             else
             {
                 entry.DeliveryStatus = ConversationDeliveryStatus.Failed;
-                entry.DeliveryError = sendResult.Error;
+                entry.DeliveryError = WhatsAppDeliveryErrorFormatter.StoreValue(sendResult.Error);
                 PendingTerminalOutboundSendGuard.ClearSendClaimIfPresent(entry);
             }
         }
@@ -248,7 +248,8 @@ public sealed class SendPendingConversationEntryCommandHandler
         throw new ValidationException([
             new FluentValidation.Results.ValidationFailure(
                 nameof(request.EntryId),
-                WhatsAppDeliveryErrorFormatter.Format(entry.DeliveryError))
+                entry.DeliveryError
+                    ?? WhatsAppDeliveryErrorFormatter.Format(null))
         ]);
     }
 

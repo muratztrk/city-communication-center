@@ -151,12 +151,12 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
                     else if (WhatsAppServiceWindow.ShouldRemainPendingAfterSendFailure(sendResult.Error, whatsAppWindowOpen))
                     {
                         deliveryStatus = ConversationDeliveryStatus.Pending;
-                        deliveryError = sendResult.Error;
+                        deliveryError = WhatsAppDeliveryErrorFormatter.StoreValue(sendResult.Error);
                     }
                     else
                     {
                         deliveryStatus = ConversationDeliveryStatus.Failed;
-                        deliveryError = sendResult.Error;
+                        deliveryError = WhatsAppDeliveryErrorFormatter.StoreValue(sendResult.Error);
                     }
                 }
                 }

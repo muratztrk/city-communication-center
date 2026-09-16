@@ -4,8 +4,24 @@ namespace CityCommunicationCenter.Application.Features.Social;
 
 internal static class WhatsAppDeliveryErrorFormatter
 {
+    public const int MaxStoredLength = 500;
+
     public const string ReEngagementWarning =
         "Vatandaş son 24 saat içinde mesaj göndermediği için yalnızca Meta onaylı şablon mesaj gönderilebilir.";
+
+    /// <summary>DB <c>DeliveryError</c> (max 500) için formatlanmış, kısaltılmış metin.</summary>
+    public static string? StoreValue(string? error)
+    {
+        var formatted = Format(error);
+        if (string.IsNullOrWhiteSpace(formatted))
+        {
+            return null;
+        }
+
+        return formatted.Length <= MaxStoredLength
+            ? formatted
+            : formatted[..MaxStoredLength];
+    }
 
     public static string Format(string? error)
     {

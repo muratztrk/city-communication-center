@@ -7779,6 +7779,12 @@
     filter: brightness(0) saturate(100%) invert(27%) sepia(93%) saturate(4348%) hue-rotate(349deg) brightness(93%) contrast(93%);
   }
 
+  /* Vatandaş Bilgi Listesi — yerel arama X kırmızı (#3705 reopen). */
+  .citizen-directory-search-input::-webkit-search-cancel-button {
+    cursor: pointer;
+    filter: brightness(0) saturate(100%) invert(27%) sepia(93%) saturate(4348%) hue-rotate(349deg) brightness(93%) contrast(93%);
+  }
+
   /* Harita: sohbet FAB'leri kaydır düğmesinin üst satırlarında (#3280/#3243). */
   body:has(.citizen-request-map-controls) .fixed-fab-stack {
     flex-direction: column;

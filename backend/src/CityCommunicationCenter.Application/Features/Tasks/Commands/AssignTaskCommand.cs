@@ -175,11 +175,13 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
                 job,
                 targetUser.UserId,
                 targetDepartment?.DepartmentId,
+                request.ActorUserId,
                 cancellationToken);
             await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
                 job,
                 targetUser.UserId,
                 targetDepartment?.DepartmentId,
+                request.ActorUserId,
                 cancellationToken);
         }
 

@@ -1055,14 +1055,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#3306). Aktif kapalıysa o kutu gönderilmez. Yönetici kutusu eski kayıtlarda bayrak yoksa
   açıktır; personel kutusu varsayılan kapalı. Personel şablonu **yalnız görev bir kullanıcıya
   atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider.
-  Standart personel aynı; salt müdür atlanır. Atanan VTY veya birim sorumlusu talep SMS'inden
-  sonra yalnız kendisine ikinci (görev) SMS alır (#3601). Müdür/sorumlu/VTY görevi **kendine**
-  atadığında yönetici SMS'i atlanır; yalnız görev SMS'i gider (#3620). Mesai dışında talep
+  Standart personel aynı; salt müdür atlanır. Başkası atadığında atanan VTY veya birim sorumlusu
+  ikinci (görev) SMS alır (#3601). Müdür/sorumlu/VTY görevi **kendine** atadığında veya talebi
+  kendisi yönlendirdiğinde mesai dışı SMS **gitmez** (`actorUserId == assigneeUserId`, #3620 reopen). Mesai dışında talep
   oluşturulunca/yönlendirilince (görev atanmadan) hedef birim müdür/sorumlu/VTY SMS'i gider
   (#3741). Yönetici SMS yalnız **hedef birim** kapsamında çözülür — sahip/operatör birime
   gitmez. Talep mesai içinde açılıp ilk atama mesai dışındaysa yönetici SMS ilk atamada gider;
   talep zaten mesai dışında açıldıysa ilk atamada mükerrer yönetici SMS atlanır. Self-assign
-  eden müdür/sorumlu/VTY o turda yönetici SMS'i almaz.
+  eden müdür/sorumlu/VTY o turda hiç SMS almaz; talebi yönlendiren aktör yönetici listesinden
+  çıkarılır.
   **Vatandaşa Giden SMS Gönderimi "İşleme Alındı" Durumu** (#3386/#3604): Vatandaşa Giden Cevaplar ile mesai dışı SMS
   kutularının arasında ayrı bölüm; yalnız `Phone` kanalından gelen taleplerde `İşleme Alındı`
   otomatik SMS'i bu şablonu kullanır (WhatsApp/sosyal kanallar genel İşleme Alındı şablonunda
@@ -2862,9 +2863,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA Talep Eki turkuaz (#6a75e2f0):** `SocialConversationMediaBubble` add-as-attachment `bg-teal-500`.
 - **SMS alıcı (#6a75eea2):** `WhatsAppRecipientResolver` Job.CitizenPhone fallback.
 - **SMS LiveSend (#6a75eea2):** Round 643 sonrası `IsEnabled` ⇒ gerçek gönderim (`EffectiveLiveSendEnabled`); Operatör release SMS fail → ValidationException.
-- **SMS ortam kilidi (testtim):** `Sms:LiveSendEnabled=false` (`CCC_SMS_LIVE_SEND_ENABLED=false`) iken
-  yalnız `SmsGateway` SMS sağlayıcısına çıkmaz; WhatsApp mesajları normal gönderilir. Test SMS dahil
-  SMS simülasyon loglanır. Talep dönüşümü bildirim hatasında başarısız sayılmaz. Prod'da varsayılan açık.
+- **SMS ortam kilidi (testtim):** `CCC_SMS_LIVE_SEND_ENABLED=false` iken `SmsGateway` sağlayıcıya
+  çıkmaz (simülasyon). Testtim varsayılanı `deploy-test.sh` ile **açık** (`true`, 2026-09-16).
+  WhatsApp bu bayraktan bağımsız. Prod'da varsayılan açık.
 - **SMS hitap (#3213/#3214 ile güncellendi):** hitap **`SmsGateway`'de DEĞİL**, yalnız vatandaş
   durum bildiriminde (`CitizenJobStatusNotifier`) eklenir: hitap satırı + boş satır + asıl metin
   (`CitizenOutboundGreeting.Ensure`, zaten hitaplıysa tekrar eklenmez). Yöneticiye giden mesai dışı

@@ -31,7 +31,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("Yönetici mesajı", gateway.Sends[0].Text);
@@ -48,7 +48,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.DoesNotContain(gateway.Sends, send => send.Text == "Personel mesajı");
     }
@@ -62,7 +62,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("Yönetici mesajı", gateway.Sends[0].Text);
@@ -98,7 +98,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId, OtherDepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId, OtherDepartmentId], null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("905557777777", gateway.Sends[0].Phone);
@@ -114,7 +114,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyTaskAssignedAsync(job, StaffId, DepartmentId, CancellationToken.None);
+        await notifier.NotifyTaskAssignedAsync(job, StaffId, DepartmentId, null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
@@ -122,7 +122,7 @@ public sealed class AfterHoursJobSmsNotifierTests
     }
 
     [Fact]
-    public async Task NotifyFirstAssignmentAsync_self_assigned_manager_gets_task_sms_only()
+    public async Task NotifyFirstAssignmentAsync_self_assigned_manager_sends_no_sms()
     {
         await using var db = CreateDbContext();
         await SeedAsync(db);
@@ -131,31 +131,47 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
-        await notifier.NotifyFirstAssignmentAsync(job, ManagerId, DepartmentId, CancellationToken.None);
-        await notifier.NotifyTaskAssignedAsync(job, ManagerId, DepartmentId, CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], ManagerId, CancellationToken.None);
+        await notifier.NotifyFirstAssignmentAsync(job, ManagerId, DepartmentId, ManagerId, CancellationToken.None);
+        await notifier.NotifyTaskAssignedAsync(job, ManagerId, DepartmentId, ManagerId, CancellationToken.None);
 
-        Assert.Single(gateway.Sends);
-        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
-        Assert.Equal("905551111111", gateway.Sends[0].Phone);
+        Assert.Empty(gateway.Sends);
     }
 
     [Fact]
-    public async Task NotifyJobCreatedAsync_self_assigned_manager_gets_task_sms_only()
+    public async Task NotifyJobCreatedAsync_self_assigned_vty_sends_no_sms()
     {
         await using var db = CreateDbContext();
-        await SeedAsync(db);
-        await SeedSelfAssignedTaskAsync(db, ManagerId);
+        await SeedAsync(db, crmPhone: "905559999999");
+        await SeedTargetDepartmentAsync(db);
+        await SeedSelfAssignedTaskAsync(db, CrmId);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
-        await notifier.NotifyTaskAssignedAsync(job, ManagerId, DepartmentId, CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CrmId, CancellationToken.None);
+        await notifier.NotifyTaskAssignedAsync(job, CrmId, DepartmentId, CrmId, CancellationToken.None);
+
+        Assert.Single(gateway.Sends);
+        Assert.Equal("905551111111", gateway.Sends[0].Phone);
+        Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905559999999");
+    }
+
+    [Fact]
+    public async Task NotifyTaskAssignedAsync_sends_staff_sms_when_assigned_by_other_user()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db, crmPhone: "905559999999");
+        await SeedTargetDepartmentAsync(db);
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+
+        var job = CreateJob();
+        await notifier.NotifyTaskAssignedAsync(job, CrmId, DepartmentId, ManagerId, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
-        Assert.Equal("905551111111", gateway.Sends[0].Phone);
+        Assert.Equal("905559999999", gateway.Sends[0].Phone);
     }
 
     [Fact]
@@ -168,7 +184,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905552222222");
     }
@@ -186,7 +202,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var job = CreateJob(
             JobRequestType.ExternalUnit,
             JobSourceType.SocialMessage);
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.Equal(2, gateway.Sends.Count);
         Assert.Contains(gateway.Sends, send => send.Phone == "905551111111");
@@ -204,7 +220,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob(JobRequestType.ExternalUnit, JobSourceType.Manual);
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("905551111111", gateway.Sends[0].Phone);
@@ -221,7 +237,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob(JobRequestType.ExternalUnit, JobSourceType.SocialMessage);
-        await notifier.NotifyTaskAssignedAsync(job, CrmId, DepartmentId, CancellationToken.None);
+        await notifier.NotifyTaskAssignedAsync(job, CrmId, DepartmentId, null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
@@ -240,7 +256,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyTaskAssignedAsync(job, ResponsibleId, DepartmentId, CancellationToken.None);
+        await notifier.NotifyTaskAssignedAsync(job, ResponsibleId, DepartmentId, null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
@@ -280,7 +296,7 @@ public sealed class AfterHoursJobSmsNotifierTests
             NullLogger<AfterHoursJobSmsNotifier>.Instance);
 
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId, OtherDepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId, OtherDepartmentId], null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
         Assert.Equal("905557777777", gateway.Sends[0].Phone);
@@ -298,7 +314,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
         var job = CreateJob();
-        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.Equal(2, gateway.Sends.Count);
         Assert.Contains(gateway.Sends, send => send.Phone == "905551111111");

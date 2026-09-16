@@ -100,7 +100,7 @@ else
   info "Test server already at ${LOCAL_HEAD:0:12}; rebuild only."
 fi
 
-info "Ensuring test SMS live send is disabled..."
+info "Ensuring test SMS live send is enabled..."
 ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<'EOF'
 set -euo pipefail
 ENV_FILE="/opt/city-communication-center/city-communication-center/.env"
@@ -109,11 +109,11 @@ if [[ ! -f "${ENV_FILE}" ]]; then
   exit 0
 fi
 if grep -q '^CCC_SMS_LIVE_SEND_ENABLED=' "${ENV_FILE}"; then
-  sed -i 's/^CCC_SMS_LIVE_SEND_ENABLED=.*/CCC_SMS_LIVE_SEND_ENABLED=false/' "${ENV_FILE}"
+  sed -i 's/^CCC_SMS_LIVE_SEND_ENABLED=.*/CCC_SMS_LIVE_SEND_ENABLED=true/' "${ENV_FILE}"
 else
-  printf '\n# Gerçek SMS gönderimi kapalı (testtim)\nCCC_SMS_LIVE_SEND_ENABLED=false\n' >> "${ENV_FILE}"
+  printf '\n# Gerçek SMS gönderimi (testtim)\nCCC_SMS_LIVE_SEND_ENABLED=true\n' >> "${ENV_FILE}"
 fi
-echo "  CCC_SMS_LIVE_SEND_ENABLED=false"
+echo "  CCC_SMS_LIVE_SEND_ENABLED=true"
 EOF
 
 info "Building and starting test containers..."

@@ -65,13 +65,12 @@ Test ve prod **ayrı PostgreSQL volume** kullanır. Testte silme/purge güvenlid
 
 ## SMS (testtim)
 
-Test ortamında gerçek SMS gönderimi **kapalı** olmalıdır. Sunucu `.env` dosyasında:
+Test ortamında gerçek SMS gönderimi `deploy-test.sh` ile `.env`'de açılır:
 
 ```bash
-CCC_SMS_LIVE_SEND_ENABLED=false
+CCC_SMS_LIVE_SEND_ENABLED=true
 ```
 
-Bu ayar `Sms:LiveSendEnabled=false` olarak API'ye geçer; **yalnız SMS** sağlayıcısına çıkılmaz
-(Test SMS dahil). WhatsApp mesajları etkilenmez — testtim'de WA üzerinden gerçek mesaj gidebilir.
-Talep oluşturma, WhatsApp bildirim hatasında başarısız sayılmaz.
-Prod `.env`'de bu satır yok veya `true` olmalıdır.
+`Sms:LiveSendEnabled=true` olduğunda mesai dışı / vatandaş durum SMS'leri gerçek sağlayıcıya gider
+(tenant SMS ayarları da açık olmalı). Kapatmak için sunucu `.env`'de `false` yapın ve API'yi yeniden
+başlatın. WhatsApp bu bayraktan bağımsızdır.

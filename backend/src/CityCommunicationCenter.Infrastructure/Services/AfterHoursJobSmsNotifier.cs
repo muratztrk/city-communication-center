@@ -33,11 +33,15 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         _logger = logger;
     }
 
-    public async Task NotifyJobCreatedAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken = default)
+    public async Task NotifyJobCreatedAsync(
+        Job job,
+        IReadOnlyCollection<Guid> departmentIds,
+        Guid? actorUserId = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
-            await NotifyJobCreatedCoreAsync(job, departmentIds, cancellationToken);
+            await NotifyJobCreatedCoreAsync(job, departmentIds, actorUserId, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -49,11 +53,12 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         Job job,
         Guid assigneeUserId,
         Guid? assignedDepartmentId,
+        Guid? actorUserId = null,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            await NotifyTaskAssignedCoreAsync(job, assigneeUserId, assignedDepartmentId, cancellationToken);
+            await NotifyTaskAssignedCoreAsync(job, assigneeUserId, assignedDepartmentId, actorUserId, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -69,11 +74,12 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         Job job,
         Guid assigneeUserId,
         Guid? assignedDepartmentId,
+        Guid? actorUserId = null,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            await NotifyFirstAssignmentCoreAsync(job, assigneeUserId, assignedDepartmentId, cancellationToken);
+            await NotifyFirstAssignmentCoreAsync(job, assigneeUserId, assignedDepartmentId, actorUserId, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -85,18 +91,29 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         }
     }
 
-    private async Task NotifyJobCreatedCoreAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken)
+    private async Task NotifyJobCreatedCoreAsync(
+        Job job,
+        IReadOnlyCollection<Guid> departmentIds,
+        Guid? actorUserId,
+        CancellationToken cancellationToken)
     {
         var distinctDepartmentIds = await ResolveManagerSmsDepartmentIdsAsync(job, departmentIds, cancellationToken);
-        await SendManagerSmsAsync(job, distinctDepartmentIds, additionalExclusions: null, cancellationToken);
+        var additionalExclusions = BuildActorExclusions(actorUserId);
+        await SendManagerSmsAsync(job, distinctDepartmentIds, additionalExclusions, cancellationToken);
     }
 
     private async Task NotifyFirstAssignmentCoreAsync(
         Job job,
         Guid assigneeUserId,
         Guid? assignedDepartmentId,
+        Guid? actorUserId,
         CancellationToken cancellationToken)
     {
+        if (IsSelfAssignment(actorUserId, assigneeUserId))
+        {
+            return;
+        }
+
         if (await HasOtherAssignedTasksAsync(job, assigneeUserId, cancellationToken))
         {
             return;
@@ -110,10 +127,11 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             return;
         }
 
-        HashSet<Guid>? additionalExclusions = null;
+        HashSet<Guid>? additionalExclusions = BuildActorExclusions(actorUserId);
         if (await IsAfterHoursManagerSmsRecipientAsync(job, assigneeUserId, distinctDepartmentIds, cancellationToken))
         {
-            additionalExclusions = [assigneeUserId];
+            additionalExclusions ??= [];
+            additionalExclusions.Add(assigneeUserId);
         }
 
         await SendManagerSmsAsync(job, distinctDepartmentIds, additionalExclusions, cancellationToken);
@@ -163,8 +181,14 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         Job job,
         Guid assigneeUserId,
         Guid? assignedDepartmentId,
+        Guid? actorUserId,
         CancellationToken cancellationToken)
     {
+        if (IsSelfAssignment(actorUserId, assigneeUserId))
+        {
+            return;
+        }
+
         var scheduleDepartmentId = assignedDepartmentId ?? job.OwnerDepartmentId;
         if (!await IsAfterHoursAsync(job.TenantId, scheduleDepartmentId, cancellationToken))
         {
@@ -325,8 +349,14 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         return recipientIds;
     }
 
+    private static bool IsSelfAssignment(Guid? actorUserId, Guid assigneeUserId) =>
+        actorUserId.HasValue && actorUserId.Value == assigneeUserId;
+
+    private static HashSet<Guid>? BuildActorExclusions(Guid? actorUserId) =>
+        actorUserId.HasValue ? [actorUserId.Value] : null;
+
     /// <summary>
-    /// Müdür/sorumlu/VTY görevi kendine atadığında yönetici SMS'i yerine yalnız görev SMS'i (#3620).
+    /// Müdür/sorumlu/VTY görevi kendine atadığında SMS gitmez (#3620 reopen).
     /// </summary>
     private async Task<HashSet<Guid>> ResolveSelfAssignedManagerSmsExclusionIdsAsync(
         Job job,

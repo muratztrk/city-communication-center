@@ -278,11 +278,13 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
                 job,
                 assignedUserId.Value,
                 assignedDepartmentId,
+                request.ActorUserId,
                 cancellationToken);
             await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
                 job,
                 assignedUserId.Value,
                 assignedDepartmentId,
+                request.ActorUserId,
                 cancellationToken);
         }
 

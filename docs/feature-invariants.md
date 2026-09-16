@@ -2949,6 +2949,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Taleplerim` değil `İade Edilen Talep`; `detailOnly` gömülü detayda 30 sn jobs poll yok.
 - **İade detay yönlendirilmemiş (#3687):** hedef `JobDepartment` yoksa **Talep Yapılan Birim**
   + **Talep İade Sebebi** (Talebi İade Eden Birim satırı yerine).
+- **İade grid Geldiği Yer (#3726):** `returnedFromDepartmentName` (operatöre iade eden birim);
+  yönlendirme sonrası güncel Target birimi gösterilmez.
+- **İade Bekleyen liste (#3727):** detaydan `forward-returned` sonrası `returned-citizen-requests`
+  sorgusu invalidate edilir; satır Bekleyen'den düşer.
 - **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
   kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
   `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).

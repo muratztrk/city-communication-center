@@ -28,6 +28,7 @@ export function invalidateIncoming(queryClient: QueryClient) {
 
 export function invalidateJobs(queryClient: QueryClient, jobId?: EntityId) {
   void queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
+  void queryClient.invalidateQueries({ queryKey: ['ccc', 'jobs', 'returned-citizen-requests'] })
   if (jobId) {
     void queryClient.invalidateQueries({ queryKey: queryKeys.jobs.detail(jobId) })
     void queryClient.invalidateQueries({ queryKey: queryKeys.jobs.auditLog(jobId) })

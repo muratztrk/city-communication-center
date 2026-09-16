@@ -63,10 +63,7 @@ function getSocialMessageCitizenPhone(message: SocialMessage): string {
 }
 
 function resolveDestinationName(job: JobSummary): string {
-  const targetDepartment = job.departments?.find(department => department.role === 'Target')
-  return targetDepartment?.departmentName?.trim()
-    || job.returnedFromDepartmentName?.trim()
-    || '—'
+  return job.returnedFromDepartmentName?.trim() || '—'
 }
 
 function toReturnedRow(
@@ -113,7 +110,7 @@ export function ReturnedCitizenRequestsPage() {
   const activeScopeFilter = RETURNED_SCOPE_FILTERS.find(filter => filter.value === scope) ?? RETURNED_SCOPE_FILTERS[0]
 
   const jobsQuery = useQuery({
-    queryKey: ['jobs', 'returned-citizen-requests', scope],
+    queryKey: queryKeys.jobs.returnedCitizenRequests(scope),
     queryFn: async () => {
       if (scope === 'all') {
         const [pending, forwarded] = await Promise.all([

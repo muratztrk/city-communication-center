@@ -68,6 +68,8 @@ export const queryKeys = {
     lists: () => ['ccc', 'jobs', 'list'] as const,
     list: (scope?: JobListScope | string, departmentId?: string | null) =>
       ['ccc', 'jobs', 'list', normalize({ scope, departmentId })] as const,
+    returnedCitizenRequests: (scope?: string) =>
+      ['ccc', 'jobs', 'returned-citizen-requests', scope ?? 'pending'] as const,
     detail: (jobId?: string | null) => ['ccc', 'jobs', 'detail', jobId ?? 'none'] as const,
     auditLog: (jobId?: string | null) => ['ccc', 'jobs', 'audit-log', jobId ?? 'none'] as const,
   },

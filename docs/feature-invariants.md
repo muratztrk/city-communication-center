@@ -2963,6 +2963,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WA timeline'da görünmez; onay sonrası `hasPendingMessageApproval` + operatör gönderimi.
   Yönetici onayı ikinci Pending terminal balonu oluşturmaz — iptal yolunda kuyruğa alınmış
   terminal Pending varsa `ReleaseTerminalMessagesAsync` yalnızca `ReleasedAtUtc` set eder (#3736 reopen).
+- **WA Beklemede Mesajı Gönder (#3739):** `/whatsapp` Pending balonunda 24s penceresi kapalı olsa da
+  `Mesajı Gönder` onay akışı açılır; gönderim backend'de dener, re-engagement hatasında Pending kalır (#3691).
+  Yalnızca Failed re-engagement balonları pencere dışında uyarı gösterir.
 - **WA terminal çift gönderim (#3737/#3738):** `SendPendingConversationEntryCommand` terminal Pending
   için atomik claim kullanır; gerçek API gönderimi sonrası yalnızca **aynı talep** içindeki kardeş
   Pending kayıtları Sent işaretlenir — konuşmadaki eski Sent ile API atlanmaz (#3738). Kuyruk oluşturma

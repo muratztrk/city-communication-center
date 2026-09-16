@@ -1144,6 +1144,8 @@ function ConversationDetail({
       await api.sendPendingConversationEntry(entry.socialMessageId, entry.entryId)
       if (latestConversationIdRef.current === sentForConversationId) setIsPinnedToBottom(true)
       await refreshDetail()
+    } catch (error) {
+      emitPageToast(error instanceof Error ? error.message : t('common.error', 'Hata oluştu.'), 'error')
     } finally {
       if (latestConversationIdRef.current === sentForConversationId) setSendingPendingId(null)
     }
@@ -1168,9 +1170,7 @@ function ConversationDetail({
   }
 
   const handleSendPending = (entry: CitizenConversationTimelineEntry) => {
-    const outsideWindow = !windowOpen
-    if ((isReEngagementEntry(entry) && outsideWindow)
-      || (outsideWindow && entry.direction === 'Outbound' && entry.deliveryStatus === 'Pending')) {
+    if (isReEngagementEntry(entry) && !windowOpen) {
       showReEngagementWarningDialog()
       return
     }

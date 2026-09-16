@@ -849,7 +849,7 @@ export function CitizenRequestMap({
             <button
               type="button"
               onClick={() => setStatusFilter(null)}
-              className={`font-semibold text-teal-700 transition-colors hover:text-teal-800${variant === 'citizen' ? ' citizen-map-legend-all-filter' : ''}${statusFilter ? ' underline-offset-2 hover:underline' : ''}`}
+              className={`font-semibold text-teal-700 transition-colors hover:text-teal-800${statusFilter ? ' underline-offset-2 hover:underline' : ''}`}
             >
               {t('common.all', 'Tümü')}
             </button>

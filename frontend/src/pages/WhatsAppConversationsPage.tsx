@@ -1863,20 +1863,14 @@ export function WhatsAppConversationsPage() {
     })
   }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, searchActive, searchPlusCountry, statusFilter])
 
-  // Sayfa açılışında sağ panel boş kalmasın diye ilk (en üstteki) konuşma otomatik seçilir —
-  // tıklandığında açılan görünüm varsayılan olarak gelir. Bir kere tetiklenir; kullanıcının
-  // sonraki seçimini veya ?phone= ile hedeflenen seçimi geçersiz kılmaz (card #1441).
-  const autoSelectedRef = useRef(false)
-  useEffect(() => {
-    if (autoSelectedRef.current) return
-    if (requestedPhone) { autoSelectedRef.current = true; return }
-    if (selectedId) { autoSelectedRef.current = true; return }
-    if (filtered.length === 0) return
-    autoSelectedRef.current = true
-    setSelectedId(filtered[0].citizenConversationId)
-  }, [filtered, requestedPhone, selectedId])
+  const handleListFilterChange = useCallback((value: ConversationListFilter) => {
+    setListFilter(value)
+    setSelectedId(null)
+  }, [])
 
   const selectedConv = conversations.find(c => c.citizenConversationId === selectedId) ?? null
+  const showConversationDetail = selectedId != null
+    && filtered.some(conversation => conversation.citizenConversationId === selectedId)
 
   const handleReadMarked = useCallback(() => {
     setConversations(prev =>
@@ -2117,7 +2111,7 @@ export function WhatsAppConversationsPage() {
           search={search}
           onSearchChange={setSearch}
           listFilter={listFilter}
-          onListFilterChange={setListFilter}
+          onListFilterChange={handleListFilterChange}
           onOpenBlocked={() => setBlockedListOpen(true)}
           statusFilter={statusFilter}
           onOpenStatusRequests={handleOpenStatusRequests}
@@ -2127,7 +2121,7 @@ export function WhatsAppConversationsPage() {
 
         {/* Right: conversation detail */}
         <div className="min-h-[34rem] flex-1 min-w-0 overflow-hidden bg-slate-50 md:min-h-0">
-          {selectedId ? (
+          {showConversationDetail && selectedId ? (
             <ConversationDetail
               key={selectedId}
               conversationId={selectedId}

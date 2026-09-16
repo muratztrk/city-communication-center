@@ -104,7 +104,7 @@ public static class PendingTerminalOutboundSendGuard
                 && (entity.DeliveryStatus == ConversationDeliveryStatus.Pending
                     || entity.DeliveryStatus == ConversationDeliveryStatus.Failed)
                 && (entity.ExternalEntryId == null
-                    || entity.ExternalEntryId.StartsWith(SendClaimPrefix, StringComparison.Ordinal)))
+                    || entity.ExternalEntryId.StartsWith(SendClaimPrefix)))
             .ExecuteUpdateAsync(
                 setters => setters
                     .SetProperty(entity => entity.DeliveryStatus, ConversationDeliveryStatus.Pending)

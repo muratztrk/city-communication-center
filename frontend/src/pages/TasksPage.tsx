@@ -2052,7 +2052,7 @@ const pageKicker = isMyTasksView
           <ClearPieFilterLink hasColumnFilters={hasActiveTaskColumnFilters} onClearColumnFilters={clearTaskFilters} />
         </nav>
       ) : isStaffTasksView ? (
-        <nav className="scope-chips">
+        <nav className="scope-chips scope-chips--wrap">
           {staffFilterUsers.map(item => (
             <button
               key={item.userId}

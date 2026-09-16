@@ -317,7 +317,8 @@ export type JobListScope =
   | 'pending-approval'
   | 'outgoing-department'
   | 'rejected'
-  | 'returned-to-operator';
+  | 'returned-to-operator'
+  | 'returned-forwarded-by-operator';
 
 export interface UpdateJobRequest {
   title: string;

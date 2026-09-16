@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { FileText, MessageSquareText, PenLine, Search } from 'lucide-react'
+import { FileText, MessageSquareText, PenLine, Search, X } from 'lucide-react'
 import { api } from '../api/client'
 import { CitizenDirectoryTicketsModal } from '../components/citizen-directory/CitizenDirectoryTicketsModal'
 import { Button } from '../components/ui/button'
@@ -402,10 +402,20 @@ export function CitizenDirectoryPage() {
               value={searchText}
               onChange={event => setSearchText(event.target.value)}
               placeholder={t('citizenDirectory.search', 'İsim, numara veya adres ara…')}
-              className="field-input w-full pl-8 text-sm"
+              className="field-input w-full pl-8 pr-8 text-sm"
             />
+            {isSearchQueryActive(searchText) ? (
+              <button
+                type="button"
+                onClick={() => setSearchText('')}
+                className="scope-chip-search-clear absolute right-2 top-1/2 shrink-0 -translate-y-1/2 font-extrabold text-red-600 transition-colors hover:text-red-700"
+                aria-label={t('common.clear', 'Temizle')}
+              >
+                <X className="size-3.5" strokeWidth={3} />
+              </button>
+            ) : null}
           </div>
-          {(isSearchQueryActive(searchText) || Object.values(filters).some(Boolean)) ? (
+          {Object.values(filters).some(Boolean) ? (
             <Button type="button" size="sm" variant="secondary" onClick={() => { setSearchText(''); clearFilters() }}>
               {t('common.reset', 'Temizle')}
             </Button>

@@ -173,7 +173,7 @@ export function ConversationEntryBubble({
         time: formatConversationMessageTime(queuedAt, locale, t),
       })
     : undefined
-  const showPendingActions = isPending && canSendPending
+  const showPendingActions = isPending && canSendPending && !entry.isAutomaticMessage
 
   const syncTextareaHeight = () => {
     const textarea = textareaRef.current

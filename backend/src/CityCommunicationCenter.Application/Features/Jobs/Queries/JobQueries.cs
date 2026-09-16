@@ -127,6 +127,26 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                 q = q.Where(_ => false);
             }
         }
+        else if (scope == "returned-forwarded-by-operator")
+        {
+            q = q.Where(j => j.ReturnedToOperatorAtUtc == null
+                && j.ReturnedToOperatorReason != null
+                && (j.RequestType == JobRequestType.Citizen
+                    || j.SourceType == JobSourceType.SocialMessage
+                    || j.SourceType == JobSourceType.CitizenRequest
+                    || j.SourceType == JobSourceType.EDevlet)
+                && _dbContext.JobDepartments.Any(jd =>
+                    jd.JobId == j.JobId
+                    && jd.Role == JobDepartmentRole.Target
+                    && jd.ApprovalStatus == JobApprovalStatus.Pending));
+            if (actor is null
+                || (actor.RoleCode != RoleCode.Operator
+                    && actor.RoleCode != RoleCode.SystemAdmin
+                    && !UserRoleAccess.IsCitizenRequestManager(actor)))
+            {
+                q = q.Where(_ => false);
+            }
+        }
 
         if (string.Equals(request.RequestType, "Citizen", StringComparison.OrdinalIgnoreCase))
         {

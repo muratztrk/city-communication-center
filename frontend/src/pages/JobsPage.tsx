@@ -3139,17 +3139,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 : formatJobDisplayNumberText(detail, locale)}
                             </span>
                           </span>
-                          {isCitizenRequestDetail ? (
+                          {isCitizenRequestDetail && !forwardReason ? (
                             <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
                               {t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
                             </span>
-                          ) : (
+                          ) : !isCitizenRequestDetail ? (
                             <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
                               {detail.requestType === 'ExternalUnit'
                                 ? t('jobs.requestType.external', 'Birim Dışı')
                                 : t('jobs.requestType.internal', 'Birim İçi')}
                             </span>
-                          )}
+                          ) : null}
                           {forwardReason ? (
                             <span className="text-[12px] font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                           ) : null}
@@ -3230,41 +3230,27 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         rowClass: 'job-detail-field-row--location-creator',
                       },
                       ...(isReturnedRequestDetail
-                        ? (returnedTargetDepartment
-                          ? [{
-                              label: (
-                                <StackedFieldLabel
-                                  top={t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')}
-                                  bottom={t('social.label', 'Talep Etiketi')}
-                                />
-                              ),
-                              value: (
-                                <div className="stacked-field-value">
-                                  <ExternalDestinationValue detail={detail} framed={false} />
-                                  <span className="stacked-field-value__secondary">{citizenSourceMessage?.category?.trim() || '—'}</span>
-                                </div>
-                              ),
-                            }]
-                          : [
-                              {
-                                label: (
-                                  <StackedFieldLabel
-                                    top={t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')}
-                                    bottom={t('social.label', 'Talep Etiketi')}
-                                  />
-                                ),
-                                value: (
-                                  <div className="stacked-field-value">
-                                    <span>{detail.returnedFromDepartmentName?.trim() || '—'}</span>
-                                    <span className="stacked-field-value__secondary">{citizenSourceMessage?.category?.trim() || '—'}</span>
-                                  </div>
-                                ),
-                              },
-                              {
-                                label: t('jobs.detail.returnedReason', 'Talep İade Sebebi'),
-                                value: detail.returnedToOperatorReason?.trim() || '—',
-                              },
-                            ])
+                        ? [
+                            {
+                              label: t('social.label', 'Talep Etiketi'),
+                              value: citizenSourceMessage?.category?.trim() || '—',
+                            },
+                            ...(returnedTargetDepartment
+                              ? [{
+                                  label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
+                                  value: <ExternalDestinationValue detail={detail} framed={false} />,
+                                }]
+                              : [
+                                  {
+                                    label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
+                                    value: detail.returnedFromDepartmentName?.trim() || '—',
+                                  },
+                                  {
+                                    label: t('jobs.detail.returnedReason', 'Talep İade Sebebi'),
+                                    value: detail.returnedToOperatorReason?.trim() || '—',
+                                  },
+                                ]),
+                          ]
                         : [{
                             // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
                             // gösterilmez (codex review, cards #1544/#1546).

@@ -1,5 +1,5 @@
 import { Search, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -11,23 +11,41 @@ import { FilterableTh } from '../components/ui/FilterableTh'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
+import { TruncatedText } from '../components/ui/TruncatedText'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
-import type { JobSummary, SocialMessage } from '../types/platform'
+import type { JobListScope, JobSummary, SocialMessage } from '../types/platform'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { looksLikePhone } from '../utils/phoneDisplay'
-import { JobsPage } from './JobsPage'
+
+const JobsPage = lazy(() => import('./JobsPage').then(module => ({ default: module.JobsPage })))
+
+type ReturnedScope = 'pending' | 'forwarded' | 'all'
+
+const RETURNED_SCOPE_FILTERS: Array<{
+  value: ReturnedScope
+  labelKey: string
+  fallback: string
+  chipClass: string
+  apiScope: JobListScope | null
+}> = [
+  { value: 'pending', labelKey: 'returnedCitizenRequests.scope.pending', fallback: 'Bekleyen', chipClass: 'scope-chip--pending', apiScope: 'returned-to-operator' },
+  { value: 'forwarded', labelKey: 'returnedCitizenRequests.scope.forwarded', fallback: 'Yönlendirilen', chipClass: 'scope-chip--completed', apiScope: 'returned-forwarded-by-operator' },
+  { value: 'all', labelKey: 'returnedCitizenRequests.scope.all', fallback: 'Tümü', chipClass: 'scope-chip--all', apiScope: null },
+]
 
 type ReturnedCitizenRequestRow = {
   jobId: string
   displayNumber: string
   citizenName: string
   citizenPhone: string
+  title: string
   requestDateUtc: string
   requestDateText: string
   destinationName: string
+  returnedReason: string
   channel?: string | null
 }
 
@@ -57,7 +75,7 @@ function toReturnedRow(
   socialByJobId: Map<string, SocialMessage>,
 ): ReturnedCitizenRequestRow {
   const linkedMessage = socialByJobId.get(job.jobId)
-  const requestDateUtc = linkedMessage?.receivedAtUtc ?? job.createdAtUtc
+  const requestDateUtc = linkedMessage?.receivedAtUtc ?? job.createdAtUtc ?? ''
   const citizenName = job.citizenName?.trim()
     || (linkedMessage ? getSocialMessageCitizenName(linkedMessage) : '—')
   const citizenPhone = job.citizenPhone?.trim()
@@ -71,9 +89,11 @@ function toReturnedRow(
     displayNumber: formatCitizenRequestNumber(linkedMessage ?? job, locale),
     citizenName,
     citizenPhone,
+    title: job.title?.trim() || '—',
     requestDateUtc,
     requestDateText: requestDateUtc ? new Date(requestDateUtc).toLocaleString(locale) : '—',
     destinationName: resolveDestinationName(job),
+    returnedReason: job.returnedToOperatorReason?.trim() || '—',
     channel: linkedMessage?.channel ?? null,
   }
 }
@@ -86,12 +106,28 @@ export function ReturnedCitizenRequestsPage() {
   const [searchText, setSearchText] = useState('')
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
+  const [scope, setScope] = useState<ReturnedScope>('pending')
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
+  const activeScopeFilter = RETURNED_SCOPE_FILTERS.find(filter => filter.value === scope) ?? RETURNED_SCOPE_FILTERS[0]
+
   const jobsQuery = useQuery({
-    queryKey: queryKeys.jobs.list('returned-to-operator'),
-    queryFn: () => api.getJobs('returned-to-operator'),
+    queryKey: ['jobs', 'returned-citizen-requests', scope],
+    queryFn: async () => {
+      if (scope === 'all') {
+        const [pending, forwarded] = await Promise.all([
+          api.getJobs('returned-to-operator'),
+          api.getJobs('returned-forwarded-by-operator'),
+        ])
+        const byId = new Map<string, JobSummary>()
+        for (const job of [...pending, ...forwarded]) {
+          byId.set(job.jobId, job)
+        }
+        return [...byId.values()]
+      }
+      return api.getJobs(activeScopeFilter.apiScope ?? 'returned-to-operator')
+    },
   })
 
   const socialQuery = useQuery({
@@ -120,22 +156,26 @@ export function ReturnedCitizenRequestsPage() {
     if (key === 'displayNumber') return row.displayNumber
     if (key === 'citizenName') return row.citizenName
     if (key === 'citizenPhone') return row.citizenPhone
+    if (key === 'title') return row.title
     if (key === 'requestDateUtc') return row.requestDateText
     if (key === 'destinationName') return row.destinationName
+    if (key === 'returnedReason') return row.returnedReason
     return String((row as unknown as Record<string, unknown>)[key] ?? '')
   }
 
   const filteredRows = useMemo(() => rows.filter(row => {
     if (filterFrom || filterTo) {
-      const requestDate = row.requestDateUtc.slice(0, 10)
-      if (filterFrom && requestDate < filterFrom.slice(0, 10)) return false
-      if (filterTo && requestDate > filterTo.slice(0, 10)) return false
+      const requestDate = row.requestDateUtc ? row.requestDateUtc.slice(0, 10) : ''
+      if (filterFrom && requestDate && requestDate < filterFrom.slice(0, 10)) return false
+      if (filterTo && requestDate && requestDate > filterTo.slice(0, 10)) return false
     }
     if (!matchesBannerSearch(searchText, [
       row.displayNumber,
       row.citizenName,
       row.citizenPhone,
+      row.title,
       row.destinationName,
+      row.returnedReason,
       row.requestDateText,
     ])) {
       return false
@@ -202,7 +242,7 @@ export function ReturnedCitizenRequestsPage() {
                       setSearchText('')
                       setCurrentPage(1)
                     }}
-                    className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
+                    className="scope-chip-search-clear shrink-0 font-extrabold text-red-600 transition-colors hover:text-red-700"
                     aria-label={t('common.clear', 'Temizle')}
                   >
                     <X className="size-3.5" strokeWidth={3} />
@@ -226,6 +266,22 @@ export function ReturnedCitizenRequestsPage() {
           </div>
         </div>
       </header>
+
+      <nav className="scope-chips" aria-label={t('returnedCitizenRequests.title', 'İade Edilen Talepler')}>
+        {RETURNED_SCOPE_FILTERS.map(filter => (
+          <button
+            key={filter.value}
+            type="button"
+            className={`scope-chip ${filter.chipClass}${filter.value === scope ? ' active' : ''}`}
+            onClick={() => {
+              setScope(filter.value)
+              setCurrentPage(1)
+            }}
+          >
+            {t(filter.labelKey, filter.fallback)}
+          </button>
+        ))}
+      </nav>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
@@ -257,18 +313,21 @@ export function ReturnedCitizenRequestsPage() {
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('returnedCitizenRequests.columns.citizenName', 'Vatandaş Adı')}
+                  <span className="inline-flex flex-col leading-tight">
+                    <span>{t('returnedCitizenRequests.columns.citizenName', 'Vatandaş Adı')}</span>
+                    <span className="text-[0.68rem] font-semibold text-slate-400">{t('jobs.detail.citizenPhone', 'Telefon No')}</span>
+                  </span>
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="citizenPhone"
-                  filterValue={filters.citizenPhone ?? ''}
+                  filterKey="title"
+                  filterValue={filters.title ?? ''}
                   onFilter={handleFilter}
-                  sortKey="citizenPhone"
+                  sortKey="title"
                   currentSortKey={sortKey}
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('jobs.detail.citizenPhone', 'Telefon No')}
+                  {t('jobs.form.title', 'Başlık')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="requestDateUtc"
@@ -279,9 +338,7 @@ export function ReturnedCitizenRequestsPage() {
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  <span className="inline-flex whitespace-nowrap leading-tight">
-                    <span>{t('returnedCitizenRequests.columns.requestDate', 'Vatandaş Talep Tarihi')}</span>
-                  </span>
+                  {t('returnedCitizenRequests.columns.requestDateShort', 'Talep Tarihi')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="destinationName"
@@ -293,6 +350,17 @@ export function ReturnedCitizenRequestsPage() {
                   onSort={handleSort}
                 >
                   {t('returnedCitizenRequests.columns.destination', 'Geldiği Yer')}
+                </FilterableTh>
+                <FilterableTh
+                  filterKey="returnedReason"
+                  filterValue={filters.returnedReason ?? ''}
+                  onFilter={handleFilter}
+                  sortKey="returnedReason"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                >
+                  {t('jobs.detail.returnedReason', 'İade Sebebi')}
                 </FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
@@ -307,10 +375,18 @@ export function ReturnedCitizenRequestsPage() {
                       <span>{row.displayNumber}</span>
                     </div>
                   </td>
-                  <td className="font-semibold">{row.citizenName}</td>
-                  <td className="citizen-grid-phone-value text-sm font-semibold text-slate-500 tabular-nums">{row.citizenPhone}</td>
+                  <td className="font-semibold">
+                    <div className="grid-stack-primary">{row.citizenName}</div>
+                    <div className="citizen-grid-phone-value grid-stack-secondary text-sm font-semibold text-slate-500 tabular-nums">{row.citizenPhone}</div>
+                  </td>
+                  <td className="font-semibold">
+                    <TruncatedText text={row.title} className="cell-title" />
+                  </td>
                   <td><DateCell value={row.requestDateUtc} locale={locale} /></td>
                   <td><span className="font-semibold text-slate-700">{row.destinationName}</span></td>
+                  <td>
+                    <TruncatedText text={row.returnedReason} className="cell-title" />
+                  </td>
                   <td>
                     <div className="flex justify-center">
                       <Button
@@ -326,7 +402,7 @@ export function ReturnedCitizenRequestsPage() {
                 </tr>
               ))}
               {sortedRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={7} message={t('returnedCitizenRequests.empty', 'İade edilmiş talep yok.')} />
+                <TableEmptyStateRows columnCount={8} message={t('returnedCitizenRequests.empty', 'İade edilmiş talep yok.')} />
               ) : null}
             </tbody>
           </table>
@@ -344,18 +420,20 @@ export function ReturnedCitizenRequestsPage() {
       </section>
 
       {detailJobId ? (
-        <JobsPage
-          key={`${detailJobId}-${detailRefreshKey}`}
-          mode="myRequests"
-          fixedScope="mine"
-          detailOnly
-          detailContextOverride="returned"
-          notificationJobId={detailJobId}
-          onNotificationDetailClose={() => {
-            setDetailJobId(null)
-            setDetailRefreshKey(current => current + 1)
-          }}
-        />
+        <Suspense fallback={<div className="loading">{t('common.loading')}</div>}>
+          <JobsPage
+            key={`${detailJobId}-${detailRefreshKey}`}
+            mode="myRequests"
+            fixedScope="mine"
+            detailOnly
+            detailContextOverride="returned"
+            notificationJobId={detailJobId}
+            onNotificationDetailClose={() => {
+              setDetailJobId(null)
+              setDetailRefreshKey(current => current + 1)
+            }}
+          />
+        </Suspense>
       ) : null}
     </div>
   )

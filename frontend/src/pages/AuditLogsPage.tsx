@@ -10,6 +10,7 @@ import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
+import { TruncatedText } from '../components/ui/TruncatedText'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { AuditLog, SmsOutboundLogItem } from '../types/platform'
@@ -604,7 +605,7 @@ export function AuditLogsPage() {
                     <td>{log.requestNumber?.trim() || '—'}</td>
                     <td>{log.kindLabel}</td>
                     <td className="max-w-[18rem] text-sm text-slate-700">
-                      <div className="line-clamp-3 whitespace-pre-wrap break-words leading-[1.15]">{log.bodyPreview}</div>
+                      <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body line-clamp-3 whitespace-pre-wrap break-words leading-[1.25]" />
                     </td>
                     <td>
                       <StatusPill tone={log.success ? 'success' : 'danger'}>{log.statusLabel}</StatusPill>

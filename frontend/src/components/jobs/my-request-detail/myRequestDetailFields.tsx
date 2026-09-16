@@ -99,28 +99,20 @@ export function buildMyRequestDetailFields(
 
   if (isCitizenRequestJob(detail)) {
     const returnedTargetDepartment = detail.departments?.find(department => department.role === 'Target')
-    const returnedDestinationLabel = (
-      <StackedFieldLabel
-        top={t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')}
-        bottom={t('social.label', 'Talep Etiketi')}
-      />
-    )
-    const returnedDestinationValue = (departmentName: string) => (
-      <div className="stacked-field-value">
-        <span>{departmentName}</span>
-        <span className="stacked-field-value__secondary">{citizenSourceMessage?.category?.trim() || '—'}</span>
-      </div>
-    )
+    const returnedRequestTagField: MyRequestDetailField = {
+      label: t('social.label', 'Talep Etiketi'),
+      value: citizenSourceMessage?.category?.trim() || '—',
+    }
     const destinationFields: MyRequestDetailField[] = returnedRequestDetail
       ? (returnedTargetDepartment
         ? [{
-            label: returnedDestinationLabel,
-            value: returnedDestinationValue(returnedTargetDepartment.departmentName ?? '—'),
+            label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
+            value: returnedTargetDepartment.departmentName ?? '—',
           }]
         : [
             {
-              label: returnedDestinationLabel,
-              value: returnedDestinationValue(detail.returnedFromDepartmentName?.trim() || '—'),
+              label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
+              value: detail.returnedFromDepartmentName?.trim() || '—',
             },
             {
               label: t('jobs.detail.returnedReason', 'Talep İade Sebebi'),
@@ -193,6 +185,7 @@ export function buildMyRequestDetailFields(
         value: locationCreatorValue,
         rowClass: 'job-detail-field-row--location-creator',
       },
+      ...(returnedRequestDetail ? [returnedRequestTagField] : []),
       ...destinationFields,
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel && !returnedRequestDetail

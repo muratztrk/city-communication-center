@@ -34,7 +34,7 @@ import { isSearchQueryActive, pinMatchesMapSearch } from '../utils/requestSearch
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boolean }
 
 const PIN_COLORS: Record<string, string> = {
-  processingReceived: '#0d9488',
+  processingReceived: '#eab308',
   pendingApproval: '#0ea5e9',
   inProgress: '#0ea5e9',
   overdue: '#f97316',
@@ -435,6 +435,7 @@ export function CitizenRequestMap({
   const [streetViewPicker, setStreetViewPicker] = useState(false)
   const [streetViewVisible, setStreetViewVisible] = useState(false)
   const [listMode, setListMode] = useState<'located' | 'unlocated' | null>(null)
+  const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [internalSearch, setInternalSearch] = useState('')
   const mapSearch = searchQuery ?? internalSearch
   const setMapSearch = onSearchQueryChange ?? setInternalSearch
@@ -599,11 +600,16 @@ export function CitizenRequestMap({
     return () => { cancelled = true }
   }, [pins, mapView.districtId, geocodeReady, queryClient, variant])
 
+  const statusFilteredResolved = useMemo(() => {
+    if (!statusFilter) return resolved
+    return resolved.filter(pin => pin.displayStatus === statusFilter)
+  }, [resolved, statusFilter])
+
   const visibleResolved = useMemo(() => {
-    if (!searchKey) return resolved
+    if (!searchKey) return statusFilteredResolved
     const ids = new Set(searchedPins.map(pin => pin.jobId))
-    return resolved.filter(pin => ids.has(pin.jobId))
-  }, [resolved, searchedPins, searchKey])
+    return statusFilteredResolved.filter(pin => ids.has(pin.jobId))
+  }, [statusFilteredResolved, searchedPins, searchKey])
 
   const unlocated = useMemo(() => {
     const locatedIds = new Set(resolved.map(pin => pin.jobId))
@@ -826,18 +832,27 @@ export function CitizenRequestMap({
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
           {statusLegend.map(item => (
-            <span
+            <button
               key={item.key}
-              className={`inline-flex shrink-0 items-center gap-1.5${item.key === 'overdue' ? ' whitespace-nowrap' : ''}`}
+              type="button"
+              onClick={() => setStatusFilter(current => (current === item.key ? null : item.key))}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-md px-1 py-0.5 transition-colors hover:bg-slate-100${item.key === 'overdue' ? ' whitespace-nowrap' : ''}${statusFilter === item.key ? ' bg-slate-100 ring-1 ring-slate-300' : ''}`}
             >
               <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
               {item.label}
-            </span>
+            </button>
           ))}
-          <span className="text-slate-400">
+          <span className="inline-flex items-center gap-1.5 text-slate-400">
             {loading || resolving
               ? t('common.loading', 'Yükleniyor...')
               : t('citizenRequestMap.pinCount', { count: visibleResolved.length, defaultValue: '{{count}} konum' })}
+            <button
+              type="button"
+              onClick={() => setStatusFilter(null)}
+              className={`font-semibold transition-colors hover:text-slate-600${statusFilter ? ' text-sky-600 underline-offset-2 hover:underline' : ' text-slate-500'}`}
+            >
+              {t('common.all', 'Tümü')}
+            </button>
           </span>
           {hideLegendSearch ? null : (
             <div className="min-w-[10rem] max-w-sm flex-1">

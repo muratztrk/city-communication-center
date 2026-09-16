@@ -75,7 +75,7 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
         }
 
         settings.CitizenAutoReplyTemplatesJson = CitizenAutoReplyTemplateJson.Serialize(new CitizenAutoReplyTemplateModel(
-            request.ProcessingReceived.Trim(),
+            request.ProcessingReceived.TrimStart(),
             request.InProgress.Trim(),
             request.Completed.Trim(),
             request.Cancelled.Trim(),
@@ -92,7 +92,9 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
             request.AfterHoursStaffSms,
             request.AfterHoursManagerSmsEnabled,
             request.AfterHoursStaffSmsEnabled,
-            string.IsNullOrWhiteSpace(request.SmsProcessingReceived) ? null : request.SmsProcessingReceived.Trim(),
+            string.IsNullOrWhiteSpace(request.SmsProcessingReceived)
+                ? null
+                : request.SmsProcessingReceived.TrimStart(),
             request.SmsProcessingReceivedEnabled));
 
         await _dbContext.SaveChangesAsync(cancellationToken);

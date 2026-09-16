@@ -3429,6 +3429,17 @@
      yalnızca tek başına sığmayan çok uzun kelimeler kırılır (card 535).
      text-wrap: balance → uzun başlık satırlara yaklaşık eşit (yarı yarıya) bölünür; son satırda
      tek kelime sarkmaz (card 593). */
+  .cell-sms-body {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    max-width: 18rem;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
   .cell-title {
     /* En fazla 2 satır: uzun başlık ~yarı yarıya bölünür (balance) ama 2. ek satıra inmez (card 597).
        Genişlik biraz artırıldı — alt satıra daha geç geçsin (#2077). */
@@ -4630,6 +4641,11 @@
   .role-matrix-toggle:has(input:disabled) {
     opacity: 0.58;
     cursor: not-allowed;
+  }
+
+  .scope-chips.scope-chips--wrap {
+    flex-wrap: wrap;
+    overflow-x: visible;
   }
 
   .scope-chips {
@@ -9142,6 +9158,13 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   padding-top: 0.3125rem;
 }
 
+@media (min-width: 768px) {
+  .whatsapp-page-shell .whatsapp-page-banner-subtitle {
+    margin-top: -0.125rem;
+    align-self: start;
+  }
+}
+
 .whatsapp-page-shell .whatsapp-page-banner-subtitle {
   grid-column: 1;
   grid-row: 2;
@@ -9229,6 +9252,12 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto;
     align-items: start;
+  }
+
+  .whatsapp-page-shell .whatsapp-page-banner-title {
+    padding-top: 0;
+    align-self: start;
+    line-height: 1.15;
   }
 
   .whatsapp-page-shell .whatsapp-page-banner-subtitle {

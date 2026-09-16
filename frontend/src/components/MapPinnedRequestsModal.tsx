@@ -64,7 +64,7 @@ function pinStatusTone(displayStatus: string): GridStatusTone {
 function mapListStatusPillClass(displayStatus: string, variant: 'citizen' | 'department'): string {
   if (displayStatus === 'inProgress') return getStatusPillClass('inProgress')
   if (variant === 'citizen') {
-    if (displayStatus === 'processingReceived') return 'bg-teal-600 text-white ring-teal-700'
+    if (displayStatus === 'processingReceived') return 'bg-yellow-400 text-slate-900 ring-yellow-500'
     if (displayStatus === 'overdue') return 'bg-orange-500 text-white ring-orange-600'
   }
   return getStatusPillClass(pinStatusTone(displayStatus))

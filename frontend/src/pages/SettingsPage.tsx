@@ -305,6 +305,7 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
           <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 font-bold text-sky-700">{TARGET_DEPARTMENT_TOKEN}</span>
         ) : null}
       </div>
+      {!includeTargetDepartment ? <div className="citizen-auto-reply-status-gap" aria-hidden="true" /> : null}
       <textarea
         className="field-textarea min-h-[4.5rem]"
         value={suffixText}

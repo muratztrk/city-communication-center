@@ -1765,14 +1765,14 @@ export function UsersPage() {
       <section className="section-card desktop-page-fill">
         <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 sm:px-5">
           <ClearPieFilterLink hasColumnFilters={hasActiveUserColumnFilters} onClearColumnFilters={clearUserFilters} />
-          <div className="relative min-w-[14rem] flex-1">
+          <div className="relative w-[25%] min-w-[10rem] max-w-[20rem] shrink-0">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
             <input
               type="search"
               value={userSearchText}
               onChange={event => setUserSearchText(event.target.value)}
               placeholder={t('users.search', 'İsim veya kullanıcı adı ara…')}
-              className="field-input w-full pl-8 text-sm"
+              className="citizen-directory-search-input field-input w-full pl-8 text-sm"
             />
           </div>
           {(userSearchText || Object.values(userFilters).some(Boolean)) ? (

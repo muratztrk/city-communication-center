@@ -269,6 +269,16 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       if (targetSocialMessageId !== socialMessageId) {
         invalidateSocialMessages(queryClient, socialMessageId)
       }
+    } catch (error) {
+      setConfirmDialog({
+        title: t('common.error', 'Hata'),
+        titleDivider: true,
+        message: error instanceof Error ? error.message : t('common.error', 'Hata oluştu.'),
+        hideCancel: true,
+        confirmLabel: t('common.close', 'Kapat'),
+        variant: 'destructive',
+        onConfirm: () => {},
+      })
     } finally {
       setSendingPendingId(null)
     }

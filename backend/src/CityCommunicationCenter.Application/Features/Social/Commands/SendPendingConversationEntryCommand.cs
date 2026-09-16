@@ -126,7 +126,11 @@ public sealed class SendPendingConversationEntryCommandHandler
                 entry.DeliveryError = "WhatsApp alıcı telefonu bulunamadı. Konuşma kaydındaki telefon numarasını kontrol edin.";
                 entry.DeliveryStatusUpdatedAtUtc = utcNow;
                 await _dbContext.SaveChangesAsync(cancellationToken);
-                return new SendPendingConversationEntryResult(true, false);
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(request.EntryId),
+                        entry.DeliveryError)
+                ]);
             }
 
             SocialMediaResult sendResult;
@@ -233,7 +237,19 @@ public sealed class SendPendingConversationEntryCommandHandler
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return new SendPendingConversationEntryResult(true, entry.DeliveryStatus != ConversationDeliveryStatus.Failed);
+
+        if (entry.DeliveryStatus is ConversationDeliveryStatus.Sent
+            or ConversationDeliveryStatus.Delivered
+            or ConversationDeliveryStatus.Read)
+        {
+            return new SendPendingConversationEntryResult(true, true);
+        }
+
+        throw new ValidationException([
+            new FluentValidation.Results.ValidationFailure(
+                nameof(request.EntryId),
+                WhatsAppDeliveryErrorFormatter.Format(entry.DeliveryError))
+        ]);
     }
 
     private static bool IsPlaceholderAttachmentContent(string? content) =>

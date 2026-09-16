@@ -56,6 +56,25 @@ public static class ConversationEntrySenderLabelHelper
         !string.IsNullOrWhiteSpace(preview)
         && preview.Contains("talebinizin durumu", StringComparison.OrdinalIgnoreCase);
 
+    public static bool IsTerminalCitizenStatusOutboundContent(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return false;
+        }
+
+        string[] terminalStatuses = ["Tamamlandı", "Tamamlanmış", "İptal Edildi", "İptal"];
+        foreach (var status in terminalStatuses)
+        {
+            if (content.Contains($"durumu \"{status}\"", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static bool IsAutomaticOutbound(
         ConversationEntryDirection? direction,
         ConversationDeliveryStatus? deliveryStatus,

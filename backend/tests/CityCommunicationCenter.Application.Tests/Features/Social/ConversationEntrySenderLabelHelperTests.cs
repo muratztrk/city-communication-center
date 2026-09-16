@@ -38,4 +38,12 @@ public sealed class ConversationEntrySenderLabelHelperTests
             "Özel Kalem Müdürlüğü · Vatandaş O.",
             "sadasd"));
     }
+
+    [Theory]
+    [InlineData("VT-2026-103 no'lu talep talebinizin durumu \"İptal\".", true)]
+    [InlineData("VT-2026-103 no'lu talep talebinizin durumu \"Yapılmakta\".", false)]
+    public void Terminal_status_outbound_content_detection(string body, bool expected)
+    {
+        Assert.Equal(expected, ConversationEntrySenderLabelHelper.IsTerminalCitizenStatusOutboundContent(body));
+    }
 }

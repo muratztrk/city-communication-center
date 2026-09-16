@@ -204,16 +204,31 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             {
                 // Terminal WA: {GönderilenBirim} öncesi boş satır (#6a6f24e7 reopen).
                 var statusContentPrefix = content.TrimEnd();
-                var alreadyCreated = await _dbContext.ConversationEntries
+                var existingOutbound = await _dbContext.ConversationEntries
                     .AsNoTracking()
-                    .AnyAsync(
-                        entry => entry.SocialMessageId == message.SocialMessageId
-                            && entry.Direction == ConversationEntryDirection.Outbound
-                            && (entry.Content == content
-                                || entry.Content == statusContentPrefix
-                                || entry.Content.StartsWith(statusContentPrefix + "\n\n"))
-                            && entry.DeliveryStatus != ConversationDeliveryStatus.Failed,
-                        cancellationToken);
+                    .Where(entry => entry.SocialMessageId == message.SocialMessageId
+                        && entry.Direction == ConversationEntryDirection.Outbound
+                        && entry.DeliveryStatus != ConversationDeliveryStatus.Failed)
+                    .Select(entry => new
+                    {
+                        entry.Content,
+                        entry.SenderLabel,
+                        entry.DeliveryStatus,
+                    })
+                    .ToListAsync(cancellationToken);
+                var terminalPendingAlreadyQueued = existingOutbound.Exists(entry =>
+                    entry.DeliveryStatus == ConversationDeliveryStatus.Pending
+                    && ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
+                        ConversationEntryDirection.Outbound,
+                        entry.DeliveryStatus,
+                        entry.SenderLabel,
+                        entry.Content)
+                    && ConversationEntrySenderLabelHelper.IsTerminalCitizenStatusOutboundContent(entry.Content));
+                var alreadyCreated = terminalPendingAlreadyQueued
+                    || existingOutbound.Exists(entry =>
+                        entry.Content == content
+                        || entry.Content == statusContentPrefix
+                        || entry.Content.StartsWith(statusContentPrefix + "\n\n", StringComparison.Ordinal));
                 if (!alreadyCreated)
                 {
                     await SendWhatsAppAsync(tenantId, message, job, content, statusLabel, utcNow, cancellationToken, noteAlreadyApplied);

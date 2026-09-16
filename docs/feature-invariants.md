@@ -2961,6 +2961,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alır; `ReleasedAtUtc` yalnızca yönetici onayında set edilir.
 - **WA terminal gizleme (#3736):** yönetici onayı öncesi Tamamlandı/İptal Pending balonları
   WA timeline'da görünmez; onay sonrası `hasPendingMessageApproval` + operatör gönderimi.
+  Yönetici onayı ikinci Pending terminal balonu oluşturmaz — iptal yolunda kuyruğa alınmış
+  terminal Pending varsa `ReleaseTerminalMessagesAsync` yalnızca `ReleasedAtUtc` set eder (#3736 reopen).
 - **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
   kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
   `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).

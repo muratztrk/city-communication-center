@@ -115,12 +115,22 @@ public class TeknomartSmsSenderTests
     public void BuildPackageTitle_differs_per_phone_in_same_second()
     {
         var when = new DateTimeOffset(2026, 9, 16, 21, 53, 33, 500, TimeSpan.Zero);
-        var manager = TeknomartSmsSender.BuildPackageTitle("905563755502", when);
-        var staff = TeknomartSmsSender.BuildPackageTitle("905547616022", when);
+        var manager = TeknomartSmsSender.BuildPackageTitle("905563755502", when, "aaaa1111");
+        var staff = TeknomartSmsSender.BuildPackageTitle("905547616022", when, "bbbb2222");
 
         Assert.NotEqual(manager, staff);
-        Assert.EndsWith("-5502", manager);
-        Assert.EndsWith("-6022", staff);
+        Assert.Contains("-5502-aaaa1111", manager);
+        Assert.Contains("-6022-bbbb2222", staff);
+    }
+
+    [Fact]
+    public void BuildPackageTitle_differs_for_same_phone_different_invocations()
+    {
+        var when = new DateTimeOffset(2026, 9, 16, 21, 53, 33, 500, TimeSpan.Zero);
+        var firstTalep = TeknomartSmsSender.BuildPackageTitle("905547616022", when, "talep0001");
+        var secondTalep = TeknomartSmsSender.BuildPackageTitle("905547616022", when, "talep0002");
+
+        Assert.NotEqual(firstTalep, secondTalep);
     }
 
     [Fact]

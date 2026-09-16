@@ -139,14 +139,19 @@ internal sealed class TeknomartSmsSender : ISmsProviderSender
     }
 
     /// <summary>
-    /// Teknomart paket başlığı saniye içinde tekrarlanırsa <c>ERR_SMS_PKG_DUPLICATION</c> döner;
-    /// alıcı telefonu ve milisaniye ile benzersiz tutulur.
+    /// Teknomart paket başlığı tekrarlanırsa <c>ERR_SMS_PKG_DUPLICATION</c> döner. Eski
+    /// <c>TIC-yyyyMMddHHmmss</c> formatı aynı saniyede farklı talepler / alıcılar için de
+    /// çakışıyordu; her API çağrısı benzersiz suffix alır.
     /// </summary>
-    internal static string BuildPackageTitle(string normalizedPhone, DateTimeOffset? utcNow = null)
+    internal static string BuildPackageTitle(
+        string normalizedPhone,
+        DateTimeOffset? utcNow = null,
+        string? uniqueSuffix = null)
     {
         var stamp = (utcNow ?? DateTimeOffset.UtcNow).ToString("yyyyMMddHHmmssfff");
         var tail = normalizedPhone.Length >= 4 ? normalizedPhone[^4..] : "0000";
-        return $"TIC-{stamp}-{tail}";
+        var uniq = uniqueSuffix ?? Guid.NewGuid().ToString("N")[..8];
+        return $"TIC-{stamp}-{tail}-{uniq}";
     }
 
     private static string Truncate(string value) =>

@@ -1484,8 +1484,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **SMS sağlayıcı dropdown (#6a6ef1a7/#6a6efa2c):** listede `Custom` yok; varsayılan seçim
   boş → placeholder `SMS sağlayıcısı seçiniz` (`SmsProvider.Unspecified`, NetGSM'e düşmez).
   `Teknormart` enum / `Teknomart` etiket listede (#3340); REST `POST /sms/create` + Basic Auth (#Teknomart).
-  Paket `title` alanı gönderim başına benzersiz olmalı (ms + alıcı son 4 hane); aynı saniyede
-  çoklu alıcıda tekrarlayan başlık `ERR_SMS_PKG_DUPLICATION` verir.
+  Paket `title` alanı her API çağrısında benzersiz olmalı (ms + alıcı son 4 hane + rastgele
+  suffix); eski saniye-bazlı başlık aynı saniyede farklı taleplerde de `ERR_SMS_PKG_DUPLICATION`
+  veriyordu.
   Entegrasyonu olmayan sağlayıcı uyarısı: "…Destek talebinde bulununuz."
   Kayıtlı `Custom`/`JettMesaj` hâlâ seçenek olarak görünür.
 - **SMS şifre alanı (#6a6efd02/#6a6f06f8):** kayıtlı parola varken input değeri `********`

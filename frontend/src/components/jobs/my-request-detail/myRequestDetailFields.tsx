@@ -185,7 +185,7 @@ export function buildMyRequestDetailFields(
         value: locationCreatorValue,
         rowClass: 'job-detail-field-row--location-creator',
       },
-      ...(returnedRequestDetail ? [returnedRequestTagField] : []),
+      ...(returnedRequestDetail && citizenSourceMessage?.category?.trim() ? [returnedRequestTagField] : []),
       ...destinationFields,
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel && !returnedRequestDetail

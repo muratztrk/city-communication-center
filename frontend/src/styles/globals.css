@@ -9245,9 +9245,9 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     line-height: 1.3 !important;
   }
 
-  /* WA banner mobil (#3646/#3662 reopen): tarih filtresi kaldır, banner biraz daha yüksek. */
+  /* WA banner mobil (#3646/#3662/#3704 reopen): tarih filtresi kaldır, banner biraz daha yüksek. */
   .whatsapp-page-shell .whatsapp-page-banner.sticky-page-header {
-    padding-block: 0.6875rem;
+    padding-block: 0.8125rem;
   }
 
   .whatsapp-page-shell .whatsapp-page-banner-filters {
@@ -9262,13 +9262,15 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 
   .whatsapp-page-shell .whatsapp-page-banner-title {
     padding-top: 0;
+    margin-top: -0.125rem;
     align-self: start;
-    line-height: 1.15;
+    line-height: 1.1;
   }
 
   .whatsapp-page-shell .whatsapp-page-banner-subtitle {
     grid-column: 1;
     grid-row: 2;
+    margin-top: -0.25rem;
     text-align: left;
   }
 

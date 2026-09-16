@@ -313,9 +313,9 @@ export function ReturnedCitizenRequestsPage() {
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  <span className="inline-flex flex-col leading-tight">
+                  <span className="inline-flex flex-col gap-1 leading-tight">
                     <span>{t('returnedCitizenRequests.columns.citizenName', 'Vatandaş Adı')}</span>
-                    <span className="text-[0.68rem] font-semibold text-slate-400">{t('jobs.detail.citizenPhone', 'Telefon No')}</span>
+                    <span className="text-[0.9em] font-bold leading-tight">{t('jobs.detail.citizenPhone', 'Telefon No')}</span>
                   </span>
                 </FilterableTh>
                 <FilterableTh
@@ -377,7 +377,7 @@ export function ReturnedCitizenRequestsPage() {
                   </td>
                   <td className="font-semibold">
                     <div className="grid-stack-primary">{row.citizenName}</div>
-                    <div className="citizen-grid-phone-value grid-stack-secondary text-sm font-semibold text-slate-500 tabular-nums">{row.citizenPhone}</div>
+                    <div className="citizen-message-approval-phone-value grid-stack-secondary font-medium text-slate-600 tabular-nums">{row.citizenPhone}</div>
                   </td>
                   <td className="font-semibold">
                     <TruncatedText text={row.title} className="cell-title" />

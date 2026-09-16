@@ -3139,20 +3139,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 : formatJobDisplayNumberText(detail, locale)}
                             </span>
                           </span>
-                          {isCitizenRequestDetail && !forwardReason ? (
+                          {isCitizenRequestDetail ? (
                             <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
                               {t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
                             </span>
-                          ) : !isCitizenRequestDetail ? (
+                          ) : (
                             <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
                               {detail.requestType === 'ExternalUnit'
                                 ? t('jobs.requestType.external', 'Birim Dışı')
                                 : t('jobs.requestType.internal', 'Birim İçi')}
                             </span>
-                          ) : null}
-                          {forwardReason ? (
-                            <span className="text-[12px] font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
-                          ) : null}
+                          )}
                         </span>
                       </span>
                     </MyRequestSectionHeading>

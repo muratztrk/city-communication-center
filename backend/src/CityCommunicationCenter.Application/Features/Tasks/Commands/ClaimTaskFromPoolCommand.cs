@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -8,11 +9,16 @@ public sealed class ClaimTaskFromPoolCommandHandler : ICommandHandler<ClaimTaskF
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IAfterHoursJobSmsNotifier _afterHoursJobSmsNotifier;
 
-    public ClaimTaskFromPoolCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public ClaimTaskFromPoolCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _afterHoursJobSmsNotifier = afterHoursJobSmsNotifier;
     }
 
     public async ValueTask<bool> Handle(ClaimTaskFromPoolCommand request, CancellationToken cancellationToken)
@@ -62,6 +68,26 @@ public sealed class ClaimTaskFromPoolCommandHandler : ICommandHandler<ClaimTaskF
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(
+            entity => entity.JobId == task.JobId && entity.TenantId == tenantId,
+            cancellationToken);
+        if (job is not null)
+        {
+            await _afterHoursJobSmsNotifier.NotifyFirstAssignmentAsync(
+                job,
+                actor.UserId,
+                task.AssignedDepartmentId,
+                actor.UserId,
+                cancellationToken);
+            await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
+                job,
+                actor.UserId,
+                task.AssignedDepartmentId,
+                actor.UserId,
+                cancellationToken);
+        }
+
         return true;
     }
 }

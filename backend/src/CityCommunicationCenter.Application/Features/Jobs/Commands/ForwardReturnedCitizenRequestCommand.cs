@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -27,13 +28,16 @@ public sealed class ForwardReturnedCitizenRequestCommandHandler : ICommandHandle
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IAfterHoursJobSmsNotifier _afterHoursJobSmsNotifier;
 
     public ForwardReturnedCitizenRequestCommandHandler(
         IApplicationDbContext dbContext,
-        ITenantContextAccessor tenantContextAccessor)
+        ITenantContextAccessor tenantContextAccessor,
+        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _afterHoursJobSmsNotifier = afterHoursJobSmsNotifier;
     }
 
     public async ValueTask<bool> Handle(ForwardReturnedCitizenRequestCommand request, CancellationToken cancellationToken)
@@ -139,6 +143,13 @@ public sealed class ForwardReturnedCitizenRequestCommandHandler : ICommandHandle
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        await _afterHoursJobSmsNotifier.NotifyJobCreatedAsync(
+            job,
+            [request.TargetDepartmentId],
+            actor.UserId,
+            cancellationToken);
+
         return true;
     }
 

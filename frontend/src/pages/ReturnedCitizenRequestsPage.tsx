@@ -429,6 +429,10 @@ export function ReturnedCitizenRequestsPage() {
               setDetailJobId(null)
               setDetailRefreshKey(current => current + 1)
             }}
+            onReturnedForwardSuccess={() => {
+              setScope('forwarded')
+              setCurrentPage(1)
+            }}
           />
         </Suspense>
       ) : null}

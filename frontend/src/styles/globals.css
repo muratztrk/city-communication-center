@@ -7412,6 +7412,36 @@
       height: 0.7rem !important;
     }
 
+    /* Birime Gelen: mobilde İşlemler üç buton yan yana (#3741). */
+    .app-content-shell .incoming-requests-table .request-actions {
+      flex-wrap: nowrap;
+      gap: 0.16rem;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .app-content-shell .incoming-requests-table .grid-col-actions,
+    .app-content-shell .incoming-requests-table thead th:last-child,
+    .app-content-shell .incoming-requests-table tbody td.actions-cell {
+      width: 8.85rem;
+      min-width: 8.85rem;
+      max-width: 8.85rem;
+      padding-inline: 0.2rem;
+    }
+
+    .app-content-shell .incoming-requests-table .request-actions button {
+      font-size: 0.55rem !important;
+      min-height: 1.38rem !important;
+      padding: 0.08rem 0.2rem !important;
+      line-height: 1.1;
+      gap: 0.15rem !important;
+    }
+
+    .app-content-shell .incoming-requests-table .request-actions button svg {
+      width: 0.62rem !important;
+      height: 0.62rem !important;
+    }
+
     .sticky-page-header {
       gap: 0.65rem;
       padding: 0.85rem;

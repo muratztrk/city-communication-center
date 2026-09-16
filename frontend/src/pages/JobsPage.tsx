@@ -744,6 +744,8 @@ interface JobsPageProps {
   detailOnly?: boolean
   detailContextOverride?: 'incoming' | 'social' | 'returned'
   onNotificationDetailClose?: () => void
+  /** İade Edilen Talepler detayında yönlendirme başarılı (#3743). */
+  onReturnedForwardSuccess?: () => void
   /** Vatandaşa Gönderilecek Mesaj Onayı detayında "Talep Durumu Değiştir" (card #2057). */
   onChangeStatusToInProgress?: (jobId: string) => void
   /** Mesaj Onayı Detaylar popup aksiyonları (#2088/#2089): Notu Düzenle / Mesajı Onayla; Yazdır gizlenir.
@@ -773,7 +775,7 @@ interface JobsPageProps {
   }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onReturnedForwardSuccess, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -2101,6 +2103,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       invalidateJobs(queryClient, forwardModal.jobId)
       setForwardModal(null)
       emitPageToast(t('jobs.actions.forwardSuccess', 'Talep yönlendirildi.'))
+      if (forwardModal.mode === 'returned') {
+        onReturnedForwardSuccess?.()
+      }
       closeDetail()
     } catch (err) {
       const message = err instanceof Error ? err.message : t('common.error')

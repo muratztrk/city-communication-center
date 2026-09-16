@@ -9255,7 +9255,7 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: center;
-    gap: 0.2rem 0.55rem;
+    gap: 0.2rem 0.62rem;
     width: 100%;
   }
 
@@ -9269,16 +9269,20 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   .citizen-map-legend-toolbar > button:nth-child(4) {
     grid-column: 1;
     grid-row: 2;
-    margin-top: 0.35rem;
+    margin-top: 0.4rem;
   }
 
   .citizen-map-legend-meta {
     grid-column: 2 / -1;
     grid-row: 2;
     justify-self: start;
-    gap: 0.45rem;
-    margin-top: 0.35rem;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
     font-size: 0.68rem;
+  }
+
+  .citizen-map-legend-meta .citizen-map-legend-all-filter {
+    font-size: 0.74rem;
   }
 
   .citizen-map-legend-toolbar > .min-w-\[10rem\] {

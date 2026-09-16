@@ -100,7 +100,12 @@ export async function enrichEmptyAddressFromMapsLink(input: {
     return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
   }
 
-  const fromApi = await api.resolveMapsAddressFromLink(input.coordinates, input.districtId)
+  const trimmedCoordinates = input.coordinates.trim()
+  if (!trimmedCoordinates || !isGoogleMapsLink(trimmedCoordinates)) {
+    return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
+  }
+
+  const fromApi = await api.resolveMapsAddressFromLink(trimmedCoordinates, input.districtId)
   if (!fromApi) {
     return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
   }

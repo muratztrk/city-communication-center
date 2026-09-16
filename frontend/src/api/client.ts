@@ -622,13 +622,26 @@ export const api = {
       headers: await getAuthHeaders(),
     })
     if (!response.ok) return null
-    const body = await response.json() as {
+    const rawBody = await response.text()
+    if (!rawBody.trim()) return null
+    let body: {
       latitude?: number
       longitude?: number
       neighborhood?: string
       street?: string
       streetNo?: string
-    } | null
+    } | null = null
+    try {
+      body = JSON.parse(rawBody) as {
+        latitude?: number
+        longitude?: number
+        neighborhood?: string
+        street?: string
+        streetNo?: string
+      } | null
+    } catch {
+      return null
+    }
     if (body?.latitude == null || body?.longitude == null) return null
     if (!Number.isFinite(body.latitude) || !Number.isFinite(body.longitude)) return null
     return {
@@ -646,7 +659,14 @@ export const api = {
       headers: await getAuthHeaders(),
     })
     if (!response.ok) return null
-    const body = await response.json() as { latitude?: number; longitude?: number } | null
+    const rawBody = await response.text()
+    if (!rawBody.trim()) return null
+    let body: { latitude?: number; longitude?: number } | null = null
+    try {
+      body = JSON.parse(rawBody) as { latitude?: number; longitude?: number } | null
+    } catch {
+      return null
+    }
     if (body?.latitude == null || body?.longitude == null) return null
     if (!Number.isFinite(body.latitude) || !Number.isFinite(body.longitude)) return null
     return { latitude: body.latitude, longitude: body.longitude }

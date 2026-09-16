@@ -9256,7 +9256,7 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 
   .citizen-map-legend-toolbar > button {
     justify-content: flex-start;
-    font-size: 0.68rem;
+    font-size: 0.74rem;
     line-height: 1.15;
     padding-inline: 0.15rem;
   }
@@ -9271,7 +9271,7 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     grid-row: 2;
     justify-self: start;
     gap: 0.4rem;
-    font-size: 0.68rem;
+    font-size: 0.74rem;
   }
 
   .citizen-map-legend-toolbar > .min-w-\[10rem\] {

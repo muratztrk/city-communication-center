@@ -28,7 +28,7 @@ import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
-import { formatCoordinatePair, originalGoogleMapsUrl } from '../utils/coordinates'
+import { formatCoordinatePair, originalGoogleMapsUrl, resolveCitizenRequestCoordinatesField } from '../utils/coordinates'
 import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { CountryCallingCodeSelect } from './ui/country-calling-code-select'
@@ -195,7 +195,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [street, setStreet] = useState('')
   const [streetNo, setStreetNo] = useState('')
   const [openAddress, setOpenAddress] = useState('')
-  const [coordinates, setCoordinates] = useState('')
+  const [coordinates, setCoordinates] = useState(() => resolveCitizenRequestCoordinatesField(message))
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -232,6 +232,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     setStreet('')
     setStreetNo('')
     setOpenAddress('')
+    setCoordinates(resolveCitizenRequestCoordinatesField(message))
     setPendingFiles([])
     setFileError(null)
     setError(null)
@@ -239,6 +240,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     setCitizenHandle(sanitizeCitizenName(message.citizenName))
     setCitizenPhone(resolveInitialCitizenPhone(message))
   }, [forceNewRequest, editJobId, message])
+
+  useEffect(() => {
+    if (editJobId) return
+    setCoordinates(resolveCitizenRequestCoordinatesField(message))
+  }, [editJobId, message])
 
   useEffect(() => {
     if (!citizenConversationId) {

@@ -17,11 +17,19 @@ internal static class ConversationLocationHelper
         @"(\+?\d[\d\s\-().]{6,}\d)",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    private static readonly Regex GoogleMapsLinkRegex = new(
+        @"maps\.app\.goo\.gl|goo\.gl/maps|google\..+/maps",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    public static bool LooksLikeGoogleMapsLink(string? content) =>
+        !string.IsNullOrWhiteSpace(content) && GoogleMapsLinkRegex.IsMatch(content);
+
     public static bool LooksLikeLocationContent(string? content)
     {
         if (string.IsNullOrWhiteSpace(content)) return false;
         var trimmed = content.Trim();
-        return trimmed.Contains("[konum mesajı]", StringComparison.OrdinalIgnoreCase)
+        return LooksLikeGoogleMapsLink(trimmed)
+            || trimmed.Contains("[konum mesajı]", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("[Location message]", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("[location]", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("konum mesajı", StringComparison.OrdinalIgnoreCase);
@@ -66,6 +74,12 @@ internal static class ConversationLocationHelper
 
         // Kişi kartı / rehber — thread'deki konum lat/lng sızmasın (#6a75ccfa).
         if (LooksLikeContactContent(content))
+        {
+            return (null, null);
+        }
+
+        // Google Maps paylaşım linki — thread koordinatı sızmasın; link FE'de çözülür (#3723).
+        if (LooksLikeGoogleMapsLink(content))
         {
             return (null, null);
         }

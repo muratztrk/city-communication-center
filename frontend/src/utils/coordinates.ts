@@ -78,3 +78,37 @@ export function parseGoogleMapsCoordinatePair(value: string): { latitude: number
   if (!trimmed || !isGoogleMapsLink(trimmed)) return null
   return parseCoordinatePair(trimmed)
 }
+
+const GOOGLE_MAPS_URL_IN_TEXT_RE =
+  /https?:\/\/(?:maps\.app\.goo\.gl\/[^\s<>"']+|goo\.gl\/maps\/[^\s<>"']+|(?:www\.)?google(?:\.[a-z]{2,3})+\/maps[^\s<>"']*)/i
+
+/** WhatsApp metin mesajındaki Google Maps paylaşım linkini çıkarır (#3723). */
+export function extractGoogleMapsUrlFromContent(content: string | null | undefined): string | null {
+  if (!content?.trim()) return null
+  const match = GOOGLE_MAPS_URL_IN_TEXT_RE.exec(content.trim())
+  const url = match?.[0]?.replace(/[.,;]+$/, '').trim()
+  return url && isGoogleMapsLink(url) ? url : null
+}
+
+function isNativeWhatsAppLocationContent(content: string | null | undefined): boolean {
+  if (!content?.trim()) return false
+  const normalized = content.trim().toLocaleLowerCase('tr')
+  return normalized.includes('[konum mesajı]')
+    || normalized.includes('[location message]')
+    || normalized.includes('[location]')
+    || normalized.includes('konum mesajı')
+}
+
+/** Vatandaş talebi formu Konum Linki: önce Maps URL, yoksa yerel WA konum koordinatı (#3723). */
+export function resolveCitizenRequestCoordinatesField(message: {
+  content?: string | null
+  latitude?: number | null
+  longitude?: number | null
+}): string {
+  const mapsUrl = extractGoogleMapsUrlFromContent(message.content)
+  if (mapsUrl) return mapsUrl
+  if (isNativeWhatsAppLocationContent(message.content)) {
+    return formatCoordinatePair(message.latitude, message.longitude)
+  }
+  return ''
+}

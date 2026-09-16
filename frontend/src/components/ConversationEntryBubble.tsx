@@ -17,6 +17,7 @@ import {
   parseAttachmentFilenameFromContent,
   parseConversationLocationCoords,
 } from '../utils/socialConversationContent'
+import { extractGoogleMapsUrlFromContent } from '../utils/coordinates'
 import { formatWhatsAppDeliveryError, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
@@ -158,12 +159,15 @@ export function ConversationEntryBubble({
       ? 'max-w-[min(68%,22rem)]'
       : 'max-w-[min(70%,26rem)]'
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
+  const mapsLinkUrl = extractGoogleMapsUrlFromContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
   const locationDescription = getLocationPlaceDescription(entry.content)
-  // Konum UI yalnız gerçek WA konum mesajı işaretçisi varken (#2838 reopen).
+  const locationOpenUrl = mapsLinkUrl
+    ?? (locationCoords ? buildGoogleMapsOpenUrl(locationCoords.latitude, locationCoords.longitude) : null)
+  // Konum UI: WA konum işaretçisi veya Google Maps paylaşım linki (#2838 / #3723).
   const isLocationMessage = !isContactMessage
     && isLocationConversationContent(entry.content)
-    && Boolean(locationCoords)
+    && Boolean(locationOpenUrl)
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const { displayAt, queuedAt } = resolveConversationEntryBubbleTime(entry)
@@ -328,15 +332,15 @@ export function ConversationEntryBubble({
                   {locationDescription || t('whatsapp.locationMessage', 'Konum')}
                 </span>
               </p>
-              {locationCoords ? (
+              {locationOpenUrl ? (
                 <a
-                  href={buildGoogleMapsOpenUrl(locationCoords.latitude, locationCoords.longitude)}
+                  href={locationOpenUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={event => {
                     event.preventDefault()
                     window.open(
-                      buildGoogleMapsOpenUrl(locationCoords.latitude, locationCoords.longitude),
+                      locationOpenUrl,
                       '_blank',
                       'noopener,noreferrer',
                     )

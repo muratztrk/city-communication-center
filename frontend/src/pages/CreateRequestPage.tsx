@@ -43,7 +43,7 @@ import {
   normalizeTitleCaseField,
 } from '../utils/textNormalization'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
-import { formatCoordinatePair, originalGoogleMapsUrl } from '../utils/coordinates'
+import { formatCoordinatePair, originalGoogleMapsUrl, resolveCitizenRequestCoordinatesField } from '../utils/coordinates'
 import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -624,7 +624,7 @@ export function CreateRequestPage() {
           citizenHandle: message.citizenHandle,
           content: toRichTextContent(message.content ?? ''),
           title: message.category?.trim() || message.citizenHandle,
-          coordinates: formatCoordinatePair(message.latitude, message.longitude),
+          coordinates: resolveCitizenRequestCoordinatesField(message),
         })
         setEditPrefilled(true)
       })

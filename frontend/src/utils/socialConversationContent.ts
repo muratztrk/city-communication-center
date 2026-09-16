@@ -1,3 +1,4 @@
+import { extractGoogleMapsUrlFromContent } from './coordinates'
 import { richTextToPlainText } from './richText'
 
 const BRACKET_LABELS: Record<string, string> = {
@@ -44,6 +45,7 @@ export function buildGoogleMapsOpenUrl(latitude: number, longitude: number): str
 export function isLocationConversationContent(content: string | null | undefined): boolean {
   if (!content?.trim()) return false
   if (isContactConversationContent(content)) return false
+  if (extractGoogleMapsUrlFromContent(content)) return true
   const normalized = content.trim().toLocaleLowerCase('tr')
   return normalized.includes('[konum mesajı]')
     || normalized.includes('[location message]')
@@ -246,6 +248,9 @@ export function formatConversationDisplayContent(content: string): string {
   if (!trimmed) return ''
   if (isContactConversationContent(trimmed)) return formatContactDisplayContent(trimmed)
   if (isPlaceholderBracketContent(trimmed)) return formatBracketContent(trimmed)
+  if (extractGoogleMapsUrlFromContent(trimmed)) {
+    return BRACKET_LABELS['konum mesajı'] ?? 'Konum'
+  }
   // "[konum mesajı] 38.1,27.2" → liste önizlemesinde "Konum"; kayıtlı yer → yer adı (#6a74de2a)
   if (isLocationConversationContent(trimmed)) {
     const place = getLocationPlaceDescription(trimmed)

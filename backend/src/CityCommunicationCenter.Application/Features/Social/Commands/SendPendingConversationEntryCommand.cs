@@ -164,11 +164,7 @@ public sealed class SendPendingConversationEntryCommandHandler
             }
             else
             {
-                sendResult = await client.SendMessageAsync(new SendMessageRequest
-                {
-                    RecipientId = recipientPhone,
-                    Message = entry.Content
-                }, cancellationToken);
+                sendResult = await SafeSendWhatsAppTextAsync(client, recipientPhone, entry.Content, cancellationToken);
             }
 
             if (sendResult.Success)
@@ -211,7 +207,9 @@ public sealed class SendPendingConversationEntryCommandHandler
 
         entry.DeliveryStatusUpdatedAtUtc = utcNow;
 
-        if (entry.DeliveryStatus != ConversationDeliveryStatus.Failed)
+        if (entry.DeliveryStatus is ConversationDeliveryStatus.Sent
+            or ConversationDeliveryStatus.Delivered
+            or ConversationDeliveryStatus.Read)
         {
             message.ResponseContent = entry.Content;
             message.RespondedAtUtc = utcNow;
@@ -220,7 +218,7 @@ public sealed class SendPendingConversationEntryCommandHandler
                 message.Status = SocialMessageStatus.Responded;
             }
 
-            if (isTerminalAutomaticPending && entry.DeliveryStatus == ConversationDeliveryStatus.Sent)
+            if (isTerminalAutomaticPending)
             {
                 await PendingTerminalOutboundSendGuard.MarkDuplicatePendingSiblingsAsTransmittedAsync(
                     _dbContext,
@@ -301,5 +299,25 @@ public sealed class SendPendingConversationEntryCommandHandler
             string.IsNullOrWhiteSpace(templateLanguage) ? "tr" : templateLanguage,
             parameters: null,
             cancellationToken);
+    }
+
+    private static async Task<SocialMediaResult> SafeSendWhatsAppTextAsync(
+        ISocialMediaClient client,
+        string recipientPhone,
+        string message,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await client.SendMessageAsync(new SendMessageRequest
+            {
+                RecipientId = recipientPhone,
+                Message = message
+            }, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            return SocialMediaResult.Fail(ex.Message);
+        }
     }
 }

@@ -128,7 +128,7 @@ function buildCitizenAutoReplyTemplate(
   // Not token'ı birim ekinden sonra boş satır olmadan, tek boşlukla eklenir (#3250).
   const notePart = noteToken ? ` ${noteToken}${normalizedNoteSuffix}` : ''
   if (!includeTargetDepartment) {
-    const suffixPart = normalizedSuffix ? `\n\n${normalizedSuffix}` : ''
+    const suffixPart = `\n\n${normalizedSuffix}`
     return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}.${suffixPart}${notePart}`
   }
   return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}${notePart}`
@@ -144,6 +144,14 @@ function stripTargetDepartmentToken(template: string) {
     }
   }
   return template.trimEnd()
+}
+
+function formatProcessingReceivedSuffixForDisplay(suffix: string) {
+  return suffix ? `\n${suffix}` : '\n'
+}
+
+function parseProcessingReceivedSuffixFromDisplay(value: string) {
+  return value.replace(/^\n/, '')
 }
 
 function extractProcessingReceivedSuffixText(template: string, statusLabel: string, noteToken?: string) {
@@ -305,14 +313,13 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
           <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 font-bold text-sky-700">{TARGET_DEPARTMENT_TOKEN}</span>
         ) : null}
       </div>
-      {!includeTargetDepartment ? <div className="citizen-auto-reply-status-gap" aria-hidden="true" /> : null}
       <textarea
         className="field-textarea min-h-[4.5rem]"
-        value={suffixText}
+        value={includeTargetDepartment ? suffixText : formatProcessingReceivedSuffixForDisplay(suffixText)}
         onChange={event => onChange(buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(value, templateStatusLabel),
           templateStatusLabel,
-          event.target.value,
+          includeTargetDepartment ? event.target.value : parseProcessingReceivedSuffixFromDisplay(event.target.value),
           false,
           noteToken,
           noteSuffixText,

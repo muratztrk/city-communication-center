@@ -240,7 +240,7 @@ function ConversationListItem({
       onKeyDown={handleKeyDown}
       className={`group w-full text-left px-3.5 py-3 border-b border-slate-100 transition-colors ${
         selected
-          ? 'bg-emerald-50/90'
+          ? 'bg-emerald-100/90'
           : 'bg-white hover:bg-slate-50/80'
       }`}
     >

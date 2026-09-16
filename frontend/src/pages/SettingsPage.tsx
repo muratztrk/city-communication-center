@@ -128,7 +128,8 @@ function buildCitizenAutoReplyTemplate(
   // Not token'ı birim ekinden sonra boş satır olmadan, tek boşlukla eklenir (#3250).
   const notePart = noteToken ? ` ${noteToken}${normalizedNoteSuffix}` : ''
   if (!includeTargetDepartment) {
-    return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}.${normalizedSuffix}${notePart}`
+    const suffixPart = normalizedSuffix ? `\n\n${normalizedSuffix}` : ''
+    return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}.${suffixPart}${notePart}`
   }
   return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}${notePart}`
 }
@@ -160,7 +161,7 @@ function extractProcessingReceivedSuffixText(template: string, statusLabel: stri
   if (dotIndex < 0) {
     return ''
   }
-  afterStatus = afterStatus.slice(dotIndex + 1)
+  afterStatus = afterStatus.slice(dotIndex + 1).trimStart()
   if (noteToken) {
     const noteIndex = afterStatus.indexOf(noteToken)
     if (noteIndex >= 0) {

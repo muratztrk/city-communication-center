@@ -9244,6 +9244,48 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   }
 }
 
+/* Vatandaş Talep Haritası — mobil legend iki satır (#3718). */
+@media (max-width: 767px) {
+  .citizen-map-legend-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    gap: 0.2rem 0.35rem;
+    width: 100%;
+  }
+
+  .citizen-map-legend-toolbar > button {
+    justify-content: flex-start;
+    font-size: 0.68rem;
+    line-height: 1.15;
+    padding-inline: 0.15rem;
+  }
+
+  .citizen-map-legend-toolbar > button:nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .citizen-map-legend-meta {
+    grid-column: 2 / -1;
+    grid-row: 2;
+    justify-self: start;
+    font-size: 0.68rem;
+  }
+
+  .citizen-map-legend-toolbar > .min-w-\[10rem\] {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    max-width: none;
+  }
+
+  .citizen-map-legend-toolbar > .flex.shrink-0 {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-left: 0 !important;
+  }
+}
+
 /* Birimler / Kullanıcılar banner istatistikleri (#3642/#3641). */
 .admin-page-header-stats .status-pill {
   font-size: 0.68rem;
@@ -9281,7 +9323,7 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   .whatsapp-page-shell .whatsapp-page-banner-subtitle {
     grid-column: 1;
     grid-row: 2;
-    margin-top: -0.25rem;
+    margin-top: 0.125rem;
     text-align: left;
   }
 

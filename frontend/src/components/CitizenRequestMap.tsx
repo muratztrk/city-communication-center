@@ -830,7 +830,7 @@ export function CitizenRequestMap({
           <div className="text-sm font-bold text-slate-800">
             {heading ?? t('nav.social', 'Vatandaş Talepleri')}
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
+          <div className={`flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600${variant === 'citizen' ? ' citizen-map-legend-toolbar' : ''}`}>
           {statusLegend.map(item => (
             <button
               key={item.key}
@@ -842,7 +842,7 @@ export function CitizenRequestMap({
               {item.label}
             </button>
           ))}
-          <span className="inline-flex items-center gap-1.5 text-slate-400">
+          <span className={`inline-flex items-center gap-1.5 text-slate-400${variant === 'citizen' ? ' citizen-map-legend-meta' : ''}`}>
             {loading || resolving
               ? t('common.loading', 'Yükleniyor...')
               : t('citizenRequestMap.pinCount', { count: visibleResolved.length, defaultValue: '{{count}} konum' })}

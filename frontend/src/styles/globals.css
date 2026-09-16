@@ -9175,8 +9175,10 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
 
 @media (min-width: 768px) {
   .whatsapp-page-shell .whatsapp-page-banner-subtitle {
-    margin-top: 0.0625rem;
-    align-self: start;
+    margin-top: 0;
+    align-self: end;
+    padding-bottom: 0.125rem;
+    line-height: 1.25;
   }
 }
 

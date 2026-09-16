@@ -70,6 +70,77 @@ public sealed class SendPendingConversationEntryCommandHandler
             entry.DeliveryError = null;
         }
 
+        var conversationMessageIds = await PendingTerminalOutboundSendGuard.ResolveConversationMessageIdsAsync(
+            _dbContext,
+            tenantId,
+            message,
+            cancellationToken);
+        var isTerminalAutomaticPending = PendingTerminalOutboundSendGuard.IsTerminalAutomaticOutbound(entry);
+        if (isTerminalAutomaticPending
+            && await PendingTerminalOutboundSendGuard.HasTransmittedDuplicateAsync(
+                _dbContext,
+                conversationMessageIds,
+                entry.EntryId,
+                entry.Content,
+                cancellationToken))
+        {
+            entry.DeliveryStatus = ConversationDeliveryStatus.Sent;
+            entry.DeliveryError = null;
+            entry.ExternalEntryId = null;
+            entry.SentAt = utcNow;
+            entry.DeliveryStatusUpdatedAtUtc = utcNow;
+            message.ResponseContent = entry.Content;
+            message.RespondedAtUtc = utcNow;
+            if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)
+            {
+                message.Status = SocialMessageStatus.Responded;
+            }
+
+            await PendingTerminalOutboundSendGuard.MarkDuplicatePendingSiblingsAsTransmittedAsync(
+                _dbContext,
+                conversationMessageIds,
+                entry.EntryId,
+                entry.Content,
+                utcNow,
+                cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return new SendPendingConversationEntryResult(true, true);
+        }
+
+        if (isTerminalAutomaticPending)
+        {
+            var claimed = await PendingTerminalOutboundSendGuard.TryClaimPendingSendAsync(
+                _dbContext,
+                request.SocialMessageId,
+                request.EntryId,
+                utcNow,
+                cancellationToken);
+            if (claimed == 0)
+            {
+                var currentStatus = await _dbContext.ConversationEntries
+                    .AsNoTracking()
+                    .Where(entity => entity.EntryId == request.EntryId && entity.SocialMessageId == request.SocialMessageId)
+                    .Select(entity => entity.DeliveryStatus)
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (currentStatus is ConversationDeliveryStatus.Sent
+                    or ConversationDeliveryStatus.Delivered
+                    or ConversationDeliveryStatus.Read)
+                {
+                    return new SendPendingConversationEntryResult(true, true);
+                }
+
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(request.EntryId),
+                        "Bu mesajın gönderimi zaten devam ediyor veya tamamlanmış.")
+                ]);
+            }
+
+            entry = await _dbContext.ConversationEntries.FirstAsync(
+                entity => entity.EntryId == request.EntryId && entity.SocialMessageId == request.SocialMessageId,
+                cancellationToken);
+        }
+
         var client = _clientFactory.GetClient(message.Channel, tenantId);
 
         if (message.Channel == SocialChannel.WhatsApp && client is not null)
@@ -172,6 +243,22 @@ public sealed class SendPendingConversationEntryCommandHandler
             {
                 message.Status = SocialMessageStatus.Responded;
             }
+
+            if (isTerminalAutomaticPending)
+            {
+                await PendingTerminalOutboundSendGuard.MarkDuplicatePendingSiblingsAsTransmittedAsync(
+                    _dbContext,
+                    conversationMessageIds,
+                    entry.EntryId,
+                    entry.Content,
+                    utcNow,
+                    cancellationToken);
+            }
+        }
+        else if (isTerminalAutomaticPending
+            && entry.ExternalEntryId?.StartsWith(PendingTerminalOutboundSendGuard.SendClaimPrefix, StringComparison.Ordinal) == true)
+        {
+            entry.ExternalEntryId = null;
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);

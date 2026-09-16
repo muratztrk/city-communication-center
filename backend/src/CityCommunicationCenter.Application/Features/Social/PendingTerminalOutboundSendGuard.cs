@@ -40,6 +40,25 @@ public static class PendingTerminalOutboundSendGuard
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Kuyruk oluşturma yalnızca aynı talebe bağlı mesajlarda mükerrer kontrol eder (#3737 reopen).
+    /// Konuşma geneli başka talebin gizli Pending'ini sayıp yeni kuyruk oluşturmayı engellememeli.
+    /// </summary>
+    public static async Task<IReadOnlyList<Guid>> ResolveJobMessageIdsAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Job job,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(entity => entity.TenantId == tenantId
+                && (entity.JobId == job.JobId
+                    || (job.SourceRefId.HasValue && entity.SocialMessageId == job.SourceRefId.Value)))
+            .Select(entity => entity.SocialMessageId)
+            .ToListAsync(cancellationToken);
+    }
+
     public static async Task<bool> HasTransmittedDuplicateAsync(
         IApplicationDbContext dbContext,
         IReadOnlyCollection<Guid> messageIds,

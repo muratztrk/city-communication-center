@@ -204,14 +204,19 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             {
                 // Terminal WA: {GönderilenBirim} öncesi boş satır (#6a6f24e7 reopen).
                 var statusContentPrefix = content.TrimEnd();
-                var conversationMessageIds = await PendingTerminalOutboundSendGuard.ResolveConversationMessageIdsAsync(
+                var jobMessageIds = await PendingTerminalOutboundSendGuard.ResolveJobMessageIdsAsync(
                     _dbContext,
                     tenantId,
-                    message,
+                    job,
                     cancellationToken);
+                if (jobMessageIds.Count == 0)
+                {
+                    jobMessageIds = [message.SocialMessageId];
+                }
+
                 var existingOutbound = await _dbContext.ConversationEntries
                     .AsNoTracking()
-                    .Where(entry => conversationMessageIds.Contains(entry.SocialMessageId)
+                    .Where(entry => jobMessageIds.Contains(entry.SocialMessageId)
                         && entry.Direction == ConversationEntryDirection.Outbound
                         && entry.DeliveryStatus != ConversationDeliveryStatus.Failed)
                     .Select(entry => new

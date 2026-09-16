@@ -105,8 +105,19 @@ public sealed class GetCitizenConversationDetailQueryHandler
             tenantId,
             messageIds,
             cancellationToken);
+        var releasedAtByMessageId = await ConversationEntryOperatorVisibility.ResolveReleasedAtByMessageIdAsync(
+            _dbContext,
+            tenantId,
+            messageIds,
+            cancellationToken);
 
         var timeline = rawTimeline
+            .Where(e => !ConversationEntryOperatorVisibility.IsTerminalPendingAwaitingManagerRelease(
+                e.Direction,
+                e.DeliveryStatus,
+                e.SenderLabel,
+                e.Content,
+                releasedAtByMessageId.GetValueOrDefault(e.SocialMessageId)))
             .OrderBy(e => ConversationEntryTimelineTime.ResolveSortKey(
                 e.Direction,
                 e.SentAt,

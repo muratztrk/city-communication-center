@@ -144,11 +144,23 @@ public sealed class GetCitizenConversationsQueryHandler
                 (e, m) => new
                 {
                     ConversationId = m.CitizenConversationId!.Value,
+                    m.JobId,
                     e.SenderLabel,
                     e.Content,
                     e.SentAt,
                 })
             .ToListAsync(cancellationToken);
+        var pendingOutboundJobIds = pendingOutboundRows
+            .Where(row => row.JobId.HasValue)
+            .Select(row => row.JobId!.Value)
+            .Distinct()
+            .ToList();
+        var releasedAtByJobId = pendingOutboundJobIds.Count == 0
+            ? new Dictionary<Guid, DateTimeOffset?>()
+            : await _dbContext.Jobs.AsNoTracking()
+                .Where(job => pendingOutboundJobIds.Contains(job.JobId))
+                .Select(job => new { job.JobId, job.CitizenTerminalMessageReleasedAtUtc })
+                .ToDictionaryAsync(job => job.JobId, job => job.CitizenTerminalMessageReleasedAtUtc, cancellationToken);
         var pendingOutboundConversationIds = pendingOutboundRows
             .Where(row => !ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
                 ConversationEntryDirection.Outbound,
@@ -157,8 +169,16 @@ public sealed class GetCitizenConversationsQueryHandler
                 row.Content))
             .Select(row => row.ConversationId)
             .ToHashSet();
-        // Personel yanıtı + Tamamlandı/İptal otomatik şablon — FAB'a girmez, /whatsapp filtresine girer (#3330).
+        // Personel yanıtı + yönetici onaylı Tamamlandı/İptal şablonu — /whatsapp filtresine girer (#3330/#3736).
         var latestPendingApprovalAtByConversation = pendingOutboundRows
+            .Where(row => ConversationEntryOperatorVisibility.CountsForWhatsAppPendingMessageApproval(
+                ConversationEntryDirection.Outbound,
+                ConversationDeliveryStatus.Pending,
+                row.SenderLabel,
+                row.Content,
+                row.JobId.HasValue && releasedAtByJobId.TryGetValue(row.JobId.Value, out var releasedAt)
+                    ? releasedAt
+                    : null))
             .GroupBy(row => row.ConversationId)
             .ToDictionary(group => group.Key, group => group.Max(row => row.SentAt));
 

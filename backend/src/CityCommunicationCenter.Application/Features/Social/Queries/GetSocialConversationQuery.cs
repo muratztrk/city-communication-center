@@ -135,7 +135,19 @@ public sealed class GetSocialConversationQueryHandler
                 cancellationToken);
         }
 
+        var releasedAtByMessageId = await ConversationEntryOperatorVisibility.ResolveReleasedAtByMessageIdAsync(
+            _dbContext,
+            tenantId,
+            messageIds,
+            cancellationToken);
+
         return entries
+            .Where(e => !ConversationEntryOperatorVisibility.IsTerminalPendingAwaitingManagerRelease(
+                e.Direction,
+                e.DeliveryStatus,
+                e.SenderLabel,
+                e.Content,
+                releasedAtByMessageId.GetValueOrDefault(e.SocialMessageId)))
             .OrderBy(e => ConversationEntryTimelineTime.ResolveSortKey(
                 e.Direction,
                 e.SentAt,

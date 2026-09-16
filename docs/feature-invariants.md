@@ -2959,6 +2959,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi SMS telefon (#3732):** log grid Telefon No = personel `MobilePhone` (AfterHours).
 - **İptal Mesaj Onayı (#3731):** görevsiz iptalde `ReleaseTerminalMessagesAsync` Pending kuyruğa
   alır; `ReleasedAtUtc` yalnızca yönetici onayında set edilir.
+- **WA terminal gizleme (#3736):** yönetici onayı öncesi Tamamlandı/İptal Pending balonları
+  WA timeline'da görünmez; onay sonrası `hasPendingMessageApproval` + operatör gönderimi.
 - **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
   kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
   `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).

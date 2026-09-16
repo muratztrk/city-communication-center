@@ -104,9 +104,23 @@ public class TeknomartSmsSenderTests
     [Fact]
     public void BuildPackageTitle_is_at_least_five_chars()
     {
-        var title = TeknomartSmsSender.BuildPackageTitle(new DateTimeOffset(2026, 9, 8, 14, 0, 0, TimeSpan.Zero));
+        var title = TeknomartSmsSender.BuildPackageTitle(
+            "905551234567",
+            new DateTimeOffset(2026, 9, 8, 14, 0, 0, TimeSpan.Zero));
         Assert.True(title.Length >= 5);
         Assert.StartsWith("TIC-", title);
+    }
+
+    [Fact]
+    public void BuildPackageTitle_differs_per_phone_in_same_second()
+    {
+        var when = new DateTimeOffset(2026, 9, 16, 21, 53, 33, 500, TimeSpan.Zero);
+        var manager = TeknomartSmsSender.BuildPackageTitle("905563755502", when);
+        var staff = TeknomartSmsSender.BuildPackageTitle("905547616022", when);
+
+        Assert.NotEqual(manager, staff);
+        Assert.EndsWith("-5502", manager);
+        Assert.EndsWith("-6022", staff);
     }
 
     [Fact]

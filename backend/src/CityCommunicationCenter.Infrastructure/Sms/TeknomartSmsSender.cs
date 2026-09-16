@@ -43,7 +43,7 @@ internal sealed class TeknomartSmsSender : ISmsProviderSender
         {
             Type = 1,
             SendingType = 0,
-            Title = BuildPackageTitle(),
+            Title = BuildPackageTitle(normalizedPhone),
             Content = text,
             Number = normalizedPhone,
             Encoding = 1,
@@ -138,10 +138,15 @@ internal sealed class TeknomartSmsSender : ISmsProviderSender
         return new AuthenticationHeaderValue("Basic", token);
     }
 
-    internal static string BuildPackageTitle(DateTimeOffset? utcNow = null)
+    /// <summary>
+    /// Teknomart paket başlığı saniye içinde tekrarlanırsa <c>ERR_SMS_PKG_DUPLICATION</c> döner;
+    /// alıcı telefonu ve milisaniye ile benzersiz tutulur.
+    /// </summary>
+    internal static string BuildPackageTitle(string normalizedPhone, DateTimeOffset? utcNow = null)
     {
-        var stamp = (utcNow ?? DateTimeOffset.UtcNow).ToString("yyyyMMddHHmmss");
-        return $"TIC-{stamp}";
+        var stamp = (utcNow ?? DateTimeOffset.UtcNow).ToString("yyyyMMddHHmmssfff");
+        var tail = normalizedPhone.Length >= 4 ? normalizedPhone[^4..] : "0000";
+        return $"TIC-{stamp}-{tail}";
     }
 
     private static string Truncate(string value) =>

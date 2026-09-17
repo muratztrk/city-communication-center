@@ -56,7 +56,7 @@ public static class ConversationEntrySenderLabelHelper
         && content.Contains("[Dosya eki:", StringComparison.Ordinal);
 
     public static string FormatAutomaticAttachmentCaption(int? citizenRequestNumber, int? year, DateTimeOffset? fallbackDate) =>
-        $"{FormatCitizenRequestNumber(citizenRequestNumber, year, fallbackDate)} no'lu talebinizin eki gönderilmiştir";
+        $"{FormatCitizenRequestNumber(citizenRequestNumber, year, fallbackDate)} no'lu talebinizin eki gönderilmiştir.";
 
     public static string FormatAutomaticAttachmentContent(
         string fileName,
@@ -70,8 +70,8 @@ public static class ConversationEntrySenderLabelHelper
             fallbackDate);
 
     /// <summary>
-    /// Tamamlanma eki gövdesi: <c>VT-2026-121 no'lu talebinizin eki gönderilmiştir</c> + dosya işareti.
-    /// Eski <c>… eki</c> başlığı ve yalnız-işaret kayıtlar yeni metne yükseltilir.
+    /// Tamamlanma eki gövdesi: <c>VT-2026-121 no'lu talebinizin eki gönderilmiştir.</c> + dosya işareti.
+    /// Eski <c>… eki</c> / noktasız <c>… gönderilmiştir</c> ve yalnız-işaret kayıtlar yeni metne yükseltilir.
     /// </summary>
     public static string EnsureAutomaticAttachmentCaption(
         string? content,
@@ -94,15 +94,14 @@ public static class ConversationEntrySenderLabelHelper
             return content;
         }
 
-        var legacyCaption = $"{FormatCitizenRequestNumber(citizenRequestNumber, year, fallbackDate)} no'lu talebinizin eki";
-        if (firstLine.StartsWith("[Dosya eki:", StringComparison.OrdinalIgnoreCase))
+        var requestNumber = FormatCitizenRequestNumber(citizenRequestNumber, year, fallbackDate);
+        var isLegacyCaption = string.Equals(firstLine, $"{requestNumber} no'lu talebinizin eki", StringComparison.Ordinal)
+            || string.Equals(firstLine, $"{requestNumber} no'lu talebinizin eki gönderilmiştir", StringComparison.Ordinal);
+        if (firstLine.StartsWith("[Dosya eki:", StringComparison.OrdinalIgnoreCase) || isLegacyCaption)
         {
-            return $"{caption}\n{trimmed}";
-        }
-
-        if (string.Equals(firstLine, legacyCaption, StringComparison.Ordinal))
-        {
-            var remainder = trimmed[firstLine.Length..].TrimStart('\r', '\n');
+            var remainder = firstLine.StartsWith("[Dosya eki:", StringComparison.OrdinalIgnoreCase)
+                ? trimmed
+                : trimmed[firstLine.Length..].TrimStart('\r', '\n');
             return string.IsNullOrEmpty(remainder) ? caption : $"{caption}\n{remainder}";
         }
 

@@ -80,7 +80,7 @@ public sealed class ConversationEntrySenderLabelHelperTests
     {
         var receivedAt = new DateTimeOffset(2026, 9, 17, 12, 0, 0, TimeSpan.Zero);
         Assert.Equal(
-            "VT-2026-121 no'lu talebinizin eki gönderilmiştir\n[Dosya eki: logo.png]",
+            "VT-2026-121 no'lu talebinizin eki gönderilmiştir.\n[Dosya eki: logo.png]",
             ConversationEntrySenderLabelHelper.FormatAutomaticAttachmentContent(
                 "logo.png",
                 121,
@@ -91,7 +91,7 @@ public sealed class ConversationEntrySenderLabelHelperTests
     [Fact]
     public void Automatic_file_attachment_caption_is_idempotent()
     {
-        const string alreadyCaptioned = "VT-2026-121 no'lu talebinizin eki gönderilmiştir\n[Dosya eki: logo.png]";
+        const string alreadyCaptioned = "VT-2026-121 no'lu talebinizin eki gönderilmiştir.\n[Dosya eki: logo.png]";
         Assert.Equal(
             alreadyCaptioned,
             ConversationEntrySenderLabelHelper.EnsureAutomaticAttachmentCaption(
@@ -101,13 +101,16 @@ public sealed class ConversationEntrySenderLabelHelperTests
                 null));
     }
 
-    [Fact]
-    public void Legacy_automatic_file_attachment_caption_is_upgraded()
+    [Theory]
+    [InlineData("[Dosya eki: logo.png]")]
+    [InlineData("VT-2026-121 no'lu talebinizin eki\n[Dosya eki: logo.png]")]
+    [InlineData("VT-2026-121 no'lu talebinizin eki gönderilmiştir\n[Dosya eki: logo.png]")]
+    public void Legacy_automatic_file_attachment_caption_is_upgraded(string stored)
     {
         Assert.Equal(
-            "VT-2026-121 no'lu talebinizin eki gönderilmiştir\n[Dosya eki: logo.png]",
+            "VT-2026-121 no'lu talebinizin eki gönderilmiştir.\n[Dosya eki: logo.png]",
             ConversationEntrySenderLabelHelper.EnsureAutomaticAttachmentCaption(
-                "VT-2026-121 no'lu talebinizin eki\n[Dosya eki: logo.png]",
+                stored,
                 121,
                 2026,
                 null));

@@ -1,3 +1,8 @@
+## Round 1253 — Trello Doing (1 web reopen)
+
+- **WA tamamlanma eki:** `VT-… no'lu talebinizin eki gönderilmiştir.` (nokta); eski caption okumada yükseltilir.
+- develop `2bdb3bd2`, testtim deploy.
+
 ## Round 1220 — Trello Doing (15 web)
 
 - **#3692:** WA adres placeholder `0.68rem` (önceki commit doğrulandı).

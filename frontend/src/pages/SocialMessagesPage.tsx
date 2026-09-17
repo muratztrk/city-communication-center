@@ -859,11 +859,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
             const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
             const canCancelJob = message.jobId && canCancelLinkedJob(linkedJob)
             const isTargetApproved = !!linkedJob && (linkedJob.taskCount ?? 0) > 0
-            const whatsAppPhone = getSocialMessageWhatsAppPhone(message)
             return {
-              goToConversation: message.channel === 'WhatsApp' && whatsAppPhone
-                ? () => navigate(`/whatsapp?phone=${encodeURIComponent(whatsAppPhone)}&at=${encodeURIComponent(message.receivedAtUtc)}&messageId=${encodeURIComponent(message.socialMessageId)}`)
-                : undefined,
               editDisabledTitle: isTargetApproved
                 ? t('social.editAfterApprovalDisabled', 'Hedef birim yöneticisi onayladıktan sonra talep düzenlenemez')
                 : undefined,

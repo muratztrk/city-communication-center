@@ -649,8 +649,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gri ifade”ydi (#3246). Eski timeline `activeDetail` ile gizlenir; `setDetail(null)` yok.
   Composer footer `loading` yüzünden açılmaz; her iki footer `min-height: 10.75rem`.
   Sol listeden manuel konuşma seçimi eski `phone/at/messageId` deep-link anchor'ını temizler ve yeni
-  konuşma her zaman son mesajda/en altta açılır. Telefon parametresiyle (`/whatsapp?phone=...`) açılan
-  anchorsız konuşmalar da detay popup'taki `Yazışmaya Git` davranışı gibi son mesajda/en altta açılır.
+  konuşma her zaman son mesajda/en altta açılır. Vatandaş Talepleri detay popup `Yazışmaya Git` →
+  `WhatsAppConversationModal` (Vatandaş Bilgi Listesi ile aynı); `/whatsapp` sayfasına yönlendirme yok.
+  Telefon parametresiyle (`/whatsapp?phone=...`) açılan anchorsız konuşmalar son mesajda/en altta açılır.
 - **`ConversationPanel` vatandaş talebi modal gönderim (Round 718b):** metin yanıtı
   `/whatsapp` ile aynı — `sendImmediately=true`; ilet butonu onay sormaz. Bekleyen kuyruk
   mesajlarında `Mesajı Gönder` onay pop-up'ı korunur.

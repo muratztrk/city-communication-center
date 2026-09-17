@@ -568,6 +568,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Otomatik durum ve birimden tamamlanma eki başlığı `kurum · birim` (`FormatAutomaticOutboundSenderLabel`);
   personel `Birim · Ad` ayrı kalır. Eski yalnız-kurum ek kayıtları timeline okumasında zenginleşir.
   Tamamlanma eki metni `VT-… no'lu talebinizin eki gönderilmiştir.` (işaret satırı UI'da gizlenir, WhatsApp caption gider).
+  WA balon gövdesi `formatConversationDisplayContent` → `richTextToPlainText`: talep başlığındaki ham `<`
+  (ör. `<zx<zx`) RichText HTML sayılmaz; DOMParser öncesi kaçırılır — aksi halde şablon metni kesilir.
   Yönetici `Mesajı Onayla` `ReleaseTerminalMessagesAsync`'e **ActorUserId vermez** — aksi halde
   `ReleasedAtUtc` basılmaz, operatör WA'da terminal bekleyen gizlenir (#3761). SMS ikinci adımında
   ActorUserId verilir (operatör birimi). `CitizenMessageApprovalReleased` audit, ReleasedAtUtc yoksa

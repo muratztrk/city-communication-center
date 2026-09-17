@@ -137,6 +137,14 @@ public sealed class SendPendingConversationEntryCommandHandler
             var localPath = ConversationLocalMediaStore.ResolveFullPath(_uploadRootPath, entry.MediaId);
             if (localPath is not null && client is IWhatsAppMediaClient mediaClient)
             {
+                if (ConversationEntrySenderLabelHelper.IsSystemAutomaticOutboundSenderLabel(entry.SenderLabel))
+                {
+                    entry.Content = ConversationEntrySenderLabelHelper.EnsureAutomaticAttachmentCaption(
+                        entry.Content,
+                        message.CitizenRequestNumber,
+                        message.CitizenRequestNumberYear,
+                        message.ReceivedAtUtc);
+                }
                 var fileBytes = await File.ReadAllBytesAsync(localPath, cancellationToken);
                 var fileName = TryParseOutboundAttachmentFileName(entry.Content)
                     ?? Path.GetFileName(localPath);

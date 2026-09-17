@@ -67,7 +67,16 @@ public sealed class GetCitizenConversationDetailQueryHandler
         var messageRows = await _dbContext.SocialMessages
             .AsNoTracking()
             .Where(m => m.CitizenConversationId == request.CitizenConversationId)
-            .Select(m => new { m.SocialMessageId, m.Latitude, m.Longitude, m.Channel })
+            .Select(m => new
+            {
+                m.SocialMessageId,
+                m.Latitude,
+                m.Longitude,
+                m.Channel,
+                m.CitizenRequestNumber,
+                m.CitizenRequestNumberYear,
+                m.ReceivedAtUtc,
+            })
             .ToListAsync(cancellationToken);
         var messageIds = messageRows.Select(m => m.SocialMessageId).ToList();
         var whatsappMessageIds = messageRows
@@ -77,6 +86,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
         var messageCoords = messageRows.ToDictionary(
             m => m.SocialMessageId,
             m => (m.Latitude, m.Longitude));
+        var requestNumbersByMessageId = messageRows.ToDictionary(
+            m => m.SocialMessageId,
+            m => (m.CitizenRequestNumber, m.CitizenRequestNumberYear, m.ReceivedAtUtc));
 
         var rawTimeline = await _dbContext.ConversationEntries
             .AsNoTracking()
@@ -136,23 +148,32 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 var (latitude, longitude) = ConversationLocationHelper.Resolve(
                     e.Content,
                     messageCoords.GetValueOrDefault(e.SocialMessageId));
+                requestNumbersByMessageId.TryGetValue(e.SocialMessageId, out var requestNumber);
+                var senderLabel = ConversationEntrySenderLabelHelper.EnrichAutomaticAttachmentSenderLabel(
+                    e.Direction,
+                    e.SenderLabel
+                        ?? (e.Direction == ConversationEntryDirection.Inbound
+                            ? citizenPhoneLabel
+                            : tenantName),
+                    e.Content,
+                    tenantName,
+                    departmentNamesByMessageId.GetValueOrDefault(e.SocialMessageId));
+                var content = ConversationEntrySenderLabelHelper.EnrichAutomaticAttachmentCaption(
+                    e.Direction,
+                    senderLabel,
+                    e.Content,
+                    requestNumber.CitizenRequestNumber,
+                    requestNumber.CitizenRequestNumberYear,
+                    requestNumber.ReceivedAtUtc);
                 return new CitizenConversationTimelineEntryDto(
                     e.EntryId,
                     e.DirectionLabel,
-                    e.Content,
+                    content,
                     e.MediaId,
                     e.MediaMimeType,
                     e.SentAt,
                     e.SocialMessageId,
-                    ConversationEntrySenderLabelHelper.EnrichAutomaticAttachmentSenderLabel(
-                        e.Direction,
-                        e.SenderLabel
-                            ?? (e.Direction == ConversationEntryDirection.Inbound
-                                ? citizenPhoneLabel
-                                : tenantName),
-                        e.Content,
-                        tenantName,
-                        departmentNamesByMessageId.GetValueOrDefault(e.SocialMessageId)),
+                    senderLabel,
                     e.DeliveryStatusLabel,
                     e.DeliveryError,
                     e.DeliveryStatusUpdatedAtUtc,

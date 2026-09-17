@@ -567,6 +567,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Tailwind `max-w-full` ile ezilmesin — #3755).
   Otomatik durum ve birimden tamamlanma eki başlığı `kurum · birim` (`FormatAutomaticOutboundSenderLabel`);
   personel `Birim · Ad` ayrı kalır. Eski yalnız-kurum ek kayıtları timeline okumasında zenginleşir.
+  Tamamlanma eki metni `VT-… no'lu talebinizin eki` (işaret satırı UI'da gizlenir, WhatsApp caption gider).
   Yönetici `Mesajı Onayla` `ReleaseTerminalMessagesAsync`'e **ActorUserId vermez** — aksi halde
   `ReleasedAtUtc` basılmaz, operatör WA'da terminal bekleyen gizlenir (#3761). SMS ikinci adımında
   ActorUserId verilir (operatör birimi). `CitizenMessageApprovalReleased` audit, ReleasedAtUtc yoksa
@@ -1106,7 +1107,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `SendWhatsAppAsync` terminal notu durum şablonunun altına `\n\n` ile ekler; `EnqueueTerminalFollowUpsAsync`
   yalnız tamamlanma eklerini (medya) kuyruğa alır — not için standalone `ConversationEntry` üretmez
   (eski: tamamlanmada ek yoksa not ayrı balondu). Ek `SenderLabel` durum mesajıyla aynı
-  `kurum · birim` biçimidir (eski yalnız-kurum kayıtlar okumada zenginleşir). Popup/terminal not metadata (Not chip) korunur.
+  `kurum · birim` biçimidir (eski yalnız-kurum kayıtlar okumada zenginleşir). Ek gövdesi
+  `{VT-no} no'lu talebinizin eki` + `[Dosya eki: dosya]`; eski yalnız-işaret kayıtlar okumada
+  ve operatör gönderiminde caption olarak eklenir. Popup/terminal not metadata (Not chip) korunur.
   Otomatik İptal şablon mesajı ve Süreç kartı/detay popup notları değişmez.
   İptal alanının görsel
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.

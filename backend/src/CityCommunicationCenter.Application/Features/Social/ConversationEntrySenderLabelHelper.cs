@@ -53,7 +53,65 @@ public static class ConversationEntrySenderLabelHelper
 
     public static bool IsAutomaticFileAttachmentContent(string? content) =>
         !string.IsNullOrWhiteSpace(content)
-        && content.StartsWith("[Dosya eki:", StringComparison.Ordinal);
+        && content.Contains("[Dosya eki:", StringComparison.Ordinal);
+
+    public static string FormatAutomaticAttachmentCaption(int? citizenRequestNumber, int? year, DateTimeOffset? fallbackDate) =>
+        $"{FormatCitizenRequestNumber(citizenRequestNumber, year, fallbackDate)} no'lu talebinizin eki";
+
+    public static string FormatAutomaticAttachmentContent(
+        string fileName,
+        int? citizenRequestNumber,
+        int? year,
+        DateTimeOffset? fallbackDate) =>
+        EnsureAutomaticAttachmentCaption(
+            $"[Dosya eki: {fileName}]",
+            citizenRequestNumber,
+            year,
+            fallbackDate);
+
+    /// <summary>
+    /// Tamamlanma eki gövdesi: <c>VT-2026-121 no'lu talebinizin eki</c> + dosya işareti.
+    /// Zaten başlıklı veya numarasız içerikte no-op.
+    /// </summary>
+    public static string EnsureAutomaticAttachmentCaption(
+        string? content,
+        int? citizenRequestNumber,
+        int? year,
+        DateTimeOffset? fallbackDate)
+    {
+        if (string.IsNullOrWhiteSpace(content) || !citizenRequestNumber.HasValue)
+        {
+            return content ?? string.Empty;
+        }
+
+        var trimmed = content.Trim();
+        var firstLine = trimmed
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .FirstOrDefault() ?? trimmed;
+        if (!firstLine.StartsWith("[Dosya eki:", StringComparison.OrdinalIgnoreCase))
+        {
+            return content;
+        }
+
+        return $"{FormatAutomaticAttachmentCaption(citizenRequestNumber, year, fallbackDate)}\n{trimmed}";
+    }
+
+    public static string EnrichAutomaticAttachmentCaption(
+        ConversationEntryDirection direction,
+        string? senderLabel,
+        string? content,
+        int? citizenRequestNumber,
+        int? year,
+        DateTimeOffset? fallbackDate)
+    {
+        if (direction != ConversationEntryDirection.Outbound
+            || !IsSystemAutomaticOutboundSenderLabel(senderLabel))
+        {
+            return content ?? string.Empty;
+        }
+
+        return EnsureAutomaticAttachmentCaption(content, citizenRequestNumber, year, fallbackDate);
+    }
 
     /// <summary>
     /// Eski otomatik ek kayıtları yalnız kurum adı taşır; okumada talep birimini ekler.

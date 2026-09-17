@@ -822,7 +822,11 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 EntryId = entryId,
                 SocialMessageId = message.SocialMessageId,
                 Direction = ConversationEntryDirection.Outbound,
-                Content = $"[Dosya eki: {attachment.FileName}]",
+                Content = ConversationEntrySenderLabelHelper.FormatAutomaticAttachmentContent(
+                    attachment.FileName,
+                    message.CitizenRequestNumber,
+                    message.CitizenRequestNumberYear,
+                    message.ReceivedAtUtc),
                 SentAt = utcNow.AddMilliseconds(index + 1),
                 SenderLabel = ConversationEntrySenderLabelHelper.FormatAutomaticOutboundSenderLabel(
                     tenantName,

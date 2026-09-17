@@ -75,6 +75,59 @@ public sealed class ConversationEntrySenderLabelHelperTests
         Assert.Equal("Bilgi İşlem Müdürlüğü · Murat Öztürk", enriched);
     }
 
+    [Fact]
+    public void Automatic_file_attachment_gets_request_number_caption()
+    {
+        var receivedAt = new DateTimeOffset(2026, 9, 17, 12, 0, 0, TimeSpan.Zero);
+        Assert.Equal(
+            "VT-2026-121 no'lu talebinizin eki\n[Dosya eki: logo.png]",
+            ConversationEntrySenderLabelHelper.FormatAutomaticAttachmentContent(
+                "logo.png",
+                121,
+                2026,
+                receivedAt));
+    }
+
+    [Fact]
+    public void Automatic_file_attachment_caption_is_idempotent()
+    {
+        const string alreadyCaptioned = "VT-2026-121 no'lu talebinizin eki\n[Dosya eki: logo.png]";
+        Assert.Equal(
+            alreadyCaptioned,
+            ConversationEntrySenderLabelHelper.EnsureAutomaticAttachmentCaption(
+                alreadyCaptioned,
+                121,
+                2026,
+                null));
+    }
+
+    [Fact]
+    public void Staff_file_attachment_caption_is_not_enriched()
+    {
+        var content = ConversationEntrySenderLabelHelper.EnrichAutomaticAttachmentCaption(
+            ConversationEntryDirection.Outbound,
+            "Bilgi İşlem Müdürlüğü · Murat Öztürk",
+            "[Dosya eki: logo.png]",
+            121,
+            2026,
+            null);
+
+        Assert.Equal("[Dosya eki: logo.png]", content);
+    }
+
+    [Fact]
+    public void Captioned_automatic_file_still_enriches_department_header()
+    {
+        var enriched = ConversationEntrySenderLabelHelper.EnrichAutomaticAttachmentSenderLabel(
+            ConversationEntryDirection.Outbound,
+            "Tire Belediyesi",
+            "VT-2026-121 no'lu talebinizin eki\n[Dosya eki: logo.png]",
+            "Tire Belediyesi",
+            "Bilgi İşlem Müdürlüğü");
+
+        Assert.Equal("Tire Belediyesi · Bilgi İşlem Müdürlüğü", enriched);
+    }
+
     [Theory]
     [InlineData("VT-2026-103 no'lu talep talebinizin durumu \"İptal\".", true)]
     [InlineData("VT-2026-103 no'lu talep talebinizin durumu \"Yapılmakta\".", false)]

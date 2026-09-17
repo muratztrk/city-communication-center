@@ -60,10 +60,12 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
         // CitizenMessageApprovalReleased yazılmaz.
         var alreadyReleased = job.CitizenTerminalMessageReleasedAtUtc is not null;
 
+        // Yönetici ilk "Mesajı Onayla": ActorUserId verilmez ki ReleasedAtUtc basılsın ve
+        // operatör WA kuyruğu açılsın. SMS ikinci adımında operatör birimi için ActorUserId (#3753/#3761).
         var released = await _citizenJobStatusNotifier.ReleaseTerminalMessagesAsync(
             tenantId,
             job.JobId,
-            request.ActorUserId,
+            alreadyReleased ? request.ActorUserId : null,
             cancellationToken);
         if (!released)
         {

@@ -6465,6 +6465,13 @@
     animation: whatsapp-mark-waiting-blink 3.6s ease-in-out infinite;
   }
 
+  /* Uzun mesaj balonu: sohbet alanının en fazla %50'si; Tailwind max-w-[50%] max-w-full ile eziliyordu (#3755). */
+  .conversation-entry-bubble {
+    max-width: 50% !important;
+    width: fit-content;
+    min-width: 0;
+  }
+
   @keyframes whatsapp-mark-waiting-blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.22; }

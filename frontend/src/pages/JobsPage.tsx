@@ -875,7 +875,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             : t('jobs.detail.title', 'İş Detayı')
   const isIncomingRequestDetail = detailContext === 'incoming'
   const isReturnedRequestDetail = detailContext === 'returned'
-  const operatorCitizenListEdit = operatorSocialEdit
+  const operatorReturnedEdit = isReturnedRequestDetail && user?.role === 'Operator'
+  const operatorCitizenListEdit = operatorSocialEdit || operatorReturnedEdit
   const incomingStatusFilter = searchParams.get('status') ?? 'pending-approval'
   const hideIncomingApproveCancelByView = isIncomingRequestDetail
     && (incomingStatusFilter === 'in-progress' || incomingStatusFilter === 'approved')
@@ -915,9 +916,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail != null
     && Boolean(detail.returnedToOperatorAtUtc)
     && !returnedTargetDepartment
-  const canEditReturnedDetailJob = isReturnedRequestDetail
-    && user?.role === 'Operator'
-    && detail != null
+  const canEditReturnedDetailJob = canForwardReturnedDetail
   const returnedForwardDepartmentOptions = departments.map(department => ({
     value: department.departmentId,
     label: department.name,
@@ -1760,9 +1759,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       const resolvedCoordinates = operatorCitizenListEdit && myRequestEditDraft.coordinates.trim()
         ? await resolveGoogleMapsCoordinatePair(myRequestEditDraft.coordinates)
         : null
+      const lockReturnedTitleDescription = operatorCitizenListEdit && !isReturnedRequestDetail
       await api.updateJob(detail.jobId, {
-        title: operatorCitizenListEdit ? detail.title : myRequestEditDraft.title.trim(),
-        description: operatorCitizenListEdit ? (detail.description ?? '') : myRequestEditDraft.description,
+        title: lockReturnedTitleDescription ? detail.title : myRequestEditDraft.title.trim(),
+        description: lockReturnedTitleDescription ? (detail.description ?? '') : myRequestEditDraft.description,
         priority: myRequestEditDraft.priority,
         startDateUtc: detail.startDateUtc,
         dueDateUtc: operatorCitizenListEdit

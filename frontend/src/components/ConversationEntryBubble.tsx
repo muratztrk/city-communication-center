@@ -157,13 +157,6 @@ export function ConversationEntryBubble({
     && (isPending || isReEngagementFailure)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const isOutboundImage = !isInbound && hasMedia && Boolean(entry.mediaMimeType?.startsWith('image/'))
-  const bubbleMaxWidth = isOutboundImage
-    ? compact
-      ? 'max-w-[min(50%,15.5rem)]'
-      : 'max-w-[50%]'
-    : compact
-      ? 'max-w-[50%]'
-      : 'max-w-[50%]'
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const mapsLinkUrl = extractGoogleMapsUrlFromContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
@@ -246,7 +239,7 @@ export function ConversationEntryBubble({
       <div className={`flex min-w-0 w-full ${isInbound ? 'justify-start' : 'justify-end'}`}>
         <div
           ref={bubbleRef}
-          className={`${bubbleMaxWidth} max-w-full min-w-0 w-fit overflow-hidden break-words [overflow-wrap:anywhere] ${
+          className={`conversation-entry-bubble min-w-0 overflow-hidden break-words [overflow-wrap:anywhere] ${
             isOutboundImage
               ? compact ? 'rounded-xl px-1.5 py-1.5 text-[11px]' : 'rounded-xl px-1.5 py-1.5 text-[13px]'
               : compact ? 'rounded-xl px-3 py-1.5 text-[11px]' : 'rounded-xl px-3 py-2 text-[13px]'

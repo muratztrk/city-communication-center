@@ -165,6 +165,11 @@ public sealed class GetCitizenConversationsQueryHandler
                 .Where(job => pendingOutboundJobIds.Contains(job.JobId))
                 .Select(job => new { job.JobId, job.CitizenTerminalMessageReleasedAtUtc })
                 .ToDictionaryAsync(job => job.JobId, job => job.CitizenTerminalMessageReleasedAtUtc, cancellationToken);
+        await ConversationEntryOperatorVisibility.ApplyCitizenMessageApprovalReleasedFallbackAsync(
+            _dbContext,
+            tenantId,
+            releasedAtByJobId,
+            cancellationToken);
         var pendingOutboundConversationIds = pendingOutboundRows
             .Where(row => !ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
                 ConversationEntryDirection.Outbound,

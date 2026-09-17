@@ -563,6 +563,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Failed dahil). `PendingApprovalClearedAtUtc` ("Mesaj Onayı/Cevabı Verildi Yap") ≥ iletilmemiş
   mesajın `SentAt` ise sayıyı/listeyi düşürür; yeni bekleyen mesaj (`SentAt` > cleared) tekrar girer.
   İletilmeden otomatik düşmez — yalnız operatör işareti veya `Sent`+ teslim (#3750).
+  WA balonu sohbet alanının **en fazla %50** genişliği (`.conversation-entry-bubble` `max-width: 50% !important`,
+  Tailwind `max-w-full` ile ezilmesin — #3755).
+  Yönetici `Mesajı Onayla` `ReleaseTerminalMessagesAsync`'e **ActorUserId vermez** — aksi halde
+  `ReleasedAtUtc` basılmaz, operatör WA'da terminal bekleyen gizlenir (#3761). SMS ikinci adımında
+  ActorUserId verilir (operatör birimi). `CitizenMessageApprovalReleased` audit, ReleasedAtUtc yoksa
+  görünürlük yedeğidir.
   Liste saati `pendingMessageApprovalAtUtc` (kuyruk `SentAt`); iletilene kadar `lastMessageAt` ile
   değişmez. Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
@@ -977,7 +983,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   talep numarasının başındaki kanal ikonu ile anlaşılır. `Vatandaş Talep No` ve
   `Vatandaş Talep Tarihi` başlıkları tek satır kalır; `Etiket` kolonu operatörün talep
   etiketi/kategorisini gösterir. Telefon No, Vatandaş Adı sütununun alt satırındadır (#3759).
-  Tamamlandı/iptal + vatandaş mesaj onayı yoksa talep no altında kırmızı `(Yönetici Onayı Bekleyen)`
+  Tamamlandı/iptal + vatandaş mesaj onayı yoksa talep no altında turuncu `(Yönetici Onayı Bekleyen)`
   — **operatör iptalinde yazılmaz** (#3756/#3760).
 - **Detay popup header aksiyonları:** Detaylar butonundan açılan iş/talep/görev detay popup'larında
   sağ üst aksiyon butonları (Düzenle/Tamamla/Yazdır vb.) ve kapatma (X) kompakt ölçülüdür

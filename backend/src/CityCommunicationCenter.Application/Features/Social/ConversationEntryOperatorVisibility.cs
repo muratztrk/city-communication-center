@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Application.Features.Social;
@@ -115,6 +116,11 @@ public static class ConversationEntryOperatorVisibility
                 .ToListAsync(cancellationToken);
 
         var releasedByJobId = jobs.ToDictionary(j => j.JobId, j => j.CitizenTerminalMessageReleasedAtUtc);
+        await ApplyCitizenMessageApprovalReleasedFallbackAsync(
+            dbContext,
+            tenantId,
+            releasedByJobId,
+            cancellationToken);
         var releasedBySourceRef = jobs
             .Where(j => j.SourceRefId.HasValue)
             .ToDictionary(j => j.SourceRefId!.Value, j => j.CitizenTerminalMessageReleasedAtUtc);
@@ -137,5 +143,45 @@ public static class ConversationEntryOperatorVisibility
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Yönetici Mesajı Onayla audit'i var ama ReleasedAtUtc basılmamış kayıtlarda
+    /// operatör WA kuyruğu açılsın (#3761).
+    /// </summary>
+    public static async Task ApplyCitizenMessageApprovalReleasedFallbackAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Dictionary<Guid, DateTimeOffset?> releasedAtByJobId,
+        CancellationToken cancellationToken)
+    {
+        var missingJobIds = releasedAtByJobId
+            .Where(pair => pair.Value is null)
+            .Select(pair => pair.Key)
+            .ToList();
+        if (missingJobIds.Count == 0)
+        {
+            return;
+        }
+
+        var entityIds = missingJobIds.Select(id => id.ToString()).ToList();
+        var audits = await dbContext.AuditLogs
+            .AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityType == nameof(Job)
+                && audit.Action == "CitizenMessageApprovalReleased"
+                && entityIds.Contains(audit.EntityId))
+            .Select(audit => new { audit.EntityId, audit.EventTimeUtc })
+            .ToListAsync(cancellationToken);
+
+        foreach (var group in audits.GroupBy(audit => audit.EntityId))
+        {
+            if (!Guid.TryParse(group.Key, out var jobId))
+            {
+                continue;
+            }
+
+            releasedAtByJobId[jobId] = group.Max(item => item.EventTimeUtc);
+        }
     }
 }

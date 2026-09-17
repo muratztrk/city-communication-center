@@ -260,7 +260,15 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                         .Where(t => t.TenantId == tenantId)
                         .Select(t => t.MunicipalityName)
                         .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
-                    await EnqueueTerminalFollowUpsAsync(tenantId, message, job, statusLabel, tenantName, utcNow, cancellationToken);
+                    await EnqueueTerminalFollowUpsAsync(
+                        tenantId,
+                        message,
+                        job,
+                        statusLabel,
+                        tenantName,
+                        utcNow,
+                        cancellationToken,
+                        departmentNames);
                 }
             }
             // Phone: yönetici onayı yalnız bayrağı basar; SMS operatör Sms Onayı'nda gider.
@@ -610,9 +618,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             Content = messageContent,
             SentAt = utcNow,
             ExternalEntryId = sendResult?.MessageId,
-            SenderLabel = string.IsNullOrWhiteSpace(headerDepartmentNames)
-                ? tenantName
-                : $"{tenantName} · {headerDepartmentNames.Trim()}",
+            SenderLabel = ConversationEntrySenderLabelHelper.FormatAutomaticOutboundSenderLabel(
+                tenantName,
+                headerDepartmentNames),
             DeliveryStatus = requireApproval
                 ? ConversationDeliveryStatus.Pending
                 : sendResult is { Success: true }
@@ -641,7 +649,15 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         if (requireApproval)
         {
-            await EnqueueTerminalFollowUpsAsync(tenantId, message, job, statusLabel, tenantName, utcNow, cancellationToken);
+            await EnqueueTerminalFollowUpsAsync(
+                tenantId,
+                message,
+                job,
+                statusLabel,
+                tenantName,
+                utcNow,
+                cancellationToken,
+                headerDepartmentNames);
         }
 
         WhatsAppMessagePayload? pendingPush = null;
@@ -735,7 +751,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         string statusLabel,
         string tenantName,
         DateTimeOffset utcNow,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? headerDepartmentNames = null)
     {
         // Terminal not ayrı mesaj olarak eklenmez — durum mesajına gömülür (#2103).
         // Burada yalnız tamamlanma ekleri (medya) kuyruğa alınır.
@@ -807,7 +824,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 Direction = ConversationEntryDirection.Outbound,
                 Content = $"[Dosya eki: {attachment.FileName}]",
                 SentAt = utcNow.AddMilliseconds(index + 1),
-                SenderLabel = tenantName,
+                SenderLabel = ConversationEntrySenderLabelHelper.FormatAutomaticOutboundSenderLabel(
+                    tenantName,
+                    headerDepartmentNames),
                 MediaId = localMediaId,
                 MediaMimeType = string.IsNullOrWhiteSpace(attachment.ContentType)
                     ? "application/octet-stream"

@@ -565,6 +565,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İletilmeden otomatik düşmez — yalnız operatör işareti veya `Sent`+ teslim (#3750).
   WA balonu sohbet alanının **en fazla %50** genişliği (`.conversation-entry-bubble` `max-width: 50% !important`,
   Tailwind `max-w-full` ile ezilmesin — #3755).
+  Otomatik durum ve birimden tamamlanma eki başlığı `kurum · birim` (`FormatAutomaticOutboundSenderLabel`);
+  personel `Birim · Ad` ayrı kalır. Eski yalnız-kurum ek kayıtları timeline okumasında zenginleşir.
   Yönetici `Mesajı Onayla` `ReleaseTerminalMessagesAsync`'e **ActorUserId vermez** — aksi halde
   `ReleasedAtUtc` basılmaz, operatör WA'da terminal bekleyen gizlenir (#3761). SMS ikinci adımında
   ActorUserId verilir (operatör birimi). `CitizenMessageApprovalReleased` audit, ReleasedAtUtc yoksa
@@ -983,8 +985,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   talep numarasının başındaki kanal ikonu ile anlaşılır. `Vatandaş Talep No` ve
   `Vatandaş Talep Tarihi` başlıkları tek satır kalır; `Etiket` kolonu operatörün talep
   etiketi/kategorisini gösterir. Telefon No, Vatandaş Adı sütununun alt satırındadır (#3759).
-  Tamamlandı/iptal + vatandaş mesaj onayı yoksa talep no altında turuncu `(Yönetici Onayı Bekleyen)`
-  — **operatör iptalinde yazılmaz** (#3756/#3760). Yönetici `CitizenMessageApprovalReleased`
+  Tamamlandı/iptal + vatandaş mesaj onayı yoksa talep no altında turuncu yanıp sönen
+  `Yönetici Onayı Bekleyen` (`extra-time-pending-blink`, parantez yok).
+  **Operatör iptalinde yazılmaz** (#3756/#3760). Yönetici `CitizenMessageApprovalReleased`
   audit varsa ReleasedAtUtc boş olsa da etiket yazılmaz (#3762).
 - **Detay popup header aksiyonları:** Detaylar butonundan açılan iş/talep/görev detay popup'larında
   sağ üst aksiyon butonları (Düzenle/Tamamla/Yazdır vb.) ve kapatma (X) kompakt ölçülüdür
@@ -1102,7 +1105,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **İptal/Tamamlanma terminal notu durum mesajına gömülür (card #2103, #1829 supersede):**
   `SendWhatsAppAsync` terminal notu durum şablonunun altına `\n\n` ile ekler; `EnqueueTerminalFollowUpsAsync`
   yalnız tamamlanma eklerini (medya) kuyruğa alır — not için standalone `ConversationEntry` üretmez
-  (eski: tamamlanmada ek yoksa not ayrı balondu). Popup/terminal not metadata (Not chip) korunur.
+  (eski: tamamlanmada ek yoksa not ayrı balondu). Ek `SenderLabel` durum mesajıyla aynı
+  `kurum · birim` biçimidir (eski yalnız-kurum kayıtlar okumada zenginleşir). Popup/terminal not metadata (Not chip) korunur.
   Otomatik İptal şablon mesajı ve Süreç kartı/detay popup notları değişmez.
   İptal alanının görsel
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
@@ -2970,8 +2974,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `GET /jobs?scope=returned-to-operator` kayıt sayısı (Sms Onayı ile aynı desen).
 - **İade Edilen Talepler grid (#3696):** sosyal mesaj `citizenHandle` null/boş olabilir; ad
   çözümlemesinde `.replace` öncesi guard — aksi halde sayfa ErrorBoundary'ye düşer.
-- **İade detay popup (#3695/#3698):** `detailContext=returned` + `mode=myRequests` iken başlık
+- **İade detay popup (#3695/#3698/#3754):** `detailContext=returned` + `mode=myRequests` iken başlık
   `Taleplerim` değil `İade Edilen Talep`; `detailOnly` gömülü detayda 30 sn jobs poll yok.
+  Operatör Düzenle başlık/açıklamayı kaydeder — `UpdateJob` VT kilidi (`canOperatorEditCitizenRequest`)
+  iade edilmiş kayıtta başlık/açıklamayı geri almaz (`ReturnedToOperatorAtUtc`).
 - **İade detay yönlendirilmemiş (#3687):** hedef `JobDepartment` yoksa **Talep Yapılan Birim**
   + **Talep İade Sebebi** (Talebi İade Eden Birim satırı yerine).
 - **İade grid Geldiği Yer (#3726):** `returnedFromDepartmentName` (operatöre iade eden birim);
@@ -3480,7 +3486,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri Düzenle (#3588/#3594/#3597/#3605):** `detailContext=social` (sayfayı
   açabilen her rol). Düzenle arka plan `#007985` / hover `#006570`. Düzenlemede yalnız
   Adres Bilgileri, Talep Ekleri, Öncelik, Talep Etiketi değişir; başlık / açıklama / son
-  tarih / vatandaş ad-telefon kilitli. BE `UpdateJob` kiliti yalnız `Operator` (Taleplerim
+  tarih / vatandaş ad-telefon kilitli. **İade Edilen Talepler** (`ReturnedToOperatorAtUtc`) bu
+  kilitten muaftır — başlık/açıklama kaydedilir. BE `UpdateJob` kiliti yalnız `Operator` (Taleplerim
   başlık düzeni diğer rollerde durur).   Talep Etiketi Düzenle modunda görünür (#3597); dropdown sağa; açık menü = tetikleyici
   genişliği (ekstra px yok). VT grid Talep Etiketi menüsü de tetikleyici genişliği (#3611).
   Düzenle kaydı `operatorSocialEdit` ile tüm VT rolleri (#3597 reopen). Adres Tarifi + Konum

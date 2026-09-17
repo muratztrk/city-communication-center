@@ -42,15 +42,79 @@ public static class ConversationEntrySenderLabelHelper
         return $"{name} (Telefon)";
     }
 
+    /// <summary>Otomatik giden durum/ek: "Tire Belediyesi" veya "Tire Belediyesi · Bilgi İşlem Müdürlüğü".</summary>
+    public static string FormatAutomaticOutboundSenderLabel(string tenantName, string? departmentNames)
+    {
+        var name = string.IsNullOrWhiteSpace(tenantName) ? "Belediye" : tenantName.Trim();
+        return string.IsNullOrWhiteSpace(departmentNames)
+            ? name
+            : $"{name} · {departmentNames.Trim()}";
+    }
+
+    public static bool IsAutomaticFileAttachmentContent(string? content) =>
+        !string.IsNullOrWhiteSpace(content)
+        && content.StartsWith("[Dosya eki:", StringComparison.Ordinal);
+
+    /// <summary>
+    /// Eski otomatik ek kayıtları yalnız kurum adı taşır; okumada talep birimini ekler.
+    /// Personel "Birim · Ad Soyad" etiketine dokunmaz.
+    /// </summary>
+    public static string EnrichAutomaticAttachmentSenderLabel(
+        ConversationEntryDirection direction,
+        string? senderLabel,
+        string? content,
+        string tenantName,
+        string? departmentNames)
+    {
+        var label = string.IsNullOrWhiteSpace(senderLabel) ? tenantName : senderLabel;
+        if (direction != ConversationEntryDirection.Outbound
+            || string.IsNullOrWhiteSpace(departmentNames)
+            || !IsAutomaticFileAttachmentContent(content)
+            || label.Contains(" · ", StringComparison.Ordinal))
+        {
+            return label;
+        }
+
+        if (!IsSystemAutomaticOutboundSenderLabel(label)
+            && !string.Equals(label, tenantName, StringComparison.Ordinal))
+        {
+            return label;
+        }
+
+        return FormatAutomaticOutboundSenderLabel(tenantName, departmentNames);
+    }
+
     /// <summary>
     /// Kurum içi ileti, personel yanıtı veya telefon kanalı değil; sistem otomatik giden mesaj etiketi
-    /// (durum şablonu, zamanlı WA şablon yanıtı — card #2562).
+    /// (durum şablonu, zamanlı WA şablon yanıtı — card #2562; kurum · birim #3758).
     /// </summary>
-    public static bool IsSystemAutomaticOutboundSenderLabel(string? senderLabel) =>
-        !string.IsNullOrWhiteSpace(senderLabel)
-        && !senderLabel.StartsWith("Kurum İçi Mesaj", StringComparison.Ordinal)
-        && !senderLabel.Contains(" · ")
-        && !senderLabel.EndsWith("(Telefon)", StringComparison.Ordinal);
+    public static bool IsSystemAutomaticOutboundSenderLabel(string? senderLabel)
+    {
+        if (string.IsNullOrWhiteSpace(senderLabel)
+            || senderLabel.StartsWith("Kurum İçi Mesaj", StringComparison.Ordinal)
+            || senderLabel.EndsWith("(Telefon)", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!senderLabel.Contains(" · ", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        var parts = senderLabel.Split(" · ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length < 2)
+        {
+            return true;
+        }
+
+        var first = parts[0];
+        var last = parts[^1];
+        return first.Contains("Belediye", StringComparison.OrdinalIgnoreCase)
+            || last.Contains("Müdürlük", StringComparison.OrdinalIgnoreCase)
+            || last.Contains("Başkanlık", StringComparison.OrdinalIgnoreCase)
+            || last.Contains(',', StringComparison.Ordinal);
+    }
 
     public static bool LooksLikeCitizenStatusTemplate(string? preview) =>
         !string.IsNullOrWhiteSpace(preview)

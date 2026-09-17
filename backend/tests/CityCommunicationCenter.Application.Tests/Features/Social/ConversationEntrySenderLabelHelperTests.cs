@@ -30,6 +30,16 @@ public sealed class ConversationEntrySenderLabelHelperTests
     }
 
     [Fact]
+    public void Municipality_department_header_is_automatic()
+    {
+        Assert.True(ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
+            ConversationEntryDirection.Outbound,
+            ConversationDeliveryStatus.Pending,
+            "Tire Belediyesi · Bilgi İşlem Müdürlüğü",
+            "[Dosya eki: logo.png]"));
+    }
+
+    [Fact]
     public void Staff_pending_reply_is_not_automatic()
     {
         Assert.False(ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
@@ -37,6 +47,32 @@ public sealed class ConversationEntrySenderLabelHelperTests
             ConversationDeliveryStatus.Pending,
             "Özel Kalem Müdürlüğü · Vatandaş O.",
             "sadasd"));
+    }
+
+    [Fact]
+    public void Bare_tenant_file_attachment_label_is_enriched_with_department()
+    {
+        var enriched = ConversationEntrySenderLabelHelper.EnrichAutomaticAttachmentSenderLabel(
+            ConversationEntryDirection.Outbound,
+            "Tire Belediyesi",
+            "[Dosya eki: logo.png]",
+            "Tire Belediyesi",
+            "Bilgi İşlem Müdürlüğü");
+
+        Assert.Equal("Tire Belediyesi · Bilgi İşlem Müdürlüğü", enriched);
+    }
+
+    [Fact]
+    public void Staff_file_attachment_label_is_not_enriched()
+    {
+        var enriched = ConversationEntrySenderLabelHelper.EnrichAutomaticAttachmentSenderLabel(
+            ConversationEntryDirection.Outbound,
+            "Bilgi İşlem Müdürlüğü · Murat Öztürk",
+            "[Dosya eki: logo.png]",
+            "Tire Belediyesi",
+            "Bilgi İşlem Müdürlüğü");
+
+        Assert.Equal("Bilgi İşlem Müdürlüğü · Murat Öztürk", enriched);
     }
 
     [Theory]

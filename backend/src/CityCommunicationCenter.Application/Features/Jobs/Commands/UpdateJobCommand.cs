@@ -137,10 +137,14 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         if (request.CitizenName is not null) job.CitizenName = string.IsNullOrWhiteSpace(request.CitizenName) ? null : request.CitizenName.Trim();
         if (request.CitizenPhone is not null) job.CitizenPhone = string.IsNullOrWhiteSpace(request.CitizenPhone) ? null : request.CitizenPhone.Trim();
         // Operatör VT Düzenle: yalnız öncelik / adres / konum / ekler / etiket (#3597).
+        // İade Edilen Talepler: başlık/açıklama kaydedilir (#3754 reopen).
         if (canOperatorEditCitizenRequest)
         {
-            job.Title = previousTitle;
-            job.Description = previousDescription;
+            if (job.ReturnedToOperatorAtUtc is null)
+            {
+                job.Title = previousTitle;
+                job.Description = previousDescription;
+            }
             job.StartDateUtc = previousStartDateUtc;
             job.DueDateUtc = previousDueDateUtc;
             job.CitizenName = previousCitizenName;

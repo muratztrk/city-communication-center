@@ -111,6 +111,12 @@ public sealed class GetCitizenConversationDetailQueryHandler
             tenantId,
             messageIds,
             cancellationToken);
+        var departmentNamesByMessageId = await ConversationAutomaticSenderLabelResolver
+            .ResolveTargetDepartmentNamesByMessageIdAsync(
+                _dbContext,
+                tenantId,
+                messageIds,
+                cancellationToken);
 
         var timeline = rawTimeline
             .Where(e => !ConversationEntryOperatorVisibility.IsTerminalPendingAwaitingManagerRelease(
@@ -138,10 +144,15 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     e.MediaMimeType,
                     e.SentAt,
                     e.SocialMessageId,
-                    e.SenderLabel
-                        ?? (e.Direction == ConversationEntryDirection.Inbound
-                            ? citizenPhoneLabel
-                            : tenantName),
+                    ConversationEntrySenderLabelHelper.EnrichAutomaticAttachmentSenderLabel(
+                        e.Direction,
+                        e.SenderLabel
+                            ?? (e.Direction == ConversationEntryDirection.Inbound
+                                ? citizenPhoneLabel
+                                : tenantName),
+                        e.Content,
+                        tenantName,
+                        departmentNamesByMessageId.GetValueOrDefault(e.SocialMessageId)),
                     e.DeliveryStatusLabel,
                     e.DeliveryError,
                     e.DeliveryStatusUpdatedAtUtc,

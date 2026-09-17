@@ -1,3 +1,17 @@
+## Round 1256 — WA VT Cadde placeholder
+
+- **Cadde seçiniz** kapalı placeholder punto No seçiniz ile aynı (0.72rem); seçili Cadde 0.78rem (#3555).
+
+## Round 1255 — Trello Doing (1 web)
+
+- **VT detay Yazışmaya Git:** `WhatsAppConversationModal` (Bilgi Listesi ile aynı); `/whatsapp` yönlendirme kaldırıldı.
+- develop `61b0d468`, testtim deploy.
+
+## Round 1254 — hotfix
+
+- **WA şablon balonu:** başlıktaki `<` DOMParser kesmesi düzeltildi (`richTextToPlainText`).
+- develop `a3e3a4e1`, testtim deploy.
+
 ## Round 1253 — Trello Doing (1 web reopen)
 
 - **WA tamamlanma eki:** `VT-… no'lu talebinizin eki gönderilmiştir.` (nokta); eski caption okumada yükseltilir.

@@ -1464,7 +1464,7 @@ function ConversationDetail({
             {pendingFile && (!activeChatSearch || pendingFileMatchesSearch) ? (
               <div className="flex flex-col items-end">
                 <div
-                  className={`${pendingFile.type.startsWith('image/') ? 'max-w-[min(58%,15.5rem)] px-1.5 py-1.5' : 'max-w-[min(70%,26rem)] px-3 py-2'} rounded-xl rounded-tr-sm text-[13px] text-white shadow-md ring-1 ring-white/10`}
+                  className={`${pendingFile.type.startsWith('image/') ? 'max-w-[min(50%,15.5rem)] px-1.5 py-1.5' : 'max-w-[50%] px-3 py-2'} rounded-xl rounded-tr-sm text-[13px] text-white shadow-md ring-1 ring-white/10`}
                   style={{ background: 'var(--color-header-from)' }}
                 >
                   {pendingSenderLabel ? (

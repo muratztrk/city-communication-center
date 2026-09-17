@@ -113,7 +113,8 @@ public sealed record JobSummaryResponse(
     Guid? ReturnedToOperatorByUserId = null,
     Guid? ReturnedToOperatorFromDepartmentId = null,
     string? ReturnedFromDepartmentName = null,
-    string? ReturnedByDisplayName = null);
+    string? ReturnedByDisplayName = null,
+    DateTimeOffset? CitizenTerminalMessageReleasedAtUtc = null);
 
 public sealed record JobDetailResponse(
     Guid JobId,

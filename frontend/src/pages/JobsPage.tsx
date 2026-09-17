@@ -875,8 +875,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             : t('jobs.detail.title', 'İş Detayı')
   const isIncomingRequestDetail = detailContext === 'incoming'
   const isReturnedRequestDetail = detailContext === 'returned'
-  const operatorReturnedEdit = isReturnedRequestDetail && user?.role === 'Operator'
-  const operatorCitizenListEdit = operatorSocialEdit || operatorReturnedEdit
+  const operatorCitizenListEdit = operatorSocialEdit
   const incomingStatusFilter = searchParams.get('status') ?? 'pending-approval'
   const hideIncomingApproveCancelByView = isIncomingRequestDetail
     && (incomingStatusFilter === 'in-progress' || incomingStatusFilter === 'approved')
@@ -916,7 +915,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail != null
     && Boolean(detail.returnedToOperatorAtUtc)
     && !returnedTargetDepartment
-  const canEditReturnedDetailJob = canForwardReturnedDetail
+  const canEditReturnedDetailJob = isReturnedRequestDetail
+    && user?.role === 'Operator'
+    && detail != null
   const returnedForwardDepartmentOptions = departments.map(department => ({
     value: department.departmentId,
     label: department.name,

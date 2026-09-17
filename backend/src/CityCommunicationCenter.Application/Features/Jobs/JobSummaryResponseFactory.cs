@@ -72,6 +72,7 @@ internal static class JobSummaryResponseFactory
             job.JobNumber,
             job.JobNumberYear,
             createdByDisplayName,
-            job.UpdatedAtUtc);
+            job.UpdatedAtUtc,
+            CitizenTerminalMessageReleasedAtUtc: job.CitizenTerminalMessageReleasedAtUtc);
     }
 }

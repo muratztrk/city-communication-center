@@ -98,6 +98,7 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 e.DeliveryStatusUpdatedAtUtc,
                 e.EditedAtUtc,
                 e.EditedByDisplayName,
+                e.RelayedByDisplayName,
             })
             .ToListAsync(cancellationToken);
 
@@ -146,6 +147,7 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     e.DeliveryStatusUpdatedAtUtc,
                     e.EditedAtUtc,
                     e.EditedByDisplayName,
+                    e.RelayedByDisplayName,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatusLabel) ? terminalInfo?.Status : null,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatusLabel) ? terminalInfo?.Note : null,
                     (e.DeliveryStatusLabel is nameof(ConversationDeliveryStatus.Pending)

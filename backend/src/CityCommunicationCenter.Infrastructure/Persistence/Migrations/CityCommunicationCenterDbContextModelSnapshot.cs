@@ -1752,6 +1752,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("editedbydisplayname");
 
+                    b.Property<string>("RelayedByDisplayName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("relayedbydisplayname");
+
                     b.Property<string>("ExternalEntryId")
                         .HasColumnType("text")
                         .HasColumnName("externalentryid");

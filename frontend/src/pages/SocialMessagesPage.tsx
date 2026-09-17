@@ -664,8 +664,12 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                     <span>{t('social.citizenRequestNoHeader', 'Vatandaş Talep No')}</span>
                   </span>
                 </FilterableTh>
-                <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş Adı')}</FilterableTh>
-                <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.detail.citizenPhone', 'Telefon No')}</FilterableTh>
+                <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>
+                  <span className="inline-flex flex-col gap-1 leading-tight">
+                    <span>{t('social.citizenName', 'Vatandaş Adı')}</span>
+                    <span className="text-[0.9em] font-bold leading-tight">{t('jobs.detail.citizenPhone', 'Telefon No')}</span>
+                  </span>
+                </FilterableTh>
                 <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>
                   <span className="inline-flex whitespace-nowrap leading-tight">
                     <span>{embedded ? t('jobs.columns.requestDate', 'Talep Tarihi') : t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</span>
@@ -684,7 +688,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
             <tbody>
               {embedded && loading ? (
                 <TableEmptyStateRows
-                  columnCount={7}
+                  columnCount={6}
                   message={t('common.pageLoading', 'Sayfa yükleniyor...')}
                 />
               ) : (
@@ -707,9 +711,18 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                           Öncelik:{getPriorityLabel(t, linkedJob.priority)}
                         </div>
                       ) : null}
+                      {linkedJob
+                        && (linkedJob.status === 'Completed' || linkedJob.status === 'Cancelled')
+                        && !linkedJob.citizenTerminalMessageReleasedAtUtc ? (
+                        <div className="table-number-cell__priority font-sans font-bold text-red-700">
+                          ({t('social.managerApprovalPending', 'Yönetici Onayı Bekleyen')})
+                        </div>
+                      ) : null}
                     </td>
-                    <td className="font-semibold">{getSocialMessageCitizenName(message)}</td>
-                    <td className="citizen-grid-phone-value text-sm font-semibold text-slate-500 tabular-nums">{getSocialMessageCitizenPhone(message)}</td>
+                    <td className="font-semibold">
+                      <div>{getSocialMessageCitizenName(message)}</div>
+                      <div className="citizen-grid-phone-value mt-0.5 text-sm font-semibold text-slate-500 tabular-nums">{getSocialMessageCitizenPhone(message)}</div>
+                    </td>
                     <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
                     {embedded ? null : (
                     <td>
@@ -809,7 +822,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
               })}
               {columnFilteredMessages.length === 0 ? (
                     <TableEmptyStateRows
-                      columnCount={embedded ? 7 : 9}
+                      columnCount={embedded ? 6 : 8}
                       message={t('social.emptyCitizenRequests', 'Henüz vatandaş talebi bulunmuyor.')}
                     />
               ) : null}

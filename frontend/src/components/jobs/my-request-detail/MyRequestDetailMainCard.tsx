@@ -527,7 +527,7 @@ export function MyRequestDetailMainCard({
             <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
               <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
                 <span className="min-w-0 overflow-hidden">
-                  {isEditing && editDraft && onEditDraftChange && !operatorSocialEdit ? (
+                  {isEditing && editDraft && onEditDraftChange && (!operatorSocialEdit || returnedRequestDetail) ? (
                     <textarea
                       className="field-textarea my-request-title-heading-edit__textarea font-semibold"
                       value={editDraft.title}
@@ -548,7 +548,7 @@ export function MyRequestDetailMainCard({
             </MyRequestSectionHeading>
           ) : null}
           {leftColumnBelowHeading ?? (
-            isEditing && editDraft && onEditDraftChange && !operatorSocialEdit ? (
+            isEditing && editDraft && onEditDraftChange && (!operatorSocialEdit || returnedRequestDetail) ? (
               <RichTextEditor
                 value={editDraft.description}
                 onChange={value => onEditDraftChange({ description: value })}

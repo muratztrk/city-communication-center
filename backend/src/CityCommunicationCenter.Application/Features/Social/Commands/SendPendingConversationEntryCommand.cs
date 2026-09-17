@@ -211,6 +211,13 @@ public sealed class SendPendingConversationEntryCommandHandler
             or ConversationDeliveryStatus.Delivered
             or ConversationDeliveryStatus.Read)
         {
+            entry.RelayedByDisplayName = actor.DisplayName.Trim();
+        }
+
+        if (entry.DeliveryStatus is ConversationDeliveryStatus.Sent
+            or ConversationDeliveryStatus.Delivered
+            or ConversationDeliveryStatus.Read)
+        {
             message.ResponseContent = entry.Content;
             message.RespondedAtUtc = utcNow;
             if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)

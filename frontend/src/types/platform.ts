@@ -381,6 +381,7 @@ export interface JobSummary {
   returnedToOperatorFromDepartmentId?: string | null;
   returnedFromDepartmentName?: string | null;
   returnedByDisplayName?: string | null;
+  citizenTerminalMessageReleasedAtUtc?: string | null;
 }
 
 export interface JobDepartmentInfo {
@@ -488,6 +489,7 @@ export interface SocialConversationEntry {
   deliveryStatusUpdatedAtUtc?: string | null;
   editedAtUtc?: string | null;
   editedByDisplayName?: string | null;
+  relayedByDisplayName?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
   relatedJobTerminalNote?: string | null;
   relatedJobMessageApproverDisplayName?: string | null;
@@ -614,6 +616,7 @@ export interface CitizenConversationTimelineEntry {
   deliveryStatusUpdatedAtUtc?: string | null;
   editedAtUtc?: string | null;
   editedByDisplayName?: string | null;
+  relayedByDisplayName?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
   relatedJobTerminalNote?: string | null;
   relatedJobMessageApproverDisplayName?: string | null;

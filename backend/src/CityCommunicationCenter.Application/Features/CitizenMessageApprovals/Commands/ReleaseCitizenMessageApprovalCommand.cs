@@ -63,7 +63,8 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
         var released = await _citizenJobStatusNotifier.ReleaseTerminalMessagesAsync(
             tenantId,
             job.JobId,
-            cancellationToken: cancellationToken);
+            request.ActorUserId,
+            cancellationToken);
         if (!released)
         {
             throw new ValidationException([

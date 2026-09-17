@@ -36,6 +36,7 @@ export interface ConversationEntryBubbleData {
   deliveryStatusUpdatedAtUtc?: string | null
   editedAtUtc?: string | null
   editedByDisplayName?: string | null
+  relayedByDisplayName?: string | null
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null
   relatedJobTerminalNote?: string | null
   relatedJobMessageApproverDisplayName?: string | null
@@ -144,6 +145,11 @@ export function ConversationEntryBubble({
   const isPending = !isInbound && (entry.deliveryStatus === 'Pending' || isReEngagementFailure)
   const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
   const editedByName = entry.editedByDisplayName?.trim() || null
+  const relayedByName = entry.relayedByDisplayName?.trim() || null
+  const showRelayedOperator = !isInbound
+    && !isPending
+    && Boolean(relayedByName)
+    && (entry.deliveryStatus === 'Sent' || entry.deliveryStatus === 'Delivered' || entry.deliveryStatus === 'Read')
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
   // Onaylayan Yönetici yalnız bekleyen terminal / re-engagement hatalarında — otomatik
   // zamanlı şablon yanıtları (Sent) dahil değil (card #2545).
@@ -153,11 +159,11 @@ export function ConversationEntryBubble({
   const isOutboundImage = !isInbound && hasMedia && Boolean(entry.mediaMimeType?.startsWith('image/'))
   const bubbleMaxWidth = isOutboundImage
     ? compact
-      ? 'max-w-[min(54%,15.5rem)]'
-      : 'max-w-[min(58%,15.5rem)]'
+      ? 'max-w-[min(50%,15.5rem)]'
+      : 'max-w-[50%]'
     : compact
-      ? 'max-w-[min(68%,22rem)]'
-      : 'max-w-[min(70%,26rem)]'
+      ? 'max-w-[50%]'
+      : 'max-w-[50%]'
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const mapsLinkUrl = extractGoogleMapsUrlFromContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
@@ -370,6 +376,14 @@ export function ConversationEntryBubble({
             </>
           )}
           <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] leading-none ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
+            {showRelayedOperator ? (
+              <DelayedHoverTooltip
+                label={t('whatsapp.relayOperator', 'İleten Operatör')}
+                tooltip={relayedByName ?? ''}
+                className="text-[11px] font-bold leading-none tracking-wide text-teal-300 cursor-default"
+              />
+            ) : null}
+            {showRelayedOperator ? <span aria-hidden="true">·</span> : null}
             {entry.editedAtUtc ? (
               editedByName ? (
                 <DelayedHoverTooltip

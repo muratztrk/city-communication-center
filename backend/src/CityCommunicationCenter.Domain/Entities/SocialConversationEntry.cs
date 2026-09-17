@@ -35,6 +35,9 @@ public sealed class SocialConversationEntry
     /// <summary>Bekleyen mesajı düzenleyen personelin görünen adı (card #2336).</summary>
     public string? EditedByDisplayName { get; set; }
 
+    /// <summary>Bekleyen mesajı vatandaşa ileten operatörün görünen adı (card #3757).</summary>
+    public string? RelayedByDisplayName { get; set; }
+
     /// <summary>WhatsApp Cloud API template name when outbound was queued/sent as type=template.</summary>
     public string? WhatsAppTemplateName { get; set; }
 

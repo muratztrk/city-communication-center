@@ -7420,12 +7420,21 @@
       min-width: 0;
     }
 
+    .app-content-shell .incoming-requests-table .grid-col-due,
+    .app-content-shell .incoming-requests-table thead th.grid-col-due,
+    .app-content-shell .incoming-requests-table tbody td.grid-col-due {
+      width: 7.25rem;
+      min-width: 7.25rem;
+      max-width: 7.25rem;
+      padding-inline: 0.15rem;
+    }
+
     .app-content-shell .incoming-requests-table .grid-col-actions,
     .app-content-shell .incoming-requests-table thead th:last-child,
     .app-content-shell .incoming-requests-table tbody td.actions-cell {
-      width: 8.85rem;
-      min-width: 8.85rem;
-      max-width: 8.85rem;
+      width: 9.65rem;
+      min-width: 9.65rem;
+      max-width: 9.65rem;
       padding-inline: 0.2rem;
     }
 

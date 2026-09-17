@@ -241,7 +241,16 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                         || entry.Content.StartsWith(statusContentPrefix + "\n\n", StringComparison.Ordinal));
                 if (!alreadyCreated)
                 {
-                    await SendWhatsAppAsync(tenantId, message, job, content, statusLabel, utcNow, cancellationToken, noteAlreadyApplied);
+                    await SendWhatsAppAsync(
+                        tenantId,
+                        message,
+                        job,
+                        content,
+                        statusLabel,
+                        utcNow,
+                        cancellationToken,
+                        noteAlreadyApplied,
+                        departmentNames);
                 }
                 else
                 {
@@ -259,7 +268,16 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         // İptal/tamamlama onay kuyruğu: cancel yolu routingDepartmentUserId ile çağrılır;
         // ReleasedAtUtc yalnızca yönetici "Mesajı Onayla" ile set edilir (#3731).
-        if (!RequiresOperatorApproval(statusLabel) || !routingDepartmentUserId.HasValue)
+        // Çağrı görevsiz iptal: Sms Onayı kuyruğu için bayrak (#3753).
+        var shouldSetReleasedAt = !RequiresOperatorApproval(statusLabel) || !routingDepartmentUserId.HasValue;
+        if (!shouldSetReleasedAt
+            && message?.Channel == SocialChannel.Phone
+            && taskCount == 0)
+        {
+            shouldSetReleasedAt = true;
+        }
+
+        if (shouldSetReleasedAt)
         {
             job.CitizenTerminalMessageReleasedAtUtc = DateTimeOffset.UtcNow;
         }
@@ -373,7 +391,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 content,
                 statusLabel,
                 utcNow,
-                cancellationToken);
+                cancellationToken,
+                skipTerminalNoteAppend: false,
+                headerDepartmentNames: departmentNames);
             return;
         }
 
@@ -523,7 +543,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         string statusLabel,
         DateTimeOffset utcNow,
         CancellationToken cancellationToken,
-        bool skipTerminalNoteAppend = false)
+        bool skipTerminalNoteAppend = false,
+        string? headerDepartmentNames = null)
     {
         var tenantName = await _dbContext.Tenants
             .AsNoTracking()
@@ -589,7 +610,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             Content = messageContent,
             SentAt = utcNow,
             ExternalEntryId = sendResult?.MessageId,
-            SenderLabel = tenantName,
+            SenderLabel = string.IsNullOrWhiteSpace(headerDepartmentNames)
+                ? tenantName
+                : $"{tenantName} · {headerDepartmentNames.Trim()}",
             DeliveryStatus = requireApproval
                 ? ConversationDeliveryStatus.Pending
                 : sendResult is { Success: true }

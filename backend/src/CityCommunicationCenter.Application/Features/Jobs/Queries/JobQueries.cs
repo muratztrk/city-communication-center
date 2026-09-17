@@ -346,7 +346,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                 : null,
             r.Job.ReturnedToOperatorByUserId is Guid returnedByUserId
                 ? returnedByDisplayNameMap.GetValueOrDefault(returnedByUserId)
-                : null)).ToArray();
+                : null,
+            r.Job.CitizenTerminalMessageReleasedAtUtc)).ToArray();
     }
 }
 

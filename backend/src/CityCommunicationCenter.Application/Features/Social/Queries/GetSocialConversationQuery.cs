@@ -92,6 +92,7 @@ public sealed class GetSocialConversationQueryHandler
                 e.DeliveryStatusUpdatedAtUtc,
                 e.EditedAtUtc,
                 e.EditedByDisplayName,
+                e.RelayedByDisplayName,
             })
             .ToListAsync(cancellationToken);
 
@@ -108,6 +109,7 @@ public sealed class GetSocialConversationQueryHandler
                 null,
                 message.ReceivedAtUtc,
                 citizenPhoneLabel,
+                null,
                 null,
                 null,
                 null,
@@ -185,6 +187,7 @@ public sealed class GetSocialConversationQueryHandler
                 e.DeliveryStatusUpdatedAtUtc,
                 e.EditedAtUtc,
                 e.EditedByDisplayName,
+                e.RelayedByDisplayName,
                 terminalStatus,
                 terminalNote,
                 e.SocialMessageId,

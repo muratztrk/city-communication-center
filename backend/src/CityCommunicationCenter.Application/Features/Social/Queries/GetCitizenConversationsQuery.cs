@@ -136,7 +136,9 @@ public sealed class GetCitizenConversationsQueryHandler
         // gönderen veya "talebinizin durumu") bekleyen kalsa bile FAB sayacı/satırı üretmez.
         var pendingOutboundRows = await _dbContext.ConversationEntries
             .AsNoTracking()
-            .Where(e => e.Direction == ConversationEntryDirection.Outbound && e.DeliveryStatus == ConversationDeliveryStatus.Pending)
+            .Where(e => e.Direction == ConversationEntryDirection.Outbound
+                && (e.DeliveryStatus == ConversationDeliveryStatus.Pending
+                    || e.DeliveryStatus == ConversationDeliveryStatus.Failed))
             .Join(
                 _dbContext.SocialMessages.Where(m => m.CitizenConversationId != null && conversationIds.Contains(m.CitizenConversationId.Value)),
                 e => e.SocialMessageId,
@@ -148,6 +150,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     e.SenderLabel,
                     e.Content,
                     e.SentAt,
+                    e.DeliveryStatus,
+                    e.DeliveryError,
                 })
             .ToListAsync(cancellationToken);
         var pendingOutboundJobIds = pendingOutboundRows
@@ -173,7 +177,8 @@ public sealed class GetCitizenConversationsQueryHandler
         var latestPendingApprovalAtByConversation = pendingOutboundRows
             .Where(row => ConversationEntryOperatorVisibility.CountsForWhatsAppPendingMessageApproval(
                 ConversationEntryDirection.Outbound,
-                ConversationDeliveryStatus.Pending,
+                row.DeliveryStatus,
+                row.DeliveryError,
                 row.SenderLabel,
                 row.Content,
                 row.JobId.HasValue && releasedAtByJobId.TryGetValue(row.JobId.Value, out var releasedAt)
@@ -452,8 +457,11 @@ public sealed class GetCitizenConversationsQueryHandler
                     ticket?.Channel.ToString(),
                     c.WaitingReplyClearedAtUtc,
                     lastMessageIsAutomaticOutbound,
-                    latestPendingApprovalAtByConversation.TryGetValue(c.CitizenConversationId, out var latestPendingApprovalAt)
-                        && (c.PendingApprovalClearedAtUtc is null || latestPendingApprovalAt > c.PendingApprovalClearedAtUtc),
+                    latestPendingApprovalAtByConversation.TryGetValue(c.CitizenConversationId, out var latestPendingApprovalAt),
+                    latestPendingApprovalAtByConversation.TryGetValue(c.CitizenConversationId, out var pendingApprovalAt)
+                        ? pendingApprovalAt
+                        : null,
+                    c.PendingApprovalClearedAtUtc,
                     c.BlockedByDisplayName,
                     c.BlockedAtUtc);
 

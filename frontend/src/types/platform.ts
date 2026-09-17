@@ -560,6 +560,10 @@ export interface CitizenConversationSummary {
   lastMessageIsAutomaticOutbound?: boolean;
   /** Beklemede giden mesaj (personel + otomatik Tamamlandı/İptal) — WhatsApp Mesaj Onayı Bekleyen (#3330). */
   hasPendingMessageApproval?: boolean;
+  /** İletilmemiş onay bekleyen mesajın kuyruk zamanı — liste saati (#3750). */
+  pendingMessageApprovalAtUtc?: string | null;
+  /** Operatör "Mesaj Onayı/Cevabı Verildi Yap" — iletilmemiş mesajı listeden düşürmez (#3750). */
+  pendingApprovalClearedAtUtc?: string | null;
   /** Engellenenler: engelleyen görünen ad + zaman (#3560). */
   blockedByDisplayName?: string | null;
   blockedAtUtc?: string | null;

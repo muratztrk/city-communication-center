@@ -30,15 +30,48 @@ public static class ConversationEntryOperatorVisibility
         return !jobTerminalMessageReleasedAtUtc.HasValue;
     }
 
+    public static bool IsUndeliveredOutboundForWhatsAppApproval(
+        ConversationEntryDirection direction,
+        ConversationDeliveryStatus? deliveryStatus,
+        string? deliveryError)
+    {
+        if (direction != ConversationEntryDirection.Outbound)
+        {
+            return false;
+        }
+
+        if (deliveryStatus == ConversationDeliveryStatus.Pending)
+        {
+            return true;
+        }
+
+        return deliveryStatus == ConversationDeliveryStatus.Failed
+            && WhatsAppServiceWindow.IsReEngagementError(deliveryError);
+    }
+
     public static bool CountsForWhatsAppPendingMessageApproval(
         ConversationEntryDirection direction,
         ConversationDeliveryStatus? deliveryStatus,
         string? senderLabel,
         string? content,
         DateTimeOffset? jobTerminalMessageReleasedAtUtc)
+        => CountsForWhatsAppPendingMessageApproval(
+            direction,
+            deliveryStatus,
+            deliveryError: null,
+            senderLabel,
+            content,
+            jobTerminalMessageReleasedAtUtc);
+
+    public static bool CountsForWhatsAppPendingMessageApproval(
+        ConversationEntryDirection direction,
+        ConversationDeliveryStatus? deliveryStatus,
+        string? deliveryError,
+        string? senderLabel,
+        string? content,
+        DateTimeOffset? jobTerminalMessageReleasedAtUtc)
     {
-        if (direction != ConversationEntryDirection.Outbound
-            || deliveryStatus != ConversationDeliveryStatus.Pending)
+        if (!IsUndeliveredOutboundForWhatsAppApproval(direction, deliveryStatus, deliveryError))
         {
             return false;
         }

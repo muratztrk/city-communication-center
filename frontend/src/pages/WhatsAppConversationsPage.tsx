@@ -186,6 +186,22 @@ function isRecentConversationTime(dateStr: string): boolean {
   return diffMin >= 0 && diffMin < 60
 }
 
+/** İletilmemiş onay bekleyen mesajın kuyruk saati — vatandaşa gitene kadar değişmez (#3750). */
+function conversationListTimestamp(conv: CitizenConversationSummary): string {
+  if (conv.hasPendingMessageApproval && conv.pendingMessageApprovalAtUtc) {
+    return conv.pendingMessageApprovalAtUtc
+  }
+  return conv.lastMessageAt
+}
+
+function isPendingApprovalClearedForCurrentMessage(
+  summary: Pick<CitizenConversationSummary, 'pendingApprovalClearedAtUtc' | 'pendingMessageApprovalAtUtc'>,
+): boolean {
+  if (!summary.pendingApprovalClearedAtUtc || !summary.pendingMessageApprovalAtUtc) return false
+  return new Date(summary.pendingApprovalClearedAtUtc).getTime()
+    >= new Date(summary.pendingMessageApprovalAtUtc).getTime()
+}
+
 function ConversationListItem({
   conv,
   selected,
@@ -203,8 +219,9 @@ function ConversationListItem({
   const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
   const waitingForResponse = isWaitingForConversationResponse(conv)
   const ticketOpen = isConversationTicketOpen(conv)
-  const timeLabel = formatConversationMessageTime(conv.lastMessageAt, locale, t)
-  const recentTime = isRecentConversationTime(conv.lastMessageAt)
+  const listTimestamp = conversationListTimestamp(conv)
+  const timeLabel = formatConversationMessageTime(listTimestamp, locale, t)
+  const recentTime = isRecentConversationTime(listTimestamp)
   const responseStatus = waitingForResponse ? (
     <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
       <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
@@ -312,7 +329,13 @@ function ConversationListItem({
 
 type ConversationStatusSummary = Pick<
   CitizenConversationSummary,
-  'lastMessageDirection' | 'openTicketCount' | 'latestTicketStatus' | 'waitingReplyClearedAtUtc' | 'hasPendingMessageApproval'
+  | 'lastMessageDirection'
+  | 'openTicketCount'
+  | 'latestTicketStatus'
+  | 'waitingReplyClearedAtUtc'
+  | 'hasPendingMessageApproval'
+  | 'pendingMessageApprovalAtUtc'
+  | 'pendingApprovalClearedAtUtc'
 >
 
 function ConversationHeaderReplyStatus({
@@ -336,6 +359,7 @@ function ConversationHeaderReplyStatus({
   const showPendingApprovalClear = !waitingForResponse
     && ticketOpen
     && summary.hasPendingMessageApproval
+    && !isPendingApprovalClearedForCurrentMessage(summary)
     && !isWhatsApp24hWindowOpen(lastInboundAt ?? null)
     && onMarkPendingApprovalCleared
 
@@ -1857,8 +1881,8 @@ export function WhatsAppConversationsPage() {
     })
 
     return matches.sort((a, b) => {
-      const aTime = new Date(a.lastMessageAt).getTime()
-      const bTime = new Date(b.lastMessageAt).getTime()
+      const aTime = new Date(conversationListTimestamp(a)).getTime()
+      const bTime = new Date(conversationListTimestamp(b)).getTime()
       return bTime - aTime
     })
   }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, searchActive, searchPlusCountry, statusFilter])
@@ -1893,9 +1917,10 @@ export function WhatsAppConversationsPage() {
   }, [silentRefreshConversations])
 
   const handleMarkPendingApprovalCleared = useCallback((conversationId: string) => {
+    const clearedAt = new Date().toISOString()
     setConversations(prev =>
       prev.map(c => c.citizenConversationId === conversationId
-        ? { ...c, hasPendingMessageApproval: false }
+        ? { ...c, pendingApprovalClearedAtUtc: clearedAt }
         : c),
     )
     void api.markConversationPendingApprovalCleared(conversationId).catch(() => {

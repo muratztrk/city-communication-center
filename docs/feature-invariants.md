@@ -559,7 +559,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `POST .../mark-pending-approval-cleared` → `PendingApprovalClearedAtUtc`. İşaretlendikten sonra aynı yerde **Yanıt Verildi**
   durum etiketi görünür (#3389).
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekleyen` sağında; `hasPendingMessageApproval`
-  = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
+  = iletilmemiş Beklemede giden (personel yanıtı + yönetici onaylı Tamamlandı/İptal şablon; re-engagement
+  Failed dahil). `PendingApprovalClearedAtUtc` ("Mesaj Onayı/Cevabı Verildi Yap") sayıyı/listeyi
+  düşürmez — yalnız header butonunu gizler; mesaj gerçekten giderse (`Sent`+) düşer (#3750).
+  Liste saati `pendingMessageApprovalAtUtc` (kuyruk `SentAt`); iletilene kadar `lastMessageAt` ile
+  değişmez. Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
   (#3348 yükseklik; #3330 nowrap). Üç chip arası `gap-2.5` (#3354 reopen). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto
   üçünü yan panele sığdırır. Rozet için `pt-1.5 pr-1` + `overflow-visible`. `max-w` ile satır kırma yok. FAB `hasPendingOutboundMessage`

@@ -73,12 +73,30 @@ internal static class JobSummaryResponseFactory
             job.JobNumberYear,
             createdByDisplayName,
             job.UpdatedAtUtc,
-            CitizenTerminalMessageReleasedAtUtc: job.CitizenTerminalMessageReleasedAtUtc,
+            CitizenTerminalMessageReleasedAtUtc: await ResolveEffectiveReleasedAtAsync(
+                dbContext, job, cancellationToken),
             CancelledByRoleCode: (await ResolveCancelledByRoleCodeMapAsync(
                 dbContext,
                 job.TenantId,
                 [job],
                 cancellationToken)).GetValueOrDefault(job.JobId));
+    }
+
+    static async Task<DateTimeOffset?> ResolveEffectiveReleasedAtAsync(
+        IApplicationDbContext dbContext,
+        Job job,
+        CancellationToken cancellationToken)
+    {
+        var releasedAtByJobId = new Dictionary<Guid, DateTimeOffset?>
+        {
+            [job.JobId] = job.CitizenTerminalMessageReleasedAtUtc,
+        };
+        await Social.ConversationEntryOperatorVisibility.ApplyCitizenMessageApprovalReleasedFallbackAsync(
+            dbContext,
+            job.TenantId,
+            releasedAtByJobId,
+            cancellationToken);
+        return releasedAtByJobId.GetValueOrDefault(job.JobId);
     }
 
     internal static async Task<Dictionary<Guid, string?>> ResolveCancelledByRoleCodeMapAsync(

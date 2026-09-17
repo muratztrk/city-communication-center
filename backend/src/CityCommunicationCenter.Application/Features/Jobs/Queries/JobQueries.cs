@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
+using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -309,6 +310,12 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             tenantId,
             rows.Where(row => row.Job.Status == JobStatus.Cancelled).Select(row => row.Job).ToList(),
             cancellationToken);
+        var releasedAtByJobId = rows.ToDictionary(row => row.Job.JobId, row => row.Job.CitizenTerminalMessageReleasedAtUtc);
+        await ConversationEntryOperatorVisibility.ApplyCitizenMessageApprovalReleasedFallbackAsync(
+            _dbContext,
+            tenantId,
+            releasedAtByJobId,
+            cancellationToken);
 
         return rows.Select(r => new JobSummaryResponse(
             r.Job.JobId,
@@ -353,7 +360,7 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.ReturnedToOperatorByUserId is Guid returnedByUserId
                 ? returnedByDisplayNameMap.GetValueOrDefault(returnedByUserId)
                 : null,
-            r.Job.CitizenTerminalMessageReleasedAtUtc,
+            releasedAtByJobId.GetValueOrDefault(r.Job.JobId),
             cancelledByRoleCodeMap.GetValueOrDefault(r.Job.JobId))).ToArray();
     }
 }

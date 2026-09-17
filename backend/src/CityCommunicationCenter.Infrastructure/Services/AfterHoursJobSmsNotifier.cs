@@ -538,13 +538,7 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             .Select(user => new { user.UserId, user.MobilePhone })
             .ToListAsync(cancellationToken);
 
-        var citizenNumbers = await _dbContext.SocialMessages
-            .AsNoTracking()
-            .Where(message => message.JobId == job.JobId && message.CitizenRequestNumber != null)
-            .OrderByDescending(message => message.CitizenRequestNumberYear)
-            .ThenByDescending(message => message.CitizenRequestNumber)
-            .Select(message => new { message.CitizenRequestNumber, message.CitizenRequestNumberYear })
-            .FirstOrDefaultAsync(cancellationToken);
+        var citizenNumbers = await ResolveCitizenRequestNumbersAsync(job, cancellationToken);
 
         var requestNumber = JobRequestNumberFormatter.Format(
             job.RequestType,
@@ -554,6 +548,8 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             citizenNumbers?.CitizenRequestNumber,
             citizenNumbers?.CitizenRequestNumberYear,
             job.CreatedAtUtc);
+
+        var outboundText = AfterHoursSmsTemplateRenderer.Render(template, requestNumber, job.Title);
 
         var distinctRecipients = recipients
             .Where(recipient => !string.IsNullOrWhiteSpace(recipient.MobilePhone))
@@ -572,7 +568,7 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             var result = await _smsGateway.SendAsync(
                 job.TenantId,
                 recipient.MobilePhone!,
-                template,
+                outboundText,
                 sendContext,
                 cancellationToken);
             if (!result.Success)
@@ -584,6 +580,45 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
                     result.Message);
             }
         }
+    }
+
+    /// <summary>
+    /// CreateJob SMS'i, ConvertSocialMessageToJob JobId bağlamadan önce çalışır — SourceRefId ile VT no bulunur (#3751).
+    /// </summary>
+    private async Task<(int? CitizenRequestNumber, int? CitizenRequestNumberYear)?> ResolveCitizenRequestNumbersAsync(
+        Job job,
+        CancellationToken cancellationToken)
+    {
+        var linked = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(message => message.TenantId == job.TenantId
+                && message.CitizenRequestNumber != null
+                && message.JobId == job.JobId)
+            .OrderByDescending(message => message.CitizenRequestNumberYear)
+            .ThenByDescending(message => message.CitizenRequestNumber)
+            .Select(message => new { message.CitizenRequestNumber, message.CitizenRequestNumberYear })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (linked is not null)
+        {
+            return (linked.CitizenRequestNumber, linked.CitizenRequestNumberYear);
+        }
+
+        if (job.SourceType == JobSourceType.SocialMessage && job.SourceRefId is Guid sourceMessageId)
+        {
+            var bySource = await _dbContext.SocialMessages
+                .AsNoTracking()
+                .Where(message => message.TenantId == job.TenantId
+                    && message.SocialMessageId == sourceMessageId
+                    && message.CitizenRequestNumber != null)
+                .Select(message => new { message.CitizenRequestNumber, message.CitizenRequestNumberYear })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (bySource is not null)
+            {
+                return (bySource.CitizenRequestNumber, bySource.CitizenRequestNumberYear);
+            }
+        }
+
+        return null;
     }
 
     private static Guid[] DistinctDepartmentIds(IEnumerable<Guid> departmentIds) =>

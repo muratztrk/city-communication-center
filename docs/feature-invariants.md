@@ -1061,7 +1061,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider.
   Standart personel aynı; salt müdür atlanır. Başkası atadığında atanan VTY veya birim sorumlusu
   ikinci (görev) SMS alır (#3601). Müdür/sorumlu/VTY görevi **kendine** atadığında veya talebi
-  kendisi yönlendirdiğinde mesai dışı SMS **gitmez** (`actorUserId == assigneeUserId`, #3620 reopen). Mesai dışında talep
+  kendisi yönlendirdiğinde mesai dışı SMS **gitmez** (`actorUserId == assigneeUserId`, #3620 reopen).
+  Mesai dışı yönetici/personel SMS gövdesi talep numarası içermeli (`AfterHoursSmsTemplateRenderer`;
+  şablonda `{VatandaşTalepNo}` yoksa `Talep: VT-…` eklenir) — aynı şablon metni Teknomart
+  `ERR_SMS_PKG_DUPLICATION` üretir (#3751). VT no, CreateJob SMS anında `SourceRefId` sosyal
+  mesajından çözülür (JobId henüz bağlanmamış olabilir). Mesai dışında talep
   oluşturulunca/yönlendirilince (görev atanmadan) hedef birim müdür/sorumlu/VTY SMS'i gider
   (#3741; `ForwardJobTarget`, `ForwardReturnedCitizenRequest` dahil). Yönetici SMS yalnız **hedef birim** kapsamında çözülür — sahip/operatör birime
   gitmez. Talep mesai içinde açılıp ilk atama mesai dışındaysa yönetici SMS ilk atamada gider;

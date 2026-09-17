@@ -34,7 +34,8 @@ public sealed class AfterHoursJobSmsNotifierTests
         await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
-        Assert.Equal("Yönetici mesajı", gateway.Sends[0].Text);
+        Assert.StartsWith("Yönetici mesajı", gateway.Sends[0].Text);
+        Assert.Contains("Talep:", gateway.Sends[0].Text);
         Assert.Equal("905551111111", gateway.Sends[0].Phone);
     }
 
@@ -65,7 +66,8 @@ public sealed class AfterHoursJobSmsNotifierTests
         await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
-        Assert.Equal("Yönetici mesajı", gateway.Sends[0].Text);
+        Assert.StartsWith("Yönetici mesajı", gateway.Sends[0].Text);
+        Assert.Contains("Talep:", gateway.Sends[0].Text);
         Assert.Equal("905551111111", gateway.Sends[0].Phone);
     }
 
@@ -117,7 +119,8 @@ public sealed class AfterHoursJobSmsNotifierTests
         await notifier.NotifyTaskAssignedAsync(job, StaffId, DepartmentId, null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
-        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
+        Assert.StartsWith("Personel mesajı", gateway.Sends[0].Text);
+        Assert.Contains("Talep:", gateway.Sends[0].Text);
         Assert.Equal("905554444444", gateway.Sends[0].Phone);
     }
 
@@ -170,7 +173,8 @@ public sealed class AfterHoursJobSmsNotifierTests
         await notifier.NotifyTaskAssignedAsync(job, CrmId, DepartmentId, ManagerId, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
-        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
+        Assert.StartsWith("Personel mesajı", gateway.Sends[0].Text);
+        Assert.Contains("Talep:", gateway.Sends[0].Text);
         Assert.Equal("905559999999", gateway.Sends[0].Phone);
     }
 
@@ -240,7 +244,8 @@ public sealed class AfterHoursJobSmsNotifierTests
         await notifier.NotifyTaskAssignedAsync(job, CrmId, DepartmentId, null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
-        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
+        Assert.StartsWith("Personel mesajı", gateway.Sends[0].Text);
+        Assert.Contains("Talep:", gateway.Sends[0].Text);
         Assert.Equal("905559999999", gateway.Sends[0].Phone);
     }
 
@@ -259,7 +264,8 @@ public sealed class AfterHoursJobSmsNotifierTests
         await notifier.NotifyTaskAssignedAsync(job, ResponsibleId, DepartmentId, null, CancellationToken.None);
 
         Assert.Single(gateway.Sends);
-        Assert.Equal("Personel mesajı", gateway.Sends[0].Text);
+        Assert.StartsWith("Personel mesajı", gateway.Sends[0].Text);
+        Assert.Contains("Talep:", gateway.Sends[0].Text);
         Assert.Equal("905553333333", gateway.Sends[0].Phone);
     }
 
@@ -301,6 +307,40 @@ public sealed class AfterHoursJobSmsNotifierTests
         Assert.Single(gateway.Sends);
         Assert.Equal("905557777777", gateway.Sends[0].Phone);
         Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905551111111");
+    }
+
+    [Fact]
+    public async Task NotifyJobCreatedAsync_resolves_vt_number_via_source_ref_before_job_link()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+        await SeedTargetDepartmentAsync(db);
+        var socialMessageId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+        db.SocialMessages.Add(new SocialMessage
+        {
+            SocialMessageId = socialMessageId,
+            TenantId = TenantId,
+            Channel = SocialChannel.WhatsApp,
+            CitizenHandle = "905551234567",
+            Content = "Test",
+            ReceivedAtUtc = DateTimeOffset.UtcNow,
+            Status = SocialMessageStatus.New,
+            CitizenRequestNumber = 115,
+            CitizenRequestNumberYear = 2026,
+        });
+        await db.SaveChangesAsync();
+
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+        var job = CreateJob(
+            JobRequestType.ExternalUnit,
+            JobSourceType.SocialMessage);
+        job.SourceRefId = socialMessageId;
+
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], null, CancellationToken.None);
+
+        Assert.Single(gateway.Sends);
+        Assert.Contains("VT-2026-115", gateway.Sends[0].Text);
     }
 
     [Fact]

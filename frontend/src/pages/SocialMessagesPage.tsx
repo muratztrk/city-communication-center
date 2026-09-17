@@ -713,7 +713,8 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                       ) : null}
                       {linkedJob
                         && (linkedJob.status === 'Completed' || linkedJob.status === 'Cancelled')
-                        && !linkedJob.citizenTerminalMessageReleasedAtUtc ? (
+                        && !linkedJob.citizenTerminalMessageReleasedAtUtc
+                        && linkedJob.cancelledByRoleCode !== 'Operator' ? (
                         <div className="table-number-cell__priority font-sans font-bold text-red-700">
                           ({t('social.managerApprovalPending', 'Yönetici Onayı Bekleyen')})
                         </div>

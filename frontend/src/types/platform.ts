@@ -382,6 +382,7 @@ export interface JobSummary {
   returnedFromDepartmentName?: string | null;
   returnedByDisplayName?: string | null;
   citizenTerminalMessageReleasedAtUtc?: string | null;
+  cancelledByRoleCode?: string | null;
 }
 
 export interface JobDepartmentInfo {

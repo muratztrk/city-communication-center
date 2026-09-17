@@ -114,7 +114,9 @@ public sealed record JobSummaryResponse(
     Guid? ReturnedToOperatorFromDepartmentId = null,
     string? ReturnedFromDepartmentName = null,
     string? ReturnedByDisplayName = null,
-    DateTimeOffset? CitizenTerminalMessageReleasedAtUtc = null);
+    DateTimeOffset? CitizenTerminalMessageReleasedAtUtc = null,
+    /// <summary>Son JobCancelled audit aktörünün rolü — operatör iptalinde VT grid etiketi gizlenir (#3760).</summary>
+    string? CancelledByRoleCode = null);
 
 public sealed record JobDetailResponse(
     Guid JobId,

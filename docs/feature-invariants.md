@@ -976,7 +976,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri grid kolonları:** Gridde `Kanal` ve `Durum` sütunları gösterilmez; kanal
   talep numarasının başındaki kanal ikonu ile anlaşılır. `Vatandaş Talep No` ve
   `Vatandaş Talep Tarihi` başlıkları tek satır kalır; `Etiket` kolonu operatörün talep
-  etiketi/kategorisini gösterir.
+  etiketi/kategorisini gösterir. Telefon No, Vatandaş Adı sütununun alt satırındadır (#3759).
+  Tamamlandı/iptal + vatandaş mesaj onayı yoksa talep no altında kırmızı `(Yönetici Onayı Bekleyen)`
+  — **operatör iptalinde yazılmaz** (#3756/#3760).
 - **Detay popup header aksiyonları:** Detaylar butonundan açılan iş/talep/görev detay popup'larında
   sağ üst aksiyon butonları (Düzenle/Tamamla/Yazdır vb.) ve kapatma (X) kompakt ölçülüdür
   (~2.05rem yükseklik, ~0.72rem yazı; card #1632 + #1747). Küçük mobil

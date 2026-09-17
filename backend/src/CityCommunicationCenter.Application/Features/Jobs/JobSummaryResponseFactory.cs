@@ -73,6 +73,69 @@ internal static class JobSummaryResponseFactory
             job.JobNumberYear,
             createdByDisplayName,
             job.UpdatedAtUtc,
-            CitizenTerminalMessageReleasedAtUtc: job.CitizenTerminalMessageReleasedAtUtc);
+            CitizenTerminalMessageReleasedAtUtc: job.CitizenTerminalMessageReleasedAtUtc,
+            CancelledByRoleCode: (await ResolveCancelledByRoleCodeMapAsync(
+                dbContext,
+                job.TenantId,
+                [job],
+                cancellationToken)).GetValueOrDefault(job.JobId));
+    }
+
+    internal static async Task<Dictionary<Guid, string?>> ResolveCancelledByRoleCodeMapAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        IReadOnlyCollection<Job> jobs,
+        CancellationToken cancellationToken)
+    {
+        var cancelledJobs = jobs
+            .Where(job => job.Status == JobStatus.Cancelled)
+            .ToList();
+        if (cancelledJobs.Count == 0)
+        {
+            return [];
+        }
+
+        var cancelledEntityIds = cancelledJobs.Select(job => job.JobId.ToString()).ToList();
+        var cancelAudits = await dbContext.AuditLogs
+            .AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityType == nameof(Job)
+                && audit.Action == "JobCancelled"
+                && cancelledEntityIds.Contains(audit.EntityId))
+            .Select(audit => new { audit.EntityId, audit.ActorUserId, audit.EventTimeUtc })
+            .ToListAsync(cancellationToken);
+
+        var actorByJobId = cancelAudits
+            .GroupBy(audit => audit.EntityId)
+            .ToDictionary(
+                group => Guid.Parse(group.Key),
+                group => group.OrderByDescending(item => item.EventTimeUtc).First().ActorUserId);
+
+        foreach (var job in cancelledJobs)
+        {
+            if (!actorByJobId.ContainsKey(job.JobId) && job.UpdatedByUserId.HasValue)
+            {
+                actorByJobId[job.JobId] = job.UpdatedByUserId;
+            }
+        }
+
+        var actorIds = actorByJobId.Values
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
+        if (actorIds.Count == 0)
+        {
+            return [];
+        }
+
+        var roleByUserId = await dbContext.Users
+            .AsNoTracking()
+            .Where(user => actorIds.Contains(user.UserId))
+            .ToDictionaryAsync(user => user.UserId, user => user.RoleCode.ToString(), cancellationToken);
+
+        return actorByJobId
+            .Where(pair => pair.Value.HasValue && roleByUserId.ContainsKey(pair.Value.Value))
+            .ToDictionary(pair => pair.Key, pair => (string?)roleByUserId[pair.Value!.Value]);
     }
 }

@@ -304,6 +304,12 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                 .Select(department => new { department.DepartmentId, department.Name })
                 .ToDictionaryAsync(department => department.DepartmentId, department => department.Name, cancellationToken);
 
+        var cancelledByRoleCodeMap = await JobSummaryResponseFactory.ResolveCancelledByRoleCodeMapAsync(
+            _dbContext,
+            tenantId,
+            rows.Where(row => row.Job.Status == JobStatus.Cancelled).Select(row => row.Job).ToList(),
+            cancellationToken);
+
         return rows.Select(r => new JobSummaryResponse(
             r.Job.JobId,
             r.Job.TenantId,
@@ -347,7 +353,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.ReturnedToOperatorByUserId is Guid returnedByUserId
                 ? returnedByDisplayNameMap.GetValueOrDefault(returnedByUserId)
                 : null,
-            r.Job.CitizenTerminalMessageReleasedAtUtc)).ToArray();
+            r.Job.CitizenTerminalMessageReleasedAtUtc,
+            cancelledByRoleCodeMap.GetValueOrDefault(r.Job.JobId))).ToArray();
     }
 }
 

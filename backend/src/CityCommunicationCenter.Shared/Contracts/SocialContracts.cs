@@ -241,7 +241,7 @@ public sealed record CitizenConversationSummaryDto(
     bool HasPendingMessageApproval = false,
     /// <summary>İletilmemiş onay bekleyen giden mesajın kuyruk zamanı — liste saati (#3750).</summary>
     DateTimeOffset? PendingMessageApprovalAtUtc = null,
-    /// <summary>Operatör "Mesaj Onayı/Cevabı Verildi Yap" — iletilmemiş mesajı listeden düşürmez (#3750).</summary>
+    /// <summary>Operatör "Mesaj Onayı/Cevabı Verildi Yap" zaman damgası — iletilmemiş mesajın SentAt'ından sonra ise listeden düşer.</summary>
     DateTimeOffset? PendingApprovalClearedAtUtc = null,
     // Engellenenler listesi: engelleyen adı + zaman (#3560).
     string? BlockedByDisplayName = null,

@@ -425,6 +425,14 @@ public sealed class GetCitizenConversationsQueryHandler
                     }
                 }
 
+                var hasUndeliveredPendingApproval = latestPendingApprovalAtByConversation.TryGetValue(
+                    c.CitizenConversationId,
+                    out var latestPendingApprovalAt);
+                // Operatör "Mesaj Onayı/Cevabı Verildi Yap" sonrası listeden düşer; yeni bekleyen
+                // mesaj (SentAt > cleared) tekrar girer (#3750 düzeltmesi).
+                var hasPendingMessageApproval = hasUndeliveredPendingApproval
+                    && (c.PendingApprovalClearedAtUtc is null || latestPendingApprovalAt > c.PendingApprovalClearedAtUtc);
+
                 var dto = new CitizenConversationSummaryDto(
                     c.CitizenConversationId,
                     c.CitizenPhone,
@@ -457,10 +465,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     ticket?.Channel.ToString(),
                     c.WaitingReplyClearedAtUtc,
                     lastMessageIsAutomaticOutbound,
-                    latestPendingApprovalAtByConversation.TryGetValue(c.CitizenConversationId, out var latestPendingApprovalAt),
-                    latestPendingApprovalAtByConversation.TryGetValue(c.CitizenConversationId, out var pendingApprovalAt)
-                        ? pendingApprovalAt
-                        : null,
+                    hasPendingMessageApproval,
+                    hasPendingMessageApproval ? latestPendingApprovalAt : null,
                     c.PendingApprovalClearedAtUtc,
                     c.BlockedByDisplayName,
                     c.BlockedAtUtc);

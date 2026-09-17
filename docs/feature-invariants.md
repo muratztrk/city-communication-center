@@ -560,8 +560,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   durum etiketi görünür (#3389).
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekleyen` sağında; `hasPendingMessageApproval`
   = iletilmemiş Beklemede giden (personel yanıtı + yönetici onaylı Tamamlandı/İptal şablon; re-engagement
-  Failed dahil). `PendingApprovalClearedAtUtc` ("Mesaj Onayı/Cevabı Verildi Yap") sayıyı/listeyi
-  düşürmez — yalnız header butonunu gizler; mesaj gerçekten giderse (`Sent`+) düşer (#3750).
+  Failed dahil). `PendingApprovalClearedAtUtc` ("Mesaj Onayı/Cevabı Verildi Yap") ≥ iletilmemiş
+  mesajın `SentAt` ise sayıyı/listeyi düşürür; yeni bekleyen mesaj (`SentAt` > cleared) tekrar girer.
+  İletilmeden otomatik düşmez — yalnız operatör işareti veya `Sent`+ teslim (#3750).
   Liste saati `pendingMessageApprovalAtUtc` (kuyruk `SentAt`); iletilene kadar `lastMessageAt` ile
   değişmez. Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`

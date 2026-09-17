@@ -1920,7 +1920,7 @@ export function WhatsAppConversationsPage() {
     const clearedAt = new Date().toISOString()
     setConversations(prev =>
       prev.map(c => c.citizenConversationId === conversationId
-        ? { ...c, pendingApprovalClearedAtUtc: clearedAt }
+        ? { ...c, pendingApprovalClearedAtUtc: clearedAt, hasPendingMessageApproval: false }
         : c),
     )
     void api.markConversationPendingApprovalCleared(conversationId).catch(() => {

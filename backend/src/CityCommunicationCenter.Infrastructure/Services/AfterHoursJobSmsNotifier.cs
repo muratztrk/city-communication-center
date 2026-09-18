@@ -702,7 +702,11 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
         foreach (var tenantId in tenantIds)
         {
             var templates = await LoadTemplatesAsync(tenantId, cancellationToken);
-            if (!templates.OverdueManagerSmsIsEnabled || string.IsNullOrWhiteSpace(templates.OverdueManagerSms))
+            var managerEnabled = templates.OverdueManagerSmsIsEnabled
+                && !string.IsNullOrWhiteSpace(templates.OverdueManagerSms);
+            var staffEnabled = templates.OverdueStaffSmsIsEnabled
+                && !string.IsNullOrWhiteSpace(templates.OverdueStaffSms);
+            if (!managerEnabled && !staffEnabled)
             {
                 continue;
             }
@@ -725,25 +729,35 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
                     continue;
                 }
 
-                var alreadySent = await _dbContext.SmsOutboundLogs
-                    .IgnoreQueryFilters()
-                    .AsNoTracking()
-                    .AnyAsync(
-                        log => log.TenantId == tenantId
-                            && log.JobId == job.JobId
-                            && log.Kind == SmsOutboundKind.OverdueManager
-                            && log.Success,
-                        cancellationToken);
-                if (alreadySent)
+                if (managerEnabled
+                    && !await HasSuccessfulOverdueSmsAsync(tenantId, job.JobId, SmsOutboundKind.OverdueManager, cancellationToken))
                 {
-                    continue;
+                    var departmentIds = await ResolveManagerSmsDepartmentIdsAsync(job, [], cancellationToken);
+                    await SendOverdueManagerSmsAsync(job, departmentIds, templates.OverdueManagerSms!, cancellationToken);
                 }
 
-                var departmentIds = await ResolveManagerSmsDepartmentIdsAsync(job, [], cancellationToken);
-                await SendOverdueManagerSmsAsync(job, departmentIds, templates.OverdueManagerSms!, cancellationToken);
+                if (staffEnabled)
+                {
+                    await SendOverdueStaffSmsAsync(job, templates.OverdueStaffSms!, cancellationToken);
+                }
             }
         }
     }
+
+    private Task<bool> HasSuccessfulOverdueSmsAsync(
+        Guid tenantId,
+        Guid jobId,
+        SmsOutboundKind kind,
+        CancellationToken cancellationToken) =>
+        _dbContext.SmsOutboundLogs
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .AnyAsync(
+                log => log.TenantId == tenantId
+                    && log.JobId == jobId
+                    && log.Kind == kind
+                    && log.Success,
+                cancellationToken);
 
     private async Task SendOverdueManagerSmsAsync(
         Job job,
@@ -758,5 +772,77 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
             managerIds,
             SmsOutboundKind.OverdueManager,
             cancellationToken);
+    }
+
+    private async Task SendOverdueStaffSmsAsync(
+        Job job,
+        string template,
+        CancellationToken cancellationToken)
+    {
+        var staffIds = await ResolveOverdueStaffRecipientIdsAsync(job, cancellationToken);
+        if (staffIds.Count == 0)
+        {
+            return;
+        }
+
+        var pendingRecipientIds = new HashSet<Guid>();
+        foreach (var staffId in staffIds)
+        {
+            var alreadySent = await _dbContext.SmsOutboundLogs
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .AnyAsync(
+                    log => log.TenantId == job.TenantId
+                        && log.JobId == job.JobId
+                        && log.Kind == SmsOutboundKind.OverdueStaff
+                        && log.RecipientUserId == staffId
+                        && log.Success,
+                    cancellationToken);
+            if (!alreadySent)
+            {
+                pendingRecipientIds.Add(staffId);
+            }
+        }
+
+        await SendTemplateAsync(
+            job,
+            template,
+            pendingRecipientIds,
+            SmsOutboundKind.OverdueStaff,
+            cancellationToken);
+    }
+
+    /// <summary>Geciken talepte açık görevi olan Personel (Staff) atananlara SMS.</summary>
+    private async Task<HashSet<Guid>> ResolveOverdueStaffRecipientIdsAsync(
+        Job job,
+        CancellationToken cancellationToken)
+    {
+        var assigneeIds = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(task => task.TenantId == job.TenantId
+                && task.JobId == job.JobId
+                && task.AssignedUserId != null
+                && task.CurrentStatus != Domain.Enums.TaskStatus.Completed
+                && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
+                && task.CurrentStatus != Domain.Enums.TaskStatus.Rejected
+                && task.CurrentStatus != Domain.Enums.TaskStatus.PendingCloseApproval)
+            .Select(task => task.AssignedUserId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        if (assigneeIds.Count == 0)
+        {
+            return [];
+        }
+
+        var staffIds = await _dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.TenantId == job.TenantId
+                && user.IsActive
+                && assigneeIds.Contains(user.UserId)
+                && user.RoleCode == RoleCode.Staff)
+            .Select(user => user.UserId)
+            .ToListAsync(cancellationToken);
+
+        return staffIds.ToHashSet();
     }
 }

@@ -42,7 +42,9 @@ public sealed record CitizenAutoReplyTemplatesResponse(
     string? SmsProcessingReceived = null,
     bool SmsProcessingReceivedEnabled = true,
     string? OverdueManagerSms = null,
-    bool OverdueManagerSmsEnabled = true);
+    bool OverdueManagerSmsEnabled = true,
+    string? OverdueStaffSms = null,
+    bool OverdueStaffSmsEnabled = false);
 
 public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string ProcessingReceived,
@@ -58,7 +60,9 @@ public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string? SmsProcessingReceived = null,
     bool SmsProcessingReceivedEnabled = true,
     string? OverdueManagerSms = null,
-    bool OverdueManagerSmsEnabled = true);
+    bool OverdueManagerSmsEnabled = true,
+    string? OverdueStaffSms = null,
+    bool OverdueStaffSmsEnabled = false);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,

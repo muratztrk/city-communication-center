@@ -1633,6 +1633,13 @@
       "overdueManagerSmsPlaceholder": "Enter the notification message...",
       "overdueManagerSmsAfterPlaceholder": "Text after the request line",
       "overdueManagerSmsSaved": "The overdue request notification message was saved.",
+      "overdueStaffSmsTitle": "To unit staff\nOverdue request SMS notifications",
+      "overdueStaffSmsLabel": "Notification message",
+      "overdueStaffSmsBeforeLabel": "Notification message (top)",
+      "overdueStaffSmsAfterLabel": "Notification message (bottom)",
+      "overdueStaffSmsPlaceholder": "Enter the notification message...",
+      "overdueStaffSmsAfterPlaceholder": "Text after the request line",
+      "overdueStaffSmsSaved": "The overdue request notification message for unit staff was saved.",
       "smsProcessingReceivedTitle": "Citizen outbound SMS \"Processing received\" status",
       "smsProcessingReceivedDescription": "Edits the automatic Processing Received SMS text for requests from the phone (call/SMS) channel only.",
       "smsProcessingReceivedSaved": "Processing Received SMS template saved."

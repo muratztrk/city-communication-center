@@ -1023,6 +1023,8 @@ export interface CitizenAutoReplyTemplates {
   afterHoursStaffSmsEnabled?: boolean;
   overdueManagerSms?: string;
   overdueManagerSmsEnabled?: boolean;
+  overdueStaffSms?: string;
+  overdueStaffSmsEnabled?: boolean;
   smsProcessingReceived?: string;
   smsProcessingReceivedEnabled?: boolean;
 }

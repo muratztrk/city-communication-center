@@ -17,7 +17,9 @@ public sealed record UpdateCitizenAutoReplyTemplatesCommand(
     string? SmsProcessingReceived = null,
     bool SmsProcessingReceivedEnabled = true,
     string? OverdueManagerSms = null,
-    bool OverdueManagerSmsEnabled = true) : ICommand<Unit>;
+    bool OverdueManagerSmsEnabled = true,
+    string? OverdueStaffSms = null,
+    bool OverdueStaffSmsEnabled = false) : ICommand<Unit>;
 
 public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractValidator<UpdateCitizenAutoReplyTemplatesCommand>
 {
@@ -33,6 +35,7 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractVa
         RuleFor(command => command.AfterHoursStaffSms).MaximumLength(1600);
         RuleFor(command => command.SmsProcessingReceived).MaximumLength(1000);
         RuleFor(command => command.OverdueManagerSms).MaximumLength(1600);
+        RuleFor(command => command.OverdueStaffSms).MaximumLength(1600);
         When(command => command.Greetings is not null, () =>
         {
             RuleFor(command => command.Greetings!.ProcessingReceived).MaximumLength(200);
@@ -100,7 +103,9 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
                 : request.SmsProcessingReceived.TrimStart(),
             request.SmsProcessingReceivedEnabled,
             request.OverdueManagerSms,
-            request.OverdueManagerSmsEnabled));
+            request.OverdueManagerSmsEnabled,
+            request.OverdueStaffSms,
+            request.OverdueStaffSmsEnabled));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

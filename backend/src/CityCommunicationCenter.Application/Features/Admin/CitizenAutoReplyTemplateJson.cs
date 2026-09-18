@@ -29,7 +29,9 @@ public sealed record CitizenAutoReplyTemplateModel(
     string? SmsProcessingReceived = null,
     bool? SmsProcessingReceivedEnabled = null,
     string? OverdueManagerSms = null,
-    bool? OverdueManagerSmsEnabled = null)
+    bool? OverdueManagerSmsEnabled = null,
+    string? OverdueStaffSms = null,
+    bool? OverdueStaffSmsEnabled = null)
 {
     public bool ManagerSmsIsEnabled => AfterHoursManagerSmsEnabled ?? true;
 
@@ -38,6 +40,8 @@ public sealed record CitizenAutoReplyTemplateModel(
     public bool SmsProcessingReceivedIsEnabled => SmsProcessingReceivedEnabled ?? true;
 
     public bool OverdueManagerSmsIsEnabled => OverdueManagerSmsEnabled ?? true;
+
+    public bool OverdueStaffSmsIsEnabled => OverdueStaffSmsEnabled ?? false;
 
     public string ResolveProcessingReceivedTemplate(Domain.Enums.SocialChannel? channel)
     {
@@ -119,7 +123,9 @@ public static class CitizenAutoReplyTemplateJson
                     : EnsureProcessingReceivedSuffixSeparator(EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(parsed.SmsProcessingReceived))),
                 parsed.SmsProcessingReceivedEnabled,
                 parsed.OverdueManagerSms,
-                parsed.OverdueManagerSmsEnabled);
+                parsed.OverdueManagerSmsEnabled,
+                parsed.OverdueStaffSms,
+                parsed.OverdueStaffSmsEnabled);
         }
         catch (JsonException)
         {
@@ -144,7 +150,9 @@ public static class CitizenAutoReplyTemplateJson
                 : EnsureProcessingReceivedSuffixSeparator(EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(model.SmsProcessingReceived))),
             model.SmsProcessingReceivedEnabled,
             model.OverdueManagerSms,
-            model.OverdueManagerSmsEnabled));
+            model.OverdueManagerSmsEnabled,
+            model.OverdueStaffSms,
+            model.OverdueStaffSmsEnabled));
 
     /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
     private static CitizenAutoReplyGreetings? NormalizeGreetings(CitizenAutoReplyGreetings? greetings)

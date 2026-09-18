@@ -66,7 +66,8 @@ public sealed class GetSmsOutboundLogsQueryHandler : IQueryHandler<GetSmsOutboun
                 entity.RecipientUserId.HasValue
                     && (entity.Kind == SmsOutboundKind.AfterHoursManager
                         || entity.Kind == SmsOutboundKind.AfterHoursStaff
-                        || entity.Kind == SmsOutboundKind.OverdueManager)
+                        || entity.Kind == SmsOutboundKind.OverdueManager
+                        || entity.Kind == SmsOutboundKind.OverdueStaff)
                     ? _dbContext.Users
                         .AsNoTracking()
                         .Where(user => user.UserId == entity.RecipientUserId.Value)

@@ -2901,11 +2901,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   durum bildiriminde (`CitizenJobStatusNotifier`) eklenir: hitap satırı + boş satır + asıl metin
   (`CitizenOutboundGreeting.Ensure`, zaten hitaplıysa tekrar eklenmez). Yöneticiye giden mesai dışı
   SMS ve test SMS'i hitapsızdır. Onay/UI şablon metni değişmez.
-- **Geciken talep yönetici SMS (#6aa4faf6 / #6a9bff9a):** Ayarlar → Otomatik Yönlendirme'de
-  `overdueManagerSms` + Aktif; UI iki textarea + ortada sabit `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}`
-  (kayıt tek string). Açık vatandaş talebi `dueDateUtc < now`
-  olduğunda API `OverdueJobSmsPollingHostedService` (15 dk) müdür/sorumlu/VTY'ye `SmsOutboundKind.OverdueManager`
-  ile gönderir; başarılı log varsa tekrar gitmez. Hitap yok; şablon token'ları mesai dışı ile aynı.
+- **Geciken talep SMS (#6aa4faf6 / #6a9bff9a / #6aa6f5c7):** Ayarlar → Otomatik Yönlendirme'de yönetici
+  (`overdueManagerSms`) ve personel (`overdueStaffSms`) kutuları yan yana; her biri iki textarea + ortada
+  sabit `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}` (kayıt tek string). Açık VT `dueDateUtc < now`
+  olduğunda `OverdueJobSmsPollingHostedService` (15 dk): yönetici → müdür/sorumlu/VTY (`OverdueManager`,
+  talep bazlı tek gönderim); personel → açık görevli Staff atanan (`OverdueStaff`, alıcı bazlı tek gönderim).
+  Hitap yok; token'lar mesai dışı ile aynı.
 - **WA İleten Operatör / Düzenlendi bold (#6aaccdd):** balon alt satırında `conversation-entry-meta-badge`
   + `font-bold` — İleten Operatör (turkuaz) ve Düzenlendi (turuncu) aynı kalınlık.
 - **WhatsApp hitap:** serbest metin / yanıt / medya caption aynı hitap (`WhatsAppClient` + konuşma kaydı).

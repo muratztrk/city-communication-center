@@ -7031,3 +7031,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [ ] `6aac36b8b01808988e434e17` — Tim mobil harita renkleri (atlandı).
 
 ## STATUS: Round 1256 complete — `bcaca199` develop + testtim deploy.
+
+## Round 1257 (Doing — 2026-09-18, geciken SMS 2 textarea)
+- [x] `6a9bff9a803a0a035cbc163b` — Geciken SMS: 2 textarea + ortada talep token satırı.
+- [ ] `6aac36b8b01808988e434e17` — Tim mobil harita renkleri (atlandı).
+- [ ] `6a97ae9ee352e681fa7ab39d` — Mobil Uygulama Yetki (Tim mobil sayfa listesi yok — atlandı).
+
+## STATUS: Round 1257 complete — `7e39d62b` develop + testtim deploy.

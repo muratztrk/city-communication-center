@@ -1656,6 +1656,13 @@
       "overdueManagerSmsPlaceholder": "Bildirim mesajını giriniz...",
       "overdueManagerSmsAfterPlaceholder": "Talep bilgisinden sonra gelecek metin",
       "overdueManagerSmsSaved": "Geciken talep bildirim mesajı kaydedildi.",
+      "overdueStaffSmsTitle": "Birim Personeline\nGiden Geciken Talep SMS Bildirimleri",
+      "overdueStaffSmsLabel": "Bildirim Mesajı",
+      "overdueStaffSmsBeforeLabel": "Bildirim mesajı (üst)",
+      "overdueStaffSmsAfterLabel": "Bildirim mesajı (alt)",
+      "overdueStaffSmsPlaceholder": "Bildirim mesajını giriniz...",
+      "overdueStaffSmsAfterPlaceholder": "Talep bilgisinden sonra gelecek metin",
+      "overdueStaffSmsSaved": "Birim personeline giden geciken talep bildirim mesajı kaydedildi.",
       "smsProcessingReceivedTitle": "Vatandaşa Giden SMS Gönderimi \"İşleme Alındı\" Durumu",
       "smsProcessingReceivedDescription": "Yalnız çağrı (SMS) kanalından gelen taleplerde İşleme Alındı otomatik SMS metnini düzenler.",
       "smsProcessingReceivedSaved": "SMS gönderimi İşleme Alındı mesajı kaydedildi."

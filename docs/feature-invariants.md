@@ -3020,8 +3020,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   uyarısı gösterilir (Kapat). Pencere açıkken onay akışı devam eder; gönderim backend'de dener,
   re-engagement hatasında Pending kalır (#3691). Gönderim tamamlanmazsa API
   `204` döndürmez — `ValidationProblemDetails` ile Türkçe hata (FE toast/dialog).
-- **WA telefon başlık avatarı (#6aad1118):** konuşma detayında vatandaş adı yok, yalnızca telefon
-  numarası başlıkta gösteriliyorsa initials dairesi `bg-emerald-700 text-white` (isimli `bg-emerald-100`).
+- **WA telefon avatarı (#6aad1118):** vatandaş adı yok, yalnızca telefon numarası gösteriliyorsa sol liste
+  satırı ve konuşma detay başlığındaki avatar dairesi `bg-emerald-700` / `emerald-800` + beyaz metin
+  (isimli satırlar `bg-emerald-100 text-emerald-800`).
   WhatsApp ham JSON hata yanıtı `DeliveryError` (max 500) alanına yazılmadan önce formatlanır/kısaltılır (#3740).
 - **WA terminal çift gönderim (#3737/#3738):** `SendPendingConversationEntryCommand` terminal Pending
   için atomik claim kullanır; gerçek API gönderimi sonrası yalnızca **aynı talep** içindeki kardeş

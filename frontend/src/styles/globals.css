@@ -9174,6 +9174,11 @@
   height: 1.25rem !important;
 }
 
+.whatsapp-conversation-detail-header--phone-only > .size-11 {
+  background-color: rgb(6 95 70) !important; /* emerald-800 */
+  color: #fff !important;
+}
+
 .whatsapp-conversation-profile-panel {
   width: 16.5rem !important;
 }

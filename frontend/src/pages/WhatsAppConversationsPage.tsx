@@ -240,6 +240,7 @@ function ConversationListItem({
   const locale = getLocale(i18n.language)
   const displayName = conv.citizenName ?? formatPhone(conv.citizenPhone)
   const phoneLabel = formatPhone(conv.citizenPhone)
+  const isPhoneOnlyListRow = !conv.citizenName?.trim()
   const initials = conv.citizenName ? getInitials(conv.citizenName) : null
   const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
   const waitingForResponse = isWaitingForConversationResponse(conv)
@@ -294,7 +295,11 @@ function ConversationListItem({
     >
       <div className="flex items-start gap-3 min-w-0">
         <div className="relative shrink-0">
-          <div className="size-11 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-sm font-bold">
+          <div
+            className={`size-11 rounded-full flex items-center justify-center text-sm font-bold ${
+              isPhoneOnlyListRow ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-800'
+            }`}
+          >
             {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-5" aria-hidden="true" />}
           </div>
           {(isUrgent || waitingForResponse || pendingApprovalStatus || ticketOpen) && (
@@ -1294,10 +1299,14 @@ function ConversationDetail({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
-      <header className={`whatsapp-conversation-detail-header flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${headerTitleIsPhoneOnly ? 'items-center' : 'items-start'}`}>
+      <header
+        className={`whatsapp-conversation-detail-header flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${
+          headerTitleIsPhoneOnly ? 'whatsapp-conversation-detail-header--phone-only items-center' : 'items-start'
+        }`}
+      >
         <div
           className={`flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-            headerTitleIsPhoneOnly ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-800'
+            headerTitleIsPhoneOnly ? 'bg-emerald-800 text-white' : 'bg-emerald-100 text-emerald-800'
           }`}
         >
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}

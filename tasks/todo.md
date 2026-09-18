@@ -1,3 +1,7 @@
+## Round 1262 — Trello Doing (1 web WA reopen)
+
+- **#6aad1118 reopen:** telefon-only sol liste satırı avatar `bg-emerald-700`; detay başlık `emerald-800` + CSS modifier (önceki yalnız header Tailwind yeterli değildi — kart sol listeyi işaret ediyordu).
+
 ## Round 1261 — Trello Doing (2 web WA)
 
 - **#6aad1654:** 24s penceresi kapalı Beklemede `Mesajı Gönder` → yalnız Meta şablon uyarısı (onay dialogu yok); `ConversationPanel` + `/whatsapp`.

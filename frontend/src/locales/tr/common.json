@@ -213,7 +213,9 @@
     "databaseBackupSettingsLoadFailed": "Veritabanı yedeği sunucu ayarları alınamadı.",
     "databaseBackupSettingsSaveFailed": "Veritabanı yedeği sunucu ayarları kaydedilemedi.",
     "slaWeekendSettingsLoadFailed": "SLA hafta sonu ayarları alınamadı.",
-    "slaWeekendSettingsSaveFailed": "SLA hafta sonu ayarları kaydedilemedi."
+    "slaWeekendSettingsSaveFailed": "SLA hafta sonu ayarları kaydedilemedi.",
+    "attachmentUploadFailed": "Ek yüklenemedi.",
+    "attachmentDownloadFailed": "Ek indirilemedi."
   },
   "search": {
     "placeholder": "Sistemde ara...",

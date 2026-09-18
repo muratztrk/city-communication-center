@@ -213,7 +213,9 @@
     "databaseBackupSettingsLoadFailed": "Failed to load database backup server settings.",
     "databaseBackupSettingsSaveFailed": "Failed to save database backup server settings.",
     "slaWeekendSettingsLoadFailed": "Failed to load SLA weekend settings.",
-    "slaWeekendSettingsSaveFailed": "Failed to save SLA weekend settings."
+    "slaWeekendSettingsSaveFailed": "Failed to save SLA weekend settings.",
+    "attachmentUploadFailed": "Failed to upload attachment.",
+    "attachmentDownloadFailed": "Failed to download attachment."
   },
   "search": {
     "placeholder": "Search system...",

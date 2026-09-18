@@ -94,19 +94,62 @@ import type {
   RequestTag,
 } from '../types/platform'
 import { API_BASE } from './config'
-import { ensureOk, fetchWithCredentials, getAuthHeaders } from './http'
+import { ensureOk, fetchWithCredentials, getAuthHeaders, getErrorMessage, getErrorMessageFromText } from './http'
 
-async function uploadAttachmentWithProgress(url: string, file: File, onProgress?: (percent: number) => void): Promise<Attachment> {
-  const formData = new FormData()
-  formData.append('file', file)
-  const authHeaders = await getAuthHeaders() as Record<string, string>
+/** iOS Safari: <input type="file"> File referansı await sonrası geçersizleşebilir — hemen snapshot. */
+function snapshotUploadFile(file: File): File {
+  const safeName = file.name?.trim() || 'upload.bin'
+  const safeType = file.type || 'application/octet-stream'
+  const blob = file.slice(0, file.size, safeType)
+  return new File([blob], safeName, { type: safeType, lastModified: file.lastModified })
+}
+
+function uploadHeadersWithoutContentType(authHeaders: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(authHeaders).filter(([key]) => key.toLowerCase() !== 'content-type'),
+  )
+}
+
+function prefersFetchAttachmentUpload(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /iPad|iPhone|iPod/i.test(navigator.userAgent)
+}
+
+async function uploadAttachmentWithFetch(
+  url: string,
+  formData: FormData,
+  authHeaders: Record<string, string>,
+  onProgress?: (percent: number) => void,
+): Promise<Attachment> {
+  const fallback = i18n.t('errors.attachmentUploadFailed')
+  onProgress?.(5)
+  const response = await fetchWithCredentials(url, {
+    method: 'POST',
+    headers: uploadHeadersWithoutContentType(authHeaders),
+    body: formData,
+  })
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, fallback))
+  }
+  onProgress?.(100)
+  return await response.json() as Attachment
+}
+
+function uploadAttachmentWithXhr(
+  url: string,
+  formData: FormData,
+  authHeaders: Record<string, string>,
+  uploadFile: File,
+  onProgress?: (percent: number) => void,
+): Promise<Attachment> {
+  const fallback = i18n.t('errors.attachmentUploadFailed')
 
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest()
     request.open('POST', url)
     request.withCredentials = true
-    for (const [key, value] of Object.entries(authHeaders)) {
-      if (key.toLowerCase() !== 'content-type') request.setRequestHeader(key, value)
+    for (const [key, value] of Object.entries(uploadHeadersWithoutContentType(authHeaders))) {
+      request.setRequestHeader(key, value)
     }
     request.upload.onloadstart = () => onProgress?.(5)
     request.upload.onprogress = event => {
@@ -115,24 +158,37 @@ async function uploadAttachmentWithProgress(url: string, file: File, onProgress?
         return
       }
       if (event.loaded > 0) {
-        onProgress?.(Math.min(95, Math.round((event.loaded / Math.max(file.size, 1)) * 100)))
+        onProgress?.(Math.min(95, Math.round((event.loaded / Math.max(uploadFile.size, 1)) * 100)))
       }
     }
-    request.onerror = () => reject(new Error(i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment')))
+    request.onerror = () => reject(new Error(fallback))
     request.onload = () => {
       if (request.status < 200 || request.status >= 300) {
-        reject(new Error(request.responseText || i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment')))
+        reject(new Error(getErrorMessageFromText(request.responseText, fallback)))
         return
       }
       try {
         onProgress?.(100)
         resolve(JSON.parse(request.responseText) as Attachment)
       } catch {
-        reject(new Error(i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment')))
+        reject(new Error(fallback))
       }
     }
     request.send(formData)
   })
+}
+
+async function uploadAttachmentWithProgress(url: string, file: File, onProgress?: (percent: number) => void): Promise<Attachment> {
+  const uploadFile = snapshotUploadFile(file)
+  const formData = new FormData()
+  formData.append('file', uploadFile, uploadFile.name)
+  const authHeaders = await getAuthHeaders() as Record<string, string>
+
+  if (prefersFetchAttachmentUpload()) {
+    return uploadAttachmentWithFetch(url, formData, authHeaders, onProgress)
+  }
+
+  return uploadAttachmentWithXhr(url, formData, authHeaders, uploadFile, onProgress)
 }
 
 export const api = {

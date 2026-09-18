@@ -149,8 +149,7 @@ export async function fetchWithCredentials(input: RequestInfo | URL, init: Reque
   })
 }
 
-export async function getErrorMessage(response: Response, fallbackMessage: string): Promise<string> {
-  const responseText = await response.text()
+export function getErrorMessageFromText(responseText: string, fallbackMessage: string): string {
   if (!responseText) {
     return fallbackMessage
   }
@@ -182,6 +181,11 @@ export async function getErrorMessage(response: Response, fallbackMessage: strin
   } catch {
     return responseText || fallbackMessage
   }
+}
+
+export async function getErrorMessage(response: Response, fallbackMessage: string): Promise<string> {
+  const responseText = await response.text()
+  return getErrorMessageFromText(responseText, fallbackMessage)
 }
 
 export async function ensureOk(response: Response, fallbackMessage: string): Promise<Response> {

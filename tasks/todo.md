@@ -7045,3 +7045,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [ ] `6a97ae9ee352e681fa7ab39d` — Mobil Uygulama Yetki (Tim mobil sayfa listesi yok — atlandı).
 
 ## STATUS: Round 1258 complete — `3a77bd3a` develop + testtim deploy.
+
+## Round 1259 (Doing — 2026-09-18, WA liste renkleri)
+- [x] `6aad09c905fd15c55d558480` — Liste chip seçili: Yanıt bekleyen turuncu, Mesaj Onayı Bekleyen kırmızı.
+- [x] `6aad01187c8d533860b46f68` — Onay bekleyen satır: kırmızı metin + kırmızı avatar nokta.
+- [ ] `6aac36b8b01808988e434e17` — Tim mobil harita (atlandı).
+- [ ] `6a97ae9ee352e681fa7ab39d` — Mobil Uygulama Yetki (atlandı).
+
+## STATUS: Round 1259 complete — `f9723cd7` develop + testtim deploy.

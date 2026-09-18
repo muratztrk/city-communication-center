@@ -333,6 +333,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
   Dosya ekle tıklanınca bar görünmez; dosya seçildikten sonra (bekleyen ek) veya kayıt sonrası XHR
   `report` ile gerçek yükleme oranına göre ilerler (#2821).
+- **Ek yükleme (iOS):** `uploadAttachmentWithProgress` dosyayı `await` öncesi `File.slice` ile
+  snapshot'lar; iPhone/iPad'de XHR multipart `onerror` verdiği için `fetch`+`credentials` kullanılır
+  (masaüstü XHR progress korunur). Hata metni `getErrorMessage` / Türkçe `errors.attachmentUploadFailed`.
   Vatandaş create/edit akışı da seçili dosyaları oluşan job'a gerçekten yükler (card #1610).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
   Cadde/Sokak, No ve Adres Tarifi alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse

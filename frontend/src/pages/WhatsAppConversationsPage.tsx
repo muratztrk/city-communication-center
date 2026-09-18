@@ -294,7 +294,7 @@ function ConversationListItem({
     >
       <div className="flex items-start gap-3 min-w-0">
         <div className="relative shrink-0">
-          <div className="size-11 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-sm font-bold">
+          <div className="size-11 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center text-sm font-bold">
             {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-5" aria-hidden="true" />}
           </div>
           {(isUrgent || waitingForResponse || pendingApprovalStatus || ticketOpen) && (
@@ -1295,7 +1295,7 @@ function ConversationDetail({
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
       <header className={`whatsapp-conversation-detail-header flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${headerTitleIsPhoneOnly ? 'items-center' : 'items-start'}`}>
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-200 text-sm font-bold text-emerald-800">
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
         <div className={`min-w-0 flex-1 ${headerTitleIsPhoneOnly ? 'pt-0.5' : ''}`}>

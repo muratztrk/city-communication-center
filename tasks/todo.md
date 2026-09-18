@@ -1,3 +1,7 @@
+## Round 1264 — Trello loop tick (1 web WA)
+
+- **#6aad2479:** WA liste + detay başlık avatar `bg-emerald-200` (hafif koyu yeşil).
+
 ## Round 1263 — Trello Doing (1 web WA revert)
 
 - **#6aad1118 revert:** kart "yaptığın değişikliği geri al" — telefon-only koyu yeşil avatar (liste + detay + CSS) geri alındı.

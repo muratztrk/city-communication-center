@@ -4251,8 +4251,10 @@
     font-size: 0.72rem !important;
   }
 
-  .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row .field-select span.text-slate-400 {
-    font-size: 0.72rem !important;
+  /* Placeholder metni iç `span`'de durur; dış span tek başına küçültülürse punto değişmez (#3692). */
+  .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row .field-select span.text-slate-400,
+  .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row .field-select span.text-slate-400 span {
+    font-size: 0.64rem !important;
   }
 
   /* WA Vatandaş Talebi Oluştur: Cadde/Sokak Mahalle ile aynı ölçekte daralsın;
@@ -4273,9 +4275,10 @@
     font-size: 0.78rem !important;
   }
 
+  /* Mahalle placeholder Cadde/No ile aynı punto (#3692 2. tur). */
   .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span.text-slate-400,
   .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span.text-slate-400 span {
-    font-size: 0.72rem !important;
+    font-size: 0.64rem !important;
   }
 
   @media (min-width: 768px) {

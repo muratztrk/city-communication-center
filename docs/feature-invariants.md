@@ -970,6 +970,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yükseklik artar (`min-height` ~4.25rem). Başlık kolonu Öncelik’ten biraz daha geniş, Öncelik dar
   (`7.25rem`, #2743). Öncelik menü sırası Normal → Yüksek → Çok Yüksek (`prioritySelectOptions`, #2749). Gideceği Birim ve Öncelik menü punto `0.75rem`; Adres Tarifi input Açıklama ile aynı `0.8rem`; Açıklama
   editör yüksekliği `6.85rem` (#2743/#2746). Mahalle/Cadde/No boş placeholder punto biraz küçük (#2747). Gideceği Birim / Öncelik kapalı placeholder punto biraz küçük (`citizen-request-placeholder-trigger`, #2747 reopen). Öncelik kapalı seçili metin `12px` (#2747). Açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (`citizen-request-department-menu`, #2730).
+- **`SingleSelectDropdown` placeholder puntosu (#3692):** metin dış `span.text-slate-400` değil onun
+  içindeki `span.truncate` içinde durur. Punto kuralı yalnız dış span'i hedeflerse görünen boyut
+  değişmez; Mahalle ve Cadde/No aynı kalsın diye her iki selector de (`span.text-slate-400`
+  **ve** `span.text-slate-400 span`) aynı değeri almalı — WA Vatandaş Talebi Oluştur'da `0.64rem`.
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Konum Koordinatı

@@ -1,3 +1,12 @@
+## Round 1266 — Trello Doing (1 web, #3692 3. tur)
+
+- **#3692:** WA Vatandaş Talebi Oluştur — `Mahalle seçiniz` placeholder `Cadde seçiniz` ile aynı `0.64rem`.
+- **Kök neden:** placeholder metni `SingleSelectDropdown` iç `span.truncate`'inde. Cadde/No kuralı
+  yalnız dış `span.text-slate-400`'ü `0.72rem !important` yapıyordu → iç span `0.64rem`'e düşüyordu;
+  Mahalle kuralı iç span'i de `0.72rem !important` ile sabitlediği için küçülmüyordu. Önceki iki tur
+  `0.72 → 0.68 → 0.64` ile yalnız Cadde'yi küçültüp farkı büyütmüştü. İki kural da iç+dış span'i
+  `0.64rem` alıyor.
+
 ## Round 1265 — Trello Doing (1 web)
 
 - **#6aad1118:** Vatandaş Talepleri — Gecikti mi yanına Yönetici Onayı Bekleyen mi checkbox + grid filtresi.

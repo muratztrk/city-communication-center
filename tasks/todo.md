@@ -1,3 +1,7 @@
+## Round 1263 — Trello Doing (1 web WA revert)
+
+- **#6aad1118 revert:** kart "yaptığın değişikliği geri al" — telefon-only koyu yeşil avatar (liste + detay + CSS) geri alındı.
+
 ## Round 1262 — Trello Doing (1 web WA reopen)
 
 - **#6aad1118 reopen:** telefon-only sol liste satırı avatar `bg-emerald-700`; detay başlık `emerald-800` + CSS modifier (önceki yalnız header Tailwind yeterli değildi — kart sol listeyi işaret ediyordu).

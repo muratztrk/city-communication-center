@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
 
-internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
+internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOverdueJobSmsNotifier
 {
     private static readonly TimeZoneInfo TurkeyTimeZone = ResolveTurkeyTimeZone();
 
@@ -291,6 +291,7 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
     private async Task<CitizenAutoReplyTemplateModel> LoadTemplatesAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         var raw = await _dbContext.TenantSettings
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .Where(entity => entity.TenantId == tenantId)
             .Select(entity => entity.CitizenAutoReplyTemplatesJson)
@@ -674,5 +675,88 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         }
 
         return TimeZoneInfo.Utc;
+    }
+
+    public async Task ProcessOverdueJobsAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await ProcessOverdueJobsCoreAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Geciken talep yönetici SMS taraması başarısız oldu.");
+        }
+    }
+
+    private async Task ProcessOverdueJobsCoreAsync(CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var tenantIds = await _dbContext.TenantSettings
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Select(entity => entity.TenantId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        foreach (var tenantId in tenantIds)
+        {
+            var templates = await LoadTemplatesAsync(tenantId, cancellationToken);
+            if (!templates.OverdueManagerSmsIsEnabled || string.IsNullOrWhiteSpace(templates.OverdueManagerSms))
+            {
+                continue;
+            }
+
+            var overdueJobs = await _dbContext.Jobs
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(job => job.TenantId == tenantId
+                    && job.DueDateUtc != null
+                    && job.DueDateUtc < now
+                    && job.Status != JobStatus.Completed
+                    && job.Status != JobStatus.Cancelled
+                    && job.Status != JobStatus.Rejected)
+                .ToListAsync(cancellationToken);
+
+            foreach (var job in overdueJobs)
+            {
+                if (!JobCitizenRequestHelper.IsCitizenRequest(job))
+                {
+                    continue;
+                }
+
+                var alreadySent = await _dbContext.SmsOutboundLogs
+                    .IgnoreQueryFilters()
+                    .AsNoTracking()
+                    .AnyAsync(
+                        log => log.TenantId == tenantId
+                            && log.JobId == job.JobId
+                            && log.Kind == SmsOutboundKind.OverdueManager
+                            && log.Success,
+                        cancellationToken);
+                if (alreadySent)
+                {
+                    continue;
+                }
+
+                var departmentIds = await ResolveManagerSmsDepartmentIdsAsync(job, [], cancellationToken);
+                await SendOverdueManagerSmsAsync(job, departmentIds, templates.OverdueManagerSms!, cancellationToken);
+            }
+        }
+    }
+
+    private async Task SendOverdueManagerSmsAsync(
+        Job job,
+        Guid[] distinctDepartmentIds,
+        string template,
+        CancellationToken cancellationToken)
+    {
+        var managerIds = await ResolveManagerRecipientIdsAsync(job, distinctDepartmentIds, cancellationToken);
+        await SendTemplateAsync(
+            job,
+            template,
+            managerIds,
+            SmsOutboundKind.OverdueManager,
+            cancellationToken);
     }
 }

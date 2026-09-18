@@ -528,7 +528,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
               <X className="size-4" />
             </button>
             <h2 className="mb-2 border-b border-slate-200 pb-1.5 text-base font-bold text-slate-950">{t('citizenMessageApproval.editNoteTitle', 'Notu Düzenle')}</h2>
-            <p className="mb-2 text-sm text-slate-700">{t('citizenMessageApproval.editNoteMessage', 'Vatandaşa gönderilecek notu düzenleyin. Not ifadesi zorunludur.')}</p>
+            <p className="mb-2 text-sm text-slate-700">{t('citizenMessageApproval.editNoteMessage', 'Vatandaşa gönderilecek notu düzenleyiniz. Not ifadesi zorunludur.')}</p>
             <textarea
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-[color:var(--color-primary)] focus:outline-none"
               rows={4}

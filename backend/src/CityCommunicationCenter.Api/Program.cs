@@ -293,6 +293,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddHostedService<LdapDailySyncHostedService>();
+builder.Services.AddHostedService<OverdueJobSmsPollingHostedService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, CccUserIdProvider>();

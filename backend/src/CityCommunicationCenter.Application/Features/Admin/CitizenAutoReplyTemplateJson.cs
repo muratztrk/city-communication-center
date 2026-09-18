@@ -27,13 +27,17 @@ public sealed record CitizenAutoReplyTemplateModel(
     bool? AfterHoursManagerSmsEnabled = null,
     bool? AfterHoursStaffSmsEnabled = null,
     string? SmsProcessingReceived = null,
-    bool? SmsProcessingReceivedEnabled = null)
+    bool? SmsProcessingReceivedEnabled = null,
+    string? OverdueManagerSms = null,
+    bool? OverdueManagerSmsEnabled = null)
 {
     public bool ManagerSmsIsEnabled => AfterHoursManagerSmsEnabled ?? true;
 
     public bool StaffSmsIsEnabled => AfterHoursStaffSmsEnabled ?? false;
 
     public bool SmsProcessingReceivedIsEnabled => SmsProcessingReceivedEnabled ?? true;
+
+    public bool OverdueManagerSmsIsEnabled => OverdueManagerSmsEnabled ?? true;
 
     public string ResolveProcessingReceivedTemplate(Domain.Enums.SocialChannel? channel)
     {
@@ -113,7 +117,9 @@ public static class CitizenAutoReplyTemplateJson
                 string.IsNullOrWhiteSpace(parsed.SmsProcessingReceived)
                     ? null
                     : EnsureProcessingReceivedSuffixSeparator(EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(parsed.SmsProcessingReceived))),
-                parsed.SmsProcessingReceivedEnabled);
+                parsed.SmsProcessingReceivedEnabled,
+                parsed.OverdueManagerSms,
+                parsed.OverdueManagerSmsEnabled);
         }
         catch (JsonException)
         {
@@ -136,7 +142,9 @@ public static class CitizenAutoReplyTemplateJson
             string.IsNullOrWhiteSpace(model.SmsProcessingReceived)
                 ? null
                 : EnsureProcessingReceivedSuffixSeparator(EnsureQuotedCitizenStatuses(StripTargetDepartmentToken(model.SmsProcessingReceived))),
-            model.SmsProcessingReceivedEnabled));
+            model.SmsProcessingReceivedEnabled,
+            model.OverdueManagerSms,
+            model.OverdueManagerSmsEnabled));
 
     /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
     private static CitizenAutoReplyGreetings? NormalizeGreetings(CitizenAutoReplyGreetings? greetings)

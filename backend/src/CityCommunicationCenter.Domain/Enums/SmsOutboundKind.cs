@@ -7,4 +7,5 @@ public enum SmsOutboundKind
     AfterHoursManager = 2,
     AfterHoursStaff = 3,
     Test = 4,
+    OverdueManager = 5,
 }

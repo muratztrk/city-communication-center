@@ -67,6 +67,9 @@ interface ConversationEntryBubbleProps {
   compact?: boolean
 }
 
+const conversationEntryMetaBadgeClass =
+  'conversation-entry-meta-badge text-[11px] font-bold leading-none tracking-wide'
+
 /** Hover 250ms sonra yönetici adını gösterir (card #2092). */
 function DelayedHoverTooltip({
   label,
@@ -373,7 +376,7 @@ export function ConversationEntryBubble({
               <DelayedHoverTooltip
                 label={t('whatsapp.relayOperator', 'İleten Operatör')}
                 tooltip={relayedByName ?? ''}
-                className="text-[11px] font-bold leading-none tracking-wide text-teal-300 cursor-default"
+                className={`${conversationEntryMetaBadgeClass} text-teal-300 cursor-default`}
               />
             ) : null}
             {showRelayedOperator ? <span aria-hidden="true">·</span> : null}
@@ -382,10 +385,10 @@ export function ConversationEntryBubble({
                 <DelayedHoverTooltip
                   label={t('whatsapp.editedBadge', 'Düzenlendi')}
                   tooltip={editedByName}
-                  className="text-[11px] font-bold leading-none tracking-wide text-orange-400 cursor-default"
+                  className={`${conversationEntryMetaBadgeClass} text-orange-400 cursor-default`}
                 />
               ) : (
-                <span className="text-[11px] font-bold leading-none tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
+                <span className={`${conversationEntryMetaBadgeClass} text-orange-400`}>{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
               )
             ) : null}
             {isPending ? (

@@ -1626,6 +1626,10 @@
       "afterHoursStaffSmsLabel": "Notification message",
       "afterHoursStaffSmsPlaceholder": "Enter the notification message...",
       "afterHoursStaffSmsSaved": "The notification message for unit staff was saved.",
+      "overdueManagerSmsTitle": "To unit managers/responsibles/citizen request managers\nOverdue request SMS notifications",
+      "overdueManagerSmsLabel": "Notification message",
+      "overdueManagerSmsPlaceholder": "Enter the notification message...",
+      "overdueManagerSmsSaved": "The overdue request notification message was saved.",
       "smsProcessingReceivedTitle": "Citizen outbound SMS \"Processing received\" status",
       "smsProcessingReceivedDescription": "Edits the automatic Processing Received SMS text for requests from the phone (call/SMS) channel only.",
       "smsProcessingReceivedSaved": "Processing Received SMS template saved."

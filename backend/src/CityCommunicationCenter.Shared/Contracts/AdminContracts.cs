@@ -40,7 +40,9 @@ public sealed record CitizenAutoReplyTemplatesResponse(
     bool AfterHoursManagerSmsEnabled = true,
     bool AfterHoursStaffSmsEnabled = false,
     string? SmsProcessingReceived = null,
-    bool SmsProcessingReceivedEnabled = true);
+    bool SmsProcessingReceivedEnabled = true,
+    string? OverdueManagerSms = null,
+    bool OverdueManagerSmsEnabled = true);
 
 public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string ProcessingReceived,
@@ -54,7 +56,9 @@ public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     bool AfterHoursManagerSmsEnabled = true,
     bool AfterHoursStaffSmsEnabled = false,
     string? SmsProcessingReceived = null,
-    bool SmsProcessingReceivedEnabled = true);
+    bool SmsProcessingReceivedEnabled = true,
+    string? OverdueManagerSms = null,
+    bool OverdueManagerSmsEnabled = true);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,

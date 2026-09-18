@@ -1021,6 +1021,8 @@ export interface CitizenAutoReplyTemplates {
   afterHoursStaffSms?: string;
   afterHoursManagerSmsEnabled?: boolean;
   afterHoursStaffSmsEnabled?: boolean;
+  overdueManagerSms?: string;
+  overdueManagerSmsEnabled?: boolean;
   smsProcessingReceived?: string;
   smsProcessingReceivedEnabled?: boolean;
 }

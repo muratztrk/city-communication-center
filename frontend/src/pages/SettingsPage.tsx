@@ -93,8 +93,10 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   },
   afterHoursManagerSms: '',
   afterHoursStaffSms: '',
+  overdueManagerSms: '',
   afterHoursManagerSmsEnabled: true,
   afterHoursStaffSmsEnabled: false,
+  overdueManagerSmsEnabled: true,
   smsProcessingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".",
   smsProcessingReceivedEnabled: true,
 }
@@ -107,7 +109,7 @@ const COMPLETION_NOTE_TOKEN = '{Tamamlama Notu}'
 const CANCEL_NOTE_TOKEN = '{İptal Notu}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
-type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled' | 'smsProcessingReceived' | 'smsProcessingReceivedEnabled'>
+type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'overdueManagerSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled' | 'overdueManagerSmsEnabled' | 'smsProcessingReceived' | 'smsProcessingReceivedEnabled'>
 
 function buildCitizenAutoReplyTemplate(
   bodyText: string,
@@ -609,7 +611,7 @@ export function SettingsPage() {
   const savedCitizenAutoReplyTemplatesRef = useRef<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
   // Hangi kartın Kaydet'i çalışıyor: iki bölüm aynı endpoint'i kullanıyor ama buton durumu
   // ayrı olmalı; tek bayrak paylaşınca diğer buton da "Kaydediliyor..." oluyordu (kart #3209).
-  const [citizenAutoReplySavingScope, setCitizenAutoReplySavingScope] = useState<'citizen' | 'afterHours' | 'afterHoursStaff' | 'smsProcessing' | null>(null)
+  const [citizenAutoReplySavingScope, setCitizenAutoReplySavingScope] = useState<'citizen' | 'afterHours' | 'afterHoursStaff' | 'overdueManager' | 'smsProcessing' | null>(null)
   const citizenAutoReplySaving = citizenAutoReplySavingScope !== null
   const [departments, setDepartments] = useState<Department[]>([])
   const logoFileInputRef = useRef<HTMLInputElement>(null)
@@ -911,6 +913,8 @@ export function SettingsPage() {
           smsProcessingReceivedEnabled: autoReplyResponse.smsProcessingReceivedEnabled ?? true,
           afterHoursManagerSmsEnabled: autoReplyResponse.afterHoursManagerSmsEnabled ?? true,
           afterHoursStaffSmsEnabled: autoReplyResponse.afterHoursStaffSmsEnabled ?? false,
+          overdueManagerSms: autoReplyResponse.overdueManagerSms ?? '',
+          overdueManagerSmsEnabled: autoReplyResponse.overdueManagerSmsEnabled ?? true,
         }
         setCitizenAutoReplyTemplates(loadedTemplates)
         savedCitizenAutoReplyTemplatesRef.current = cloneCitizenAutoReplyTemplates(loadedTemplates)
@@ -1783,7 +1787,7 @@ export function SettingsPage() {
     }
   }
 
-  const saveCitizenAutoReplies = async (toast: 'citizen' | 'afterHours' | 'afterHoursStaff' | 'smsProcessing' = 'citizen') => {
+  const saveCitizenAutoReplies = async (toast: 'citizen' | 'afterHours' | 'afterHoursStaff' | 'overdueManager' | 'smsProcessing' = 'citizen') => {
     if (!user?.tenantId || citizenAutoReplySaving) return
     setCitizenAutoReplySavingScope(toast)
     try {
@@ -1847,6 +1851,8 @@ export function SettingsPage() {
         afterHoursStaffSms: citizenAutoReplyTemplates.afterHoursStaffSms ?? '',
         afterHoursManagerSmsEnabled: citizenAutoReplyTemplates.afterHoursManagerSmsEnabled ?? true,
         afterHoursStaffSmsEnabled: citizenAutoReplyTemplates.afterHoursStaffSmsEnabled ?? false,
+        overdueManagerSms: citizenAutoReplyTemplates.overdueManagerSms ?? '',
+        overdueManagerSmsEnabled: citizenAutoReplyTemplates.overdueManagerSmsEnabled ?? true,
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
       setCitizenAutoReplyTemplates(normalizedTemplates)
@@ -1855,7 +1861,9 @@ export function SettingsPage() {
         'success',
         toast === 'afterHoursStaff'
           ? t('settings.routing.afterHoursStaffSmsSaved', 'Birim personeline giden bildirim mesajı kaydedildi.')
-          : toast === 'afterHours'
+          : toast === 'overdueManager'
+            ? t('settings.routing.overdueManagerSmsSaved', 'Geciken talep bildirim mesajı kaydedildi.')
+            : toast === 'afterHours'
             ? t('settings.routing.afterHoursManagerSmsSaved', 'Birim yöneticilerine giden bildirim mesajı kaydedildi.')
             : toast === 'smsProcessing'
               ? t('settings.routing.smsProcessingReceivedSaved', 'SMS gönderimi İşleme Alındı mesajı kaydedildi.')
@@ -3777,6 +3785,38 @@ export function SettingsPage() {
             </label>
           </section>
           </div>
+
+          <section className="section-card page-stack">
+            <div className="page-header-row">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <h2 className="whitespace-pre-line text-lg font-extrabold leading-snug text-slate-950">{t('settings.routing.overdueManagerSmsTitle')}</h2>
+                <SettingsActiveSwitch
+                  label={t('users.active', 'Aktif')}
+                  checked={citizenAutoReplyTemplates.overdueManagerSmsEnabled ?? true}
+                  onChange={() => setCitizenAutoReplyTemplates(current => ({
+                    ...current,
+                    overdueManagerSmsEnabled: !(current.overdueManagerSmsEnabled ?? true),
+                  }))}
+                />
+              </div>
+              <Button type="button" onClick={() => void saveCitizenAutoReplies('overdueManager')}>
+                {t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('settings.routing.overdueManagerSmsLabel')}</span>
+              <textarea
+                aria-label={t('settings.routing.overdueManagerSmsLabel')}
+                className="field-input settings-after-hours-sms min-h-48 whitespace-pre-wrap"
+                placeholder={t('settings.routing.overdueManagerSmsPlaceholder')}
+                value={citizenAutoReplyTemplates.overdueManagerSms ?? ''}
+                onChange={event => setCitizenAutoReplyTemplates(current => ({
+                  ...current,
+                  overdueManagerSms: event.target.value,
+                }))}
+              />
+            </label>
+          </section>
 
         </div>
       ) : null}

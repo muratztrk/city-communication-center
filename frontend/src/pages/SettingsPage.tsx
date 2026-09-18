@@ -73,11 +73,31 @@ import { toTitleCaseTr } from '../utils/textNormalization'
 import { isCbsMissingDoorLabel } from '../utils/addressLimits'
 
 type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license' | 'support'
+type RolePermissionView = 'web' | 'mobile'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
 
 const DEFAULT_CITIZEN_OUTBOUND_GREETING = 'Değerli vatandaşımız,'
+
+const MOBILE_CITIZEN_TRACKING_PAGES = [
+  'Anasayfa',
+  'Birimler',
+  'Harita',
+  'Vatandaşlar',
+  'Ayarlar',
+] as const
+
+const MOBILE_INTERNAL_TRACKING_PAGES = [
+  'Anasayfa',
+  'Birim',
+  'Harita',
+  'Vatandaşlar',
+  'Ayarlar',
+] as const
+
+const MOBILE_CITIZEN_TRACKING_ROLES = ['SystemAdmin', 'Reporter'] as const satisfies readonly RoleCode[]
+const MOBILE_INTERNAL_TRACKING_ROLES = ['SystemAdmin', 'Manager'] as const satisfies readonly RoleCode[]
 
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".",
@@ -725,6 +745,7 @@ export function SettingsPage() {
   const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
   const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => createDefaultRolePageAccessMatrix())
+  const [rolePermissionView, setRolePermissionView] = useState<RolePermissionView>('web')
   const [rolesPageSize, setRolesPageSize] = useState(25)
   const [rolesPage, setRolesPage] = useState(1)
   // Modüler lisans (#WGDYIM79 / #MHrIEwuE): lisanssız modülün sayfaları Sayfa Yetkileri'nde de görünmez.
@@ -1125,6 +1146,49 @@ export function SettingsPage() {
     }
     return t(page.labelKey)
   }
+
+  const renderMobilePermissionSection = (
+    title: string,
+    pages: readonly string[],
+    roles: readonly RoleCode[],
+  ) => (
+    <section className="mobile-permission-card" key={title}>
+      <div className="mobile-permission-card__header">
+        <h3>{title}</h3>
+      </div>
+      <div className="table-wrap">
+        <table className="data-table role-matrix-table mobile-permission-table">
+          <thead>
+            <tr>
+              <th>{t('settings.roles.page')}</th>
+              {roles.map(role => (
+                <th key={`${title}-${role}`}>
+                  {role === 'Manager'
+                    ? t('settings.roles.managerLabel', 'Birim Yöneticisi/Sorumluları')
+                    : getRoleLabel(t, role)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {pages.map(page => (
+              <tr key={`${title}-${page}`}>
+                <td className="font-semibold">{page}</td>
+                {roles.map(role => (
+                  <td key={`${title}-${page}-${role}`}>
+                    <span className="role-matrix-toggle role-matrix-toggle--readonly">
+                      <span className="role-matrix-toggle__dot" aria-hidden="true" />
+                      <span>{t('common.enabled')}</span>
+                    </span>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
 
   const toggleRolePageAccess = (role: RoleCode, pageKey: PageAccessKey) => {
     if (pageKey === 'dashboard' || pageKey === 'settings') return
@@ -3566,65 +3630,114 @@ export function SettingsPage() {
         <section className="section-card page-stack">
           <div className="page-header-row">
             <div>
-              <h2 className="text-xl font-extrabold text-slate-950">{t('settings.roles.title')}</h2>
+              <h2 className="text-xl font-extrabold text-slate-950">
+                {rolePermissionView === 'mobile'
+                  ? t('settings.roles.mobileTitle', 'Mobil Uygulama Yetki')
+                  : t('settings.roles.title')}
+              </h2>
               <p className="helper-copy">{t('settings.roles.description')}</p>
             </div>
-            <ShieldCheck className="size-5 text-slate-400" />
-          </div>
-          <div className="table-wrap">
-            <table className="data-table role-matrix-table">
-              <thead>
-                <tr>
-                  <th>{t('settings.roles.page')}</th>
-                  {visibleRoleCodes.map(role => (
-                    <th key={role}>{role === 'Manager' ? t('settings.roles.managerLabel', 'Birim Yöneticisi/Sorumluları') : getRoleLabel(t, role)}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {pagedPageAccessItems.map(page => (
-                  <tr key={page.key}>
-                    <td className="font-semibold">{renderRolePageLabel(page)}</td>
-                    {visibleRoleCodes.map(role => {
-                      const disabled = page.key === 'dashboard' || page.key === 'settings'
-                      return (
-                        <td key={`${role}-${page.key}`}>
-                          <label className="role-matrix-toggle">
-                            <input
-                              checked={rolePageAccess[role][page.key]}
-                              disabled={disabled}
-                              type="checkbox"
-                              onChange={() => toggleRolePageAccess(role, page.key)}
-                            />
-                            <span>{rolePageAccess[role][page.key] ? t('common.enabled') : t('common.disabled')}</span>
-                          </label>
-                        </td>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <TablePagination
-            totalCount={visiblePageAccessItems.length}
-            pageSize={rolesPageSize}
-            currentPage={rolesSafePage}
-            onPageSizeChange={size => { setRolesPageSize(size); setRolesPage(1) }}
-            onPageChange={setRolesPage}
-          />
-          {/* Not + butonlar aynı satır; Kaydet sağ kenarı WhatsApp FAB soluna hizalı (card #r451). */}
-          <div className="settings-roles-actions flex flex-wrap items-center justify-between gap-3 pb-2">
-            <p className="helper-copy m-0 min-w-0 flex-1">{t('settings.roles.note')}</p>
-            <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-3">
-              <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>
-                {t('settings.roles.resetDefaults')}
+            <div className="settings-role-view-actions">
+              <Button
+                type="button"
+                variant={rolePermissionView === 'web' ? 'primary' : 'secondary'}
+                onClick={() => setRolePermissionView('web')}
+              >
+                {t('settings.roles.title')}
               </Button>
-              <Button type="button" className="min-w-[13rem] px-10" onClick={() => void saveRolePages()}>
-                {t('common.save')}
+              <Button
+                type="button"
+                variant={rolePermissionView === 'mobile' ? 'primary' : 'secondary'}
+                onClick={() => setRolePermissionView('mobile')}
+              >
+                {t('settings.roles.mobileTitle', 'Mobil Uygulama Yetki')}
               </Button>
+              <ShieldCheck className="size-5 text-slate-400" />
             </div>
           </div>
+
+          {rolePermissionView === 'web' ? (
+            <>
+              <div className="table-wrap">
+                <table className="data-table role-matrix-table">
+                  <thead>
+                    <tr>
+                      <th>{t('settings.roles.page')}</th>
+                      {visibleRoleCodes.map(role => (
+                        <th key={role}>{role === 'Manager' ? t('settings.roles.managerLabel', 'Birim Yöneticisi/Sorumluları') : getRoleLabel(t, role)}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagedPageAccessItems.map(page => (
+                      <tr key={page.key}>
+                        <td className="font-semibold">{renderRolePageLabel(page)}</td>
+                        {visibleRoleCodes.map(role => {
+                          const disabled = page.key === 'dashboard' || page.key === 'settings'
+                          return (
+                            <td key={`${role}-${page.key}`}>
+                              <label className="role-matrix-toggle">
+                                <input
+                                  checked={rolePageAccess[role][page.key]}
+                                  disabled={disabled}
+                                  type="checkbox"
+                                  onChange={() => toggleRolePageAccess(role, page.key)}
+                                />
+                                <span>{rolePageAccess[role][page.key] ? t('common.enabled') : t('common.disabled')}</span>
+                              </label>
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <TablePagination
+                totalCount={visiblePageAccessItems.length}
+                pageSize={rolesPageSize}
+                currentPage={rolesSafePage}
+                onPageSizeChange={size => { setRolesPageSize(size); setRolesPage(1) }}
+                onPageChange={setRolesPage}
+              />
+              {/* Not + butonlar aynı satır; Kaydet sağ kenarı WhatsApp FAB soluna hizalı (card #r451). */}
+              <div className="settings-roles-actions flex flex-wrap items-center justify-between gap-3 pb-2">
+                <p className="helper-copy m-0 min-w-0 flex-1">{t('settings.roles.note')}</p>
+                <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-3">
+                  <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>
+                    {t('settings.roles.resetDefaults')}
+                  </Button>
+                  <Button type="button" className="min-w-[13rem] px-10" onClick={() => void saveRolePages()}>
+                    {t('common.save')}
+                  </Button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="mobile-permission-grid">
+              {isCitizenModuleUsable
+                ? renderMobilePermissionSection(
+                    t('settings.roles.mobileCitizenTracking', 'Vatandaş Takip'),
+                    MOBILE_CITIZEN_TRACKING_PAGES,
+                    MOBILE_CITIZEN_TRACKING_ROLES,
+                  )
+                : null}
+              {isInternalModuleUsable
+                ? renderMobilePermissionSection(
+                    t('settings.roles.mobileInternalTracking', 'Kurum İçi İş Takip'),
+                    MOBILE_INTERNAL_TRACKING_PAGES,
+                    MOBILE_INTERNAL_TRACKING_ROLES,
+                  )
+                : null}
+              {!isCitizenModuleUsable && !isInternalModuleUsable ? (
+                <div className="empty-state-card">
+                  <p className="font-semibold text-slate-700">
+                    {t('settings.roles.mobileNoLicensedModules', 'Aktif mobil uygulama lisans modülü bulunamadı.')}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          )}
         </section>
       ) : null}
 

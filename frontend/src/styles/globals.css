@@ -4650,6 +4650,56 @@
     cursor: not-allowed;
   }
 
+  .settings-role-view-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.6rem;
+  }
+
+  .mobile-permission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    gap: 1rem;
+  }
+
+  .mobile-permission-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: #fff;
+    padding: 1rem;
+  }
+
+  .mobile-permission-card__header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: rgb(15 23 42);
+  }
+
+  .mobile-permission-table th:first-child,
+  .mobile-permission-table td:first-child {
+    min-width: 9rem;
+  }
+
+  .role-matrix-toggle--readonly {
+    border-color: color-mix(in srgb, var(--color-primary) 38%, var(--color-border));
+    background: color-mix(in srgb, var(--color-primary) 10%, white);
+    color: var(--color-primary);
+  }
+
+  .role-matrix-toggle__dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
   .scope-chips.scope-chips--wrap {
     flex-wrap: wrap;
     overflow-x: visible;

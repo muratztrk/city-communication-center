@@ -4266,11 +4266,16 @@
   }
 
   /* WA Talep oluştur: seçili Mahalle + Cadde/Sokak aynı punto (#3555); boş placeholder No ile 0.72rem. */
-  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select,
-  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span,
+  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span.text-slate-900,
+  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span.text-slate-900 span,
   .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row > div:first-child .field-select span.text-slate-900,
   .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row > div:first-child .field-select span.text-slate-900 span {
     font-size: 0.78rem !important;
+  }
+
+  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span.text-slate-400,
+  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span.text-slate-400 span {
+    font-size: 0.72rem !important;
   }
 
   @media (min-width: 768px) {

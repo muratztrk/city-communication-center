@@ -558,6 +558,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız son vatandaş inbound'undan ≥24 saat geçmişse (Meta 24s penceresi kapalı — #3448);
   `POST .../mark-pending-approval-cleared` → `PendingApprovalClearedAtUtc`. İşaretlendikten sonra aynı yerde **Yanıt Verildi**
   durum etiketi görünür (#3389).
+  `/whatsapp` liste chip seçili renk (#6aad09c9): **Yanıt bekleyen** turuncu (`bg-orange-500`), **Mesaj Onayı Bekleyen**
+  kırmızı (`bg-red-500`), **Tümü** yeşil (`bg-emerald-800`). Satır durumu (#6aad0118): `hasPendingMessageApproval`
+  + açık talep + yanıt beklenmiyorsa yeşil **Yanıt Verildi** yerine kırmızı **Mesaj Onayı Bekleyen** metni
+  ve avatar sağ-alt kırmızı nokta (yeşil nokta değil).
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekleyen` sağında; `hasPendingMessageApproval`
   = iletilmemiş Beklemede giden (personel yanıtı + yönetici onaylı Tamamlandı/İptal şablon; re-engagement
   Failed dahil). `PendingApprovalClearedAtUtc` ("Mesaj Onayı/Cevabı Verildi Yap") ≥ iletilmemiş

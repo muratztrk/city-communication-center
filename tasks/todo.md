@@ -7038,3 +7038,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [ ] `6a97ae9ee352e681fa7ab39d` — Mobil Uygulama Yetki (Tim mobil sayfa listesi yok — atlandı).
 
 ## STATUS: Round 1257 complete — `7e39d62b` develop + testtim deploy.
+
+## Round 1258 (Doing — 2026-09-18, geciken personel SMS)
+- [x] `6aa6f5c76ad3949b7432ab8e` — Birim personeline geciken SMS (`overdueStaffSms` + `OverdueStaff` poller).
+- [ ] `6aac36b8b01808988e434e17` — Tim mobil harita renkleri (atlandı).
+- [ ] `6a97ae9ee352e681fa7ab39d` — Mobil Uygulama Yetki (Tim mobil sayfa listesi yok — atlandı).
+
+## STATUS: Round 1258 complete — `3a77bd3a` develop + testtim deploy.

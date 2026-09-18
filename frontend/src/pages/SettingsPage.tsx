@@ -109,6 +109,24 @@ const COMPLETION_NOTE_TOKEN = '{Tamamlama Notu}'
 const CANCEL_NOTE_TOKEN = '{İptal Notu}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
+const OVERDUE_MANAGER_SMS_MIDDLE = `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN}`
+
+function splitOverdueManagerSmsTemplate(template: string): { before: string; after: string } {
+  const idx = template.indexOf(OVERDUE_MANAGER_SMS_MIDDLE)
+  if (idx < 0) {
+    return { before: template, after: '' }
+  }
+
+  return {
+    before: template.slice(0, idx),
+    after: template.slice(idx + OVERDUE_MANAGER_SMS_MIDDLE.length),
+  }
+}
+
+function buildOverdueManagerSmsTemplate(before: string, after: string): string {
+  return `${before}${OVERDUE_MANAGER_SMS_MIDDLE}${after}`
+}
+
 type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'overdueManagerSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled' | 'overdueManagerSmsEnabled' | 'smsProcessingReceived' | 'smsProcessingReceivedEnabled'>
 
 function buildCitizenAutoReplyTemplate(
@@ -3803,19 +3821,47 @@ export function SettingsPage() {
                 {t('common.save', 'Kaydet')}
               </Button>
             </div>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+            <div className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('settings.routing.overdueManagerSmsLabel')}</span>
-              <textarea
-                aria-label={t('settings.routing.overdueManagerSmsLabel')}
-                className="field-input settings-after-hours-sms min-h-48 whitespace-pre-wrap"
-                placeholder={t('settings.routing.overdueManagerSmsPlaceholder')}
-                value={citizenAutoReplyTemplates.overdueManagerSms ?? ''}
-                onChange={event => setCitizenAutoReplyTemplates(current => ({
-                  ...current,
-                  overdueManagerSms: event.target.value,
-                }))}
-              />
-            </label>
+              {(() => {
+                const { before, after } = splitOverdueManagerSmsTemplate(citizenAutoReplyTemplates.overdueManagerSms ?? '')
+                return (
+                  <>
+                    <textarea
+                      aria-label={t('settings.routing.overdueManagerSmsBeforeLabel', 'Bildirim mesajı (üst)')}
+                      className="field-input settings-after-hours-sms min-h-32 whitespace-pre-wrap"
+                      placeholder={t('settings.routing.overdueManagerSmsPlaceholder')}
+                      value={before}
+                      onChange={event => setCitizenAutoReplyTemplates(current => ({
+                        ...current,
+                        overdueManagerSms: buildOverdueManagerSmsTemplate(
+                          event.target.value,
+                          splitOverdueManagerSmsTemplate(current.overdueManagerSms ?? '').after,
+                        ),
+                      }))}
+                    />
+                    <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
+                      <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_NO_TOKEN}</span>
+                      <span>no&apos;lu</span>
+                      <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_TITLE_TOKEN}</span>
+                    </div>
+                    <textarea
+                      aria-label={t('settings.routing.overdueManagerSmsAfterLabel', 'Bildirim mesajı (alt)')}
+                      className="field-input settings-after-hours-sms min-h-32 whitespace-pre-wrap"
+                      placeholder={t('settings.routing.overdueManagerSmsAfterPlaceholder', 'Talep bilgisinden sonra gelecek metin')}
+                      value={after}
+                      onChange={event => setCitizenAutoReplyTemplates(current => ({
+                        ...current,
+                        overdueManagerSms: buildOverdueManagerSmsTemplate(
+                          splitOverdueManagerSmsTemplate(current.overdueManagerSms ?? '').before,
+                          event.target.value,
+                        ),
+                      }))}
+                    />
+                  </>
+                )
+              })()}
+            </div>
           </section>
 
         </div>

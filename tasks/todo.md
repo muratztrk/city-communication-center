@@ -7023,3 +7023,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a84089020312212e77e25fc` — WA operatör `sendImmediately` direkt metin+ek (#2838).
 
 ## STATUS: Round 1001 complete — build/lint green; `1949f04b` pushed + deploy.
+
+## Round 1256 (Doing — 2026-09-18, geciken SMS + WA bold + mesaj onayı)
+- [x] `6aaccddedc79a602efe40507` — WA İleten Operatör bold = Düzenlendi (`conversation-entry-meta-badge`).
+- [x] `6aa4faf69c152274c935c3e7` — Geciken talep yönetici SMS ayar + `OverdueJobSmsPollingHostedService`.
+- [x] `6aacd6d7627e848396ed776d` — Mesaj Onayı Notu Düzenle: düzenleyiniz.
+- [ ] `6aac36b8b01808988e434e17` — Tim mobil harita renkleri (atlandı).
+
+## STATUS: Round 1256 complete — `bcaca199` develop + testtim deploy.

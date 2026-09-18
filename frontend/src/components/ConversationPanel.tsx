@@ -24,7 +24,7 @@ import {
 } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { formatDisplayPhone, matchesPhone } from '../utils/phoneNormalization'
-import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
+import { WHATSAPP_RE_ENGAGEMENT_WARNING } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
@@ -284,11 +284,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     }
   }
 
-  const isReEngagementEntry = (entry: ConversationEntryBubbleData) =>
-    entry.direction === 'Outbound'
-    && entry.deliveryStatus === 'Failed'
-    && isWhatsAppReEngagementError(entry.deliveryError)
-
   const showReEngagementWarningDialog = () => {
     setConfirmDialog({
       title: t('whatsapp.reEngagementWarningTitle', 'Meta şablon mesajı gerekli'),
@@ -310,7 +305,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const windowOpen = isWhatsApp24hWindowOpen(lastInboundAt)
 
   const handleSendPending = (entry: ConversationEntryBubbleData) => {
-    if (isReEngagementEntry(entry) && !windowOpen) {
+    if (!windowOpen) {
       showReEngagementWarningDialog()
       return
     }

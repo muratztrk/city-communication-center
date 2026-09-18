@@ -31,7 +31,7 @@ import { emitPageToast } from '../components/ui/pageToast'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries } from '../utils/socialConversationContent'
-import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
+import { WHATSAPP_RE_ENGAGEMENT_WARNING } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { conversationHasCitizenRequest, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse, pickCreateRequestSocialMessageId, pickReplySocialMessageId, pickReplyTicket } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
@@ -1208,12 +1208,6 @@ function ConversationDetail({
     }
   }
 
-  // "Mesajı Gönder" önce onay pop-up'ı gösterir; onaylanınca vatandaşa iletilir (card #1096).
-  const isReEngagementEntry = (entry: CitizenConversationTimelineEntry) =>
-    entry.direction === 'Outbound'
-    && entry.deliveryStatus === 'Failed'
-    && isWhatsAppReEngagementError(entry.deliveryError)
-
   const showReEngagementWarningDialog = () => {
     setConfirmDialog({
       title: t('whatsapp.reEngagementWarningTitle', 'Meta şablon mesajı gerekli'),
@@ -1227,7 +1221,7 @@ function ConversationDetail({
   }
 
   const handleSendPending = (entry: CitizenConversationTimelineEntry) => {
-    if (isReEngagementEntry(entry) && !windowOpen) {
+    if (!windowOpen) {
       showReEngagementWarningDialog()
       return
     }
@@ -1301,7 +1295,11 @@ function ConversationDetail({
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
       <header className={`whatsapp-conversation-detail-header flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${headerTitleIsPhoneOnly ? 'items-center' : 'items-start'}`}>
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
+        <div
+          className={`flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+            headerTitleIsPhoneOnly ? 'bg-emerald-700 text-white' : 'bg-emerald-100 text-emerald-800'
+          }`}
+        >
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
         <div className={`min-w-0 flex-1 ${headerTitleIsPhoneOnly ? 'pt-0.5' : ''}`}>

@@ -1,3 +1,14 @@
+## Round 1261 — Trello Doing (2 web WA)
+
+- **#6aad1654:** 24s penceresi kapalı Beklemede `Mesajı Gönder` → yalnız Meta şablon uyarısı (onay dialogu yok); `ConversationPanel` + `/whatsapp`.
+- **#6aad1118:** Telefon-only konuşma detay header avatar `bg-emerald-700`.
+- Atlandı Doing'de: Tim mobil harita renkleri + Mobil Uygulama Yetki.
+
+## Round 1260 — iPhone görev eki yükleme (prod log analizi)
+
+- **Kök neden:** iPhone Safari XHR multipart isteği sunucuya ulaşmıyordu (`onerror`); prod nginx'te `POST /attachments/tasks` iPhone kaydı yok.
+- **Düzeltme:** `uploadAttachmentWithProgress` — `await` öncesi `File.slice` snapshot; iOS'ta `fetch`+credentials; masaüstü XHR progress korunur; Türkçe `errors.attachmentUploadFailed`.
+
 ## Round 1256 — WA VT Cadde placeholder
 
 - **Cadde seçiniz** kapalı placeholder punto No seçiniz ile aynı (0.72rem); seçili Cadde 0.78rem (#3555).

@@ -3015,10 +3015,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WA timeline'da görünmez; onay sonrası `hasPendingMessageApproval` + operatör gönderimi.
   Yönetici onayı ikinci Pending terminal balonu oluşturmaz — iptal yolunda kuyruğa alınmış
   terminal Pending varsa `ReleaseTerminalMessagesAsync` yalnızca `ReleasedAtUtc` set eder (#3736 reopen).
-- **WA Beklemede Mesajı Gönder (#3739):** `/whatsapp` Pending balonunda 24s penceresi kapalı olsa da
-  `Mesajı Gönder` onay akışı açılır; gönderim backend'de dener, re-engagement hatasında Pending kalır (#3691).
-  Yalnızca Failed re-engagement balonları pencere dışında uyarı gösterir.   Gönderim tamamlanmazsa API
+- **WA Beklemede Mesajı Gönder (#3739 / #6aad1654):** `/whatsapp` ve `ConversationPanel` Pending balonunda
+  24s penceresi kapalıysa `Mesajı Gönder` onay dialogu açılmaz; yalnızca **Meta şablon mesajı gerekli**
+  uyarısı gösterilir (Kapat). Pencere açıkken onay akışı devam eder; gönderim backend'de dener,
+  re-engagement hatasında Pending kalır (#3691). Gönderim tamamlanmazsa API
   `204` döndürmez — `ValidationProblemDetails` ile Türkçe hata (FE toast/dialog).
+- **WA telefon başlık avatarı (#6aad1118):** konuşma detayında vatandaş adı yok, yalnızca telefon
+  numarası başlıkta gösteriliyorsa initials dairesi `bg-emerald-700 text-white` (isimli `bg-emerald-100`).
   WhatsApp ham JSON hata yanıtı `DeliveryError` (max 500) alanına yazılmadan önce formatlanır/kısaltılır (#3740).
 - **WA terminal çift gönderim (#3737/#3738):** `SendPendingConversationEntryCommand` terminal Pending
   için atomik claim kullanır; gerçek API gönderimi sonrası yalnızca **aynı talep** içindeki kardeş

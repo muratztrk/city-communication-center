@@ -148,6 +148,17 @@ function parseSocialWasOverdueFilter(searchParams: URLSearchParams): boolean {
   return searchParams.get('wasOverdue') === '1' || searchParams.get('requestStatus') === 'overdue'
 }
 
+function parseSocialManagerApprovalPendingFilter(searchParams: URLSearchParams): boolean {
+  return searchParams.get('managerApprovalPending') === '1'
+}
+
+function isJobPendingManagerApproval(job: JobSummary | undefined): boolean {
+  if (!job) return false
+  return (job.status === 'Completed' || job.status === 'Cancelled')
+    && !job.citizenTerminalMessageReleasedAtUtc
+    && job.cancelledByRoleCode !== 'Operator'
+}
+
 function getSocialMessageStatusKey(job: JobSummary | undefined): Exclude<SocialRequestStatusFilter, 'all'> {
   if (!job) return 'processing-received'
 
@@ -260,6 +271,9 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
   const [messagesPageSize, setMessagesPageSize] = useState(10)
   const [requestStatusFilter, setRequestStatusFilter] = useState<SocialRequestStatusFilter>(initialRequestStatus)
   const [wasOverdueFilter, setWasOverdueFilter] = useState(initialWasOverdue)
+  const [managerApprovalPendingFilter, setManagerApprovalPendingFilter] = useState(
+    embedded ? false : parseSocialManagerApprovalPendingFilter(searchParams),
+  )
   const [requestTags, setRequestTags] = useState<RequestTag[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [badgeSeenTick, setBadgeSeenTick] = useState(0)
@@ -270,6 +284,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
     const nextStatus = searchParams.get('requestStatus')
     setRequestStatusFilter(parseSocialRequestStatusFilter(nextStatus))
     setWasOverdueFilter(parseSocialWasOverdueFilter(searchParams))
+    setManagerApprovalPendingFilter(parseSocialManagerApprovalPendingFilter(searchParams))
     setFilterFrom(searchParams.get('from') ?? '')
     setFilterTo(searchParams.get('to') ?? '')
   }, [embedded, searchParams])
@@ -447,8 +462,15 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
       })
     }
 
+    if (managerApprovalPendingFilter) {
+      result = result.filter(message => {
+        const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
+        return isJobPendingManagerApproval(linkedJob)
+      })
+    }
+
     return sortSocial(result)
-  }, [channelFilter, displayMessages, filterFrom, filterTo, jobsById, locale, requestStatusFilter, searchText, sortSocial, wasOverdueFilter])
+  }, [channelFilter, displayMessages, filterFrom, filterTo, jobsById, locale, managerApprovalPendingFilter, requestStatusFilter, searchText, sortSocial, wasOverdueFilter])
 
   useEffect(() => {
     const phoneParam = searchParams.get('phone')?.trim()
@@ -490,7 +512,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
       return
     }
     setMessagesPage(1)
-  }, [channelFilter, filterFrom, filterTo, requestStatusFilter, searchText, socialFilters, wasOverdueFilter])
+  }, [channelFilter, filterFrom, filterTo, managerApprovalPendingFilter, requestStatusFilter, searchText, socialFilters, wasOverdueFilter])
 
   // Sayfa değişince etiket/kolon filtreleri default'a döner (#r461); paging bozulmaz (#r467).
   const handleMessagesPageChange = (page: number) => {
@@ -623,6 +645,8 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
             if (nextParams.get('requestStatus') === 'overdue') nextParams.delete('requestStatus')
             if (wasOverdueFilter) nextParams.set('wasOverdue', '1')
             else nextParams.delete('wasOverdue')
+            if (managerApprovalPendingFilter) nextParams.set('managerApprovalPending', '1')
+            else nextParams.delete('managerApprovalPending')
             setSearchParams(nextParams)
           }}
           placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
@@ -641,10 +665,33 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
               if (nextParams.get('requestStatus') === 'overdue') nextParams.delete('requestStatus')
               if (nextChecked) nextParams.set('wasOverdue', '1')
               else nextParams.delete('wasOverdue')
+              if (managerApprovalPendingFilter) nextParams.set('managerApprovalPending', '1')
+              else nextParams.delete('managerApprovalPending')
               setSearchParams(nextParams)
             }}
           />
           {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
+        </label>
+        <label className="ml-3 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            className="field-checkbox"
+            checked={managerApprovalPendingFilter}
+            onChange={event => {
+              const nextChecked = event.target.checked
+              setManagerApprovalPendingFilter(nextChecked)
+              const nextParams = new URLSearchParams(searchParams)
+              if (requestStatusFilter === 'all') nextParams.delete('requestStatus')
+              else nextParams.set('requestStatus', requestStatusFilter)
+              if (nextParams.get('requestStatus') === 'overdue') nextParams.delete('requestStatus')
+              if (wasOverdueFilter) nextParams.set('wasOverdue', '1')
+              else nextParams.delete('wasOverdue')
+              if (nextChecked) nextParams.set('managerApprovalPending', '1')
+              else nextParams.delete('managerApprovalPending')
+              setSearchParams(nextParams)
+            }}
+          />
+          {t('social.managerApprovalPendingFilter', 'Yönetici Onayı Bekleyen mi?')}
         </label>
         <ClearPieFilterLink hasColumnFilters={hasActiveSocialColumnFilters} onClearColumnFilters={clearSocialFilters} />
       </nav>
@@ -711,10 +758,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                           Öncelik:{getPriorityLabel(t, linkedJob.priority)}
                         </div>
                       ) : null}
-                      {linkedJob
-                        && (linkedJob.status === 'Completed' || linkedJob.status === 'Cancelled')
-                        && !linkedJob.citizenTerminalMessageReleasedAtUtc
-                        && linkedJob.cancelledByRoleCode !== 'Operator' ? (
+                      {isJobPendingManagerApproval(linkedJob) ? (
                         <div className="table-number-cell__priority extra-time-pending-blink font-sans font-bold text-orange-600">
                           {t('social.managerApprovalPending', 'Yönetici Onayı Bekleyen')}
                         </div>

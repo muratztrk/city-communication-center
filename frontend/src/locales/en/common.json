@@ -1069,6 +1069,7 @@
     "citizenName": "Citizen Name",
     "citizenPhone": "Phone No",
     "managerApprovalPending": "Pending Manager Approval",
+    "managerApprovalPendingFilter": "Pending manager approval?",
     "citizenRequestNo": "Citizen Request No",
     "citizenRequestDate": "Citizen Request Date",
     "destination": "Destination",

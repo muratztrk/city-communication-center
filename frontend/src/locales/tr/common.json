@@ -1077,6 +1077,7 @@
     "citizenName": "Vatandaş Adı",
     "citizenPhone": "Telefon No",
     "managerApprovalPending": "Yönetici Onayı Bekleyen",
+    "managerApprovalPendingFilter": "Yönetici Onayı Bekleyen mi?",
     "citizenRequestNo": "Vatandaş Talep No",
     "citizenRequestDate": "Vatandaş Talep Tarihi",
     "destination": "Gittiği Yer",

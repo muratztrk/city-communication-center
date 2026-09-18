@@ -1,3 +1,7 @@
+## Round 1265 — Trello Doing (1 web)
+
+- **#6aad1118:** Vatandaş Talepleri — Gecikti mi yanına Yönetici Onayı Bekleyen mi checkbox + grid filtresi.
+
 ## Round 1264 — Trello loop tick (1 web WA)
 
 - **#6aad2479:** WA liste + detay başlık avatar `bg-emerald-200` (hafif koyu yeşil).

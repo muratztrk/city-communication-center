@@ -2412,6 +2412,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Talep No **yıl+sıra desc** (en yüksek numara üstte, #2691). Durum hücresi
   Taleplerim `StatusPill` + `GridStatusLabel`. **Tüm Talep Durumları** dropdown’da Geciken yok;
   yanında **Gecikti mi?** checkbox (`wasOverdue=1`, detay `wasJobOverdueWhenClosed` ile aynı, #2860);
+  ve **Yönetici Onayı Bekleyen mi?** (`managerApprovalPending=1`, terminal mesaj onayı bekleyen
+  tamamlanan/iptal talepler — `isJobPendingManagerApproval`, #6aad1118).
   durum dropdown’undan `ml-3` boşluk. Checkbox açıkken Yapılmakta satırında alt satır `(Geciken)`
   gösterilir (`hideInProgressOverdueSubline` kapalı, #2891).
   Dropdown seçildikten sonra genişlik sabit kalır (`scope-chip-status-select`, #2573). Etiket dropdown hücresinde buton ortalı; açık menü

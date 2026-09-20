@@ -22,7 +22,12 @@ public interface ISocialMediaClientFactory
 public interface IWhatsAppMediaClient
 {
     Task<SocialMediaResult> SendUploadedMediaMessageAsync(SendUploadedMediaMessageRequest request, CancellationToken ct = default);
+
+    /// <summary>Meta media ID içeriğini indirir; süresi dolduysa (Graph 404) null döner (#6aac5ca5).</summary>
+    Task<WhatsAppMediaDownload?> DownloadMediaAsync(string mediaId, CancellationToken ct = default);
 }
+
+public sealed record WhatsAppMediaDownload(byte[] Content, string? ContentType, string? FileName = null);
 
 public interface IWhatsAppTemplateClient
 {

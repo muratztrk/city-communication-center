@@ -250,6 +250,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.AppearanceJson).HasColumnType("text");
         builder.Property(entity => entity.WorkingHoursJson).HasColumnType("text");
         builder.Property(entity => entity.RolePageAccessJson).HasColumnType("text");
+        builder.Property(entity => entity.MobileRolePageAccessJson).HasColumnType("text");
         builder.Property(entity => entity.InternalMessagesSettingsJson).HasColumnType("text");
         builder.Property(entity => entity.DatabaseBackupSettingsJson).HasColumnType("text");
         builder.Property(entity => entity.LicenseModulesJson).HasColumnType("text");

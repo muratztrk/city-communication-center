@@ -1,3 +1,23 @@
+## Round 1267 — Trello Doing (4 kart: 1 BE medya arşivi, 3 web)
+
+- **#6aac5ca5:** Gelen WA medyası webhook anında `uploads/` altına arşivlenir
+  (`ReceiveWhatsAppWebhookCommand.ArchiveMediaAsync` + `ConversationLocalMediaStore` +
+  `WhatsAppClient.DownloadMediaAsync`); `SocialMessagesController.GetMedia` yerel-önce okur ve
+  Graph yanıtını ilk erişimde diske alır. Meta ~7-8 gün sonra 404 döndüğü için eski önizlemeler
+  "Medya yüklenemedi" veriyordu. Sertleştirme: uzantı yalnız MIME beyaz listesinden (statik
+  `uploads/` + `.html`/`.svg` = XSS), indirmede 20 s timeout + 25 MB tavan + `ResponseHeadersRead`,
+  benzersiz `.tmp` adı, yinelenen teslimde `RetryMissingMediaArchivesAsync` telafisi.
+- **#6a9c2d57:** Banner tarih butonunda ilk açılışta dikey scrollbar çakması — `DateTimePicker`
+  panel konumu artık `useLayoutEffect` içinde doğrudan `dropdownRef.current.style`'a yazılıyor
+  (state ile stil verince panel bir frame akış içinde kalıyordu).
+- **#6aadd676:** WA bildirim FAB paneli dikey yığında (`--vt-only`, kaydır düğmesi yok) sağ
+  kenardan taşıyordu → `right: -0.75rem`.
+- **#6aaf7d54:** Mobil Uygulama Yetki matrisi düzenlenebilir checkbox'lara döndü; kalıcı alan
+  `TenantSetting.MobileRolePageAccessJson` (migration `20260920190000`), `PUT
+  /admin/tenants/{id}/mobile-role-page-access`, mobil uygulama `/auth/profile` yanıtından okur.
+  Gridde sütunu olmayan rol/sayfa çifti (Manager × vatandaş, Reporter × kurum içi) normalize
+  sırasında koşulsuz `false`; sütun listesi tek kaynak `mobileRolesForModule(module)`.
+
 ## Round 1266 — Trello Doing (1 web, #3692 3. tur)
 
 - **#3692:** WA Vatandaş Talebi Oluştur — `Mahalle seçiniz` placeholder `Cadde seçiniz` ile aynı `0.64rem`.

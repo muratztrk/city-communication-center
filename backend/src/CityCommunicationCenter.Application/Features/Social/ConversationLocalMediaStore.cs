@@ -38,7 +38,70 @@ public static class ConversationLocalMediaStore
         return $"{MediaIdPrefix}{tenantId:D}/conversation-media/{entryId:D}{ext.ToLowerInvariant()}";
     }
 
-    public static async Task SaveAsync(
+    /// <summary>
+    /// Gelen WA medyası için uzantı yalnız MIME beyaz listesinden gelir (#6aac5ca5). `uploads/`
+    /// kimlik doğrulamasız statik servis edildiği için Meta'nın `Content-Disposition` adındaki
+    /// uzantıya güvenilemez — `.html`/`.svg` aynı origin'de çalıştırılabilir dosyaya dönüşürdü.
+    /// Orijinal ad zaten entry içeriğindeki `[Dosya eki: …]` işaretinde korunur.
+    /// </summary>
+    public static string BuildLocalMediaIdFromMimeType(Guid tenantId, Guid entryId, string? mimeType)
+    {
+        return BuildLocalMediaId(tenantId, entryId, $"media{ExtensionFromMimeType(mimeType)}");
+    }
+
+    public static string ExtensionFromMimeType(string? mimeType)
+    {
+        var normalized = (mimeType ?? string.Empty).Split(';')[0].Trim().ToLowerInvariant();
+        return normalized switch
+        {
+            "image/jpeg" or "image/jpg" => ".jpg",
+            "image/png" => ".png",
+            "image/webp" => ".webp",
+            "image/gif" => ".gif",
+            "image/heic" => ".heic",
+            "video/mp4" => ".mp4",
+            "video/3gpp" => ".3gp",
+            "video/quicktime" => ".mov",
+            "audio/ogg" => ".ogg",
+            "audio/mpeg" => ".mp3",
+            "audio/mp4" => ".m4a",
+            "audio/amr" => ".amr",
+            "application/pdf" => ".pdf",
+            "application/msword" => ".doc",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+            "application/vnd.ms-excel" => ".xls",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+            "text/plain" => ".txt",
+            _ => ".bin",
+        };
+    }
+
+    /// <summary>
+    /// Yerel kopyayı `MediaId` biçiminden bağımsız olarak entry kimliğiyle arar: webhook indirmesi
+    /// Meta media ID'sini korur, dosya adı yalnız entry kimliğini taşır (#6aac5ca5).
+    /// </summary>
+    public static string? ResolveEntryFullPath(string uploadRootPath, Guid tenantId, Guid entryId)
+    {
+        var directory = Path.Combine(
+            uploadRootPath,
+            tenantId.ToString("D"),
+            "conversation-media");
+
+        if (!Directory.Exists(directory))
+        {
+            return null;
+        }
+
+        // Yarım kalan yazımın `.tmp` artığı servis edilmesin.
+        return Directory.EnumerateFiles(directory, $"{entryId:D}.*")
+            .FirstOrDefault(path => !path.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Geçici dosya + taşıma ile yazar: yarım yazılmış bir kopya kalıcı olarak servis edilmesin
+    /// (yerel kopya `GetMedia`'da Graph'tan önce gelir — #6aac5ca5). Yazılan tam yolu döner.
+    /// </summary>
+    public static async Task<string> SaveAsync(
         string uploadRootPath,
         string localMediaId,
         byte[] content,
@@ -56,7 +119,23 @@ public static class ConversationLocalMediaStore
             Directory.CreateDirectory(directory);
         }
 
-        await File.WriteAllBytesAsync(fullPath, content, cancellationToken);
+        // Eşzamanlı iki yazıcı aynı geçici adı paylaşırsa biri diğerinin dosyasını siliyor; ad benzersiz.
+        var tempPath = $"{fullPath}.{Guid.NewGuid():N}.tmp";
+        try
+        {
+            await File.WriteAllBytesAsync(tempPath, content, cancellationToken);
+            File.Move(tempPath, fullPath, overwrite: true);
+            return fullPath;
+        }
+        catch
+        {
+            if (File.Exists(tempPath))
+            {
+                File.Delete(tempPath);
+            }
+
+            throw;
+        }
     }
 
     public static async Task SaveFromFileAsync(

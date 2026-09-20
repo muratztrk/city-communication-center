@@ -18,13 +18,15 @@ public sealed class GetAuthenticatedUserProfileQueryHandler : IQueryHandler<GetA
     {
         var principal = request.Principal;
         var tenantIdValue = principal.FindFirst("tenant_id")?.Value ?? principal.FindFirst("tenantId")?.Value;
-        var rolePageAccessJson = Guid.TryParse(tenantIdValue, out var tenantId)
+        var pageAccess = Guid.TryParse(tenantIdValue, out var tenantId)
             ? await _dbContext.TenantSettings
                 .IgnoreQueryFilters()
                 .Where(entity => entity.TenantId == tenantId)
-                .Select(entity => entity.RolePageAccessJson)
+                .Select(entity => new { entity.RolePageAccessJson, entity.MobileRolePageAccessJson })
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
+        var rolePageAccessJson = pageAccess?.RolePageAccessJson;
+        var mobileRolePageAccessJson = pageAccess?.MobileRolePageAccessJson;
 
         var departmentIdValue = principal.FindFirst("department_id")?.Value;
         string? departmentName = null;
@@ -74,7 +76,8 @@ public sealed class GetAuthenticatedUserProfileQueryHandler : IQueryHandler<GetA
             principal.FindFirst("department_id")?.Value,
             departmentName,
             rolePageAccessJson,
-            userSource);
+            userSource,
+            mobileRolePageAccessJson);
 
         return response;
     }

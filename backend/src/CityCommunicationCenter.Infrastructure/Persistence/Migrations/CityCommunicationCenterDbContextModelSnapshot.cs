@@ -2101,6 +2101,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("licensemodulesjson");
 
+                    b.Property<string>("MobileRolePageAccessJson")
+                        .HasColumnType("text")
+                        .HasColumnName("mobilerolepageaccessjson");
+
                     b.Property<string>("RolePageAccessJson")
                         .HasColumnType("text")
                         .HasColumnName("rolepageaccessjson");

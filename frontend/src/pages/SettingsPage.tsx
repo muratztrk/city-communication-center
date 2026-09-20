@@ -42,6 +42,16 @@ import {
   type RoleCode,
   type RolePageAccessMatrix,
 } from '../lib/rolePageAccess'
+import {
+  createDefaultMobileRolePageAccessMatrix,
+  mobilePagesForModule,
+  mobileRolesForModule,
+  parseMobileRolePageAccessMatrix,
+  serializeMobileRolePageAccessMatrix,
+  type MobilePageAccessKey,
+  type MobileRoleCode,
+  type MobileRolePageAccessMatrix,
+} from '../lib/mobileRolePageAccess'
 import { isModuleUsable, loadLicenseModules, saveLicenseModules } from '../lib/licenseModules'
 import type {
   Department,
@@ -79,25 +89,6 @@ type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
 
 const DEFAULT_CITIZEN_OUTBOUND_GREETING = 'Değerli vatandaşımız,'
-
-const MOBILE_CITIZEN_TRACKING_PAGES = [
-  'Anasayfa',
-  'Birimler',
-  'Harita',
-  'Vatandaşlar',
-  'Ayarlar',
-] as const
-
-const MOBILE_INTERNAL_TRACKING_PAGES = [
-  'Anasayfa',
-  'Birim',
-  'Harita',
-  'Vatandaşlar',
-  'Ayarlar',
-] as const
-
-const MOBILE_CITIZEN_TRACKING_ROLES = ['SystemAdmin', 'Reporter'] as const satisfies readonly RoleCode[]
-const MOBILE_INTERNAL_TRACKING_ROLES = ['SystemAdmin', 'Manager'] as const satisfies readonly RoleCode[]
 
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".",
@@ -521,6 +512,7 @@ const EMPTY_TENANT_SETTINGS: TenantSettings = {
   domain: null,
   defaultSlaHours: 48,
   rolePageAccessJson: null,
+  mobileRolePageAccessJson: null,
 }
 
 const EMPTY_TENANT_LDAP_SETTINGS: TenantLdapFormState = {
@@ -745,6 +737,7 @@ export function SettingsPage() {
   const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
   const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => createDefaultRolePageAccessMatrix())
+  const [mobileRolePageAccess, setMobileRolePageAccess] = useState<MobileRolePageAccessMatrix>(() => createDefaultMobileRolePageAccessMatrix())
   const [rolePermissionView, setRolePermissionView] = useState<RolePermissionView>('web')
   const [rolesPageSize, setRolesPageSize] = useState(25)
   const [rolesPage, setRolesPage] = useState(1)
@@ -949,6 +942,10 @@ export function SettingsPage() {
           ?? createDefaultRolePageAccessMatrix()
         setRolePageAccess(nextRolePageAccess)
         saveRolePageAccessMatrix(nextRolePageAccess)
+        setMobileRolePageAccess(
+          parseMobileRolePageAccessMatrix(tenantResponse.mobileRolePageAccessJson)
+            ?? createDefaultMobileRolePageAccessMatrix(),
+        )
         setTenantLdapSettings({
           ...ldapResponse,
           bindPassword: '',
@@ -1147,11 +1144,13 @@ export function SettingsPage() {
     return t(page.labelKey)
   }
 
+  // Checkbox işaretliyse ilgili sayfa mobil uygulamada görünür (#6aaf7d54).
   const renderMobilePermissionSection = (
     title: string,
-    pages: readonly string[],
-    roles: readonly RoleCode[],
-  ) => (
+    module: LicenseModuleKey,
+  ) => {
+    const roles = mobileRolesForModule(module)
+    return (
     <section className="mobile-permission-card" key={title}>
       <div className="mobile-permission-card__header">
         <h3>{title}</h3>
@@ -1171,15 +1170,19 @@ export function SettingsPage() {
             </tr>
           </thead>
           <tbody>
-            {pages.map(page => (
-              <tr key={`${title}-${page}`}>
-                <td className="font-semibold">{page}</td>
+            {mobilePagesForModule(module).map(page => (
+              <tr key={`${title}-${page.key}`}>
+                <td className="font-semibold">{t(page.labelKey, page.fallback)}</td>
                 {roles.map(role => (
-                  <td key={`${title}-${page}-${role}`}>
-                    <span className="role-matrix-toggle role-matrix-toggle--readonly">
-                      <span className="role-matrix-toggle__dot" aria-hidden="true" />
-                      <span>{t('common.enabled')}</span>
-                    </span>
+                  <td key={`${title}-${page.key}-${role}`}>
+                    <label className="role-matrix-toggle">
+                      <input
+                        checked={mobileRolePageAccess[role][page.key]}
+                        type="checkbox"
+                        onChange={() => toggleMobileRolePageAccess(role, page.key)}
+                      />
+                      <span>{mobileRolePageAccess[role][page.key] ? t('common.enabled') : t('common.disabled')}</span>
+                    </label>
                   </td>
                 ))}
               </tr>
@@ -1188,7 +1191,8 @@ export function SettingsPage() {
         </table>
       </div>
     </section>
-  )
+    )
+  }
 
   const toggleRolePageAccess = (role: RoleCode, pageKey: PageAccessKey) => {
     if (pageKey === 'dashboard' || pageKey === 'settings') return
@@ -1278,6 +1282,61 @@ export function SettingsPage() {
       })
     }
   }
+
+  const toggleMobileRolePageAccess = (role: MobileRoleCode, pageKey: MobilePageAccessKey) => {
+    setMobileRolePageAccess(current => ({
+      ...current,
+      [role]: {
+        ...current[role],
+        [pageKey]: !current[role][pageKey],
+      },
+    }))
+  }
+
+  const persistMobileRolePages = async (matrix: MobileRolePageAccessMatrix, successMessage: string) => {
+    if (!user?.tenantId) {
+      return
+    }
+
+    const dialogTitle = t('settings.roles.mobileTitle', 'Mobil Uygulama Yetki')
+    try {
+      const matrixJson = serializeMobileRolePageAccessMatrix(matrix)
+      await api.updateMobileRolePageAccess(user.tenantId, matrixJson)
+      invalidateSettings(queryClient)
+      setMobileRolePageAccess(parseMobileRolePageAccessMatrix(matrixJson) ?? matrix)
+      setTenantSettings(current => ({ ...current, mobileRolePageAccessJson: matrixJson }))
+      setConfirmDialog({
+        title: dialogTitle,
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'success',
+        message: successMessage,
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'primary',
+        onConfirm: () => {},
+      })
+    } catch (saveError) {
+      setConfirmDialog({
+        title: dialogTitle,
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'danger',
+        message: saveError instanceof Error ? saveError.message : t('common.error'),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'destructive',
+        onConfirm: () => {},
+      })
+    }
+  }
+
+  const saveMobileRolePages = () => persistMobileRolePages(mobileRolePageAccess, t('settings.roles.saveSuccess'))
+
+  const resetMobileRolePages = () => persistMobileRolePages(
+    createDefaultMobileRolePageAccessMatrix(),
+    t('settings.roles.resetSuccess'),
+  )
 
   const refreshSocial = async () => {
     const status = await api.getSocialSettingsStatus()
@@ -3718,15 +3777,13 @@ export function SettingsPage() {
               {isCitizenModuleUsable
                 ? renderMobilePermissionSection(
                     t('settings.roles.mobileCitizenTracking', 'Vatandaş Takip'),
-                    MOBILE_CITIZEN_TRACKING_PAGES,
-                    MOBILE_CITIZEN_TRACKING_ROLES,
+                    'citizen',
                   )
                 : null}
               {isInternalModuleUsable
                 ? renderMobilePermissionSection(
                     t('settings.roles.mobileInternalTracking', 'Kurum İçi İş Takip'),
-                    MOBILE_INTERNAL_TRACKING_PAGES,
-                    MOBILE_INTERNAL_TRACKING_ROLES,
+                    'internal',
                   )
                 : null}
               {!isCitizenModuleUsable && !isInternalModuleUsable ? (
@@ -3734,6 +3791,21 @@ export function SettingsPage() {
                   <p className="font-semibold text-slate-700">
                     {t('settings.roles.mobileNoLicensedModules', 'Aktif mobil uygulama lisans modülü bulunamadı.')}
                   </p>
+                </div>
+              ) : null}
+              {isCitizenModuleUsable || isInternalModuleUsable ? (
+                <div className="settings-roles-actions flex flex-wrap items-center justify-between gap-3 pb-2">
+                  <p className="helper-copy m-0 min-w-0 flex-1">
+                    {t('settings.roles.mobileNote', 'İşaretli sayfalar mobil uygulamada ilgili role görünür.')}
+                  </p>
+                  <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-3">
+                    <Button type="button" variant="secondary" onClick={() => void resetMobileRolePages()}>
+                      {t('settings.roles.resetDefaults')}
+                    </Button>
+                    <Button type="button" className="min-w-[13rem] px-10" onClick={() => void saveMobileRolePages()}>
+                      {t('common.save')}
+                    </Button>
+                  </div>
                 </div>
               ) : null}
             </div>

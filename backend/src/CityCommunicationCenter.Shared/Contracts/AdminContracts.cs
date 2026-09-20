@@ -9,7 +9,8 @@ public sealed record TenantSettingsResponse(
     string? Theme,
     string? Domain,
     int DefaultSlaHours,
-    string? RolePageAccessJson);
+    string? RolePageAccessJson,
+    string? MobileRolePageAccessJson = null);
 
 public sealed record UpdateTenantSettingsRequest(
     string DisplayName,
@@ -19,6 +20,9 @@ public sealed record UpdateTenantSettingsRequest(
     int DefaultSlaHours);
 
 public sealed record UpdateRolePageAccessRequest(string? MatrixJson);
+
+/// <summary>Tim mobil uygulaması sayfa/rol matrisi (#6aaf7d54).</summary>
+public sealed record UpdateMobileRolePageAccessRequest(string? MatrixJson);
 
 /// <summary>Durum bazlı hitap satırları; her durum yalnız kendi mesajını etkiler.</summary>
 public sealed record CitizenAutoReplyGreetingsContract(

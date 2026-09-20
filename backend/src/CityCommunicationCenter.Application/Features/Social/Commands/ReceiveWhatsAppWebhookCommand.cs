@@ -2,6 +2,7 @@ using System.Text.Json;
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features;
 using CityCommunicationCenter.Domain;
+using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -15,15 +16,24 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
     private readonly IApplicationDbContext _dbContext;
     private readonly IWhatsAppTemplateAutoReplyService _autoReplyService;
     private readonly INotificationPushService _notificationPushService;
+    private readonly ISocialMediaClientFactory _clientFactory;
+    private readonly ILogger<ReceiveWhatsAppWebhookCommandHandler> _logger;
+    private readonly string _uploadRootPath;
 
     public ReceiveWhatsAppWebhookCommandHandler(
         IApplicationDbContext dbContext,
         IWhatsAppTemplateAutoReplyService autoReplyService,
-        INotificationPushService notificationPushService)
+        INotificationPushService notificationPushService,
+        ISocialMediaClientFactory clientFactory,
+        ILogger<ReceiveWhatsAppWebhookCommandHandler> logger,
+        Microsoft.Extensions.Options.IOptions<Attachments.AttachmentStorageOptions> attachmentStorageOptions)
     {
         _dbContext = dbContext;
         _autoReplyService = autoReplyService;
         _notificationPushService = notificationPushService;
+        _clientFactory = clientFactory;
+        _logger = logger;
+        _uploadRootPath = attachmentStorageOptions.Value.UploadRootPath;
     }
 
     public async ValueTask<int> Handle(
@@ -61,13 +71,20 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         !existingLegacyIds.Contains(m.ExternalMessageId))
             .ToArray();
 
-        if (newMessages.Length == 0) return echoCount + statusCount;
+        if (newMessages.Length == 0)
+        {
+            // Meta aynı mesajı tekrar gönderdiğinde ilk turda düşen arşiv indirmesi burada telafi edilir;
+            // yerel kopyası olan entry'ler ArchiveMediaAsync içinde atlanır (#6aac5ca5).
+            await RetryMissingMediaArchivesAsync(request.TenantId, incoming, cancellationToken);
+            return echoCount + statusCount;
+        }
 
         // Group by citizen phone so we can find/create conversation threads
         var byCitizen = newMessages.GroupBy(m => m.CitizenHandle);
         var savedCount = 0;
         var pendingAutoReplies = new List<PendingWhatsAppAutoReply>();
         var pendingConversationPushes = new List<WhatsAppMessagePayload>();
+        var pendingMediaArchives = new List<PendingConversationMediaArchive>();
 
         // Load existing CitizenConversations for all phones in this batch
         var allPhones = byCitizen.Select(g => g.Key).ToArray();
@@ -164,9 +181,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         thread.CitizenConversationId = conversation.CitizenConversationId;
                 }
 
+                var entryId = Guid.NewGuid();
                 _dbContext.ConversationEntries.Add(new SocialConversationEntry
                 {
-                    EntryId = Guid.NewGuid(),
+                    EntryId = entryId,
                     SocialMessageId = thread.SocialMessageId,
                     Direction = ConversationEntryDirection.Inbound,
                     Content = msg.Content,
@@ -178,6 +196,11 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         citizenHandle,
                         conversation.CitizenPhone),
                 });
+
+                if (!string.IsNullOrWhiteSpace(msg.MediaId))
+                {
+                    pendingMediaArchives.Add(new PendingConversationMediaArchive(entryId, msg.MediaId, msg.MediaMimeType));
+                }
 
                 savedCount++;
             }
@@ -203,6 +226,8 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        await ArchiveMediaAsync(request.TenantId, pendingMediaArchives, cancellationToken);
 
         foreach (var push in pendingConversationPushes)
         {
@@ -260,6 +285,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
         var byCitizen = newEchoes.GroupBy(echo => echo.CitizenHandle);
         var savedCount = 0;
+        var pendingMediaArchives = new List<PendingConversationMediaArchive>();
         var allPhones = byCitizen.Select(group => group.Key).ToArray();
         var existingConversations = await _dbContext.CitizenConversations
             .IgnoreQueryFilters()
@@ -329,9 +355,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     }
                 }
 
+                var entryId = Guid.NewGuid();
                 _dbContext.ConversationEntries.Add(new SocialConversationEntry
                 {
-                    EntryId = Guid.NewGuid(),
+                    EntryId = entryId,
                     SocialMessageId = thread.SocialMessageId,
                     Direction = ConversationEntryDirection.Outbound,
                     Content = echo.Content,
@@ -344,6 +371,11 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     DeliveryStatusUpdatedAtUtc = echo.SentAtUtc,
                 });
 
+                if (!string.IsNullOrWhiteSpace(echo.MediaId))
+                {
+                    pendingMediaArchives.Add(new PendingConversationMediaArchive(entryId, echo.MediaId, echo.MediaMimeType));
+                }
+
                 savedCount++;
             }
         }
@@ -353,8 +385,118 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        await ArchiveMediaAsync(tenantId, pendingMediaArchives, cancellationToken);
+
         return savedCount;
     }
+
+    /// <summary>
+    /// Meta media ID'leri yaklaşık bir hafta sonra 404 döndüğü için içerik webhook anında yerel diske
+    /// kopyalanır; `MediaId` korunur, yerel dosya entry kimliğiyle bulunur (#6aac5ca5). İndirme
+    /// başarısızsa webhook akışı bozulmaz — yalnızca uyarı loglanır.
+    /// </summary>
+    private async Task ArchiveMediaAsync(
+        Guid tenantId,
+        List<PendingConversationMediaArchive> archives,
+        CancellationToken cancellationToken)
+    {
+        if (archives.Count == 0)
+        {
+            return;
+        }
+
+        if (_clientFactory.GetClient(SocialChannel.WhatsApp, tenantId) is not IWhatsAppMediaClient mediaClient)
+        {
+            return;
+        }
+
+        foreach (var archive in archives)
+        {
+            try
+            {
+                if (ConversationLocalMediaStore.ResolveEntryFullPath(_uploadRootPath, tenantId, archive.EntryId) is not null)
+                {
+                    continue;
+                }
+
+                var download = await mediaClient.DownloadMediaAsync(archive.MediaId, cancellationToken);
+                if (download is null)
+                {
+                    _logger.LogWarning(
+                        "WhatsApp gelen medyası indirilemedi. EntryId: {EntryId}, MediaId: {MediaId}",
+                        archive.EntryId,
+                        archive.MediaId);
+                    continue;
+                }
+
+                var localMediaId = ConversationLocalMediaStore.BuildLocalMediaIdFromMimeType(
+                    tenantId,
+                    archive.EntryId,
+                    archive.MimeType ?? download.ContentType);
+
+                await ConversationLocalMediaStore.SaveAsync(
+                    _uploadRootPath,
+                    localMediaId,
+                    download.Content,
+                    cancellationToken);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "WhatsApp medya yerel kopyası oluşturulamadı. EntryId: {EntryId}, MediaId: {MediaId}",
+                    archive.EntryId,
+                    archive.MediaId);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Yinelenen webhook teslimlerinde medyası olup yerel kopyası bulunmayan entry'ler için arşivi
+    /// yeniden dener; Meta 404'e dönmeden önceki her tekrar bir şans daha demektir (#6aac5ca5).
+    /// </summary>
+    private async Task RetryMissingMediaArchivesAsync(
+        Guid tenantId,
+        IReadOnlyList<WhatsAppIncomingMessage> incoming,
+        CancellationToken cancellationToken)
+    {
+        var mediaExternalIds = incoming
+            .Where(message => !string.IsNullOrWhiteSpace(message.MediaId))
+            .Select(message => message.ExternalMessageId)
+            .Distinct()
+            .ToArray();
+
+        if (mediaExternalIds.Length == 0)
+        {
+            return;
+        }
+
+        var entries = await _dbContext.ConversationEntries
+            .IgnoreQueryFilters()
+            .Join(
+                _dbContext.SocialMessages.IgnoreQueryFilters().Where(message => message.TenantId == tenantId),
+                entry => entry.SocialMessageId,
+                message => message.SocialMessageId,
+                (entry, _) => entry)
+            .Where(entry => entry.ExternalEntryId != null &&
+                            entry.MediaId != null &&
+                            mediaExternalIds.Contains(entry.ExternalEntryId))
+            .Select(entry => new { entry.EntryId, entry.MediaId, entry.MediaMimeType })
+            .ToListAsync(cancellationToken);
+
+        if (entries.Count == 0)
+        {
+            return;
+        }
+
+        var archives = entries
+            .Select(entry => new PendingConversationMediaArchive(entry.EntryId, entry.MediaId!, entry.MediaMimeType))
+            .ToList();
+
+        await ArchiveMediaAsync(tenantId, archives, cancellationToken);
+    }
+
+    private sealed record PendingConversationMediaArchive(Guid EntryId, string MediaId, string? MimeType);
 
     private async Task<int> ProcessStatusUpdatesAsync(Guid tenantId, JsonElement payload, CancellationToken cancellationToken)
     {

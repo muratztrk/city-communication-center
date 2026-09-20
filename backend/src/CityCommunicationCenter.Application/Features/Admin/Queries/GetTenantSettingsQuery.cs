@@ -34,6 +34,7 @@ public sealed class GetTenantSettingsQueryHandler : IQueryHandler<GetTenantSetti
             settings?.Theme ?? tenant.Theme,
             TenantDomainNormalizer.Normalize(tenant.Domain ?? settings?.Domain),
             settings?.DefaultSlaHours ?? 48,
-            settings?.RolePageAccessJson);
+            settings?.RolePageAccessJson,
+            settings?.MobileRolePageAccessJson);
     }
 }

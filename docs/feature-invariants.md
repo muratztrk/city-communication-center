@@ -76,6 +76,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal.
   Kullanıcılar/Birimler grid'de `forceDown` yok: scroll üstteyse aşağı, altta yukarı (#3332).
   `SingleSelectDropdown` hover tooltip yok (#2754).
+- **DateTimePicker paneli konumu `useLayoutEffect` içinde DOM'a doğrudan yazılır (#6a9c2d57):**
+  panel `position: fixed` + `visibility: hidden` ile basılır, ölçüm sonrası `left/right/top/bottom`
+  ve `visibility` `dropdownRef.current.style` üzerinden set edilir. `setState` ile stil vermek
+  paneli bir frame akış içinde bırakıp sayfada dikey scrollbar çaktırıyordu; bu yol React
+  hook lint'i de tetiklemez. Portal panelinde konum için state kullanma.
 - **Tüm ortak dropdown'lar 7+ seçenekte otomatik arama gösterir:** çağıran ayrıca `searchable`
   vermese de `SingleSelectDropdown` ilk satıra Türkçe casing uyumlu arama alanı ekler.
 - **Yeni dropdown'larda native `<select>` açma:** mahalle seçimindeki ortak `SingleSelectDropdown`
@@ -932,7 +937,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   balonu görünür; ikinci/öndeki balon ve üç nokta gösterilmez (card #1583 reopen).
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
   WhatsApp bildirim paneli yatay yığında biraz daha solda (`right: -2.5rem` / kaydır varken `-6rem`, #3352)
-  ki sağ kenar viewport’a sığsın.
+  ki sağ kenar viewport’a sığsın. **Yığın dikeyleştiğinde (`--vt-only`, kurum içi FAB yok) ve kaydır
+  düğmesi de basılmadığında `right: -0.75rem`** (#6aadd676): negatif offset yatay sırada komşu
+  butonun altını kullanmak içindir, dikey tek butonda paneli viewport dışına taşırıyordu. Kural
+  `body:not(:has(.citizen-request-map-controls))` + `:not(:has(.scroll-fab-button))` ile daraltılır.
 - **FAB panel katmanı:** WhatsApp ve Kurum İçi Mesajlar birlikte açıkken WhatsApp bildirim paneli
   `z-20` ile kurum içi panelin önünde görünür (card #1578).
 - **WhatsApp konuşma satırı durum sayaçları salt metindir:** konuşma kartındaki `İşleme Alınan /
@@ -1197,6 +1205,23 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `-` karakteridir ve değer font ağırlığı düşük kalır (card #1260 reopen).
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;
   rich-text (`dangerouslySetInnerHTML`) ve plain-text dalları ayrı işlenir (card 551).
+- **Gelen WA medyası webhook anında diske arşivlenir (#6aac5ca5):** Meta media ID'leri ~7-8 gün
+  sonra Graph'ta 404 döner, o yüzden `ReceiveWhatsAppWebhookCommand` inbound + echo entry'lerin
+  medyasını `ConversationLocalMediaStore` ile `uploads/` altına kopyalar; `MediaId` alanı
+  **silinmez** (dedupe ve Graph fallback ona bağlı), yerel dosya `entryId` ile bulunur.
+  Kurallar: (1) dosya uzantısı **yalnız** MIME beyaz listesinden gelir — `uploads/` kimlik
+  doğrulamasız statik servis edildiği için Meta'nın `Content-Disposition` adına güvenilmez,
+  `.html`/`.svg` aynı origin'de XSS olurdu; (2) indirme webhook thread'inde çalıştığı için
+  20 s timeout + 25 MB tavan zorunlu, aşan içerik arşivlenmez ama akış bozulmaz; (3) arşiv
+  hatası yalnız `LogWarning` — webhook 200 dönmeye devam eder, yinelenen teslimde
+  `RetryMissingMediaArchivesAsync` tekrar dener; (4) `SocialMessagesController.GetMedia`
+  **yerel-önce** okur, Graph'tan gelen içeriği ilk erişimde diske yazar (cache-on-read).
+- **Mobil Uygulama Yetki matrisi gridde görünmeyen çifti kaydetmez (#6aaf7d54):** matris
+  `TenantSetting.MobileRolePageAccessJson`'da durur ve mobil uygulama `/auth/profile`
+  yanıtından okur. Vatandaş Takip bölümü yalnız `SystemAdmin`+`Reporter`, Kurum İçi yalnız
+  `SystemAdmin`+`Manager` sütunu gösterir; `normalizeMobileRolePageAccessMatrix` kapsam dışı
+  rol/sayfa çiftini koşulsuz `false` yazar (aksi halde yöneticinin hiç görmediği bir yetki
+  açık kaydedilirdi). Sütun listesi tek kaynaktan — `mobileRolesForModule(module)`.
 
 ## 4. Modallar / UI bileşenleri
 

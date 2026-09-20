@@ -57,6 +57,16 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPut("tenants/{tenantId:guid}/mobile-role-page-access")]
+    public async Task<IActionResult> UpdateMobileRolePageAccess(
+        Guid tenantId,
+        [FromBody] UpdateMobileRolePageAccessRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(new UpdateMobileRolePageAccessCommand(tenantId, request.MatrixJson), cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("tenants/{tenantId:guid}/citizen-auto-replies")]
     public async Task<ActionResult<CitizenAutoReplyTemplatesResponse>> GetCitizenAutoReplyTemplates(
         Guid tenantId,

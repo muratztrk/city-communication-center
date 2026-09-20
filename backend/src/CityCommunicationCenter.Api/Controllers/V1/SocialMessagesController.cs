@@ -14,17 +14,20 @@ public sealed class SocialMessagesController : ApiControllerBase
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IWebHostEnvironment _env;
+    private readonly ILogger<SocialMessagesController> _logger;
 
     public SocialMessagesController(
         IMediator sender,
         ISocialMediaSettingsProvider settingsProvider,
         IHttpClientFactory httpClientFactory,
-        IWebHostEnvironment env)
+        IWebHostEnvironment env,
+        ILogger<SocialMessagesController> logger)
     {
         _sender = sender;
         _settingsProvider = settingsProvider;
         _httpClientFactory = httpClientFactory;
         _env = env;
+        _logger = logger;
     }
 
     [HttpGet("")]
@@ -310,8 +313,10 @@ public sealed class SocialMessagesController : ApiControllerBase
         var originalFileName = TryParseOutboundAttachmentFileName(target.Content);
 
         // Yerel kopya varsa Graph'a gitmeden servis et (Pending / süresi dolmuş WA medya — R421).
+        // Gelen medyada `MediaId` Meta kimliği olarak kalır; yerel dosya entry kimliğinden bulunur (#6aac5ca5).
         var uploadRoot = Path.Combine(_env.ContentRootPath, "uploads");
-        var localPath = ConversationLocalMediaStore.ResolveFullPath(uploadRoot, target.MediaId);
+        var localPath = ConversationLocalMediaStore.ResolveFullPath(uploadRoot, target.MediaId)
+            ?? ConversationLocalMediaStore.ResolveEntryFullPath(uploadRoot, tenantId, entryId);
         if (localPath is not null)
         {
             var contentType = target.MediaMimeType ?? "application/octet-stream";
@@ -352,8 +357,55 @@ public sealed class SocialMessagesController : ApiControllerBase
         var downloadName = originalFileName ?? graphFileName;
         SetOriginalFileNameHeader(Response, downloadName);
 
+        // Graph'tan gelen içeriği ilk erişimde yerel diske al; bu kayıt için Meta süresi dolduğunda
+        // önizleme/indirme çalışmaya devam eder (#6aac5ca5). Büyük dosyalar belleğe alınmaz, doğrudan akar.
+        var contentLength = fileResp.Content.Headers.ContentLength;
+        if (contentLength is > 0 and <= MaxCacheableConversationMediaBytes)
+        {
+            var content = await fileResp.Content.ReadAsByteArrayAsync(cancellationToken);
+            await TryCacheConversationMediaAsync(
+                uploadRoot,
+                tenantId,
+                entryId,
+                target.MediaMimeType ?? graphContentType,
+                content,
+                cancellationToken);
+
+            return File(content, graphContentType, fileDownloadName: downloadName);
+        }
+
         var stream = await fileResp.Content.ReadAsStreamAsync(cancellationToken);
         return File(stream, graphContentType, fileDownloadName: downloadName);
+    }
+
+    private const long MaxCacheableConversationMediaBytes = 25L * 1024 * 1024;
+
+    private async Task TryCacheConversationMediaAsync(
+        string uploadRoot,
+        Guid tenantId,
+        Guid entryId,
+        string? mimeType,
+        byte[] content,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Uzantı yalnız MIME beyaz listesinden gelir; `uploads/` statik servis edildiği için
+            // Graph'ın bildirdiği dosya adına güvenilmez (#6aac5ca5).
+            var localMediaId = ConversationLocalMediaStore.BuildLocalMediaIdFromMimeType(
+                tenantId,
+                entryId,
+                mimeType);
+
+            await ConversationLocalMediaStore.SaveAsync(uploadRoot, localMediaId, content, cancellationToken);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            _logger.LogWarning(
+                exception,
+                "WhatsApp medya yerel kopyası oluşturulamadı. EntryId: {EntryId}",
+                entryId);
+        }
     }
 
     /// <summary>Konuşma içeriğindeki <c>[Dosya eki: …]</c> işaretinden orijinal adı okur.</summary>

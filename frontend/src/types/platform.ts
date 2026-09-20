@@ -947,6 +947,8 @@ export interface TenantSettings {
   domain: string | null;
   defaultSlaHours: number;
   rolePageAccessJson: string | null;
+  /** Tim mobil uygulaması sayfa/rol matrisi (#6aaf7d54). */
+  mobileRolePageAccessJson: string | null;
 }
 
 export interface SocialChannelStatus {

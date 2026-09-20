@@ -39,6 +39,9 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? RolePageAccessJson { get; set; }
 
+    /// <summary>Tim mobil uygulaması sayfa/rol matrisi; web matrisinden bağımsızdır (#6aaf7d54).</summary>
+    public string? MobileRolePageAccessJson { get; set; }
+
     public string? CitizenAutoReplyTemplatesJson { get; set; }
 
     /// <summary>Tenant bazlı offline lisans JWT belgeleri (modül → imzalı token).</summary>

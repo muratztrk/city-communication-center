@@ -174,7 +174,9 @@ public sealed record AuthenticatedUserProfileResponse(
     string? DepartmentId,
     string? DepartmentName,
     string? RolePageAccessJson,
-    string? UserSource = null);
+    string? UserSource = null,
+    // Tim mobil uygulamasının sayfa görünürlüğünü okuduğu matris (#6aaf7d54).
+    string? MobileRolePageAccessJson = null);
 
 public sealed record TenantLookupResponse(
     Guid TenantId,

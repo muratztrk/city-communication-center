@@ -199,6 +199,73 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
         return SocialMediaResult.Fail(error, response.StatusCode.ToString());
     }
 
+    /// <summary>Webhook isteği içinde çalıştığı için indirme bütçesi ve boyut tavanı sabittir (#6aac5ca5).</summary>
+    private static readonly TimeSpan MediaDownloadTimeout = TimeSpan.FromSeconds(20);
+    private const long MaxDownloadableMediaBytes = 25L * 1024 * 1024;
+
+    /// <summary>
+    /// İki adımlı Graph indirme: media ID → geçici indirme URL'i → içerik. Meta yaklaşık bir hafta
+    /// sonra 404 döndüğü için içerik webhook anında yerel diske kopyalanır (#6aac5ca5).
+    /// Süresi dolmuş, tavanı aşan veya bütçe içinde tamamlanmayan indirmelerde null döner.
+    /// </summary>
+    public async Task<WhatsAppMediaDownload?> DownloadMediaAsync(string mediaId, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(mediaId) || string.IsNullOrWhiteSpace(_settings.AccessToken))
+        {
+            return null;
+        }
+
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(MediaDownloadTimeout);
+        var token = timeout.Token;
+
+        using var metaRequest = new HttpRequestMessage(HttpMethod.Get, $"{ApiBase}/{mediaId}");
+        metaRequest.Headers.TryAddWithoutValidation("Authorization", $"Bearer {_settings.AccessToken}");
+        using var metaResponse = await _httpClient.SendAsync(metaRequest, token);
+        if (!metaResponse.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        var metaJson = await metaResponse.Content.ReadAsStringAsync(token);
+        using var document = JsonDocument.Parse(metaJson);
+        var downloadUrl = TryGetString(document.RootElement, "url");
+        if (string.IsNullOrWhiteSpace(downloadUrl))
+        {
+            return null;
+        }
+
+        var mimeType = TryGetString(document.RootElement, "mime_type");
+
+        using var fileRequest = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
+        fileRequest.Headers.TryAddWithoutValidation("Authorization", $"Bearer {_settings.AccessToken}");
+        using var fileResponse = await _httpClient.SendAsync(
+            fileRequest,
+            HttpCompletionOption.ResponseHeadersRead,
+            token);
+        if (!fileResponse.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        // 100 MB'a kadar WA dokümanı gelebilir; webhook belleğinde tutulmaz.
+        if (fileResponse.Content.Headers.ContentLength is null or <= 0 or > MaxDownloadableMediaBytes)
+        {
+            return null;
+        }
+
+        var content = await fileResponse.Content.ReadAsByteArrayAsync(token);
+        if (content.Length == 0)
+        {
+            return null;
+        }
+
+        return new WhatsAppMediaDownload(
+            content,
+            mimeType ?? fileResponse.Content.Headers.ContentType?.MediaType,
+            null);
+    }
+
     public async Task<SocialMediaResult> PostAsync(PostRequest request, CancellationToken ct = default)
     {
         // WhatsApp doesn't support public posts - it's messaging only

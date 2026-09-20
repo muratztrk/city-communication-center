@@ -34,6 +34,14 @@ interface DateTimePickerProps {
 const DROPDOWN_WIDTH = 272
 const DROPDOWN_HEIGHT = 360 // approximate max height
 
+// Ölçüm `useLayoutEffect`'te yapılır; o ana kadar `fixed` + görünmez durur (#6a9c2d57).
+const DROPDOWN_BASE_STYLE: React.CSSProperties = {
+  position: 'fixed',
+  zIndex: 200,
+  width: DROPDOWN_WIDTH,
+  visibility: 'hidden',
+}
+
 const MONTHS_TR = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']
 const DAYS_TR = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa']
 
@@ -77,7 +85,6 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const autoOpenedRef = useRef(false)
-  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   // Yıl seçici (card 531): yıla tıklanınca geçmiş yıllar da seçilebilsin.
   const [yearPickerOpen, setYearPickerOpen] = useState(false)
   const [yearBlockStart, setYearBlockStart] = useState(() => new Date().getFullYear() - 5)
@@ -118,37 +125,39 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     return () => window.cancelAnimationFrame(animationFrame)
   }, [autoOpen, handleOpen])
 
-  // Recalculate position after the dropdown renders
+  // Konum boyamadan önce doğrudan DOM'a yazılır: React state'i bir kare geciktiği için portal
+  // `fixed` olmadan body akışına giriyor, belge uzuyor ve dikey scrollbar görünüp kayboluyordu (#6a9c2d57).
   useLayoutEffect(() => {
-    if (!open || !containerRef.current) return
+    const dropdown = dropdownRef.current
+    if (!open || !containerRef.current || !dropdown) return
     const rect = containerRef.current.getBoundingClientRect()
     const vw = window.innerWidth
     const vh = window.innerHeight
     const MARGIN = 8
 
-    const style: React.CSSProperties = { position: 'fixed', zIndex: 200, width: DROPDOWN_WIDTH }
+    dropdown.style.left = ''
+    dropdown.style.right = ''
+    dropdown.style.top = ''
+    dropdown.style.bottom = ''
 
     // Horizontal: prefer left-aligned; flip right if it would overflow
     if (rect.left + DROPDOWN_WIDTH + MARGIN > vw) {
-      style.right = vw - rect.right
+      dropdown.style.right = `${vw - rect.right}px`
     } else {
-      style.left = rect.left
+      dropdown.style.left = `${rect.left}px`
     }
 
     // Vertical: prefer below; flip above only if requested or if it would overflow and not forced down.
-    if (forceUp) {
-      style.bottom = vh - rect.top + 4
-    } else if (!forceDown && rect.bottom + DROPDOWN_HEIGHT + MARGIN > vh) {
-      style.bottom = vh - rect.top + 4
+    if (forceUp || (!forceDown && rect.bottom + DROPDOWN_HEIGHT + MARGIN > vh)) {
+      dropdown.style.bottom = `${vh - rect.top + 4}px`
     } else {
       const top = rect.bottom + 4
-      style.top = forceDown
+      dropdown.style.top = `${forceDown
         ? Math.max(MARGIN, Math.min(top, vh - DROPDOWN_HEIGHT - MARGIN))
-        : top
+        : top}px`
     }
 
-    const animationFrame = window.requestAnimationFrame(() => setDropdownStyle(style))
-    return () => window.cancelAnimationFrame(animationFrame)
+    dropdown.style.visibility = 'visible'
   }, [open, viewMonth, viewYear, forceDown, forceUp])
 
   const handleConfirm = () => {
@@ -269,7 +278,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
       {open ? createPortal((
         <div
           ref={dropdownRef}
-          style={dropdownStyle}
+          style={DROPDOWN_BASE_STYLE}
           className="date-time-picker-popup relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
           {/* Talebi iptal et popup X: default çerçevesiz; hover'da kırmızı + yuvarlak (#r538). */}

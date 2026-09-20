@@ -740,7 +740,7 @@ export const api = {
 
   async updateTenantSettings(
     tenantId: string,
-    payload: Omit<TenantSettings, 'tenantId' | 'municipalityName' | 'isActive' | 'rolePageAccessJson'>,
+    payload: Omit<TenantSettings, 'tenantId' | 'municipalityName' | 'isActive' | 'rolePageAccessJson' | 'mobileRolePageAccessJson'>,
   ): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/settings`, {
       method: 'PUT',
@@ -753,6 +753,16 @@ export const api = {
 
   async updateRolePageAccess(tenantId: string, matrixJson: string | null): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/role-page-access`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ matrixJson }),
+    })
+
+    await ensureOk(response, i18n.t('errors.tenantSettingsSaveFailed'))
+  },
+
+  async updateMobileRolePageAccess(tenantId: string, matrixJson: string | null): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/mobile-role-page-access`, {
       method: 'PUT',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ matrixJson }),

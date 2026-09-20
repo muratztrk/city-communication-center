@@ -9305,7 +9305,11 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   align-self: end;
 }
 
-/* Vatandaş Paneli FAB: WA bildirim balonu scroll düğmesine yaklaştır (#3634 reopen). */
+/* Vatandaş Paneli FAB: WA bildirim düğmesi + paneli scroll düğmesine yaklaştır (#3634 reopen). */
+body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) {
+  gap: 0.35rem !important;
+}
+
 body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
   right: -4.25rem !important;
 }

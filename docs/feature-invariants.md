@@ -3545,8 +3545,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri Düzenle (#3588/#3594/#3597/#3605):** `detailContext=social` (sayfayı
   açabilen her rol). Düzenle arka plan `#007985` / hover `#006570`. Düzenlemede yalnız
   Adres Bilgileri, Talep Ekleri, Öncelik, Talep Etiketi değişir; başlık / açıklama / son
-  tarih / vatandaş ad-telefon kilitli. **İade Edilen Talepler** (`ReturnedToOperatorAtUtc`) bu
-  kilitten muaftır — başlık/açıklama kaydedilir. BE `UpdateJob` kiliti yalnız `Operator` (Taleplerim
+  tarih / vatandaş ad-telefon kilitli. **İşleme Alındı** (`Active` + görev yok) ve **İade Edilen
+  Talepler** (`ReturnedToOperatorAtUtc`) bu kilitten muaftır — başlık/açıklama kaydedilir (#6ab120c).
+  BE `UpdateJob` kiliti yalnız `Operator` (Taleplerim
   başlık düzeni diğer rollerde durur).   Talep Etiketi Düzenle modunda görünür (#3597); dropdown sağa; açık menü = tetikleyici
   genişliği (ekstra px yok). VT grid Talep Etiketi menüsü de tetikleyici genişliği (#3611).
   Düzenle kaydı `operatorSocialEdit` ile tüm VT rolleri (#3597 reopen). Adres Tarifi + Konum

@@ -1799,10 +1799,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         await api.updateSocialMessage(citizenSourceMessage.socialMessageId, {
           channel: citizenSourceMessage.channel,
           citizenHandle: phoneHandle,
-          content: citizenSourceMessage.content?.trim()
-            || citizenSourceMessage.citizenHandle?.trim()
-            || detail.title?.trim()
-            || '—',
+          content: canEditSocialTitleDescription
+            ? myRequestEditDraft.title.trim()
+            : (citizenSourceMessage.content?.trim()
+              || citizenSourceMessage.citizenHandle?.trim()
+              || detail.title?.trim()
+              || '—'),
           category: nextCategory || undefined,
         })
         setCitizenSourceMessage(current => current

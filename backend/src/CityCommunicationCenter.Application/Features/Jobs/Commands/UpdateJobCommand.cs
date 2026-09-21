@@ -138,9 +138,11 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         if (request.CitizenPhone is not null) job.CitizenPhone = string.IsNullOrWhiteSpace(request.CitizenPhone) ? null : request.CitizenPhone.Trim();
         // Operatör VT Düzenle: yalnız öncelik / adres / konum / ekler / etiket (#3597).
         // İade Edilen Talepler: başlık/açıklama kaydedilir (#3754 reopen).
+        // İşleme Alındı (Active, görev yok): başlık/açıklama kaydedilir (#6ab120c reopen).
         if (canOperatorEditCitizenRequest)
         {
-            if (job.ReturnedToOperatorAtUtc is null)
+            var allowProcessingReceivedTitleDescription = job.Status == JobStatus.Active && !hasTasks;
+            if (job.ReturnedToOperatorAtUtc is null && !allowProcessingReceivedTitleDescription)
             {
                 job.Title = previousTitle;
                 job.Description = previousDescription;

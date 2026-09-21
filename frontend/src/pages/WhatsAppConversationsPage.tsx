@@ -204,12 +204,10 @@ function isPendingApprovalClearedForCurrentMessage(
     >= new Date(summary.pendingMessageApprovalAtUtc).getTime()
 }
 
-function conversationShowsPendingApprovalStatus(
-  conv: Pick<CitizenConversationSummary, 'hasPendingMessageApproval' | 'pendingApprovalClearedAtUtc' | 'pendingMessageApprovalAtUtc' | 'openTicketCount' | 'latestTicketStatus' | 'lastMessageDirection' | 'waitingReplyClearedAtUtc'>,
+function conversationHasPendingMessageApprovalQueue(
+  conv: Pick<CitizenConversationSummary, 'hasPendingMessageApproval' | 'pendingApprovalClearedAtUtc' | 'pendingMessageApprovalAtUtc'>,
 ): boolean {
   return Boolean(conv.hasPendingMessageApproval)
-    && !isWaitingForConversationResponse(conv)
-    && isConversationTicketOpen(conv)
     && !isPendingApprovalClearedForCurrentMessage(conv)
 }
 
@@ -246,19 +244,19 @@ function ConversationListItem({
   const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
   const waitingForResponse = isWaitingForConversationResponse(conv)
   const ticketOpen = isConversationTicketOpen(conv)
-  const pendingApprovalStatus = conversationShowsPendingApprovalStatus(conv)
+  const pendingApprovalStatus = conversationHasPendingMessageApprovalQueue(conv)
   const listTimestamp = conversationListTimestamp(conv)
   const timeLabel = formatConversationMessageTime(listTimestamp, locale, t)
   const recentTime = isRecentConversationTime(listTimestamp)
-  const responseStatus = waitingForResponse ? (
-    <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
-      <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
-      {t('whatsapp.waitingForResponse', 'Yanıt bekliyor')}
-    </span>
-  ) : pendingApprovalStatus ? (
+  const responseStatus = pendingApprovalStatus ? (
     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
       <span className="size-1.5 rounded-full bg-red-500" aria-hidden="true" />
       {t('whatsapp.listFilter.pendingApproval', 'Mesaj Onayı Bekleyen')}
+    </span>
+  ) : waitingForResponse ? (
+    <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
+      <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+      {t('whatsapp.waitingForResponse', 'Yanıt bekliyor')}
     </span>
   ) : !waitingForResponse && ticketOpen ? (
     // Arka plan rengi yok — sadece nokta + metin (card #1440).
@@ -299,13 +297,13 @@ function ConversationListItem({
           <div className="size-11 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center text-sm font-bold">
             {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-5" aria-hidden="true" />}
           </div>
-          {(isUrgent || waitingForResponse || pendingApprovalStatus || ticketOpen) && (
+          {(isUrgent || pendingApprovalStatus || waitingForResponse || ticketOpen) && (
             <span
               className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full ring-2 ring-white ${
-                isUrgent || waitingForResponse
-                  ? 'bg-orange-400'
-                  : pendingApprovalStatus
-                    ? 'bg-red-500'
+                pendingApprovalStatus
+                  ? 'bg-red-500'
+                  : isUrgent || waitingForResponse
+                    ? 'bg-orange-400'
                     : 'bg-emerald-500'
               }`}
               aria-hidden="true"
@@ -377,13 +375,13 @@ type ConversationStatusSummary = Pick<
 
 function ConversationHeaderReplyStatus({
   summary,
-  lastInboundAt,
+  lastInboundAt: _lastInboundAt,
   onMarkWaitingReplied,
   onMarkPendingApprovalCleared,
   phoneOnly,
 }: {
   summary: ConversationStatusSummary | null | undefined
-  /** Son vatandaş inbound — 24s penceresi kapalıyken Mesaj Onayı/Cevabı Verildi Yap (#3448). */
+  /** Son vatandaş inbound — 24s penceresi (#3448); Mesaj Onayı Bekleyen'de buton her zaman görünür (#6ab13e72). */
   lastInboundAt?: string | null
   onMarkWaitingReplied?: () => void
   onMarkPendingApprovalCleared?: () => void
@@ -392,25 +390,8 @@ function ConversationHeaderReplyStatus({
   const { t } = useTranslation()
   if (!summary) return null
   const waitingForResponse = isWaitingForConversationResponse(summary)
-  const ticketOpen = isConversationTicketOpen(summary)
-  const showPendingApprovalClear = !waitingForResponse
-    && ticketOpen
-    && summary.hasPendingMessageApproval
-    && !isPendingApprovalClearedForCurrentMessage(summary)
-    && !isWhatsApp24hWindowOpen(lastInboundAt ?? null)
-    && onMarkPendingApprovalCleared
-
-  if (waitingForResponse && onMarkWaitingReplied) {
-    return (
-      <button
-        type="button"
-        className={`whatsapp-mark-waiting-replied shrink-0 font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline ${phoneOnly ? 'text-[12px]' : 'text-[11px]'}`}
-        onClick={onMarkWaitingReplied}
-      >
-        {t('whatsapp.markWaitingReplied', 'Yanıt Verildi Yap')}
-      </button>
-    )
-  }
+  const hasPendingApprovalQueue = conversationHasPendingMessageApprovalQueue(summary)
+  const showPendingApprovalClear = hasPendingApprovalQueue && onMarkPendingApprovalCleared
 
   if (showPendingApprovalClear) {
     return (
@@ -420,6 +401,18 @@ function ConversationHeaderReplyStatus({
         onClick={onMarkPendingApprovalCleared}
       >
         {t('whatsapp.markPendingApprovalCleared', 'Mesaj Onayı/Cevabı Verildi Yap')}
+      </button>
+    )
+  }
+
+  if (waitingForResponse && onMarkWaitingReplied) {
+    return (
+      <button
+        type="button"
+        className={`whatsapp-mark-waiting-replied shrink-0 font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline ${phoneOnly ? 'text-[12px]' : 'text-[11px]'}`}
+        onClick={onMarkWaitingReplied}
+      >
+        {t('whatsapp.markWaitingReplied', 'Yanıt Verildi Yap')}
       </button>
     )
   }
@@ -1296,7 +1289,7 @@ function ConversationDetail({
       titleDivider: true,
       message: t(
         'whatsapp.departmentReviewConfirmMessage',
-        '{{department}} birimine incelemeye gönderilecek. Onaylıyor musunuz?',
+        'Bu mesaj incelenmek üzere seçim yapılan "{{department}}" birimine gönderilecek. Onaylıyor musunuz?',
         { department: department.label },
       ),
       confirmLabel: t('common.confirm', 'Onayla'),

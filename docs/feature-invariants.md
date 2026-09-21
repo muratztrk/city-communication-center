@@ -538,9 +538,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `ConversationPanel` → `inboundSenderLabel` (card #1716). Vatandaş Talebi Oluştur dahil.
 
 - **Mesajı İncelemeye Gönder (#6aad490e):** operatör `/whatsapp`'ta talep olan birimlere dropdown ile gönderir;
-  onay popup'ı sonrası hedef birimin **yalnız Müdürü** (SystemAdmin dahil) sağ altta WhatsApp bildirim FAB'ı ile
-  aynı yeşil baloncuk + panel görür; panelde `İncelenmesi Gereken Mesajı Oku` tıklanınca Yazışmaya Git açılır.
+  onay metni: `Bu mesaj incelenmek üzere seçim yapılan "{Birim}" birimine gönderilecek…`; hedef birimin **yalnız Müdürü**
+  (SystemAdmin dahil) sağ altta WhatsApp bildirim FAB'ı ile aynı yeşil baloncuk + panel görür; `İncelenmesi Gereken Mesajı Oku`
+  → talep Detaylar popup + üstte Yazışmaya Git; FAB yalnız panelde turuncu `İncelendi Yap` ile kapanır (okuma FAB'ı düşürmez).
   Personel (Staff) bu inceleme bildirimini görmez.
+- **WA Mesaj Onayı Bekleyen liste/header (#6ab13aac/#6ab13e72):** `hasPendingMessageApproval` kuyruğu `Yanıt bekliyor`dan önceliklidir;
+  `Mesaj Onayı/Cevabı Verildi Yap` yalnız bu kuyruk aktifken görünür (24s penceresi engeli yok).
 
 - **Operatör WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091 / #2600).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında mesajı GÖNDERMEZ (`SendImmediately` yok sayılır), `DeliveryStatus=Pending` entry

@@ -5,6 +5,7 @@ import { X } from 'lucide-react'
 import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import type { CitizenConversationDepartmentReview } from '../../types/platform'
+import { ConfirmDialog, type ConfirmDialogState } from '../ui/confirm-dialog'
 import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 import { JobsPage } from '../../pages/JobsPage'
@@ -26,6 +27,7 @@ export function WhatsAppDepartmentReviewFab() {
   const [activeReview, setActiveReview] = useState<CitizenConversationDepartmentReview | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   const canSeeReviews = useMemo(() => {
     const roles = [user?.role, ...(user?.additionalRoles ?? [])]
@@ -65,6 +67,20 @@ export function WhatsAppDepartmentReviewFab() {
     void reviewsQuery.refetch()
   }, [clearReviewSession, queryClient, reviewQueryKey, reviews, reviewsQuery])
 
+  const requestMarkReviewsDone = useCallback(() => {
+    setConfirmDialog({
+      title: t('whatsapp.departmentReviewMarkDoneConfirmTitle', 'İncelemeyi Onayla'),
+      titleDivider: true,
+      message: t(
+        'whatsapp.departmentReviewMarkDoneConfirmMessage',
+        'Mesaj incelemesi tamamlanmıştır. Onaylıyor musunuz?',
+      ),
+      confirmLabel: t('common.confirm', 'Onayla'),
+      variant: 'success',
+      onConfirm: () => markReviewsDone(),
+    })
+  }, [markReviewsDone, t])
+
   if (!canSeeReviews || reviews.length === 0) {
     return null
   }
@@ -99,7 +115,7 @@ export function WhatsAppDepartmentReviewFab() {
                 <button
                   type="button"
                   className="text-xs font-semibold leading-tight text-orange-600 hover:text-orange-700 hover:underline"
-                  onClick={() => void markReviewsDone()}
+                  onClick={requestMarkReviewsDone}
                 >
                   {t('whatsapp.departmentReviewMarkDone', 'İncelendi Yap')}
                 </button>
@@ -183,6 +199,7 @@ export function WhatsAppDepartmentReviewFab() {
           }}
         />
       ) : null}
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </>
   )
 }

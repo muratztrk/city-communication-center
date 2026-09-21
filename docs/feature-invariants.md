@@ -542,6 +542,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (SystemAdmin dahil) sağ altta WhatsApp bildirim FAB'ı ile aynı yeşil baloncuk + panel görür; `İncelenmesi Gereken Mesajı Oku`
   → talep Detaylar popup + üstte Yazışmaya Git; FAB yalnız panelde turuncu `İncelendi Yap` ile kapanır (okuma FAB'ı düşürmez).
   Personel (Staff) bu inceleme bildirimini görmez.
+  Baloncuk panelindeki `İncelendi Yap` onay popup'ı ister: başlık `İncelemeyi Onayla` + alt çizgi,
+  metin `Mesaj incelemesi tamamlanmıştır. Onaylıyor musunuz?`; `Onayla` acknowledge eder (#6ab18bd1).
+  Aynı dropdown, WhatsApp `Vatandaş Talebi Oluştur` popup'ında `Dosya ekle`nin sağında da durur
+  (`ConversationPanel.departmentReviewConversationId`, #6ab18e55).
 - **WA Mesaj Onayı Bekleyen liste/header (#6ab13aac/#6ab13e72):** `hasPendingMessageApproval` kuyruğu `Yanıt bekliyor`dan önceliklidir;
   `Mesaj Onayı/Cevabı Verildi Yap` yalnız bu kuyruk aktifken görünür (24s penceresi engeli yok).
 

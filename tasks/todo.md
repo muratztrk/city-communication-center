@@ -1,3 +1,10 @@
+## Round 1286 — Trello Doing (2 web)
+
+- **#6ab18bd1:** WhatsApp baloncuğunda `İncelendi Yap` önce onay popup'ı açar (`İncelemeyi Onayla`,
+  alt çizgi, `Mesaj incelemesi tamamlanmıştır. Onaylıyor musunuz?`). `Onayla` mevcut acknowledge'i çalıştırır.
+- **#6ab18e55:** WhatsApp `Vatandaş Talebi Oluştur` popup'ında `Dosya ekle`nin sağında
+  `Mesajı İncelemeye Gönder` dropdown'u (konuşma sayfasıyla aynı onay ve rozet).
+
 ## Round 1268 — Trello Doing (2 web, 1 mobil atlandı)
 
 - **#6aa917e4:** Meta pazarlama deney grubu (`130472` / `part of an experiment`) `deliveryerror` metni

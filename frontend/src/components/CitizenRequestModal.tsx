@@ -625,6 +625,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               enableWhatsAppFileAttachment
               compactActions
               compactBubbles
+              departmentReviewConversationId={message.channel === 'WhatsApp' ? citizenConversationId : null}
             />
           </div>
 

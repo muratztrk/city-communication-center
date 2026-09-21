@@ -1168,7 +1168,7 @@
     "departmentReviewFabLabel": "Read Message That Needs Review",
     "departmentReviewMarkDone": "Mark as Reviewed",
     "departmentReviewMarkDoneConfirmTitle": "Confirm Review",
-    "departmentReviewMarkDoneConfirmMessage": "The message review is complete. Do you confirm?",
+    "departmentReviewMarkDoneConfirmMessage": "Do you confirm that you completed the message review?",
     "departmentReviewPanelTitle": "Messages Pending Review",
     "departmentReviewPanelSubtitle": "{{count}} message(s) awaiting review",
     "departmentReviewPanelEmptyHint": "New review requests will appear here.",

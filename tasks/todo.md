@@ -1,3 +1,9 @@
+## Round 1288 — Trello Doing (3 web)
+
+- **#6ab19108:** İncelemeyi Onayla metni `Mesaj incelemesini tamamladığınızı onaylıyor musunuz?`
+- **#6ab18e55 reopen:** Vatandaş Talebi Oluştur popup'ından Mesajı İncelemeye Gönder kaldırıldı.
+- **#6ab190a5 reopen:** placeholder rengi Dosya ekle ile aynı (`slate-700`).
+
 ## Round 1287 — Trello Doing (2 web)
 
 - **#6ab190a5:** "Mesajı İncelemeye Gönder" kapalı placeholder metni siyah.

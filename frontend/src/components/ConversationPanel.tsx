@@ -34,8 +34,6 @@ import { useAuth } from '../context/AuthContext'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { printHtmlDocument } from '../utils/printDocument'
-import { emitPageToast } from './ui/pageToast'
-import { formatBadgeCount } from '../utils/formatScopeChipBadgeCount'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -71,8 +69,6 @@ interface ConversationPanelProps {
   enableConversationPrint?: boolean
   /** Yazışmaya Git popup: Yazdır yanında konuşma içi arama (#3472). */
   enableConversationSearch?: boolean
-  /** Vatandaş Talebi Oluştur: Dosya ekle sağında Mesajı İncelemeye Gönder (#6ab18e55). */
-  departmentReviewConversationId?: string | null
 }
 
 function getInitials(value: string): string | null {
@@ -95,7 +91,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false, enableConversationSearch = false, departmentReviewConversationId = null }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false, enableConversationSearch = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -110,8 +106,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
-  const [reviewDepartmentId, setReviewDepartmentId] = useState('')
-  const [sendingDepartmentReview, setSendingDepartmentReview] = useState(false)
   const [showChatSearch, setShowChatSearch] = useState(false)
   const [chatSearch, setChatSearch] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -138,67 +132,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     window.addEventListener('ccc:whatsapp-message', onIncoming)
     return () => window.removeEventListener('ccc:whatsapp-message', onIncoming)
   }, [citizenPhone, queryClient, socialMessageId])
-
-  const reviewDetailQuery = useQuery({
-    queryKey: queryKeys.conversations.detail(departmentReviewConversationId),
-    queryFn: () => api.getCitizenConversationDetail(departmentReviewConversationId!),
-    enabled: Boolean(departmentReviewConversationId),
-  })
-  const reviewDepartmentOptions = useMemo(() => {
-    const tickets = reviewDetailQuery.data?.tickets ?? []
-    const seen = new Set<string>()
-    const options: { value: string; label: string }[] = []
-    for (const ticket of tickets) {
-      const departmentId = ticket.departmentId?.trim()
-      const departmentName = ticket.departmentName?.trim()
-      if (!departmentId || !departmentName || seen.has(departmentId)) continue
-      seen.add(departmentId)
-      options.push({ value: departmentId, label: departmentName })
-    }
-    return options.sort((left, right) => left.label.localeCompare(right.label, 'tr'))
-  }, [reviewDetailQuery.data?.tickets])
-  const pendingReviewDepartmentIds = useMemo(
-    () => new Set(reviewDetailQuery.data?.pendingDepartmentReviewDepartmentIds ?? []),
-    [reviewDetailQuery.data?.pendingDepartmentReviewDepartmentIds],
-  )
-  const pendingReviewCount = reviewDetailQuery.data?.pendingDepartmentReviewCount ?? 0
-
-  const handleSendDepartmentReview = useCallback(async (departmentId: string) => {
-    if (!departmentReviewConversationId || !departmentId || sendingDepartmentReview) return
-    setSendingDepartmentReview(true)
-    try {
-      await api.sendCitizenConversationForDepartmentReview(departmentReviewConversationId, departmentId)
-      await queryClient.invalidateQueries({ queryKey: queryKeys.conversations.detail(departmentReviewConversationId) })
-      await queryClient.invalidateQueries({ queryKey: ['ccc', 'citizen-conversations', 'department-reviews'] })
-      emitPageToast(t('whatsapp.departmentReviewSent', 'Mesaj incelemeye gönderildi.'), 'success')
-    } catch (error) {
-      emitPageToast(error instanceof Error ? error.message : t('common.error', 'Hata oluştu.'), 'error')
-    } finally {
-      setReviewDepartmentId('')
-      setSendingDepartmentReview(false)
-    }
-  }, [departmentReviewConversationId, queryClient, sendingDepartmentReview, t])
-
-  const handleReviewDepartmentSelect = useCallback((departmentId: string) => {
-    setReviewDepartmentId('')
-    const department = reviewDepartmentOptions.find(option => option.value === departmentId)
-    if (!department) return
-    setConfirmDialog({
-      title: t('whatsapp.departmentReviewConfirmTitle', 'İncelemeye Gönder'),
-      titleDivider: true,
-      message: (
-        <>
-          {t('whatsapp.departmentReviewConfirmPrefix', 'Bu mesaj incelenmek üzere ')}
-          <span className="font-semibold text-emerald-600">{department.label}</span>
-          {t('whatsapp.departmentReviewConfirmSuffix', "'ne gönderilecektir. Onaylıyor musunuz?")}
-        </>
-      ),
-      confirmLabel: t('common.confirm', 'Onayla'),
-      messageClassName: 'text-justify',
-      variant: 'success',
-      onConfirm: () => void handleSendDepartmentReview(departmentId),
-    })
-  }, [handleSendDepartmentReview, reviewDepartmentOptions, t])
 
   const userQuickRepliesQuery = useQuery({
     queryKey: queryKeys.userQuickReplies.list(),
@@ -682,7 +615,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
           ) : null}
           <div className="space-y-2">
             <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-              <div className={`flex min-w-0 items-center gap-2 ${departmentReviewConversationId ? 'whatsapp-create-request-toolbar' : 'flex-wrap'}`}>
+              <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <WhatsAppTemplatePicker
               userQuickReplies={userQuickReplies}
               onSelect={template => {
@@ -714,37 +647,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 {t('attachments.addFile', 'Dosya ekle')}
               </button>
             ) : null}
-                {departmentReviewConversationId ? (
-                  <div className="whatsapp-review-dept-select relative min-w-0 max-w-full shrink">
-                    <SingleSelectDropdown
-                      options={reviewDepartmentOptions.map(option => ({
-                        value: option.value,
-                        label: option.label,
-                        trailing: pendingReviewDepartmentIds.has(option.value)
-                          ? <span className="whatsapp-fab-badge whatsapp-review-dept-row-badge">1</span>
-                          : undefined,
-                      }))}
-                      value={reviewDepartmentId}
-                      onChange={handleReviewDepartmentSelect}
-                      placeholder={t('whatsapp.sendForDepartmentReview', 'Mesajı İncelemeye Gönder')}
-                      emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
-                      searchPlaceholder={t('departments.search', 'Birim ara...')}
-                      disabled={sendingDepartmentReview || reviewDepartmentOptions.length === 0}
-                      openUp
-                      menuScrollClassName="whatsapp-department-review-menu-scroll"
-                      matchTriggerWidth
-                      menuWidthExtraPx={24}
-                      menuExpand="right"
-                      className="w-auto max-w-full"
-                      triggerClassName={`w-auto max-w-full rounded-full border border-slate-200 bg-white font-semibold text-slate-700 ${compactActions ? 'min-h-7 h-7 px-2.5 text-[11px]' : 'h-9 px-3 text-xs'}`}
-                    />
-                    {pendingReviewCount > 0 ? (
-                      <span className="whatsapp-fab-badge whatsapp-review-send-badge">
-                        {formatBadgeCount(pendingReviewCount)}
-                      </span>
-                    ) : null}
-                  </div>
-                ) : null}
                 {internalDepartmentOptions ? (
                   <div className="ml-auto flex items-center gap-2">
                     <SingleSelectDropdown

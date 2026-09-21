@@ -1176,7 +1176,7 @@
     "departmentReviewFabLabel": "İncelenmesi Gereken Mesajı Oku",
     "departmentReviewMarkDone": "İncelendi Yap",
     "departmentReviewMarkDoneConfirmTitle": "İncelemeyi Onayla",
-    "departmentReviewMarkDoneConfirmMessage": "Mesaj incelemesi tamamlanmıştır. Onaylıyor musunuz?",
+    "departmentReviewMarkDoneConfirmMessage": "Mesaj incelemesini tamamladığınızı onaylıyor musunuz?",
     "departmentReviewPanelTitle": "İnceleme Bekleyen Mesajlar",
     "departmentReviewPanelSubtitle": "{{count}} mesaj inceleme bekliyor",
     "departmentReviewPanelEmptyHint": "Yeni inceleme talebi geldiğinde burada görünür.",

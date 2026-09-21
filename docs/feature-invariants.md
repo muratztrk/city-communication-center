@@ -543,9 +543,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   → talep Detaylar popup + üstte Yazışmaya Git; FAB yalnız panelde turuncu `İncelendi Yap` ile kapanır (okuma FAB'ı düşürmez).
   Personel (Staff) bu inceleme bildirimini görmez.
   Baloncuk panelindeki `İncelendi Yap` onay popup'ı ister: başlık `İncelemeyi Onayla` + alt çizgi,
-  metin `Mesaj incelemesi tamamlanmıştır. Onaylıyor musunuz?`; `Onayla` acknowledge eder (#6ab18bd1).
-  Aynı dropdown, WhatsApp `Vatandaş Talebi Oluştur` popup'ında `Dosya ekle`nin sağında, **aynı satırda**
-  durur (`flex-nowrap`, #6ab18e55). Kapalı tetikleyici placeholder'ı siyahtır (`#000`, #6ab190a5).
+  metin `Mesaj incelemesini tamamladığınızı onaylıyor musunuz?` (#6ab19108); `Onayla` acknowledge eder (#6ab18bd1).
+  Bu dropdown yalnız WhatsApp Mesajları sayfasındadır; Vatandaş Talebi Oluştur popup'ında yoktur (#6ab18e55).
+  Kapalı tetikleyici placeholder rengi Dosya ekle ile aynıdır (`slate-700` / `#334155`, #6ab190a5).
 - **WA Mesaj Onayı Bekleyen liste/header (#6ab13aac/#6ab13e72):** `hasPendingMessageApproval` kuyruğu `Yanıt bekliyor`dan önceliklidir;
   `Mesaj Onayı/Cevabı Verildi Yap` yalnız bu kuyruk aktifken görünür (24s penceresi engeli yok).
 

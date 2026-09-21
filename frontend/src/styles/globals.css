@@ -2542,22 +2542,10 @@
     overflow: visible;
   }
 
-  /* Kapalı tetikleyici placeholder'ı siyah (#6ab190a5). */
+  /* Kapalı placeholder, Dosya ekle ile aynı slate-700 (#6ab190a5 reopen). */
   .whatsapp-review-dept-select .field-select > span:first-child,
   .whatsapp-review-dept-select .field-select > span:first-child span {
-    color: #000 !important;
-  }
-
-  /* Vatandaş Talebi Oluştur: inceleme dropdown'u Dosya ekle ile aynı satırda (#6ab18e55 reopen). */
-  .whatsapp-create-request-toolbar {
-    flex-wrap: nowrap;
-  }
-
-  .whatsapp-create-request-toolbar .whatsapp-review-dept-select {
-    flex: 1 1 auto;
-    width: auto;
-    min-width: 0;
-    max-width: none;
+    color: #334155 !important;
   }
 
   .whatsapp-review-dept-trigger {

@@ -2507,10 +2507,11 @@
 
   .whatsapp-department-review-menu-scroll .dropdown-menu-item,
   .whatsapp-department-review-menu-scroll .dropdown-menu-item span {
-    min-height: 1.85rem;
-    padding: 0.32rem 0.55rem;
-    font-size: 0.625rem !important;
-    line-height: 1.2;
+    min-height: 1.55rem;
+    padding: 0.2rem 0.4rem 0.2rem 0.35rem;
+    font-size: 0.6875rem !important;
+    line-height: 1.15;
+    justify-content: flex-start;
   }
 
   .citizen-request-priority-menu .dropdown-menu-item {
@@ -8093,7 +8094,7 @@
     pointer-events: none;
     position: absolute;
     right: -0.2rem;
-    top: -0.2rem;
+    top: -0.38rem;
     z-index: 30;
     display: flex;
     height: 1.05rem;

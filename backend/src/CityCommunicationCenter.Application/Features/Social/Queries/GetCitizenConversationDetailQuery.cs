@@ -373,6 +373,14 @@ public sealed class GetCitizenConversationDetailQueryHandler
             }
         }
 
+        var pendingDepartmentReviewCount = await _dbContext.CitizenConversationDepartmentReviews
+            .AsNoTracking()
+            .CountAsync(
+                review => review.TenantId == tenantId
+                    && review.CitizenConversationId == request.CitizenConversationId
+                    && review.AcknowledgedAtUtc == null,
+                cancellationToken);
+
         return new CitizenConversationDetailDto(
             conversation.CitizenConversationId,
             conversation.CitizenPhone,
@@ -391,7 +399,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
             cancelledCount,
             lastInboundAt,
             timeline,
-            tickets);
+            tickets,
+            pendingDepartmentReviewCount);
     }
 
     /// <summary>

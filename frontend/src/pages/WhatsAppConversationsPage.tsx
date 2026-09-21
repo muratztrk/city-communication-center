@@ -42,6 +42,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { formatBadgeCount } from '../utils/formatScopeChipBadgeCount'
 import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
@@ -1271,6 +1272,7 @@ function ConversationDetail({
     setSendingDepartmentReview(true)
     try {
       await api.sendCitizenConversationForDepartmentReview(conversationId, departmentId)
+      await refreshDetail()
       emitPageToast(t('whatsapp.departmentReviewSent', 'Mesaj incelemeye gönderildi.'), 'success')
     } catch (error) {
       emitPageToast(error instanceof Error ? error.message : t('common.error', 'Hata oluştu.'), 'error')
@@ -1689,19 +1691,29 @@ function ConversationDetail({
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
                 {reviewDepartmentOptions.length > 0 ? (
-                  <SingleSelectDropdown
-                    options={reviewDepartmentOptions}
-                    value={reviewDepartmentId}
-                    onChange={value => {
-                      if (value) handleReviewDepartmentSelect(value)
-                    }}
-                    placeholder={t('whatsapp.sendForDepartmentReview', 'Mesajı İncelemeye Gönder')}
-                    disabled={sending || sendingDepartmentReview}
-                    className="min-w-[11rem]"
-                    triggerClassName="inline-flex h-[2.125rem] min-w-[11rem] items-center rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700"
-                    menuScrollClassName="whatsapp-department-review-menu-scroll"
-                    matchTriggerWidth
-                  />
+                  <div className="relative min-w-[11rem]">
+                    <SingleSelectDropdown
+                      options={reviewDepartmentOptions}
+                      value={reviewDepartmentId}
+                      onChange={value => {
+                        if (value) handleReviewDepartmentSelect(value)
+                      }}
+                      placeholder={t('whatsapp.sendForDepartmentReview', 'Mesajı İncelemeye Gönder')}
+                      disabled={sending || sendingDepartmentReview}
+                      className="min-w-[11rem]"
+                      triggerClassName="inline-flex h-[2.125rem] min-w-[11rem] items-center rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700"
+                      menuScrollClassName="whatsapp-department-review-menu-scroll"
+                      matchTriggerWidth
+                    />
+                    {(detail?.pendingDepartmentReviewCount ?? 0) > 0 ? (
+                      <span
+                        className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${formatBadgeCount(detail?.pendingDepartmentReviewCount ?? 0).length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}
+                        aria-hidden="true"
+                      >
+                        {formatBadgeCount(detail?.pendingDepartmentReviewCount ?? 0)}
+                      </span>
+                    ) : null}
+                  </div>
                 ) : null}
                 </div>
                   </div>

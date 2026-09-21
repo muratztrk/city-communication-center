@@ -267,7 +267,8 @@ public sealed record CitizenConversationDetailDto(
     /// <summary>When the last inbound message arrived — used for 24h window check.</summary>
     DateTimeOffset? LastInboundAt,
     IReadOnlyList<CitizenConversationTimelineEntryDto> Timeline,
-    IReadOnlyList<CitizenConversationTicketDto> Tickets);
+    IReadOnlyList<CitizenConversationTicketDto> Tickets,
+    int PendingDepartmentReviewCount = 0);
 
 public sealed record UpdateCitizenConversationProfileRequest(
     string? CitizenName,

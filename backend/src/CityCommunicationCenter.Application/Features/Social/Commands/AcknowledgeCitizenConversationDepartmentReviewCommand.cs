@@ -45,7 +45,7 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             tenantId,
             cancellationToken);
 
-        if (actor.RoleCode is not (RoleCode.Manager or RoleCode.Staff or RoleCode.SystemAdmin))
+        if (actor.RoleCode is not (RoleCode.Manager or RoleCode.SystemAdmin))
         {
             throw new ForbiddenAccessException("Bu inceleme bildirimini onaylama yetkiniz yok.");
         }

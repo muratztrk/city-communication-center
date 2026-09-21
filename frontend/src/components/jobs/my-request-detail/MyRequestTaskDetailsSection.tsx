@@ -199,6 +199,11 @@ export function MyRequestTaskDetailsSection({
 
           const isCompletedTask = task.currentStatus === 'Completed'
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
+          const isPendingCloseApproval = task.currentStatus === 'PendingCloseApproval'
+          const isPhoneCitizenTask = isCitizenRequestJob(detail) && detail.sourceChannel === 'Phone'
+          const showPostCompleteCitizenFields = isCompletedTask
+            || isCancelledTask
+            || (isPendingCloseApproval && isPhoneCitizenTask)
           const showCitizenApprover = !hideMessageApprovalPendingFields
             && isCitizenRequestJob(detail)
             && (isCompletedTask || isCancelledTask)
@@ -213,7 +218,7 @@ export function MyRequestTaskDetailsSection({
           const cancelNoteDisplay = task.revisionReason?.trim() || detail.cancelReason?.trim() || '—'
           // Operatör Sms Onayı task.Notes'u ezer; Tamamlama yöneticinin onay notu olmalı.
           // Released yokken canlı görev notuna ancak outbound yoksa (veya aynıysa) düş.
-          const completionNoteDisplay = isCompletedTask
+          const completionNoteDisplay = (isCompletedTask || (isPendingCloseApproval && isPhoneCitizenTask))
             ? (releasedPlain
               || (outboundPlain && notesDiffer(outboundPlain, taskNotesPlain) ? '—' : taskNotesPlain)
               || '—')
@@ -309,7 +314,7 @@ export function MyRequestTaskDetailsSection({
                           value: citizenApproverValue,
                         }]
                       : []),
-                    ...(isCompletedTask
+                    ...(isCompletedTask || (isPendingCloseApproval && isPhoneCitizenTask)
                       ? [{
                           label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                           value: completionNoteDisplay,
@@ -332,8 +337,11 @@ export function MyRequestTaskDetailsSection({
                           ]
                         : []),
                     ...(isCitizenRequestJob(detail)
-                      && (isCompletedTask || isCancelledTask)
-                      && task.taskId === primaryTerminalTaskId
+                      && showPostCompleteCitizenFields
+                      && (
+                        (isCompletedTask || isCancelledTask) && task.taskId === primaryTerminalTaskId
+                        || (isPendingCloseApproval && isPhoneCitizenTask)
+                      )
                       ? [
                           {
                             label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),

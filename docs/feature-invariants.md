@@ -537,6 +537,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Gelen WA balonunda üst satır gönderen etiketi:** isim varsa isim (+telefon), yoksa telefon;
   `ConversationPanel` → `inboundSenderLabel` (card #1716). Vatandaş Talebi Oluştur dahil.
 
+- **Mesajı İncelemeye Gönder (#6aad490e):** operatör `/whatsapp`'ta talep olan birimlere dropdown ile gönderir;
+  onay popup'ı sonrası hedef birimin **yalnız Müdürü** (SystemAdmin dahil) sağ altta WhatsApp bildirim FAB'ı ile
+  aynı yeşil baloncuk + panel görür; panelde `İncelenmesi Gereken Mesajı Oku` tıklanınca Yazışmaya Git açılır.
+  Personel (Staff) bu inceleme bildirimini görmez.
+
 - **Operatör WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091 / #2600).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında mesajı GÖNDERMEZ (`SendImmediately` yok sayılır), `DeliveryStatus=Pending` entry
   oluşturur (diğer kanallar eskisi gibi anında gider). Yazışmaya Git / `/whatsapp` yazımı da doğrudan vatandaşa gitmez. `ICitizenJobStatusNotifier` tarafından

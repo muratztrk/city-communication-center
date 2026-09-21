@@ -65,6 +65,8 @@ interface ConversationEntryBubbleProps {
   inboundSenderLabel?: string | null
   /** Vatandaş Talebi Oluştur modalında balonları biraz küçült (card #1711). */
   compact?: boolean
+  /** Çift gönderim koruması sonrası bekleyen aksiyonları gizle (#6ab1289f). */
+  suppressPendingUi?: boolean
 }
 
 const conversationEntryMetaBadgeClass =
@@ -132,6 +134,7 @@ export function ConversationEntryBubble({
   onShowTerminalNote: _onShowTerminalNote,
   inboundSenderLabel,
   compact = false,
+  suppressPendingUi = false,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { t, i18n } = useTranslation()
@@ -156,7 +159,9 @@ export function ConversationEntryBubble({
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
   // Onaylayan Yönetici yalnız bekleyen terminal / re-engagement hatalarında — otomatik
   // zamanlı şablon yanıtları (Sent) dahil değil (card #2545).
-  const showMessageApprover = !isInbound && Boolean(messageApproverName)
+  const showMessageApprover = !suppressPendingUi
+    && !isInbound
+    && Boolean(messageApproverName)
     && (isPending || isReEngagementFailure)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const isOutboundImage = !isInbound && hasMedia && Boolean(entry.mediaMimeType?.startsWith('image/'))
@@ -179,7 +184,10 @@ export function ConversationEntryBubble({
         time: formatConversationMessageTime(queuedAt, locale, t),
       })
     : undefined
-  const showPendingActions = isPending && canSendPending && !entry.isAutomaticMessage
+  const showPendingActions = !suppressPendingUi
+    && isPending
+    && canSendPending
+    && !entry.isAutomaticMessage
 
   const syncTextareaHeight = () => {
     const textarea = textareaRef.current

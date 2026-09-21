@@ -48,6 +48,8 @@ import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/at
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
+
+const DUPLICATE_PENDING_SEND_ERROR_SNIPPET = 'gönderimi zaten devam ediyor veya tamamlanmış'
 import { compareConversationEntriesByDisplayTime, resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
 import { formatDateTime } from '../components/jobs/my-request-detail/format'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
@@ -857,6 +859,7 @@ function ConversationDetail({
   const [replyText, setReplyText] = useState('')
   const [selectedMetaTemplate, setSelectedMetaTemplate] = useState<{ name: string; language: string; templateId?: string } | null>(null)
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
+  const [suppressedPendingEntryIds, setSuppressedPendingEntryIds] = useState<Set<string>>(() => new Set())
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [sending, setSending] = useState(false)
   const [reviewDepartmentId, setReviewDepartmentId] = useState('')
@@ -994,6 +997,27 @@ function ConversationDetail({
     return () => window.clearInterval(intervalId)
   }, [refreshDetail])
 
+  useEffect(() => {
+    if (!detail || suppressedPendingEntryIds.size === 0) return
+    const settledIds = new Set(
+      detail.timeline
+        .filter(entry => entry.direction === 'Outbound'
+          && entry.deliveryStatus
+          && entry.deliveryStatus !== 'Pending'
+          && entry.deliveryStatus !== 'Failed')
+        .map(entry => entry.entryId),
+    )
+    if (settledIds.size === 0) return
+    setSuppressedPendingEntryIds(prev => {
+      const next = new Set(prev)
+      let changed = false
+      for (const entryId of settledIds) {
+        if (next.delete(entryId)) changed = true
+      }
+      return changed ? next : prev
+    })
+  }, [detail, suppressedPendingEntryIds.size])
+
   // Konuşma değişince taslak/seçim sıfırlanır; detay silinmez — aksi halde gri iskelet
   // ve panel zıplaması oluşur (#3246). Eski timeline activeDetail ile gizlenir.
   useEffect(() => {
@@ -1003,6 +1027,7 @@ function ConversationDetail({
     setMenuOpen(false)
     setConfirmDialog(null)
     setSendingPendingId(null)
+    setSuppressedPendingEntryIds(new Set())
     setSending(false)
     setProfileSaving(false)
     setHighlightEntryIndex(null)
@@ -1204,7 +1229,13 @@ function ConversationDetail({
       if (latestConversationIdRef.current === sentForConversationId) setIsPinnedToBottom(true)
       await refreshDetail()
     } catch (error) {
-      emitPageToast(error instanceof Error ? error.message : t('common.error', 'Hata oluştu.'), 'error')
+      const message = error instanceof Error ? error.message : ''
+      if (message.toLocaleLowerCase('tr').includes(DUPLICATE_PENDING_SEND_ERROR_SNIPPET)) {
+        await refreshDetail()
+        setSuppressedPendingEntryIds(prev => new Set(prev).add(entry.entryId))
+      } else {
+        emitPageToast(message || t('common.error', 'Hata oluştu.'), 'error')
+      }
     } finally {
       if (latestConversationIdRef.current === sentForConversationId) setSendingPendingId(null)
     }
@@ -1254,6 +1285,24 @@ function ConversationDetail({
       setReviewDepartmentId('')
       setSendingDepartmentReview(false)
     }
+  }
+
+  const handleReviewDepartmentSelect = (departmentId: string) => {
+    setReviewDepartmentId('')
+    const department = reviewDepartmentOptions.find(option => option.value === departmentId)
+    if (!department) return
+    setConfirmDialog({
+      title: t('whatsapp.departmentReviewConfirmTitle', 'İncelemeye Gönder'),
+      titleDivider: true,
+      message: t(
+        'whatsapp.departmentReviewConfirmMessage',
+        '{{department}} birimine incelemeye gönderilecek. Onaylıyor musunuz?',
+        { department: department.label },
+      ),
+      confirmLabel: t('common.confirm', 'Onayla'),
+      variant: 'success',
+      onConfirm: () => void handleSendDepartmentReview(departmentId),
+    })
   }
 
   const handleShowTerminalNote = (entry: CitizenConversationTimelineEntry) => {
@@ -1502,6 +1551,7 @@ function ConversationDetail({
                         theme="light"
                         inboundSenderLabel={inboundSenderLabel}
                         canSendPending={canSendPending}
+                        suppressPendingUi={suppressedPendingEntryIds.has(entry.entryId)}
                         onSendPending={() => handleSendPending(entry)}
                         sendingPending={sendingPendingId === entry.entryId}
                         onEditPending={(_entryId, content) => handleEditPending(entry, content)}
@@ -1647,13 +1697,13 @@ function ConversationDetail({
                     options={reviewDepartmentOptions}
                     value={reviewDepartmentId}
                     onChange={value => {
-                      setReviewDepartmentId(value)
-                      if (value) void handleSendDepartmentReview(value)
+                      if (value) handleReviewDepartmentSelect(value)
                     }}
                     placeholder={t('whatsapp.sendForDepartmentReview', 'Mesajı İncelemeye Gönder')}
                     disabled={sending || sendingDepartmentReview}
                     className="min-w-[11rem]"
-                    triggerClassName="inline-flex h-[2.125rem] min-w-[11rem] items-center rounded-full border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700"
+                    triggerClassName="inline-flex h-[2.125rem] min-w-[11rem] items-center rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700"
+                    menuScrollClassName="text-[11px]"
                     matchTriggerWidth
                   />
                 ) : null}

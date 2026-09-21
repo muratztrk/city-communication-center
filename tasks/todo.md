@@ -1,3 +1,8 @@
+## Round 1287 — Trello Doing (2 web)
+
+- **#6ab190a5:** "Mesajı İncelemeye Gönder" kapalı placeholder metni siyah.
+- **#6ab18e55 reopen:** talep oluşturma popup'ında dropdown alt satıra düşmez; Dosya ekle ile aynı satır.
+
 ## Round 1286 — Trello Doing (2 web)
 
 - **#6ab18bd1:** WhatsApp baloncuğunda `İncelendi Yap` önce onay popup'ı açar (`İncelemeyi Onayla`,

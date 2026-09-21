@@ -682,7 +682,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
           ) : null}
           <div className="space-y-2">
             <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <div className={`flex min-w-0 items-center gap-2 ${departmentReviewConversationId ? 'whatsapp-create-request-toolbar' : 'flex-wrap'}`}>
                 <WhatsAppTemplatePicker
               userQuickReplies={userQuickReplies}
               onSelect={template => {
@@ -715,7 +715,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               </button>
             ) : null}
                 {departmentReviewConversationId ? (
-                  <div className="whatsapp-review-dept-select relative w-fit max-w-full shrink-0">
+                  <div className="whatsapp-review-dept-select relative min-w-0 max-w-full shrink">
                     <SingleSelectDropdown
                       options={reviewDepartmentOptions.map(option => ({
                         value: option.value,

@@ -308,6 +308,21 @@ public sealed record CitizenConversationTimelineEntryDto(
     /// <summary>Zaman ayarlı şablon otomatik yanıtı (card #2545).</summary>
     bool IsAutomaticMessage = false);
 
+public sealed record CitizenConversationDepartmentReviewDto(
+    Guid ReviewId,
+    Guid CitizenConversationId,
+    Guid DepartmentId,
+    string DepartmentName,
+    Guid JobId,
+    Guid SocialMessageId,
+    Guid RequestedByUserId,
+    string? RequestedByDisplayName,
+    DateTimeOffset RequestedAtUtc,
+    string? CitizenPhone,
+    string? CitizenName);
+
+public sealed record SendCitizenConversationForDepartmentReviewRequest(Guid DepartmentId);
+
 public sealed record CitizenConversationTicketDto(
     Guid SocialMessageId,
     string Status,

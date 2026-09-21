@@ -653,6 +653,20 @@ export interface CitizenConversationTicket {
   destinationDepartmentName?: string | null;
 }
 
+export interface CitizenConversationDepartmentReview {
+  reviewId: string;
+  citizenConversationId: string;
+  departmentId: string;
+  departmentName: string;
+  jobId: string;
+  socialMessageId: string;
+  requestedByUserId: string;
+  requestedByDisplayName?: string | null;
+  requestedAtUtc: string;
+  citizenPhone?: string | null;
+  citizenName?: string | null;
+}
+
 export interface CitizenConversationDetail {
   citizenConversationId: string;
   citizenPhone: string;

@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useAuth } from '../context/AuthContext'
 import { ConversationPanel } from './ConversationPanel'
 
 interface WhatsAppConversationModalProps {
@@ -7,6 +8,8 @@ interface WhatsAppConversationModalProps {
   citizenPhone?: string | null
   citizenName?: string | null
   onClose: () => void
+  /** Birim inceleme FAB veya Yazışmaya Git: müdür/personel Beklemede yazar (#6ab1131 / #6aad490e). */
+  allowManagerReply?: boolean
 }
 
 export function WhatsAppConversationModal({
@@ -15,7 +18,13 @@ export function WhatsAppConversationModal({
   citizenPhone,
   citizenName,
   onClose,
+  allowManagerReply: allowManagerReplyOverride,
 }: WhatsAppConversationModalProps) {
+  const { user } = useAuth()
+  // Yazışmaya Git: yalnız birim müdürü (ve SystemAdmin) yazar; mesajlar Beklemede kuyruğa girer (#6ab1131).
+  const allowManagerReply = allowManagerReplyOverride
+    ?? (user?.role === 'Manager' || user?.role === 'SystemAdmin')
+
   return createPortal(
     <div
       className="fixed inset-0 z-[150] flex items-center justify-center bg-black/40 p-4"
@@ -32,9 +41,9 @@ export function WhatsAppConversationModal({
           citizenName={citizenName}
           headerMode="phone"
           onClose={onClose}
-          // Yazışmaya Git popup salt okunur — mesaj gönderimi yalnız /whatsapp operatör ekranında.
-          canReply={false}
+          canReply={allowManagerReply}
           canSendPending={false}
+          enableWhatsAppFileAttachment={allowManagerReply}
           // Yazışmaya Git popup: balon + metin küçült (#2083 / #1711 kalıbı).
           compactBubbles
           compactActions

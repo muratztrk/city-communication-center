@@ -2,6 +2,7 @@ import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, Chev
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
+import { WhatsAppDepartmentReviewFab } from '../components/layout/WhatsAppDepartmentReviewFab'
 import { InternalMessagesFab } from '../components/layout/InternalMessagesFab'
 import { SupportRequestDialog } from '../components/layout/SupportRequestDialog'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
@@ -1152,6 +1153,7 @@ export function AppShell() {
         {/* FAB sırası: WhatsApp → Kurum İçi Mesajlar → aşağı/yukarı (cards #1543/#1553). */}
         {/* Harita sayfalarında küçük ekranda sohbet FAB’leri zoom kontrollerini kapatır (#2694). */}
         <div className={`pointer-events-auto${hideWhatsAppFabOnMobile ? ' max-lg:hidden' : ''}`}>{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>
+        <div className={`pointer-events-auto${hideWhatsAppFabOnMobile ? ' max-lg:hidden' : ''}`}><WhatsAppDepartmentReviewFab /></div>
         <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}>{isInternalModuleUsable ? <InternalMessagesFab /> : null}</div>
         <div className="pointer-events-auto"><ScrollFab /></div>
       </div>

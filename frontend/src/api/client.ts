@@ -85,6 +85,7 @@ import type {
   AppNotification,
   CitizenConversationSummary,
   CitizenConversationDetail,
+  CitizenConversationDepartmentReview,
   InternalConversationSummary,
   InternalMessage,
   InternalConversationDetail,
@@ -1702,6 +1703,42 @@ export const api = {
   async markConversationPendingApprovalCleared(conversationId: string): Promise<void> {
     const response = await fetchWithCredentials(
       `${API_BASE}/citizen-conversations/${conversationId}/mark-pending-approval-cleared`,
+      {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+      },
+    )
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
+  async sendCitizenConversationForDepartmentReview(
+    conversationId: string,
+    departmentId: string,
+  ): Promise<CitizenConversationDepartmentReview> {
+    const response = await fetchWithCredentials(
+      `${API_BASE}/citizen-conversations/${conversationId}/send-for-department-review`,
+      {
+        method: 'POST',
+        headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ departmentId }),
+      },
+    )
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+    return response.json() as Promise<CitizenConversationDepartmentReview>
+  },
+
+  async getPendingCitizenConversationDepartmentReviews(): Promise<CitizenConversationDepartmentReview[]> {
+    const response = await fetchWithCredentials(
+      `${API_BASE}/citizen-conversations/department-reviews/pending`,
+      { headers: await getAuthHeaders() },
+    )
+    await ensureOk(response, i18n.t('errors.socialMessagesLoadFailed'))
+    return response.json() as Promise<CitizenConversationDepartmentReview[]>
+  },
+
+  async acknowledgeCitizenConversationDepartmentReview(reviewId: string): Promise<void> {
+    const response = await fetchWithCredentials(
+      `${API_BASE}/citizen-conversations/department-reviews/${reviewId}/acknowledge`,
       {
         method: 'POST',
         headers: await getAuthHeaders(),

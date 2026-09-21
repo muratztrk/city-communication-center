@@ -859,6 +859,8 @@ function ConversationDetail({
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [sending, setSending] = useState(false)
+  const [reviewDepartmentId, setReviewDepartmentId] = useState('')
+  const [sendingDepartmentReview, setSendingDepartmentReview] = useState(false)
   const [chatSearch, setChatSearch] = useState('')
   const [showChatSearch, setShowChatSearch] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -1240,6 +1242,20 @@ function ConversationDetail({
     await refreshDetail()
   }
 
+  const handleSendDepartmentReview = async (departmentId: string) => {
+    if (!departmentId || sendingDepartmentReview) return
+    setSendingDepartmentReview(true)
+    try {
+      await api.sendCitizenConversationForDepartmentReview(conversationId, departmentId)
+      emitPageToast(t('whatsapp.departmentReviewSent', 'Mesaj incelemeye gönderildi.'), 'success')
+    } catch (error) {
+      emitPageToast(error instanceof Error ? error.message : t('common.error', 'Hata oluştu.'), 'error')
+    } finally {
+      setReviewDepartmentId('')
+      setSendingDepartmentReview(false)
+    }
+  }
+
   const handleShowTerminalNote = (entry: CitizenConversationTimelineEntry) => {
     const isCancelled = entry.relatedJobTerminalStatus === 'Cancelled'
     setConfirmDialog({
@@ -1255,6 +1271,16 @@ function ConversationDetail({
   }
 
   const activeDetail = detail?.citizenConversationId === conversationId ? detail : null
+  const reviewDepartmentOptions = useMemo(() => {
+    if (!activeDetail) return []
+    const seen = new Map<string, string>()
+    activeDetail.tickets.forEach(ticket => {
+      if (ticket.departmentId && ticket.departmentName && !seen.has(ticket.departmentId)) {
+        seen.set(ticket.departmentId, ticket.departmentName)
+      }
+    })
+    return Array.from(seen.entries()).map(([value, label]) => ({ value, label }))
+  }, [activeDetail])
   const openTicket = activeDetail ? pickReplyTicket(activeDetail.tickets) : undefined
   const primaryTicket = openTicket ?? activeDetail?.tickets[activeDetail.tickets.length - 1]
   const replySocialMessageId = activeDetail ? pickReplySocialMessageId(activeDetail) : undefined
@@ -1616,6 +1642,21 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
+                {reviewDepartmentOptions.length > 0 ? (
+                  <SingleSelectDropdown
+                    options={reviewDepartmentOptions}
+                    value={reviewDepartmentId}
+                    onChange={value => {
+                      setReviewDepartmentId(value)
+                      if (value) void handleSendDepartmentReview(value)
+                    }}
+                    placeholder={t('whatsapp.sendForDepartmentReview', 'Mesajı İncelemeye Gönder')}
+                    disabled={sending || sendingDepartmentReview}
+                    className="min-w-[11rem]"
+                    triggerClassName="inline-flex h-[2.125rem] min-w-[11rem] items-center rounded-full border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700"
+                    matchTriggerWidth
+                  />
+                ) : null}
                 </div>
                   </div>
                   <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />

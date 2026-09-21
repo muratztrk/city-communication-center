@@ -7,6 +7,7 @@ public interface IApplicationDbContext
     DbSet<Department> Departments { get; }
     DbSet<ApplicationUser> Users { get; }
     DbSet<CitizenConversation> CitizenConversations { get; }
+    DbSet<CitizenConversationDepartmentReview> CitizenConversationDepartmentReviews { get; }
     DbSet<WhatsAppMessageTemplate> WhatsAppTemplates { get; }
     DbSet<SocialMessage> SocialMessages { get; }
     DbSet<SocialConversationEntry> ConversationEntries { get; }

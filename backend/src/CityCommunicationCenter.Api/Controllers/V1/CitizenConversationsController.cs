@@ -69,6 +69,47 @@ public sealed class CitizenConversationsController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("{conversationId:guid}/send-for-department-review")]
+    [ProducesResponseType<CitizenConversationDepartmentReviewDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CitizenConversationDepartmentReviewDto>> SendForDepartmentReview(
+        Guid conversationId,
+        [FromBody] SendCitizenConversationForDepartmentReviewRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new SendCitizenConversationForDepartmentReviewCommand(
+                conversationId,
+                request.DepartmentId,
+                CurrentContext.UserId),
+            cancellationToken);
+        if (result is null) return NotFound();
+        return Ok(result);
+    }
+
+    [HttpGet("department-reviews/pending")]
+    [ProducesResponseType<IReadOnlyList<CitizenConversationDepartmentReviewDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<CitizenConversationDepartmentReviewDto>>> GetPendingDepartmentReviews(
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new GetCitizenConversationDepartmentReviewsQuery(CurrentContext.UserId),
+            cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("department-reviews/{reviewId:guid}/acknowledge")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AcknowledgeDepartmentReview(Guid reviewId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new AcknowledgeCitizenConversationDepartmentReviewCommand(reviewId, CurrentContext.UserId),
+            cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     [HttpPut("{conversationId:guid}/profile")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

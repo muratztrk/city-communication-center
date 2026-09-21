@@ -468,6 +468,74 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.ToTable("citizenconversations", (string)null);
                 });
 
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.CitizenConversationDepartmentReview", b =>
+                {
+                    b.Property<Guid>("ReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("reviewid");
+
+                    b.Property<DateTimeOffset?>("AcknowledgedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("acknowledgedatutc");
+
+                    b.Property<Guid>("CitizenConversationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("citizenconversationid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("departmentid");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("jobid");
+
+                    b.Property<DateTimeOffset>("RequestedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requestedatutc");
+
+                    b.Property<Guid>("RequestedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requestedbyuserid");
+
+                    b.Property<Guid>("SocialMessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("socialmessageid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.HasKey("ReviewId");
+
+                    b.HasIndex("CitizenConversationId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("TenantId", "CitizenConversationId", "DepartmentId");
+
+                    b.HasIndex("TenantId", "DepartmentId", "AcknowledgedAtUtc");
+
+                    b.ToTable("citizenconversationdepartmentreviews", (string)null);
+                });
+
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Department", b =>
                 {
                     b.Property<Guid>("DepartmentId")
@@ -2629,6 +2697,25 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.CitizenConversationDepartmentReview", b =>
+                {
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.CitizenConversation", "CitizenConversation")
+                        .WithMany()
+                        .HasForeignKey("CitizenConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CityCommunicationCenter.Domain.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CitizenConversation");
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Department", b =>

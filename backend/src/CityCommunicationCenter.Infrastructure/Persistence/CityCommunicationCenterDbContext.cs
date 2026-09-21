@@ -30,6 +30,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
     public DbSet<CitizenConversation> CitizenConversations => Set<CitizenConversation>();
+    public DbSet<CitizenConversationDepartmentReview> CitizenConversationDepartmentReviews => Set<CitizenConversationDepartmentReview>();
     public DbSet<WhatsAppMessageTemplate> WhatsAppTemplates => Set<WhatsAppMessageTemplate>();
     public DbSet<SocialMessage> SocialMessages => Set<SocialMessage>();
     public DbSet<SocialConversationEntry> ConversationEntries => Set<SocialConversationEntry>();
@@ -100,6 +101,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureDepartment(modelBuilder.Entity<Department>());
         ConfigureApplicationUser(modelBuilder.Entity<ApplicationUser>());
         ConfigureCitizenConversation(modelBuilder.Entity<CitizenConversation>());
+        ConfigureCitizenConversationDepartmentReview(modelBuilder.Entity<CitizenConversationDepartmentReview>());
         ConfigureWhatsAppMessageTemplate(modelBuilder.Entity<WhatsAppMessageTemplate>());
         ConfigureSocialMessage(modelBuilder.Entity<SocialMessage>());
         ConfigureSocialConversationEntry(modelBuilder.Entity<SocialConversationEntry>());
@@ -134,6 +136,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<Department>());
         ApplyTenantFilter(modelBuilder.Entity<ApplicationUser>());
         ApplyTenantFilter(modelBuilder.Entity<CitizenConversation>());
+        ApplyTenantFilter(modelBuilder.Entity<CitizenConversationDepartmentReview>());
         ApplyTenantFilter(modelBuilder.Entity<WhatsAppMessageTemplate>());
         ApplyTenantFilter(modelBuilder.Entity<SocialMessage>());
         ApplyTenantFilter(modelBuilder.Entity<Job>());
@@ -299,6 +302,22 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.HasOne(entity => entity.Tenant)
             .WithMany()
             .HasForeignKey(entity => entity.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureCitizenConversationDepartmentReview(
+        EntityTypeBuilder<CitizenConversationDepartmentReview> builder)
+    {
+        builder.ToTable("citizenconversationdepartmentreviews");
+        builder.HasKey(entity => entity.ReviewId);
+        builder.HasOne(entity => entity.CitizenConversation)
+            .WithMany()
+            .HasForeignKey(entity => entity.CitizenConversationId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(entity => entity.Department)
+            .WithMany()
+            .HasForeignKey(entity => entity.DepartmentId)
             .OnDelete(DeleteBehavior.Cascade);
         ApplyLowerCaseColumnNames(builder);
     }

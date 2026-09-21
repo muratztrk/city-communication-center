@@ -200,10 +200,10 @@ export function MyRequestTaskDetailsSection({
           const isCompletedTask = task.currentStatus === 'Completed'
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
           const isPendingCloseApproval = task.currentStatus === 'PendingCloseApproval'
-          const isPhoneCitizenTask = isCitizenRequestJob(detail) && detail.sourceChannel === 'Phone'
+          const isCitizenTask = isCitizenRequestJob(detail)
           const showPostCompleteCitizenFields = isCompletedTask
             || isCancelledTask
-            || (isPendingCloseApproval && isPhoneCitizenTask)
+            || (isPendingCloseApproval && isCitizenTask)
           const showCitizenApprover = !hideMessageApprovalPendingFields
             && isCitizenRequestJob(detail)
             && (isCompletedTask || isCancelledTask)
@@ -218,7 +218,7 @@ export function MyRequestTaskDetailsSection({
           const cancelNoteDisplay = task.revisionReason?.trim() || detail.cancelReason?.trim() || '—'
           // Operatör Sms Onayı task.Notes'u ezer; Tamamlama yöneticinin onay notu olmalı.
           // Released yokken canlı görev notuna ancak outbound yoksa (veya aynıysa) düş.
-          const completionNoteDisplay = (isCompletedTask || (isPendingCloseApproval && isPhoneCitizenTask))
+          const completionNoteDisplay = (isCompletedTask || (isPendingCloseApproval && isCitizenTask))
             ? (releasedPlain
               || (outboundPlain && notesDiffer(outboundPlain, taskNotesPlain) ? '—' : taskNotesPlain)
               || '—')
@@ -314,7 +314,7 @@ export function MyRequestTaskDetailsSection({
                           value: citizenApproverValue,
                         }]
                       : []),
-                    ...(isCompletedTask || (isPendingCloseApproval && isPhoneCitizenTask)
+                    ...(isCompletedTask || (isPendingCloseApproval && isCitizenTask)
                       ? [{
                           label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                           value: completionNoteDisplay,
@@ -340,7 +340,7 @@ export function MyRequestTaskDetailsSection({
                       && showPostCompleteCitizenFields
                       && (
                         (isCompletedTask || isCancelledTask) && task.taskId === primaryTerminalTaskId
-                        || (isPendingCloseApproval && isPhoneCitizenTask)
+                        || (isPendingCloseApproval && isCitizenTask)
                       )
                       ? [
                           {

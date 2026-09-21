@@ -1287,10 +1287,12 @@ function ConversationDetail({
     setConfirmDialog({
       title: t('whatsapp.departmentReviewConfirmTitle', 'İncelemeye Gönder'),
       titleDivider: true,
-      message: t(
-        'whatsapp.departmentReviewConfirmMessage',
-        'Bu mesaj incelenmek üzere seçim yapılan "{{department}}" birimine gönderilecek. Onaylıyor musunuz?',
-        { department: department.label },
+      message: (
+        <>
+          {t('whatsapp.departmentReviewConfirmPrefix', 'Bu mesaj incelenmek üzere ')}
+          <span className="font-semibold text-emerald-600">{department.label}</span>
+          {t('whatsapp.departmentReviewConfirmSuffix', "'ne gönderilecektir. Onaylıyor musunuz?")}
+        </>
       ),
       confirmLabel: t('common.confirm', 'Onayla'),
       variant: 'success',

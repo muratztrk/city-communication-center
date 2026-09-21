@@ -2382,13 +2382,9 @@ const pageKicker = isMyTasksView
                                 requestType: taskDetail.jobRequestType,
                                 sourceType: taskDetail.jobSourceType,
                               }) || Boolean(parentJobDetail && isCitizenRequestJob(parentJobDetail))
-                              const isPhoneCitizenTask = isCitizenTerminalTask && (
-                                citizenSourceMessage?.channel === 'Phone'
-                                || parentJobDetail?.sourceChannel === 'Phone'
-                              )
                               const showPostCompleteCitizenFields = isCompletedTask
                                 || isCancelledTask
-                                || (isPendingCloseApproval && isPhoneCitizenTask)
+                                || (isPendingCloseApproval && isCitizenTerminalTask)
                               if (!showPostCompleteCitizenFields) return []
                               const citizenParent = parentJobDetail && isCitizenTerminalTask ? parentJobDetail : null
                               const resolvedApproverName = citizenParent?.citizenMessageApproverDisplayName
@@ -2416,7 +2412,7 @@ const pageKicker = isMyTasksView
                                 || citizenParent?.cancelReason?.trim()
                                 || taskDetail.jobCancelReason?.trim()
                                 || '—'
-                              const completionNoteDisplay = (isCompletedTask || (isPendingCloseApproval && isPhoneCitizenTask))
+                              const completionNoteDisplay = (isCompletedTask || (isPendingCloseApproval && isCitizenTerminalTask))
                                 ? (releasedPlain
                                   || (outboundRaw && notesDiffer(outboundRaw, taskNotesPlain) ? '—' : taskNotesPlain)
                                   || '—')
@@ -2454,7 +2450,7 @@ const pageKicker = isMyTasksView
                                   value: citizenApproverValue,
                                 })
                               }
-                              if (isCompletedTask || (isPendingCloseApproval && isPhoneCitizenTask)) {
+                              if (isCompletedTask || (isPendingCloseApproval && isCitizenTerminalTask)) {
                                 rows.push({
                                   label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                                   value: completionNoteDisplay,

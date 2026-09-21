@@ -130,6 +130,35 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     }
 
     [Fact]
+    public async Task Phone_in_progress_sms_closing_is_not_citizen_outbound()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.Parse("2026-09-21T12:15:07+00:00");
+        var inProgressSms = """
+            Değerli vatandaşımız,
+
+            VT-2026-136 no'lu Asdasd talebinizin durumu "Yapılmakta".
+
+            Bilgi İşlem Müdürlüğü tarafından talebiniz yapılmaktadır.
+
+            Saygılarımızla
+            """;
+        db.AddRange(
+            BuildCompletedJob(jobId, releasedAt),
+            BuildCompletedTask(jobId, Guid.NewGuid(), "Www"),
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "Www", releasedAt));
+        await db.SaveChangesAsync();
+
+        var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
+        var outbound = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.Phone, Guid.NewGuid(), inProgressSms, CancellationToken.None);
+
+        Assert.Null(outbound);
+        Assert.Null(CitizenMessageApprovalNoteResolver.OmitCourtesyClosing("Saygılarımızla"));
+    }
+
+    [Fact]
     public void IsTerminalCitizenStatusOutboundBody_distinguishes_progress_from_terminal()
     {
         var inProgress = "VT-2026-99 no'lu Talep talebinizin durumu \"Yapılmakta\".\n\nSaygılarımızla";

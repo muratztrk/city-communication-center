@@ -51,7 +51,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
 import { printHtmlDocument } from '../utils/printDocument'
-import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, omitCourtesyClosing, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -2398,7 +2398,7 @@ const pageKicker = isMyTasksView
                                   ?? '',
                               ).trim()
                               const taskNotesPlain = richTextToPlainText(taskDetail.notes ?? '').trim()
-                              const outboundRaw = resolveCitizenOutboundDisplay({
+                              const outboundRaw = omitCourtesyClosing(resolveCitizenOutboundDisplay({
                                 citizenOutboundMessage: citizenParent?.citizenOutboundMessage
                                   ?? taskDetail.citizenOutboundMessage,
                                 citizenApprovalReleasedNote: citizenParent?.citizenApprovalReleasedNote
@@ -2407,7 +2407,7 @@ const pageKicker = isMyTasksView
                                 || stripAutoMessageNoteLabel(citizenParent?.citizenOutboundMessage)
                                 || richTextToPlainText(citizenParent?.citizenOutboundMessage ?? '').trim()
                                 || stripAutoMessageNoteLabel(taskDetail.citizenOutboundMessage)
-                                || richTextToPlainText(taskDetail.citizenOutboundMessage ?? '').trim()
+                                || richTextToPlainText(taskDetail.citizenOutboundMessage ?? '').trim())
                               const cancelNoteDisplay = taskDetail.revisionReason?.trim()
                                 || citizenParent?.cancelReason?.trim()
                                 || taskDetail.jobCancelReason?.trim()

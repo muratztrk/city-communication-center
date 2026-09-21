@@ -360,22 +360,28 @@ internal static class CitizenMessageApprovalNoteResolver
                 return null;
             }
 
+            // Çağrı: SocialMessages.ResponseContent son giden SMS'tir. Yapılmakta / İşleme Alındı
+            // gövdesi "Saygılarımızla" ile biter; bu kuyruk terminal mesaj değildir (VT-2026-136).
+            var isTerminalSms = IsTerminalCitizenStatusOutboundBody(responseContent);
+            var isCancelSms = job.Status is JobStatus.Cancelled or JobStatus.Rejected
+                && (isTerminalSms || HasCancelOutboundNoteLabel(responseContent));
+            if (!isTerminalSms && !isCancelSms)
+            {
+                return null;
+            }
+
             if (!string.IsNullOrWhiteSpace(lastPostReleaseEdit))
             {
-                return job.Status is JobStatus.Cancelled or JobStatus.Rejected
+                var edited = job.Status is JobStatus.Cancelled or JobStatus.Rejected
                     ? ExtractCancelledOutboundDisplayNote(lastPostReleaseEdit)
                     : StripAutoTemplateNoteLabel(lastPostReleaseEdit);
+                return OmitCourtesyClosing(edited);
             }
 
             var transmitted = job.Status is JobStatus.Cancelled or JobStatus.Rejected
                 ? ExtractCancelledOutboundDisplayNote(responseContent)
                 : ExtractTrailingTerminalNote(responseContent);
-            if (!string.IsNullOrWhiteSpace(transmitted))
-            {
-                return transmitted;
-            }
-
-            return null;
+            return OmitCourtesyClosing(transmitted);
         }
 
         if (channel == SocialChannel.WhatsApp)
@@ -617,6 +623,25 @@ internal static class CitizenMessageApprovalNoteResolver
     /// Otomatik mesaj şablonundaki "Yapılan İş:" / iptal etiketi yalnız WA/SMS gövdesinedir;
     /// Vatandaşa Giden Mesaj alanında notun kendisi kalır (#3270).
     /// </summary>
+    /// <summary>
+    /// Şablon kapanışı ("Saygılarımızla") vatandaş mesajı değildir (#VT-2026-99 / VT-2026-136).
+    /// </summary>
+    internal static string? OmitCourtesyClosing(string? note)
+    {
+        if (string.IsNullOrWhiteSpace(note))
+        {
+            return null;
+        }
+
+        var normalized = note.Trim().TrimEnd('.', '!', ' ').ToLower(System.Globalization.CultureInfo.GetCultureInfo("tr-TR"));
+        if (normalized is "saygılarımızla" or "saygılarla" or "iyi günler dileriz" or "iyi günler dileriz, saygılarımızla")
+        {
+            return null;
+        }
+
+        return note.Trim();
+    }
+
     internal static string StripAutoTemplateNoteLabel(string note)
     {
         var trimmed = note.Trim();

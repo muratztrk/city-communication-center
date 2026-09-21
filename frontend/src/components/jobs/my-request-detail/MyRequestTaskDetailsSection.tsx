@@ -16,7 +16,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldLabel, StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
-import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, omitCourtesyClosing, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
 
 interface MyRequestTaskDetailsSectionProps {
@@ -211,10 +211,10 @@ export function MyRequestTaskDetailsSection({
           const citizenApproverValue = citizenMessageApproverDisplayName?.trim() || '—'
           const releasedPlain = notePlain(citizenApprovalReleasedNote)
           const taskNotesPlain = notePlain(task.notes)
-          const outboundPlain = resolveCitizenOutboundDisplay({
+          const outboundPlain = omitCourtesyClosing(resolveCitizenOutboundDisplay({
             citizenOutboundMessage,
             citizenApprovalReleasedNote,
-          }) || stripAutoMessageNoteLabel(citizenOutboundMessage)
+          }) || stripAutoMessageNoteLabel(citizenOutboundMessage))
           const cancelNoteDisplay = task.revisionReason?.trim() || detail.cancelReason?.trim() || '—'
           // Operatör Sms Onayı task.Notes'u ezer; Tamamlama yöneticinin onay notu olmalı.
           // Released yokken canlı görev notuna ancak outbound yoksa (veya aynıysa) düş.

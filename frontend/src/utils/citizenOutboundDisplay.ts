@@ -20,13 +20,29 @@ export function stripAutoMessageNoteLabel(value?: string | null) {
   return plain
 }
 
+const COURTESY_CLOSINGS = new Set([
+  'saygılarımızla',
+  'saygılarla',
+  'iyi günler dileriz',
+  'iyi günler dileriz, saygılarımızla',
+])
+
+/** Şablon kapanışı vatandaş mesajı sayılmaz; alan Onay Bekleyen kalır (VT-2026-136). */
+export function omitCourtesyClosing(value?: string | null): string {
+  const text = notePlain(value).replace(/[.!\s]+$/u, '')
+  if (!text) return ''
+  return COURTESY_CLOSINGS.has(text.toLocaleLowerCase('tr')) ? '' : notePlain(value)
+}
+
 /** Detay popup: yalnız iletilmiş outbound; onay notuna düşülmez (#3552). */
 export function resolveCitizenOutboundDisplay(detail: {
   citizenOutboundMessage?: string | null
   citizenApprovalReleasedNote?: string | null
 }): string {
-  return stripAutoMessageNoteLabel(detail.citizenOutboundMessage)
-    || notePlain(detail.citizenOutboundMessage)
+  return omitCourtesyClosing(
+    stripAutoMessageNoteLabel(detail.citizenOutboundMessage)
+    || notePlain(detail.citizenOutboundMessage),
+  )
 }
 
 /** İletim yokken Detaylar değeri: açık mavi Onay Bekleyen; başlık yeşil olmaz (#3556). */

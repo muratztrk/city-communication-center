@@ -2186,7 +2186,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   release öncesi otomatik yanıtlar bu alanı doldurmaz (#3356 reopen). Aynı iletim zamanında
   birden fazla giden kayıt varsa `SentAt` ile en yeni önce; ara durum (Yapılmakta vb.) gövdeleri
   atlanır — yalnız `durumu "Tamamlandı"` / `"İptal"` içeren terminal mesajdan not çıkarılır
-  (#VT-2026-99; "Saygılarımızla" kuyruğu Vatandaşa Giden Mesaj olmaz). Release sonrası terminal
+  (#VT-2026-99; "Saygılarımızla" kuyruğu Vatandaşa Giden Mesaj olmaz). Çağrı/SMS'te
+  `ResponseContent` son ara durum (Yapılmakta) mesajıysa aynı kural: outbound boş kalır,
+  Tamamlama Notu görev/onay notudur, Vatandaşa Giden Mesaj mavi `Onay Bekleyen` (VT-2026-136). Release sonrası terminal
   WA balonu hâlâ **Pending** ise alan boş kalır; sonraki basın/otomatik yanıtlar veya release
   sonrası not düzenlemeleri bu alanı doldurmaz (#VT-2026-62).
   Tamamlama ile aynıysa yeşil, operatörün özelleştirdiği farklı metin kırmızı (#2557/#3084).

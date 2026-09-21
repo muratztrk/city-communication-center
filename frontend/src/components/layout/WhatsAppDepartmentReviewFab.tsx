@@ -98,7 +98,7 @@ export function WhatsAppDepartmentReviewFab() {
                 </button>
                 <button
                   type="button"
-                  className="text-[11px] font-semibold leading-tight text-orange-600 hover:text-orange-700 hover:underline"
+                  className="text-xs font-semibold leading-tight text-orange-600 hover:text-orange-700 hover:underline"
                   onClick={() => void markReviewsDone()}
                 >
                   {t('whatsapp.departmentReviewMarkDone', 'İncelendi Yap')}

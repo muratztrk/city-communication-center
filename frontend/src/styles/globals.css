@@ -2505,6 +2505,14 @@
     font-size: 0.75rem;
   }
 
+  .whatsapp-department-review-menu-scroll .dropdown-menu-item,
+  .whatsapp-department-review-menu-scroll .dropdown-menu-item span {
+    min-height: 1.85rem;
+    padding: 0.32rem 0.55rem;
+    font-size: 0.625rem !important;
+    line-height: 1.2;
+  }
+
   .citizen-request-priority-menu .dropdown-menu-item {
     font-size: 0.75rem;
   }

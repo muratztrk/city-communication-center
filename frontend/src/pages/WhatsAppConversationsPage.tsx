@@ -1295,6 +1295,7 @@ function ConversationDetail({
         </>
       ),
       confirmLabel: t('common.confirm', 'Onayla'),
+      messageClassName: 'text-justify',
       variant: 'success',
       onConfirm: () => void handleSendDepartmentReview(departmentId),
     })
@@ -1698,7 +1699,7 @@ function ConversationDetail({
                     disabled={sending || sendingDepartmentReview}
                     className="min-w-[11rem]"
                     triggerClassName="inline-flex h-[2.125rem] min-w-[11rem] items-center rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700"
-                    menuScrollClassName="text-[11px]"
+                    menuScrollClassName="whatsapp-department-review-menu-scroll"
                     matchTriggerWidth
                   />
                 ) : null}

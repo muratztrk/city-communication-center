@@ -1,6 +1,9 @@
 export const WHATSAPP_RE_ENGAGEMENT_WARNING =
   'Vatandaş son 24 saat içinde mesaj göndermediği için yalnızca Meta onaylı şablon mesaj gönderilebilir.'
 
+export const WHATSAPP_MARKETING_EXPERIMENT_WARNING =
+  "Bu numara, Meta'nın pazarlama mesajı deney grubunda yer aldığı için mesaj gönderimi kısıtlanmaktadır."
+
 export function isWhatsAppReEngagementError(error: string | null | undefined): boolean {
   return error?.toLocaleLowerCase('tr').includes('re-engagement') ?? false
 }
@@ -13,6 +16,14 @@ export function formatWhatsAppDeliveryError(error: string | null | undefined): s
 
   if (lower.includes('re-engagement')) {
     return WHATSAPP_RE_ENGAGEMENT_WARNING
+  }
+
+  if (
+    lower.includes('130472')
+    || lower.includes('part of an experiment')
+    || lower.includes('marketing message experiment')
+  ) {
+    return WHATSAPP_MARKETING_EXPERIMENT_WARNING
   }
 
   if (lower.includes('phone number is malformed') || lower.includes('malformed')) {

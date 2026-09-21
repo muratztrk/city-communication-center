@@ -680,6 +680,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   daha yüksek `py-1.5` pill görünümünü ve gönderim sırasında pasif (`disabled`, opacity + not-allowed cursor)
   durumunu korur. Gönderim başarısız olsa bile API 204 döner, konuşma refresh olur ve balon
   `Failed`="İletilemedi" gösterir; 404 sadece mesaj/entry bulunamadığında döner.
+- **Meta pazarlama deney grubu hatası (#6aa917e4):** `deliveryerror` içinde `130472` veya
+  `part of an experiment` geçtiğinde ham İngilizce metin gösterilmez; BE/FE formatlayıcı
+  *"Bu numara, Meta'nın pazarlama mesajı deney grubunda yer aldığı için mesaj gönderimi
+  kısıtlanmaktadır."* döndürür. CCC hatası değil — Meta platform reddi; retry aynı sonucu verir.
 - **WhatsApp konuşma balonu sender label:** personel adı soyadı kısaltılmaz; backend `FormatStaffLabel`
   tam `DisplayName` yazar. Frontend eski `Dept / Name` biçimini `Dept · Name` yapar ve eski
   `Vatandaş O.` kayıtlarını `Vatandaş Operatörü` olarak gösterir.

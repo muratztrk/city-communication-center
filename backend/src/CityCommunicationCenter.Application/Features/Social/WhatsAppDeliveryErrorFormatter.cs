@@ -9,6 +9,10 @@ internal static class WhatsAppDeliveryErrorFormatter
     public const string ReEngagementWarning =
         "Vatandaş son 24 saat içinde mesaj göndermediği için yalnızca Meta onaylı şablon mesaj gönderilebilir.";
 
+    /// <summary>Meta hata kodu 130472 — alıcı pazarlama mesajı deney grubunda (#6aa917e4).</summary>
+    public const string MarketingExperimentWarning =
+        "Bu numara, Meta'nın pazarlama mesajı deney grubunda yer aldığı için mesaj gönderimi kısıtlanmaktadır.";
+
     /// <summary>DB <c>DeliveryError</c> (max 500) için formatlanmış, kısaltılmış metin.</summary>
     public static string? StoreValue(string? error)
     {
@@ -36,6 +40,11 @@ internal static class WhatsAppDeliveryErrorFormatter
         if (lower.Contains("re-engagement", StringComparison.Ordinal))
         {
             return ReEngagementWarning;
+        }
+
+        if (IsMarketingExperimentError(lower))
+        {
+            return MarketingExperimentWarning;
         }
 
         if (lower.Contains("phone number is malformed", StringComparison.Ordinal)
@@ -78,4 +87,9 @@ internal static class WhatsAppDeliveryErrorFormatter
 
         return normalized;
     }
+
+    private static bool IsMarketingExperimentError(string lower) =>
+        lower.Contains("130472", StringComparison.Ordinal)
+        || lower.Contains("part of an experiment", StringComparison.Ordinal)
+        || lower.Contains("marketing message experiment", StringComparison.Ordinal);
 }

@@ -1,3 +1,11 @@
+## Round 1268 — Trello Doing (2 web, 1 mobil atlandı)
+
+- **#6aa917e4:** Meta pazarlama deney grubu (`130472` / `part of an experiment`) `deliveryerror` metni
+  Türkçeye çevrildi — BE `WhatsAppDeliveryErrorFormatter` + FE `formatWhatsAppDeliveryError`.
+- **#6aaf7d54 reopen:** Mobil Uygulama Yetki modül kartları layout genişliğinin yarısı (`repeat(2, 1fr)`);
+  `<900px` tek sütun.
+- **Atlandı Doing'de:** `Tim mobil app de…` geciken talep drilldown (#6aa297c2) — `ccc_mobile`.
+
 ## Round 1267 — Trello Doing (4 kart: 1 BE medya arşivi, 3 web)
 
 - **#6aac5ca5:** Gelen WA medyası webhook anında `uploads/` altına arşivlenir

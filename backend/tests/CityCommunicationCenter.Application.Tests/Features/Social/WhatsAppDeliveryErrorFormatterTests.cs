@@ -16,6 +16,15 @@ public sealed class WhatsAppDeliveryErrorFormatterTests
     }
 
     [Fact]
+    public void StoreValue_formats_marketing_experiment_error()
+    {
+        var stored = WhatsAppDeliveryErrorFormatter.StoreValue(
+            "User's number is part of an experiment");
+
+        Assert.Equal(WhatsAppDeliveryErrorFormatter.MarketingExperimentWarning, stored);
+    }
+
+    [Fact]
     public void StoreValue_truncates_very_long_plain_text()
     {
         var stored = WhatsAppDeliveryErrorFormatter.StoreValue(new string('x', 900));

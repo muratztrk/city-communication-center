@@ -2516,12 +2516,24 @@
 
   .whatsapp-review-dept-pending-badge {
     position: static;
-    width: 0.875rem;
-    height: 0.875rem;
-    min-width: 0.875rem;
+    width: 0.6875rem;
+    height: 0.6875rem;
+    min-width: 0.6875rem;
     border-width: 1px;
-    font-size: 0.5rem;
+    font-size: 0.4375rem;
     box-shadow: none;
+  }
+
+  .whatsapp-review-dept-select {
+    flex: 0 1 auto;
+    min-width: 6.5rem;
+    max-width: 11rem;
+  }
+
+  .whatsapp-review-dept-trigger {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .whatsapp-review-send-badge {
@@ -8107,8 +8119,8 @@
   .notification-bell-badge {
     pointer-events: none;
     position: absolute;
-    right: 0.12rem;
-    top: -0.38rem;
+    right: -0.2rem;
+    top: -0.45rem;
     z-index: 30;
     display: flex;
     height: 1.05rem;
@@ -8748,9 +8760,34 @@
     }
 
     .whatsapp-composer-toolbar {
-      flex-wrap: nowrap !important;
+      flex-wrap: wrap !important;
       width: 100%;
       gap: 0.35rem !important;
+      align-items: center;
+    }
+
+    .whatsapp-review-dept-select {
+      flex: 1 1 6.5rem;
+      min-width: 5.5rem;
+      max-width: 100%;
+    }
+
+    .whatsapp-review-dept-select,
+    .whatsapp-review-dept-select button {
+      height: 2.125rem !important;
+      min-height: 2.125rem !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      padding-inline: 0.55rem !important;
+      font-size: 0.625rem !important;
+      line-height: 1.1 !important;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .whatsapp-review-dept-select button svg {
+      width: 0.7rem !important;
+      height: 0.7rem !important;
     }
 
     .whatsapp-template-row {

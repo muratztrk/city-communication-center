@@ -1701,8 +1701,9 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
+                </div>
                 {reviewDepartmentOptions.length > 0 ? (
-                  <div className="relative min-w-[11rem]">
+                  <div className="whatsapp-review-dept-select relative min-w-0 max-w-full shrink">
                     <SingleSelectDropdown
                       options={reviewDepartmentOptions}
                       value={reviewDepartmentId}
@@ -1711,8 +1712,8 @@ function ConversationDetail({
                       }}
                       placeholder={t('whatsapp.sendForDepartmentReview', 'Mesajı İncelemeye Gönder')}
                       disabled={sending || sendingDepartmentReview}
-                      className="min-w-[11rem]"
-                      triggerClassName="inline-flex h-[2.125rem] min-w-[11rem] items-center rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700"
+                      className="min-w-0 max-w-full"
+                      triggerClassName="whatsapp-review-dept-trigger inline-flex h-[2.125rem] w-full min-w-0 max-w-full items-center rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700"
                       menuScrollClassName="whatsapp-department-review-menu-scroll"
                       matchTriggerWidth
                     />
@@ -1726,7 +1727,6 @@ function ConversationDetail({
                     ) : null}
                   </div>
                 ) : null}
-                </div>
                   </div>
                   <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />
                 </div>

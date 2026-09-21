@@ -88,6 +88,8 @@ export interface MyRequestDetailModalProps {
   operatorSocialEdit?: boolean
   /** İade edilen talep detayında Talep Bilgileri alan düzeni (#3686). */
   returnedRequestDetail?: boolean
+  /** VT Düzenle: yalnız İşleme Alındı (görev yok) başlık/açıklama (#6ab120c). */
+  canEditSocialTitleDescription?: boolean
 }
 
 export function MyRequestDetailModal({
@@ -154,6 +156,7 @@ export function MyRequestDetailModal({
   citizenApprovalReleasedNote,
   operatorSocialEdit = false,
   returnedRequestDetail = false,
+  canEditSocialTitleDescription = false,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
   const outboundMessage = citizenOutboundMessage ?? detail.citizenOutboundMessage
@@ -225,6 +228,7 @@ export function MyRequestDetailModal({
           citizenOutboundEditorDisplayName={detail.citizenOutboundEditorDisplayName}
           operatorSocialEdit={operatorSocialEdit}
           returnedRequestDetail={returnedRequestDetail}
+          canEditSocialTitleDescription={canEditSocialTitleDescription}
           infoExtraTrailingRows={isStandardUser && !forceCitizenDetailCards ? [
             ...(showManagerNoteColumn && detail.managerNote?.trim()
               ? [{

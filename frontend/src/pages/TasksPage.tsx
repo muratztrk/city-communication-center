@@ -2377,11 +2377,19 @@ const pageKicker = isMyTasksView
                             ...(() => {
                               const isCompletedTask = taskDetail.currentStatus === 'Completed'
                               const isCancelledTask = taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected'
-                              if (!isCompletedTask && !isCancelledTask) return []
+                              const isPendingCloseApproval = taskDetail.currentStatus === 'PendingCloseApproval'
                               const isCitizenTerminalTask = isCitizenRequestJob({
                                 requestType: taskDetail.jobRequestType,
                                 sourceType: taskDetail.jobSourceType,
                               }) || Boolean(parentJobDetail && isCitizenRequestJob(parentJobDetail))
+                              const isPhoneCitizenTask = isCitizenTerminalTask && (
+                                citizenSourceMessage?.channel === 'Phone'
+                                || parentJobDetail?.sourceChannel === 'Phone'
+                              )
+                              const showPostCompleteCitizenFields = isCompletedTask
+                                || isCancelledTask
+                                || (isPendingCloseApproval && isPhoneCitizenTask)
+                              if (!showPostCompleteCitizenFields) return []
                               const citizenParent = parentJobDetail && isCitizenTerminalTask ? parentJobDetail : null
                               const resolvedApproverName = citizenParent?.citizenMessageApproverDisplayName
                                 ?? taskDetail.citizenMessageApproverDisplayName
@@ -2408,7 +2416,7 @@ const pageKicker = isMyTasksView
                                 || citizenParent?.cancelReason?.trim()
                                 || taskDetail.jobCancelReason?.trim()
                                 || '—'
-                              const completionNoteDisplay = isCompletedTask
+                              const completionNoteDisplay = (isCompletedTask || (isPendingCloseApproval && isPhoneCitizenTask))
                                 ? (releasedPlain
                                   || (outboundRaw && notesDiffer(outboundRaw, taskNotesPlain) ? '—' : taskNotesPlain)
                                   || '—')
@@ -2446,13 +2454,13 @@ const pageKicker = isMyTasksView
                                   value: citizenApproverValue,
                                 })
                               }
-                              if (isCompletedTask) {
+                              if (isCompletedTask || (isPendingCloseApproval && isPhoneCitizenTask)) {
                                 rows.push({
                                   label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                                   value: completionNoteDisplay,
                                   tone: 'completion',
                                 })
-                              } else {
+                              } else if (isCancelledTask) {
                                 rows.push({
                                   label: t('tasks.detail.cancelNote', 'İptal Notu'),
                                   value: cancelNoteDisplay,

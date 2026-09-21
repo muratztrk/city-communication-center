@@ -4663,20 +4663,30 @@
 
   /* Her modül kartı layout genişliğinin yarısı (#6aaf7d54 reopen — kutucuk genişliği). */
   .mobile-permission-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
     gap: 1rem;
   }
 
+  .mobile-permission-grid > .mobile-permission-card {
+    flex: 0 0 calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
+    min-width: min(100%, 18rem);
+  }
+
   @media (max-width: 900px) {
-    .mobile-permission-grid {
-      grid-template-columns: minmax(0, 1fr);
+    .mobile-permission-grid > .mobile-permission-card {
+      flex-basis: 100%;
+      max-width: 100%;
     }
   }
 
   /* Kaydet satırı kart sütunlarının altında tam genişlikte durur (#6aaf7d54). */
-  .mobile-permission-grid > .settings-roles-actions {
-    grid-column: 1 / -1;
+  .mobile-permission-grid > .settings-roles-actions,
+  .mobile-permission-grid > .empty-state-card {
+    flex: 1 1 100%;
+    max-width: 100%;
   }
 
   .mobile-permission-card {
@@ -4688,6 +4698,7 @@
     border-radius: var(--radius-xl);
     background: #fff;
     padding: 1rem;
+    box-sizing: border-box;
   }
 
   .mobile-permission-card__header h3 {

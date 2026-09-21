@@ -877,6 +877,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const isReturnedRequestDetail = detailContext === 'returned'
   const operatorReturnedEdit = isReturnedRequestDetail && user?.role === 'Operator'
   const operatorCitizenListEdit = operatorSocialEdit || operatorReturnedEdit
+  const canEditSocialTitleDescription = operatorSocialEdit
+    && detail != null
+    && detail.status === 'Active'
+    && (detail.tasks?.length ?? 0) === 0
   const incomingStatusFilter = searchParams.get('status') ?? 'pending-approval'
   const hideIncomingApproveCancelByView = isIncomingRequestDetail
     && (incomingStatusFilter === 'in-progress' || incomingStatusFilter === 'approved')
@@ -1759,7 +1763,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       const resolvedCoordinates = operatorCitizenListEdit && myRequestEditDraft.coordinates.trim()
         ? await resolveGoogleMapsCoordinatePair(myRequestEditDraft.coordinates)
         : null
-      const lockReturnedTitleDescription = operatorCitizenListEdit && !isReturnedRequestDetail
+      const lockReturnedTitleDescription = operatorCitizenListEdit
+        && !isReturnedRequestDetail
+        && !canEditSocialTitleDescription
       await api.updateJob(detail.jobId, {
         title: lockReturnedTitleDescription ? detail.title : myRequestEditDraft.title.trim(),
         description: lockReturnedTitleDescription ? (detail.description ?? '') : myRequestEditDraft.description,
@@ -2883,6 +2889,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
               operatorSocialEdit={operatorCitizenListEdit}
               returnedRequestDetail={isReturnedRequestDetail}
+              canEditSocialTitleDescription={canEditSocialTitleDescription}
             />
           ) : (
           <section

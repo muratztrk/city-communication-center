@@ -571,7 +571,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
           notificationJobId={detailJobId}
           detailContextOverride="incoming"
           onNotificationDetailClose={() => setDetailJobId(null)}
-          hideMessageApprovalPendingFields={scope === 'toSend'}
+          hideMessageApprovalPendingFields={scope === 'toSend' && !isSms}
           showRequestInfoCitizenOutbound
           messageApprovalActions={scope === 'toSend'
             ? {

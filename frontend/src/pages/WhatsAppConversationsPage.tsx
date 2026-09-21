@@ -849,6 +849,16 @@ function ConversationDetail({
   const canSendPending = user?.role === 'Operator' || user?.role === 'SystemAdmin'
   const pendingSenderLabel = formatStaffSenderLabel(user?.departmentName, user?.displayName)
   const [detail, setDetail] = useState<CitizenConversationDetail | null>(null)
+  const [reviewMenuMatchTrigger, setReviewMenuMatchTrigger] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches,
+  )
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 1023px)')
+    const sync = () => setReviewMenuMatchTrigger(mediaQuery.matches)
+    sync()
+    mediaQuery.addEventListener('change', sync)
+    return () => mediaQuery.removeEventListener('change', sync)
+  }, [])
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
   const [selectedMetaTemplate, setSelectedMetaTemplate] = useState<{ name: string; language: string; templateId?: string } | null>(null)
@@ -1716,7 +1726,7 @@ function ConversationDetail({
                       triggerClassName="whatsapp-review-dept-trigger inline-flex h-[2.125rem] w-full min-w-0 max-w-full items-center rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700"
                       menuScrollClassName="whatsapp-department-review-menu-scroll"
                       matchTriggerWidth
-                      menuWidthExtraPx={24}
+                      menuWidthExtraPx={reviewMenuMatchTrigger ? 0 : 24}
                       menuExpand="right"
                     />
                     {(detail?.pendingDepartmentReviewCount ?? 0) > 0 ? (

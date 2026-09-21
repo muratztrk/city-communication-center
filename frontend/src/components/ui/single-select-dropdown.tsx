@@ -162,7 +162,8 @@ export function SingleSelectDropdown({
         top: menuStyle.top,
         bottom: menuStyle.bottom,
         width: menuStyle.width,
-        minWidth: menuStyle.minWidth,
+        maxWidth: menuStyle.width,
+        minWidth: menuStyle.width ?? menuStyle.minWidth,
       }
     : {
         left: 0,

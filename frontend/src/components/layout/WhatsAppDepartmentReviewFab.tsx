@@ -73,7 +73,7 @@ export function WhatsAppDepartmentReviewFab() {
       titleDivider: true,
       message: t(
         'whatsapp.departmentReviewMarkDoneConfirmMessage',
-        'Mesaj incelemesini tamamladığınızı onaylıyor musunuz?',
+        'Mesajı incelediğinizi onaylıyor musunuz?',
       ),
       confirmLabel: t('common.confirm', 'Onayla'),
       variant: 'success',

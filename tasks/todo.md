@@ -1,3 +1,8 @@
+## Round 1289 — Trello Doing (2 web)
+
+- **#6ab19450:** mobil (`≤1023px`) inceleme paneli dropdown ile aynı genişlikte; +24px yalnız masaüstü.
+- **#6ab19108 reopen:** onay metni `Mesajı incelediğinizi onaylıyor musunuz?`
+
 ## Round 1288 — Trello Doing (3 web)
 
 - **#6ab19108:** İncelemeyi Onayla metni `Mesaj incelemesini tamamladığınızı onaylıyor musunuz?`

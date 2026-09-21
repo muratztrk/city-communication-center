@@ -2506,10 +2506,13 @@
   }
 
   .whatsapp-department-review-menu-scroll .dropdown-menu-item {
-    min-height: 1.42rem;
-    padding: 0.14rem 0.35rem 0.14rem 0.28rem;
+    /* min-height rozetten (1.125rem) küçük kaldığı için satırı büyütmüyordu;
+       yükseklik dikey padding ile artar. */
+    min-height: 1.85rem !important;
+    padding: 0.32rem 0.4rem 0.32rem 0.32rem !important;
     font-size: 0.6875rem !important;
-    line-height: 1.12;
+    line-height: 1.2;
+    align-items: center;
   }
 
   .whatsapp-department-review-menu-scroll .dropdown-menu-item > span:first-child {

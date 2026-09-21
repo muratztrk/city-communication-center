@@ -1717,7 +1717,7 @@ function ConversationDetail({
                       menuScrollClassName="whatsapp-department-review-menu-scroll"
                       matchTriggerWidth
                       menuWidthExtraPx={24}
-                      menuExpand="left"
+                      menuExpand="right"
                     />
                     {(detail?.pendingDepartmentReviewCount ?? 0) > 0 ? (
                       <span

@@ -1331,7 +1331,11 @@ function ConversationDetail({
       value,
       label,
       leading: pendingReviewDeptIds.has(value)
-        ? <span className="whatsapp-review-dept-pending-dot" aria-hidden="true" />
+        ? (
+          <span className="whatsapp-fab-badge whatsapp-review-dept-pending-badge shrink-0" aria-hidden="true">
+            1
+          </span>
+        )
         : undefined,
     }))
   }, [activeDetail])

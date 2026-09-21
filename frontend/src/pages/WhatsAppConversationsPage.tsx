@@ -1332,7 +1332,7 @@ function ConversationDetail({
       label,
       leading: pendingReviewDeptIds.has(value)
         ? (
-          <span className="whatsapp-fab-badge whatsapp-review-dept-pending-badge shrink-0" aria-hidden="true">
+          <span className="whatsapp-review-dept-pending-badge shrink-0" aria-hidden="true">
             1
           </span>
         )
@@ -1719,7 +1719,7 @@ function ConversationDetail({
                     />
                     {(detail?.pendingDepartmentReviewCount ?? 0) > 0 ? (
                       <span
-                        className={`whatsapp-fab-badge whatsapp-review-send-badge pointer-events-none absolute -right-0.5 ${formatBadgeCount(detail?.pendingDepartmentReviewCount ?? 0).length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}
+                        className={`whatsapp-fab-badge whatsapp-review-send-badge pointer-events-none absolute ${formatBadgeCount(detail?.pendingDepartmentReviewCount ?? 0).length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}
                         aria-hidden="true"
                       >
                         {formatBadgeCount(detail?.pendingDepartmentReviewCount ?? 0)}

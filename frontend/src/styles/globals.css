@@ -2507,11 +2507,25 @@
 
   .whatsapp-department-review-menu-scroll .dropdown-menu-item,
   .whatsapp-department-review-menu-scroll .dropdown-menu-item span {
-    min-height: 1.55rem;
-    padding: 0.2rem 0.4rem 0.2rem 0.35rem;
+    min-height: 1.42rem;
+    padding: 0.14rem 0.35rem 0.14rem 0.28rem;
     font-size: 0.6875rem !important;
-    line-height: 1.15;
+    line-height: 1.12;
     justify-content: flex-start;
+  }
+
+  .whatsapp-review-dept-pending-dot {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: #dc2626;
+    box-shadow: 0 0 0 1px #fff;
+  }
+
+  .whatsapp-review-send-badge {
+    top: -0.65rem;
   }
 
   .citizen-request-priority-menu .dropdown-menu-item {
@@ -8093,7 +8107,7 @@
   .notification-bell-badge {
     pointer-events: none;
     position: absolute;
-    right: -0.2rem;
+    right: -0.05rem;
     top: -0.38rem;
     z-index: 30;
     display: flex;

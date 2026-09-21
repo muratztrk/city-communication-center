@@ -687,6 +687,7 @@ export interface CitizenConversationDetail {
   timeline: CitizenConversationTimelineEntry[];
   tickets: CitizenConversationTicket[];
   pendingDepartmentReviewCount?: number;
+  pendingDepartmentReviewDepartmentIds?: string[];
 }
 
 export interface WhatsAppMessageTemplate {

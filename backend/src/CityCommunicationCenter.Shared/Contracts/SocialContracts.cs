@@ -268,7 +268,8 @@ public sealed record CitizenConversationDetailDto(
     DateTimeOffset? LastInboundAt,
     IReadOnlyList<CitizenConversationTimelineEntryDto> Timeline,
     IReadOnlyList<CitizenConversationTicketDto> Tickets,
-    int PendingDepartmentReviewCount = 0);
+    int PendingDepartmentReviewCount = 0,
+    IReadOnlyList<Guid>? PendingDepartmentReviewDepartmentIds = null);
 
 public sealed record UpdateCitizenConversationProfileRequest(
     string? CitizenName,

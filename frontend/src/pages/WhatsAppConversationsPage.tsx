@@ -1320,13 +1320,20 @@ function ConversationDetail({
   const activeDetail = detail?.citizenConversationId === conversationId ? detail : null
   const reviewDepartmentOptions = useMemo(() => {
     if (!activeDetail) return []
+    const pendingReviewDeptIds = new Set(activeDetail.pendingDepartmentReviewDepartmentIds ?? [])
     const seen = new Map<string, string>()
     activeDetail.tickets.forEach(ticket => {
       if (ticket.departmentId && ticket.departmentName && !seen.has(ticket.departmentId)) {
         seen.set(ticket.departmentId, ticket.departmentName)
       }
     })
-    return Array.from(seen.entries()).map(([value, label]) => ({ value, label }))
+    return Array.from(seen.entries()).map(([value, label]) => ({
+      value,
+      label,
+      leading: pendingReviewDeptIds.has(value)
+        ? <span className="whatsapp-review-dept-pending-dot" aria-hidden="true" />
+        : undefined,
+    }))
   }, [activeDetail])
   const openTicket = activeDetail ? pickReplyTicket(activeDetail.tickets) : undefined
   const primaryTicket = openTicket ?? activeDetail?.tickets[activeDetail.tickets.length - 1]
@@ -1707,7 +1714,7 @@ function ConversationDetail({
                     />
                     {(detail?.pendingDepartmentReviewCount ?? 0) > 0 ? (
                       <span
-                        className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${formatBadgeCount(detail?.pendingDepartmentReviewCount ?? 0).length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}
+                        className={`whatsapp-fab-badge whatsapp-review-send-badge pointer-events-none absolute -right-0.5 ${formatBadgeCount(detail?.pendingDepartmentReviewCount ?? 0).length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}
                         aria-hidden="true"
                       >
                         {formatBadgeCount(detail?.pendingDepartmentReviewCount ?? 0)}

@@ -373,13 +373,14 @@ public sealed class GetCitizenConversationDetailQueryHandler
             }
         }
 
-        var pendingDepartmentReviewCount = await _dbContext.CitizenConversationDepartmentReviews
+        var pendingDepartmentReviewDepartmentIds = await _dbContext.CitizenConversationDepartmentReviews
             .AsNoTracking()
-            .CountAsync(
-                review => review.TenantId == tenantId
-                    && review.CitizenConversationId == request.CitizenConversationId
-                    && review.AcknowledgedAtUtc == null,
-                cancellationToken);
+            .Where(review => review.TenantId == tenantId
+                && review.CitizenConversationId == request.CitizenConversationId
+                && review.AcknowledgedAtUtc == null)
+            .Select(review => review.DepartmentId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
 
         return new CitizenConversationDetailDto(
             conversation.CitizenConversationId,
@@ -400,7 +401,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
             lastInboundAt,
             timeline,
             tickets,
-            pendingDepartmentReviewCount);
+            pendingDepartmentReviewDepartmentIds.Count,
+            pendingDepartmentReviewDepartmentIds);
     }
 
     /// <summary>

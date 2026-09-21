@@ -1330,9 +1330,9 @@ function ConversationDetail({
     return Array.from(seen.entries()).map(([value, label]) => ({
       value,
       label,
-      leading: pendingReviewDeptIds.has(value)
+      trailing: pendingReviewDeptIds.has(value)
         ? (
-          <span className="whatsapp-review-dept-pending-badge shrink-0" aria-hidden="true">
+          <span className="whatsapp-fab-badge whatsapp-review-dept-row-badge shrink-0" aria-hidden="true">
             1
           </span>
         )

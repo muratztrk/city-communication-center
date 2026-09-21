@@ -2505,36 +2505,30 @@
     font-size: 0.75rem;
   }
 
-  .whatsapp-department-review-menu-scroll .dropdown-menu-item,
-  .whatsapp-department-review-menu-scroll .dropdown-menu-item span {
+  .whatsapp-department-review-menu-scroll .dropdown-menu-item {
     min-height: 1.42rem;
     padding: 0.14rem 0.35rem 0.14rem 0.28rem;
     font-size: 0.6875rem !important;
     line-height: 1.12;
+  }
+
+  .whatsapp-department-review-menu-scroll .dropdown-menu-item > span:first-child {
     justify-content: flex-start;
+    font-size: 0.6875rem !important;
+    line-height: 1.12;
   }
 
-  .whatsapp-department-review-menu-scroll .dropdown-menu-item > span {
-    gap: 0.3rem;
-    align-items: center;
-  }
-
-  .whatsapp-review-dept-pending-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 0.4375rem;
-    height: 0.4375rem;
-    min-width: 0.4375rem;
+  .whatsapp-department-review-menu-scroll .dropdown-menu-item > span:last-child {
     padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: #dc2626;
-    color: #fff;
-    font-size: 0.3125rem;
-    font-weight: 800;
-    line-height: 1;
+    min-height: 0;
+  }
+
+  .whatsapp-review-dept-row-badge {
+    position: static;
+    flex-shrink: 0;
+    min-height: 0 !important;
+    padding: 0 !important;
+    font-size: 0.625rem !important;
     box-shadow: none;
   }
 

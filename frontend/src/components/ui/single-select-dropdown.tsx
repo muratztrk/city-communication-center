@@ -11,6 +11,8 @@ export interface SingleSelectOption {
   triggerLabel?: string
   /** Satır/tetikleyici sol görseli (bayrak — #3576). */
   leading?: ReactNode
+  /** Açılan panel satırının sağ görseli (WA inceleme rozeti — #3785). */
+  trailing?: ReactNode
 }
 
 interface SingleSelectDropdownProps {
@@ -208,11 +210,14 @@ export function SingleSelectDropdown({
                   setSearch('')
                 }}
               >
-                <span className="flex min-w-0 items-center gap-2">
+                <span className="flex min-w-0 flex-1 items-center gap-2">
                   {option.leading}
                   <span className="min-w-0 truncate">{option.label}</span>
                 </span>
-                {checked ? <Check className="size-4 shrink-0" /> : null}
+                <span className="flex shrink-0 items-center gap-1">
+                  {option.trailing}
+                  {checked ? <Check className="size-4 shrink-0" /> : null}
+                </span>
               </button>
             )
           })}

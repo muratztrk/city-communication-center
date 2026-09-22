@@ -1,3 +1,7 @@
+## Round 1298 — Trello Doing (1 web)
+
+- **#6ab2627f:** İncelendi Yap sonrası aynı `Mesaj incelendi` kaydı, incelemeye gönderen Vatandaş Talep Operatörünün ziline de düşer.
+
 ## Round 1297 — Trello Doing (3 web)
 
 - **#6ab25e9f:** İnceleme balonu yalnız hedef birimin müdür, sorumlu ve VTY’sinde.

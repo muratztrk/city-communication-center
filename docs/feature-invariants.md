@@ -546,8 +546,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   satır talep Detaylar popup + üstte Yazışmaya Git açar. FAB yalnız panelde turuncu `İncelendi Yap`
   ile kapanır (okuma FAB'ı düşürmez). Müdür, sorumlu ve o birimdeki VTY için düğme `İncelendi Yap`tır;
   `Bildirimi Temizle` bu üçünde kullanılmaz (#6ab25af6). Onay `AcknowledgedAtUtc` yazar ve üçünün balonundan da düşer.
-  Aynı onay, bu üç kişinin zil listesine `Mesaj incelendi` yazar; metin `{Birim} {{kullanıcı}} tarafından mesaj incelemesi tamamlandı.`
-  ve kullanıcı adı yeşildir (#6ab25b70). Sağ üst köşe uyarısı çıkmaz (#6ab23883).
+  Aynı onay, bu üç kişinin ve incelemeye gönderen Vatandaş Talep Operatörünün zil listesine `Mesaj incelendi` yazar (#6ab2627f);
+  metin `{Birim} {{kullanıcı}} tarafından mesaj incelemesi tamamlandı.` ve kullanıcı adı yeşildir (#6ab25b70).
+  Sağ üst köşe uyarısı çıkmaz (#6ab23883).
   Personel (Staff) bu inceleme bildirimini görmez.
   Baloncuk panelindeki `İncelendi Yap` onay popup'ı ister: başlık `İncelemeyi Onayla` + alt çizgi,
   metin `Mesajı incelediğinizi onaylıyor musunuz?` (#6ab19108); `Onayla` acknowledge eder (#6ab18bd1).

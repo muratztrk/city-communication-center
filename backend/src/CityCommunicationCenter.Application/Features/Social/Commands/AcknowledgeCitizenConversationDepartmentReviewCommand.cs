@@ -143,6 +143,7 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
 
     /// <summary>
     /// İncelendi Yap, hedef birimin müdür, vekil, sorumlu ve VTY ziline düşer.
+    /// Aynı kayıt incelemeye gönderen Vatandaş Talep Operatörünün ziline de yazılır (#6ab2627f).
     /// Metin: birim + basan kullanıcı. Köşe uyarısı çıkmaz (#6ab23883, #6ab25b70).
     /// </summary>
     private async Task<IReadOnlyList<Notification>> CreateReviewedNotificationsAsync(
@@ -184,6 +185,7 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             .AsNoTracking()
             .Where(user => user.TenantId == tenantId && user.IsActive && (
                 user.DepartmentId == review.DepartmentId
+                || user.UserId == review.RequestedByUserId
                 || recipientIds.Contains(user.UserId)
                 || assignedUserIds.Contains(user.UserId)))
             .Select(user => new
@@ -202,6 +204,11 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
         {
             var inDepartment = user.DepartmentId == review.DepartmentId || assignedUserIds.Contains(user.UserId);
             if (inDepartment && UserRoleAccess.IsCitizenRequestManager(user.RoleCode, user.AdditionalRoleCodesJson))
+            {
+                recipientIds.Add(user.UserId);
+            }
+
+            if (user.UserId == review.RequestedByUserId && IsCitizenRequestOperator(user.RoleCode, user.AdditionalRoleCodesJson))
             {
                 recipientIds.Add(user.UserId);
             }
@@ -236,4 +243,8 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             })
             .ToList();
     }
+
+    private static bool IsCitizenRequestOperator(RoleCode roleCode, string? additionalRoleCodesJson) =>
+        roleCode == RoleCode.Operator
+        || UserRoleAccess.ParseAdditionalRoleCodes(additionalRoleCodesJson).Contains(RoleCode.Operator);
 }

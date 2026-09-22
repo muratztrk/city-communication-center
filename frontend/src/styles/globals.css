@@ -8108,20 +8108,21 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.125rem;
-    height: 1.125rem;
     border-radius: 9999px;
     border: 0;
     background: #dc2626;
     color: #fff;
-    font-size: 0.625rem;
     font-weight: 800;
     line-height: 1;
     font-variant-numeric: tabular-nums;
     box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
     vertical-align: middle;
-    /* Sidebar zoom rozeti küçültmesin; taşmayı kesme (#3442). */
-    zoom: calc(1 / var(--sidebar-zoom, 1));
+    /* Sidebar zoom rozeti görsel olarak küçültmesin (#3442). `zoom` ile ters ölçek
+       flex satırına sığmıyor; 1680×1050'de sayı scrollport dışında kesiliyordu.
+       Ölçüleri zoom öncesi büyütmek, üstteki sidebar zoom ile aynı görsel boyu verir. */
+    width: calc(1.125rem / var(--sidebar-zoom, 1));
+    height: calc(1.125rem / var(--sidebar-zoom, 1));
+    font-size: calc(0.625rem / var(--sidebar-zoom, 1));
     overflow: visible;
   }
 
@@ -8145,8 +8146,8 @@
 
   .nav-pending-badge--wide {
     width: auto;
-    min-width: 1.125rem;
-    padding: 0 0.25rem;
+    min-width: calc(1.125rem / var(--sidebar-zoom, 1));
+    padding: 0 calc(0.25rem / var(--sidebar-zoom, 1));
   }
 
   /* Bildirim zili okunmamış sayı — scope-chip overdue rozeti ile aynı köşe/z-index (#2793). */

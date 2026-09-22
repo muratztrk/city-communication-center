@@ -1,3 +1,7 @@
+## Round 1305 — 1680×1050 sol menü rozeti
+
+- Sol menü bildirim sayısı, sidebar zoom ters ölçeği yüzünden 1680×1050'de kesiliyordu. Rozet ölçüsü layout'ta ayrılıyor; görsel boy aynı.
+
 ## Round 1304 — Trello Doing (2 web, geri al)
 
 - **#6ab28cfa:** Görevlerim'deki `Yapılmakta Olan Görevlerim` chip'i kaldırıldı. Bekleyen'in sağı yine Geciken.

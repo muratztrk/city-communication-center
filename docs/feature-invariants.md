@@ -539,6 +539,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **Mesajı İncelemeye Gönder (#6aad490e):** operatör `/whatsapp`'ta talep olan birimlere dropdown ile gönderir;
   kapalı placeholder `İncelemeye Gönder` (#6ab2212a), solunda yeşil göz ikonu (#6ab23f79);
+  açılan listedeki birim adı soldan `0.75rem` içeride (#6ab23fb0);
   onay metni: `Bu mesaj incelenmek üzere seçim yapılan "{Birim}" birimine gönderilecek…`; hedef birimin **Müdürü**
   (`ManagerUserId` / vekil) ve SystemAdmin sağ altta WhatsApp bildirim FAB'ı ile aynı yeşil baloncuk + panel görür;
   `İncelenmesi Gereken Mesajı Oku` altındaki ad ve birim, incelemeye gönderen operatöründür (hedef birim / vatandaş değil, #6ab23754);

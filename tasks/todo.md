@@ -1,3 +1,7 @@
+## Round 1296 — Trello Doing (1 web)
+
+- **#6ab23fb0:** İncelemeye Gönder açılan listesinde birim adı biraz sağa (sol padding 0.75rem).
+
 ## Round 1295 — Trello Doing (1 web)
 
 - **#6ab23f79:** İncelemeye Gönder tetikleyicisinin solunda yeşil göz ikonu. Placeholder rengi slate-700.

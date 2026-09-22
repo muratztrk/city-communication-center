@@ -1,3 +1,7 @@
+## Round 1292 — Trello Doing (1 web)
+
+- **#6ab23335:** Masaüstünde İncelemeye Gönder açılan paneli +48px (önce +24). Mobil tetikleyiciyle aynı genişlikte kalır.
+
 ## Round 1291 — Trello Doing (1 web)
 
 - **#6ab220c0:** Sorumlu / VTY `Bildirimi Temizle` yalnız kendi balonunu kapatır. Müdür `İncelendi Yap` onaylarsa bildirim sorumludan ve VTY'den de düşer.

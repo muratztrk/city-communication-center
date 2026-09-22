@@ -1726,7 +1726,7 @@ function ConversationDetail({
                       triggerClassName="whatsapp-review-dept-trigger inline-flex h-[2.125rem] w-full min-w-0 max-w-full items-center rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700"
                       menuScrollClassName="whatsapp-department-review-menu-scroll"
                       matchTriggerWidth
-                      menuWidthExtraPx={reviewMenuMatchTrigger ? 0 : 24}
+                      menuWidthExtraPx={reviewMenuMatchTrigger ? 0 : 48}
                       menuExpand="right"
                     />
                     {(detail?.pendingDepartmentReviewCount ?? 0) > 0 ? (

@@ -128,8 +128,6 @@ export function WhatsAppDepartmentReviewFab() {
 
             <div className="max-h-80 overflow-y-auto">
               {reviews.map(review => {
-                const citizenHandle = review.citizenName
-                  ?? (review.citizenPhone ? formatPhone(review.citizenPhone) : review.departmentName)
                 return (
                   <button
                     key={review.reviewId}
@@ -145,11 +143,11 @@ export function WhatsAppDepartmentReviewFab() {
                         {t('whatsapp.departmentReviewFabLabel', 'İncelenmesi Gereken Mesajı Oku')}
                       </p>
                       <p className="mt-1 truncate text-xs text-[color:var(--color-muted-foreground)]">
-                        {citizenHandle}
+                        {review.requestedByDisplayName}
                       </p>
-                      {review.departmentName ? (
+                      {review.requestedByDepartmentName ? (
                         <p className="truncate text-[11px] text-[color:var(--color-muted-foreground)]">
-                          {review.departmentName}
+                          {review.requestedByDepartmentName}
                         </p>
                       ) : null}
                     </div>

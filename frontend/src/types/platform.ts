@@ -662,6 +662,7 @@ export interface CitizenConversationDepartmentReview {
   socialMessageId: string;
   requestedByUserId: string;
   requestedByDisplayName?: string | null;
+  requestedByDepartmentName?: string | null;
   requestedAtUtc: string;
   citizenPhone?: string | null;
   citizenName?: string | null;

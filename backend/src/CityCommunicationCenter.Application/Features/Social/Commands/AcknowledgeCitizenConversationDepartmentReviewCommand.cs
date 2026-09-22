@@ -25,13 +25,16 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly INotificationPushService _notificationPushService;
 
     public AcknowledgeCitizenConversationDepartmentReviewCommandHandler(
         IApplicationDbContext dbContext,
-        ITenantContextAccessor tenantContextAccessor)
+        ITenantContextAccessor tenantContextAccessor,
+        INotificationPushService notificationPushService)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _notificationPushService = notificationPushService;
     }
 
     public async ValueTask<bool> Handle(
@@ -85,9 +88,19 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
                 cancellationToken);
 
         review.UpdatedByUserId = actor.UserId;
+        Notification? operatorNotification = null;
         if (closesForEveryone)
         {
             review.AcknowledgedAtUtc = DateTimeOffset.UtcNow;
+            operatorNotification = await CreateOperatorReviewedNotificationAsync(
+                tenantId,
+                actor.UserId,
+                review,
+                cancellationToken);
+            if (operatorNotification is not null)
+            {
+                _dbContext.Notifications.Add(operatorNotification);
+            }
         }
         else
         {
@@ -100,6 +113,77 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (operatorNotification is not null)
+        {
+            await _notificationPushService.SendToUserAsync(
+                tenantId,
+                operatorNotification.UserId,
+                new NotificationPayload(
+                    operatorNotification.NotificationId,
+                    operatorNotification.Title,
+                    operatorNotification.Message,
+                    operatorNotification.ActionUrl),
+                cancellationToken);
+        }
+
         return true;
+    }
+
+    /// <summary>
+    /// Müdür onayı, incelemeye gönderen Vatandaş Talep Operatörünün zil listesine düşer (#6ab23883).
+    /// </summary>
+    private async Task<Notification?> CreateOperatorReviewedNotificationAsync(
+        Guid tenantId,
+        Guid actorUserId,
+        CitizenConversationDepartmentReview review,
+        CancellationToken cancellationToken)
+    {
+        if (review.RequestedByUserId == Guid.Empty || review.RequestedByUserId == actorUserId)
+        {
+            return null;
+        }
+
+        var requester = await _dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.UserId == review.RequestedByUserId && user.TenantId == tenantId && user.IsActive)
+            .Select(user => new { user.RoleCode, user.AdditionalRoleCodesJson })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (requester is null)
+        {
+            return null;
+        }
+
+        var isOperator = requester.RoleCode == RoleCode.Operator
+            || UserRoleAccess.ParseAdditionalRoleCodes(requester.AdditionalRoleCodesJson).Contains(RoleCode.Operator);
+        if (!isOperator)
+        {
+            return null;
+        }
+
+        var departmentName = await _dbContext.Departments
+            .AsNoTracking()
+            .Where(department => department.DepartmentId == review.DepartmentId && department.TenantId == tenantId)
+            .Select(department => department.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var message = string.IsNullOrWhiteSpace(departmentName)
+            ? "Birim mesaj incelemesini tamamladı."
+            : $"{departmentName} mesaj incelemesini tamamladı.";
+
+        return new Notification
+        {
+            NotificationId = Guid.NewGuid(),
+            TenantId = tenantId,
+            UserId = review.RequestedByUserId,
+            Channel = NotificationChannel.InApp,
+            DeliveryStatus = NotificationDeliveryStatus.Sent,
+            Title = "Mesaj incelendi",
+            Message = message,
+            IsRead = false,
+            ActionUrl = $"/my-requests?jobId={review.JobId}",
+            SentAtUtc = DateTimeOffset.UtcNow,
+            CreatedByUserId = actorUserId,
+        };
     }
 }

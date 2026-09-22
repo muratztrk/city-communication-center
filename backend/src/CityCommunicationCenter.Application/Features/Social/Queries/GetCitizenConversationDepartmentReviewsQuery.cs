@@ -91,6 +91,13 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
                     .Where(user => user.UserId == review.RequestedByUserId)
                     .Select(user => user.DisplayName)
                     .FirstOrDefault(),
+                _dbContext.Departments
+                    .Where(department => department.DepartmentId == _dbContext.Users
+                        .Where(user => user.UserId == review.RequestedByUserId)
+                        .Select(user => user.DepartmentId)
+                        .FirstOrDefault())
+                    .Select(department => department.Name)
+                    .FirstOrDefault(),
                 review.RequestedAtUtc,
                 _dbContext.CitizenConversations
                     .Where(conversation => conversation.CitizenConversationId == review.CitizenConversationId)
@@ -119,6 +126,7 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
                 review.RequestedAtUtc,
                 review.CitizenPhone,
                 review.CitizenName,
+                review.RequestedByDepartmentName,
                 DismissOnly: !isSystemAdmin && !managedDepartmentIds.Contains(review.DepartmentId)))
             .ToList();
     }
@@ -132,6 +140,7 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
         Guid SocialMessageId,
         Guid RequestedByUserId,
         string? RequestedByDisplayName,
+        string? RequestedByDepartmentName,
         DateTimeOffset RequestedAtUtc,
         string? CitizenPhone,
         string? CitizenName,

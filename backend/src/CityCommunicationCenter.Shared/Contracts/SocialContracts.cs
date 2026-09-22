@@ -322,6 +322,7 @@ public sealed record CitizenConversationDepartmentReviewDto(
     DateTimeOffset RequestedAtUtc,
     string? CitizenPhone,
     string? CitizenName,
+    string? RequestedByDepartmentName = null,
     bool DismissOnly = false);
 
 public sealed record SendCitizenConversationForDepartmentReviewRequest(Guid DepartmentId);

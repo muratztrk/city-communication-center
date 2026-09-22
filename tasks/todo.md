@@ -1,3 +1,8 @@
+## Round 1293 — Trello Doing (2 web)
+
+- **#6ab23754:** İnceleme balonunda ad ve birim, İncelemeye Gönder'e basan operatöründür.
+- **#6ab23883:** Müdür İncelendi Yap onaylayınca o operatörün zil listesine `Mesaj incelendi` düşer.
+
 ## Round 1292 — Trello Doing (1 web)
 
 - **#6ab23335:** Masaüstünde İncelemeye Gönder açılan paneli +48px (önce +24). Mobil tetikleyiciyle aynı genişlikte kalır.

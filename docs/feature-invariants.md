@@ -549,7 +549,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Bildirimi Temizle` bu üçünde kullanılmaz (#6ab25af6). Onay `AcknowledgedAtUtc` yazar ve üçünün balonundan da düşer.
   Aynı onay, bu üç kişinin ve incelemeye gönderen Vatandaş Talep Operatörünün zil listesine `Mesaj incelendi` yazar (#6ab2627f);
   metin `{Birim} {{onaylayan}} tarafından {operatör} personelinin ilettiği mesaj incelendi.`;
-  onaylayan adı yeşildir, operatör incelemeye gönderen kullanıcının görünen adıdır (#6ab25b70, #6ab26637).
+  onaylayan adı yeşil, operatör adı turuncu (`text-orange-500`); operatör incelemeye gönderen kullanıcının görünen adıdır (#6ab25b70, #6ab26637, #6ab2811c).
   Kayıt sayfa yenilenmeden zilde görünür: SignalR `suppressToast` taşınır, liste önbelleğe hemen eklenir,
   onaylayan istemci de acknowledge yanıtından sonra bildirim sorgusunu tazeler (#6ab265c7).
   Sağ üst köşe uyarısı çıkmaz (#6ab23883).
@@ -2002,6 +2002,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   düzeltmesi yetmez (#6a75994d reopen). Kurum içi iletilmiş satırda Okundu/İletildi satırı
   `mt-1.5` (#6a759a81). Görsel dışı ek/konum ikon rengi çerçevede `text-emerald-700` (#6a75958d).
 - **Header Personel Dahili No bul:** input ikonu `User` (büyüteç değil — #6a759807).
+- **Görevlerim / Birimdeki Görevler chip sırası:** Bekleyen, sonra `Yapılmakta Olan Görevlerim` /
+  `Yapılmakta Olan Görevler` (`view=in-progress`, seçiliyken mavi `scope-chip--in-progress`, #6ab28cfa / #6ab28d84).
+  Filtre `Assigned` + `InProgress` ve son tarihi geçmemiş. Geciken Görevlerim / Geciken Görevler
+  gridinde Durum sütunu İşlemler'in hemen solundadır (#6ab28e14).
 - **Görevlerim grid:** `Görev Tipi / Görevi Yapan` sütunu yok (#6a75a628); tip rozeti
   `Görev Tarihi` altında (#6a75969e). Personelimin’de tip sütunu yok (#6a75af48).
 - **Birimdeki Görevler grid:** `Görev Tipi / Görevi Yapan` sütunu var (#6a75a6ae geri getir).

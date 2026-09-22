@@ -1,3 +1,10 @@
+## Round 1303 — Trello Doing (4 web)
+
+- **#6ab2811c:** `Mesaj incelendi` metninde operatör adı turuncu. Onaylayan adı yeşil kalır.
+- **#6ab28cfa:** Görevlerim'de 2. chip `Yapılmakta Olan Görevlerim`; seçiliyken mavi.
+- **#6ab28d84:** Birimdeki Görevler'de 2. chip `Yapılmakta Olan Görevler`; seçiliyken mavi.
+- **#6ab28e14:** Geciken Görevlerim ve Geciken Görevler gridinde Durum, İşlemler'in solunda.
+
 ## Round 1302 — Trello Doing (1 web)
 
 - **#6ab26b77:** Masaüstünde İncelemeye Gönder, Dosya ekle ile aynı satırda. Mobilde alt satırda kalır.

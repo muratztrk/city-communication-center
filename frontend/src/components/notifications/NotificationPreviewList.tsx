@@ -62,13 +62,21 @@ function NotificationTitleStatusText({
 }
 
 function NotificationMessageText({ message }: { message: string }) {
-  const marked = message.split(/(\{\{.+?\}\})/g)
+  const marked = message.split(/(\{\{.+?\}\}|tarafından .+? personelinin)/g)
   return marked.map((part, index) => {
     const highlighted = part.match(/^\{\{(.+)\}\}$/)
     if (highlighted) {
       return (
         <span key={`name-${index}`} className="font-semibold text-emerald-600">
           {highlighted[1]}
+        </span>
+      )
+    }
+    const operatorName = part.match(/^tarafından (.+?) personelinin$/)
+    if (operatorName) {
+      return (
+        <span key={`operator-${index}`}>
+          tarafından <span className="font-semibold text-orange-500">{operatorName[1]}</span> personelinin
         </span>
       )
     }

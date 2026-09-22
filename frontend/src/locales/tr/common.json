@@ -852,6 +852,7 @@
     },
     "myViews": {
       "pending": "Bekleyen Görevlerim",
+      "inProgress": "Yapılmakta Olan Görevlerim",
       "completed": "Tamamlanan Görevlerim",
       "rejected": "İptal Görevlerim",
       "overdue": "Geciken Görevlerim",
@@ -868,6 +869,7 @@
     },
     "departmentViews": {
       "pending": "Bekleyen Görevler",
+      "inProgress": "Yapılmakta Olan Görevler",
       "completed": "Tamamlanan Görevler",
       "rejected": "İptal Görevler",
       "overdue": "Geciken Görevler",

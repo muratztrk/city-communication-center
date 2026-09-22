@@ -547,7 +547,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile kapanır (okuma FAB'ı düşürmez). Müdür, sorumlu ve o birimdeki VTY için düğme `İncelendi Yap`tır;
   `Bildirimi Temizle` bu üçünde kullanılmaz (#6ab25af6). Onay `AcknowledgedAtUtc` yazar ve üçünün balonundan da düşer.
   Aynı onay, bu üç kişinin ve incelemeye gönderen Vatandaş Talep Operatörünün zil listesine `Mesaj incelendi` yazar (#6ab2627f);
-  metin `{Birim} {{onaylayan}} tarafından {operatör} personelinin ilettiği mesaj incelemesi tamamlandı.`;
+  metin `{Birim} {{onaylayan}} tarafından {operatör} personelinin ilettiği mesaj incelendi.`;
   onaylayan adı yeşildir, operatör incelemeye gönderen kullanıcının görünen adıdır (#6ab25b70, #6ab26637).
   Kayıt sayfa yenilenmeden zilde görünür: SignalR `suppressToast` taşınır, liste önbelleğe hemen eklenir,
   onaylayan istemci de acknowledge yanıtından sonra bildirim sorgusunu tazeler (#6ab265c7).

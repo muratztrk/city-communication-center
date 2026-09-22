@@ -1,3 +1,7 @@
+## Round 1301 — Trello Doing (1 web, reopen)
+
+- **#6ab26637:** `Mesaj incelendi` açıklaması `incelemesi tamamlandı.` yerine `incelendi.` ile biter. Eski kayıtlar da aynı bitişe çekilir.
+
 ## Round 1300 — Trello Doing (2 web)
 
 - **#6ab2637a reopen:** Yapılmakta altındaki cümle 24 saat sonra / hızlı tamamlanma metniyle değişti.

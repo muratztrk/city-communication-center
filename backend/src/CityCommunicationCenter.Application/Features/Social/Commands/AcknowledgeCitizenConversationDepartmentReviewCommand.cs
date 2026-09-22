@@ -227,7 +227,7 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             .FirstOrDefaultAsync(cancellationToken);
         var operatorName = FormatNotificationPersonName(requester?.DisplayName, requester?.Username, "Operatör");
         var unitName = string.IsNullOrWhiteSpace(departmentName) ? "Birim" : departmentName.Trim();
-        var message = unitName + " {{" + actorName + "}} tarafından " + operatorName + " personelinin ilettiği mesaj incelemesi tamamlandı.";
+        var message = unitName + " {{" + actorName + "}} tarafından " + operatorName + " personelinin ilettiği mesaj incelendi.";
 
         return recipientIds
             .Select(userId => new Notification

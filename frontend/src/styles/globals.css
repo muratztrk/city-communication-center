@@ -2542,6 +2542,15 @@
     overflow: visible;
   }
 
+  /* Masaüstü: İncelemeye Gönder, Dosya ekle ile aynı satırda (#6ab26b77). */
+  @media (min-width: 1024px) {
+    .whatsapp-template-row {
+      flex-wrap: nowrap;
+      max-width: 100%;
+      min-width: 0;
+    }
+  }
+
   /* Kapalı placeholder, Dosya ekle ile aynı slate-700 (#6ab190a5 reopen). İkon yeşil kalır. */
   .whatsapp-review-dept-select .field-select > span:first-child,
   .whatsapp-review-dept-select .field-select > span:first-child span {
@@ -8823,12 +8832,18 @@
       flex: 1 1 auto;
       min-width: 0;
       width: 100%;
-      flex-wrap: nowrap !important;
+      flex-wrap: wrap !important;
       gap: 0.35rem !important;
       align-items: center;
     }
 
-    .whatsapp-template-row > .relative,
+    .whatsapp-template-row > .whatsapp-review-dept-select {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .whatsapp-template-row > .relative:not(.whatsapp-review-dept-select),
     .whatsapp-template-row > button,
     .whatsapp-template-row > .whatsapp-template-add {
       flex: 1 1 0;

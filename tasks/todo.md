@@ -1,3 +1,7 @@
+## Round 1302 — Trello Doing (1 web)
+
+- **#6ab26b77:** Masaüstünde İncelemeye Gönder, Dosya ekle ile aynı satırda. Mobilde alt satırda kalır.
+
 ## Round 1301 — Trello Doing (1 web, reopen)
 
 - **#6ab26637:** `Mesaj incelendi` açıklaması `incelemesi tamamlandı.` yerine `incelendi.` ile biter. Eski kayıtlar da aynı bitişe çekilir.

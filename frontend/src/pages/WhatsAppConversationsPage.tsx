@@ -1711,7 +1711,6 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-                </div>
                 {reviewDepartmentOptions.length > 0 ? (
                   <div className="whatsapp-review-dept-select relative min-w-0 max-w-full shrink">
                     <SingleSelectDropdown
@@ -1740,6 +1739,7 @@ function ConversationDetail({
                     ) : null}
                   </div>
                 ) : null}
+                </div>
                   </div>
                   <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />
                 </div>

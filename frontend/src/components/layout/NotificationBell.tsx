@@ -239,14 +239,16 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
         title: localizeNotificationText(payload.title),
         message: localizeNotificationText(payload.message),
       }
-      setToasts(prev => [localizedPayload, ...prev].slice(0, 5))
-      setTimeout(() => {
-        setToasts(prev => prev.filter(t => t.notificationId !== payload.notificationId))
-      }, 5000)
-      invalidateNotifications(queryClient)
-      if (Notification.permission === 'granted') {
-        new Notification(localizedPayload.title, { body: localizedPayload.message, icon: '/favicon.ico' })
+      if (!payload.suppressToast) {
+        setToasts(prev => [localizedPayload, ...prev].slice(0, 5))
+        setTimeout(() => {
+          setToasts(prev => prev.filter(t => t.notificationId !== payload.notificationId))
+        }, 5000)
+        if (Notification.permission === 'granted') {
+          new Notification(localizedPayload.title, { body: localizedPayload.message, icon: '/favicon.ico' })
+        }
       }
+      invalidateNotifications(queryClient)
     },
     [queryClient, setToasts],
   )

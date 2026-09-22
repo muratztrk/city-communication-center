@@ -9,6 +9,8 @@ export interface NotificationPayload {
   title: string
   message: string
   actionUrl?: string | null
+  /** Zil listesi yenilenir; sağ üst köşe uyarısı çıkmaz. */
+  suppressToast?: boolean
 }
 
 export interface WhatsAppMessagePayload {

@@ -1,3 +1,7 @@
+## Round 1294 — Trello Doing (1 web, reopen)
+
+- **#6ab23883 reopen:** `Mesaj incelendi` birim müdürünün zil listesinde. Köşe uyarısı yok. Operatör ziline gitmez.
+
 ## Round 1293 — Trello Doing (2 web)
 
 - **#6ab23754:** İnceleme balonunda ad ve birim, İncelemeye Gönder'e basan operatöründür.

@@ -14,7 +14,8 @@ public sealed record NotificationPayload(
     Guid NotificationId,
     string Title,
     string Message,
-    string? ActionUrl = null);
+    string? ActionUrl = null,
+    bool SuppressToast = false);
 
 public sealed record WhatsAppMessagePayload(
     Guid CitizenConversationId,

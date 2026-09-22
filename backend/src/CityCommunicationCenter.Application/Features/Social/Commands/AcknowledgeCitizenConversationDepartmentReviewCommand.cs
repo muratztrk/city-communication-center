@@ -88,18 +88,18 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
                 cancellationToken);
 
         review.UpdatedByUserId = actor.UserId;
-        Notification? operatorNotification = null;
+        Notification? managerNotification = null;
         if (closesForEveryone)
         {
             review.AcknowledgedAtUtc = DateTimeOffset.UtcNow;
-            operatorNotification = await CreateOperatorReviewedNotificationAsync(
+            managerNotification = await CreateManagerReviewedNotificationAsync(
                 tenantId,
                 actor.UserId,
                 review,
                 cancellationToken);
-            if (operatorNotification is not null)
+            if (managerNotification is not null)
             {
-                _dbContext.Notifications.Add(operatorNotification);
+                _dbContext.Notifications.Add(managerNotification);
             }
         }
         else
@@ -114,16 +114,17 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        if (operatorNotification is not null)
+        if (managerNotification is not null)
         {
             await _notificationPushService.SendToUserAsync(
                 tenantId,
-                operatorNotification.UserId,
+                managerNotification.UserId,
                 new NotificationPayload(
-                    operatorNotification.NotificationId,
-                    operatorNotification.Title,
-                    operatorNotification.Message,
-                    operatorNotification.ActionUrl),
+                    managerNotification.NotificationId,
+                    managerNotification.Title,
+                    managerNotification.Message,
+                    managerNotification.ActionUrl,
+                    SuppressToast: true),
                 cancellationToken);
         }
 
@@ -131,51 +132,45 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
     }
 
     /// <summary>
-    /// Müdür onayı, incelemeye gönderen Vatandaş Talep Operatörünün zil listesine düşer (#6ab23883).
+    /// Müdür onayı, birim müdürünün zil listesine düşer; köşe uyarısı çıkmaz (#6ab23883).
     /// </summary>
-    private async Task<Notification?> CreateOperatorReviewedNotificationAsync(
+    private async Task<Notification?> CreateManagerReviewedNotificationAsync(
         Guid tenantId,
         Guid actorUserId,
         CitizenConversationDepartmentReview review,
         CancellationToken cancellationToken)
     {
-        if (review.RequestedByUserId == Guid.Empty || review.RequestedByUserId == actorUserId)
-        {
-            return null;
-        }
-
-        var requester = await _dbContext.Users
+        var department = await _dbContext.Departments
             .AsNoTracking()
-            .Where(user => user.UserId == review.RequestedByUserId && user.TenantId == tenantId && user.IsActive)
-            .Select(user => new { user.RoleCode, user.AdditionalRoleCodesJson })
-            .FirstOrDefaultAsync(cancellationToken);
-        if (requester is null)
-        {
-            return null;
-        }
-
-        var isOperator = requester.RoleCode == RoleCode.Operator
-            || UserRoleAccess.ParseAdditionalRoleCodes(requester.AdditionalRoleCodesJson).Contains(RoleCode.Operator);
-        if (!isOperator)
-        {
-            return null;
-        }
-
-        var departmentName = await _dbContext.Departments
-            .AsNoTracking()
-            .Where(department => department.DepartmentId == review.DepartmentId && department.TenantId == tenantId)
-            .Select(department => department.Name)
+            .Where(entity => entity.DepartmentId == review.DepartmentId && entity.TenantId == tenantId)
+            .Select(entity => new { entity.Name, entity.ManagerUserId })
             .FirstOrDefaultAsync(cancellationToken);
 
-        var message = string.IsNullOrWhiteSpace(departmentName)
+        var recipientUserId = department?.ManagerUserId ?? actorUserId;
+        if (recipientUserId == Guid.Empty)
+        {
+            return null;
+        }
+
+        var recipientIsActive = await _dbContext.Users
+            .AsNoTracking()
+            .AnyAsync(
+                user => user.UserId == recipientUserId && user.TenantId == tenantId && user.IsActive,
+                cancellationToken);
+        if (!recipientIsActive)
+        {
+            return null;
+        }
+
+        var message = string.IsNullOrWhiteSpace(department?.Name)
             ? "Birim mesaj incelemesini tamamladı."
-            : $"{departmentName} mesaj incelemesini tamamladı.";
+            : $"{department.Name} mesaj incelemesini tamamladı.";
 
         return new Notification
         {
             NotificationId = Guid.NewGuid(),
             TenantId = tenantId,
-            UserId = review.RequestedByUserId,
+            UserId = recipientUserId,
             Channel = NotificationChannel.InApp,
             DeliveryStatus = NotificationDeliveryStatus.Sent,
             Title = "Mesaj incelendi",

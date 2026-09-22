@@ -548,6 +548,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Bildirimi Temizle` bu üçünde kullanılmaz (#6ab25af6). Onay `AcknowledgedAtUtc` yazar ve üçünün balonundan da düşer.
   Aynı onay, bu üç kişinin ve incelemeye gönderen Vatandaş Talep Operatörünün zil listesine `Mesaj incelendi` yazar (#6ab2627f);
   metin `{Birim} {{kullanıcı}} tarafından mesaj incelemesi tamamlandı.` ve kullanıcı adı yeşildir (#6ab25b70).
+  Kayıt sayfa yenilenmeden zilde görünür: SignalR `suppressToast` taşınır, liste önbelleğe hemen eklenir,
+  onaylayan istemci de acknowledge yanıtından sonra bildirim sorgusunu tazeler (#6ab265c7).
   Sağ üst köşe uyarısı çıkmaz (#6ab23883).
   Personel (Staff) bu inceleme bildirimini görmez.
   Baloncuk panelindeki `İncelendi Yap` onay popup'ı ister: başlık `İncelemeyi Onayla` + alt çizgi,
@@ -1139,6 +1141,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kalır). **Aktif** kapalıysa Phone kanalı İşleme Alındı SMS'i gönderilmez.
   Yapılmakta kartının başlığındaki **Aktif/Pasif** (`inProgressEnabled`, varsayılan açık, #6ab21e10)
   kapalıyken durum mesajı ne WhatsApp ne çağrı SMS'i olarak vatandaşa gitmez.
+  Başlığın hemen altında şu cümle durur (#6ab2637a): «Vatandaşın 24 saat içinde cevap vermemesi ve Meta'nın mesaj gönderme kısıtlaması nedeniyle, talebin hızlı bir şekilde aksiyon alınması gereken durumlarda kullanılması önerilir.»
   Durum hitabı
   (`greetings.smsProcessingReceived`) diğer durumlardan bağımsızdır.
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;

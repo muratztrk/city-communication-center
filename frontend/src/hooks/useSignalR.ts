@@ -62,6 +62,7 @@ function mapNotificationPayload(raw: Record<string, unknown>): NotificationPaylo
     title: String(raw.title ?? raw.Title ?? ''),
     message: String(raw.message ?? raw.Message ?? ''),
     actionUrl: (raw.actionUrl ?? raw.ActionUrl) as string | null | undefined,
+    suppressToast: Boolean(raw.suppressToast ?? raw.SuppressToast ?? false),
   }
 }
 

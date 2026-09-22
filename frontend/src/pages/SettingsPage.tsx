@@ -332,9 +332,10 @@ interface CitizenAutoReplyTemplateFieldProps {
   noteToken?: string
   includeTargetDepartment?: boolean
   headerExtra?: ReactNode
+  hint?: string
 }
 
-function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange, noteToken, includeTargetDepartment = true, headerExtra }: CitizenAutoReplyTemplateFieldProps) {
+function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange, noteToken, includeTargetDepartment = true, headerExtra, hint }: CitizenAutoReplyTemplateFieldProps) {
   const statusToneClass = tone === 'danger'
     ? 'border-red-200 bg-red-50 text-red-700'
     : tone === 'warning'
@@ -352,6 +353,7 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
         <span className="text-slate-800">{label}</span>
         {headerExtra}
       </div>
+      {hint ? <p className="text-xs font-medium leading-snug text-slate-500">{hint}</p> : null}
       <textarea
         className="field-textarea min-h-[4.5rem]"
         value={greeting}
@@ -3937,6 +3939,7 @@ export function SettingsPage() {
                     ...current,
                     greetings: { ...current.greetings, [key]: value },
                   }))}
+                  hint={key === 'inProgress' ? t('settings.routing.inProgressHint') : undefined}
                   headerExtra={key === 'inProgress' ? (
                     <SettingsActiveSwitch
                       label={(citizenAutoReplyTemplates.inProgressEnabled ?? true) ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}

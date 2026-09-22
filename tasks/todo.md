@@ -1,3 +1,9 @@
+## Round 1299 — Trello Doing (3 web)
+
+- **#6ab2627f reopen:** İncelendi Yap onayından sonra `Mesaj incelendi` incelemeye gönderen operatörün zilinde kalır.
+- **#6ab2637a:** Ayarlar → Yapılmakta başlığının altında 24 saat / Meta kısıtı cümlesi.
+- **#6ab265c7:** Aynı bildirim sayfa yenilenmeden zil listesine düşer.
+
 ## Round 1298 — Trello Doing (1 web)
 
 - **#6ab2627f:** İncelendi Yap sonrası aynı `Mesaj incelendi` kaydı, incelemeye gönderen Vatandaş Talep Operatörünün ziline de düşer.

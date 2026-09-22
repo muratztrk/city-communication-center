@@ -248,9 +248,35 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
           new Notification(localizedPayload.title, { body: localizedPayload.message, icon: '/favicon.ico' })
         }
       }
+      // Sayfa yenilenmeden zil listesine düşsün (#6ab265c7). Invalidate tek başına
+      // süren bir liste sorgusunun eski yanıtıyla ezilebiliyor.
+      if (payload.notificationId) {
+        const incoming: AppNotification = {
+          notificationId: payload.notificationId,
+          taskId: null,
+          userId: user?.userId ?? null,
+          channel: 'InApp',
+          deliveryStatus: 'Sent',
+          title: localizedPayload.title,
+          message: localizedPayload.message,
+          isRead: false,
+          actionUrl: payload.actionUrl ?? null,
+          sentAtUtc: new Date().toISOString(),
+        }
+        const lists = queryClient.getQueriesData<AppNotification[]>({ queryKey: ['ccc', 'notifications', 'list'] })
+        const alreadyPresent = lists.some(([, data]) => data?.some(item => item.notificationId === incoming.notificationId))
+        if (!alreadyPresent) {
+          queryClient.setQueriesData<AppNotification[]>({ queryKey: ['ccc', 'notifications', 'list'] }, current =>
+            current ? [incoming, ...current] : current,
+          )
+          queryClient.setQueriesData<number>({ queryKey: ['ccc', 'notifications', 'unread-count'] }, current =>
+            typeof current === 'number' ? current + 1 : current,
+          )
+        }
+      }
       invalidateNotifications(queryClient)
     },
-    [queryClient, setToasts],
+    [queryClient, setToasts, user?.userId],
   )
 
   useSignalR({ onNotification: handleNotification })

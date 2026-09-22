@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { X } from 'lucide-react'
 import { api } from '../../api/client'
+import { invalidateNotifications } from '../../api/cacheInvalidation'
 import { useAuth } from '../../context/AuthContext'
 import type { CitizenConversationDepartmentReview } from '../../types/platform'
 import { ConfirmDialog, type ConfirmDialogState } from '../ui/confirm-dialog'
@@ -60,13 +61,16 @@ export function WhatsAppDepartmentReviewFab() {
   }, [])
 
   const markReviewsDone = useCallback(async () => {
-    await Promise.all(
-      reviews.map(review => api.acknowledgeCitizenConversationDepartmentReview(review.reviewId).catch(() => false)),
+    const results = await Promise.all(
+      reviews.map(review => api.acknowledgeCitizenConversationDepartmentReview(review.reviewId).then(() => true).catch(() => false)),
     )
     queryClient.setQueryData<CitizenConversationDepartmentReview[]>(reviewQueryKey, [])
     setIsOpen(false)
     clearReviewSession()
     void reviewsQuery.refetch()
+    if (results.some(Boolean)) {
+      invalidateNotifications(queryClient)
+    }
   }, [clearReviewSession, queryClient, reviewQueryKey, reviews, reviewsQuery])
 
   const requestMarkReviewsDone = useCallback(() => {

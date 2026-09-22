@@ -1,3 +1,9 @@
+## Round 1297 — Trello Doing (3 web)
+
+- **#6ab25e9f:** İnceleme balonu yalnız hedef birimin müdür, sorumlu ve VTY’sinde.
+- **#6ab25af6:** Bu üçünde düğme `İncelendi Yap`.
+- **#6ab25b70:** Zil metni `{Birim} {{kullanıcı}} tarafından mesaj incelemesi tamamlandı.`; kullanıcı adı yeşil.
+
 ## Round 1296 — Trello Doing (1 web)
 
 - **#6ab23fb0:** İncelemeye Gönder açılan listesinde birim adı biraz sağa (sol padding 0.75rem).

@@ -79,51 +79,61 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             }
         }
 
-        var closesForEveryone = isSystemAdmin || await _dbContext.Departments
+        var department = await _dbContext.Departments
             .AsNoTracking()
-            .AnyAsync(
-                department => department.TenantId == tenantId
-                    && department.DepartmentId == review.DepartmentId
-                    && (department.ManagerUserId == actor.UserId || department.DeputyManagerUserId == actor.UserId),
-                cancellationToken);
+            .Where(entity => entity.DepartmentId == review.DepartmentId && entity.TenantId == tenantId)
+            .Select(entity => new
+            {
+                entity.Name,
+                entity.ManagerUserId,
+                entity.DeputyManagerUserId,
+                entity.ResponsibleUserIdsJson,
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var responsibleIds = DepartmentResponseFactory.ParseResponsibleUserIds(department?.ResponsibleUserIdsJson);
+        var isDepartmentLeader = department is not null
+            && (department.ManagerUserId == actor.UserId || department.DeputyManagerUserId == actor.UserId);
+        var isResponsible = responsibleIds.Contains(actor.UserId);
+        var isDepartmentCitizenRequestManager = await UserRoleAccess.IsCitizenRequestManagerInDepartmentAsync(
+            _dbContext,
+            tenantId,
+            actor,
+            review.DepartmentId,
+            cancellationToken);
+        if (!isSystemAdmin && !isDepartmentLeader && !isResponsible && !isDepartmentCitizenRequestManager)
+        {
+            throw new ForbiddenAccessException("Bu birime ait inceleme bildirimini onaylama yetkiniz yok.");
+        }
 
         review.UpdatedByUserId = actor.UserId;
-        Notification? managerNotification = null;
-        if (closesForEveryone)
+        review.AcknowledgedAtUtc = DateTimeOffset.UtcNow;
+        var notifications = await CreateReviewedNotificationsAsync(
+            tenantId,
+            actor,
+            review,
+            department?.Name,
+            department?.ManagerUserId,
+            department?.DeputyManagerUserId,
+            responsibleIds,
+            cancellationToken);
+        foreach (var notification in notifications)
         {
-            review.AcknowledgedAtUtc = DateTimeOffset.UtcNow;
-            managerNotification = await CreateManagerReviewedNotificationAsync(
-                tenantId,
-                actor.UserId,
-                review,
-                cancellationToken);
-            if (managerNotification is not null)
-            {
-                _dbContext.Notifications.Add(managerNotification);
-            }
-        }
-        else
-        {
-            var dismissedBy = DepartmentResponseFactory.ParseResponsibleUserIds(review.DismissedByUserIdsJson).ToList();
-            if (!dismissedBy.Contains(actor.UserId))
-            {
-                dismissedBy.Add(actor.UserId);
-                review.DismissedByUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(dismissedBy);
-            }
+            _dbContext.Notifications.Add(notification);
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        if (managerNotification is not null)
+        foreach (var notification in notifications)
         {
             await _notificationPushService.SendToUserAsync(
                 tenantId,
-                managerNotification.UserId,
+                notification.UserId,
                 new NotificationPayload(
-                    managerNotification.NotificationId,
-                    managerNotification.Title,
-                    managerNotification.Message,
-                    managerNotification.ActionUrl,
+                    notification.NotificationId,
+                    notification.Title,
+                    notification.Message,
+                    notification.ActionUrl,
                     SuppressToast: true),
                 cancellationToken);
         }
@@ -132,53 +142,98 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
     }
 
     /// <summary>
-    /// Müdür onayı, birim müdürünün zil listesine düşer; köşe uyarısı çıkmaz (#6ab23883).
+    /// İncelendi Yap, hedef birimin müdür, vekil, sorumlu ve VTY ziline düşer.
+    /// Metin: birim + basan kullanıcı. Köşe uyarısı çıkmaz (#6ab23883, #6ab25b70).
     /// </summary>
-    private async Task<Notification?> CreateManagerReviewedNotificationAsync(
+    private async Task<IReadOnlyList<Notification>> CreateReviewedNotificationsAsync(
         Guid tenantId,
-        Guid actorUserId,
+        ApplicationUser actor,
         CitizenConversationDepartmentReview review,
+        string? departmentName,
+        Guid? managerUserId,
+        Guid? deputyManagerUserId,
+        IReadOnlyCollection<Guid> responsibleIds,
         CancellationToken cancellationToken)
     {
-        var department = await _dbContext.Departments
-            .AsNoTracking()
-            .Where(entity => entity.DepartmentId == review.DepartmentId && entity.TenantId == tenantId)
-            .Select(entity => new { entity.Name, entity.ManagerUserId })
-            .FirstOrDefaultAsync(cancellationToken);
-
-        var recipientUserId = department?.ManagerUserId ?? actorUserId;
-        if (recipientUserId == Guid.Empty)
+        var recipientIds = new HashSet<Guid>();
+        if (managerUserId is Guid managerId && managerId != Guid.Empty)
         {
-            return null;
+            recipientIds.Add(managerId);
         }
 
-        var recipientIsActive = await _dbContext.Users
-            .AsNoTracking()
-            .AnyAsync(
-                user => user.UserId == recipientUserId && user.TenantId == tenantId && user.IsActive,
-                cancellationToken);
-        if (!recipientIsActive)
+        if (deputyManagerUserId is Guid deputyId && deputyId != Guid.Empty)
         {
-            return null;
+            recipientIds.Add(deputyId);
         }
 
-        var message = string.IsNullOrWhiteSpace(department?.Name)
-            ? "Birim mesaj incelemesini tamamladı."
-            : $"{department.Name} mesaj incelemesini tamamladı.";
-
-        return new Notification
+        foreach (var responsibleId in responsibleIds)
         {
-            NotificationId = Guid.NewGuid(),
-            TenantId = tenantId,
-            UserId = recipientUserId,
-            Channel = NotificationChannel.InApp,
-            DeliveryStatus = NotificationDeliveryStatus.Sent,
-            Title = "Mesaj incelendi",
-            Message = message,
-            IsRead = false,
-            ActionUrl = $"/my-requests?jobId={review.JobId}",
-            SentAtUtc = DateTimeOffset.UtcNow,
-            CreatedByUserId = actorUserId,
-        };
+            if (responsibleId != Guid.Empty)
+            {
+                recipientIds.Add(responsibleId);
+            }
+        }
+
+        var assignedUserIds = await _dbContext.UserDepartmentAssignments
+            .AsNoTracking()
+            .Where(assignment => assignment.TenantId == tenantId && assignment.DepartmentId == review.DepartmentId)
+            .Select(assignment => assignment.UserId)
+            .ToListAsync(cancellationToken);
+
+        var candidates = await _dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.TenantId == tenantId && user.IsActive && (
+                user.DepartmentId == review.DepartmentId
+                || recipientIds.Contains(user.UserId)
+                || assignedUserIds.Contains(user.UserId)))
+            .Select(user => new
+            {
+                user.UserId,
+                user.RoleCode,
+                user.AdditionalRoleCodesJson,
+                user.DepartmentId,
+            })
+            .ToListAsync(cancellationToken);
+
+        var activeIds = candidates.Select(user => user.UserId).ToHashSet();
+        recipientIds.RemoveWhere(userId => !activeIds.Contains(userId));
+
+        foreach (var user in candidates)
+        {
+            var inDepartment = user.DepartmentId == review.DepartmentId || assignedUserIds.Contains(user.UserId);
+            if (inDepartment && UserRoleAccess.IsCitizenRequestManager(user.RoleCode, user.AdditionalRoleCodesJson))
+            {
+                recipientIds.Add(user.UserId);
+            }
+        }
+
+        if (recipientIds.Count == 0)
+        {
+            return [];
+        }
+
+        var actorName = string.IsNullOrWhiteSpace(actor.DisplayName)
+            ? (string.IsNullOrWhiteSpace(actor.Username) ? "Kullanıcı" : actor.Username)
+            : actor.DisplayName.Trim();
+        actorName = actorName.Replace("{", string.Empty, StringComparison.Ordinal).Replace("}", string.Empty, StringComparison.Ordinal);
+        var unitName = string.IsNullOrWhiteSpace(departmentName) ? "Birim" : departmentName.Trim();
+        var message = unitName + " {{" + actorName + "}} tarafından mesaj incelemesi tamamlandı.";
+
+        return recipientIds
+            .Select(userId => new Notification
+            {
+                NotificationId = Guid.NewGuid(),
+                TenantId = tenantId,
+                UserId = userId,
+                Channel = NotificationChannel.InApp,
+                DeliveryStatus = NotificationDeliveryStatus.Sent,
+                Title = "Mesaj incelendi",
+                Message = message,
+                IsRead = false,
+                ActionUrl = $"/my-requests?jobId={review.JobId}",
+                SentAtUtc = DateTimeOffset.UtcNow,
+                CreatedByUserId = actor.UserId,
+            })
+            .ToList();
     }
 }

@@ -61,6 +61,26 @@ function NotificationTitleStatusText({
   })
 }
 
+function NotificationMessageText({ message }: { message: string }) {
+  const marked = message.split(/(\{\{.+?\}\})/g)
+  return marked.map((part, index) => {
+    const highlighted = part.match(/^\{\{(.+)\}\}$/)
+    if (highlighted) {
+      return (
+        <span key={`name-${index}`} className="font-semibold text-emerald-600">
+          {highlighted[1]}
+        </span>
+      )
+    }
+    return part.split(' — ').map((segment, segmentIndex) => (
+      <Fragment key={`${index}-${segmentIndex}-${segment.slice(0, 12)}`}>
+        {segmentIndex > 0 ? <span className="text-emerald-600"> — </span> : null}
+        {segment}
+      </Fragment>
+    ))
+  })
+}
+
 function NotificationTitle({ title, isUnread }: { title: string; isUnread: boolean }) {
   const mainWeight = isUnread ? 'font-semibold text-slate-900' : 'font-normal text-slate-700'
   const tone = notificationTitleTone(title)
@@ -114,12 +134,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
         </p>
         {n.message && (
           <p className="mt-0.5 text-xs font-normal text-slate-500 line-clamp-2">
-            {n.message.split(' — ').map((part, index) => (
-              <Fragment key={`${index}-${part.slice(0, 20)}`}>
-                {index > 0 ? <span className="text-emerald-600"> — </span> : null}
-                {part}
-              </Fragment>
-            ))}
+            <NotificationMessageText message={n.message} />
           </p>
         )}
         <div className="mt-1 flex items-center justify-between gap-3">

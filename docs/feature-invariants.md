@@ -540,16 +540,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesajı İncelemeye Gönder (#6aad490e):** operatör `/whatsapp`'ta talep olan birimlere dropdown ile gönderir;
   kapalı placeholder `İncelemeye Gönder` (#6ab2212a), solunda yeşil göz ikonu (#6ab23f79);
   açılan listedeki birim adı soldan `0.75rem` içeride (#6ab23fb0);
-  onay metni: `Bu mesaj incelenmek üzere seçim yapılan "{Birim}" birimine gönderilecek…`; hedef birimin **Müdürü**
-  (`ManagerUserId` / vekil) ve SystemAdmin sağ altta WhatsApp bildirim FAB'ı ile aynı yeşil baloncuk + panel görür;
+  onay metni: `Bu mesaj incelenmek üzere seçim yapılan "{Birim}" birimine gönderilecek…`; balon yalnız seçilen hedef birimin **müdürü**
+  (`ManagerUserId` / vekil), **sorumlusu** (`ResponsibleUserIdsJson`) ve o birimdeki **Vatandaş Talep Yöneticisi**nde görünür (#6ab25e9f);
   `İncelenmesi Gereken Mesajı Oku` altındaki ad ve birim, incelemeye gönderen operatöründür (hedef birim / vatandaş değil, #6ab23754);
   satır talep Detaylar popup + üstte Yazışmaya Git açar. FAB yalnız panelde turuncu `İncelendi Yap`
-  ile kapanır (okuma FAB'ı düşürmez). Birim **Sorumlusu** (`ResponsibleUserIdsJson`) ve **Vatandaş Talep Yöneticisi**
-  aynı balonu görür; X'in altında `Bildirimi Temizle` vardır ve onay popup'ı açmadan yalnız kendi
-  bildirimini kapatır (`DismissedByUserIdsJson`, #6ab221a7). Bu kapatma müdür/vekil balonunu düşürmez;
-  müdür `İncelendi Yap` onaylarsa kayıt `AcknowledgedAtUtc` olur ve sorumlu ile VTY'den de silinir (#6ab220c0).
-  Aynı onay, birim müdürünün (`ManagerUserId`) zil listesine `Mesaj incelendi` yazar; sağ üst köşe uyarısı çıkmaz (#6ab23883).
-  CRM bekleyen incelemelerin tümünü görür; müdür/vekil kendi biriminde `İncelendi Yap` kalır.
+  ile kapanır (okuma FAB'ı düşürmez). Müdür, sorumlu ve o birimdeki VTY için düğme `İncelendi Yap`tır;
+  `Bildirimi Temizle` bu üçünde kullanılmaz (#6ab25af6). Onay `AcknowledgedAtUtc` yazar ve üçünün balonundan da düşer.
+  Aynı onay, bu üç kişinin zil listesine `Mesaj incelendi` yazar; metin `{Birim} {{kullanıcı}} tarafından mesaj incelemesi tamamlandı.`
+  ve kullanıcı adı yeşildir (#6ab25b70). Sağ üst köşe uyarısı çıkmaz (#6ab23883).
   Personel (Staff) bu inceleme bildirimini görmez.
   Baloncuk panelindeki `İncelendi Yap` onay popup'ı ister: başlık `İncelemeyi Onayla` + alt çizgi,
   metin `Mesajı incelediğinizi onaylıyor musunuz?` (#6ab19108); `Onayla` acknowledge eder (#6ab18bd1).

@@ -34,45 +34,29 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
             tenantId,
             cancellationToken);
 
-        var isSystemAdmin = actor.RoleCode == RoleCode.SystemAdmin;
         var isCitizenRequestManager = UserRoleAccess.IsCitizenRequestManager(actor);
-        if (!isSystemAdmin && actor.RoleCode != RoleCode.Manager && !isCitizenRequestManager)
+        if (actor.RoleCode != RoleCode.SystemAdmin
+            && actor.RoleCode != RoleCode.Manager
+            && !isCitizenRequestManager)
         {
             throw new ForbiddenAccessException("Bu inceleme bildirimlerini görüntüleme yetkiniz yok.");
         }
 
-        // CRM tüm bekleyen incelemeleri görür. Müdür ve sorumlu yalnız kendi birimleriyle sınırlıdır.
-        var scopedDepartmentIds = isSystemAdmin || isCitizenRequestManager
-            ? null
-            : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
-                _dbContext,
-                tenantId,
-                actor,
-                context.ActiveDepartmentId,
-                cancellationToken);
-
-        if (scopedDepartmentIds is { Length: 0 })
+        var visibleDepartmentIds = await VisibleReviewDepartmentIdsAsync(
+            tenantId,
+            actor,
+            isCitizenRequestManager,
+            cancellationToken);
+        if (visibleDepartmentIds.Count == 0)
         {
             return [];
         }
 
         var query = _dbContext.CitizenConversationDepartmentReviews
             .AsNoTracking()
-            .Where(review => review.TenantId == tenantId && review.AcknowledgedAtUtc == null);
-
-        if (scopedDepartmentIds is not null)
-        {
-            query = query.Where(review => scopedDepartmentIds.Contains(review.DepartmentId));
-        }
-
-        var managedDepartmentIds = isSystemAdmin
-            ? new List<Guid>()
-            : await _dbContext.Departments
-                .AsNoTracking()
-                .Where(department => department.TenantId == tenantId
-                    && (department.ManagerUserId == actor.UserId || department.DeputyManagerUserId == actor.UserId))
-                .Select(department => department.DepartmentId)
-                .ToListAsync(cancellationToken);
+            .Where(review => review.TenantId == tenantId
+                && review.AcknowledgedAtUtc == null
+                && visibleDepartmentIds.Contains(review.DepartmentId));
 
         var reviews = await query
             .OrderByDescending(review => review.RequestedAtUtc)
@@ -106,14 +90,10 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
                 _dbContext.CitizenConversations
                     .Where(conversation => conversation.CitizenConversationId == review.CitizenConversationId)
                     .Select(conversation => conversation.CitizenName)
-                    .FirstOrDefault(),
-                review.DismissedByUserIdsJson))
+                    .FirstOrDefault()))
             .ToListAsync(cancellationToken);
 
         return reviews
-            .Where(review => isSystemAdmin
-                || managedDepartmentIds.Contains(review.DepartmentId)
-                || !DepartmentResponseFactory.ParseResponsibleUserIds(review.DismissedByUserIdsJson).Contains(actor.UserId))
             .Select(review => new CitizenConversationDepartmentReviewDto(
                 review.ReviewId,
                 review.CitizenConversationId,
@@ -127,8 +107,54 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
                 review.CitizenPhone,
                 review.CitizenName,
                 review.RequestedByDepartmentName,
-                DismissOnly: !isSystemAdmin && !managedDepartmentIds.Contains(review.DepartmentId)))
+                DismissOnly: false))
             .ToList();
+    }
+
+    /// <summary>
+    /// Balon yalnız seçilen hedef birimin müdürü, vekili, sorumlusu ve o birimdeki VTY içindir (#6ab25e9f).
+    /// </summary>
+    private async Task<HashSet<Guid>> VisibleReviewDepartmentIdsAsync(
+        Guid tenantId,
+        ApplicationUser actor,
+        bool isCitizenRequestManager,
+        CancellationToken cancellationToken)
+    {
+        var departments = await _dbContext.Departments
+            .AsNoTracking()
+            .Where(department => department.TenantId == tenantId)
+            .Select(department => new
+            {
+                department.DepartmentId,
+                department.ManagerUserId,
+                department.DeputyManagerUserId,
+                department.ResponsibleUserIdsJson,
+            })
+            .ToListAsync(cancellationToken);
+
+        var visible = departments
+            .Where(department => department.ManagerUserId == actor.UserId
+                || department.DeputyManagerUserId == actor.UserId
+                || DepartmentResponseFactory.ParseResponsibleUserIds(department.ResponsibleUserIdsJson).Contains(actor.UserId))
+            .Select(department => department.DepartmentId)
+            .ToHashSet();
+
+        if (!isCitizenRequestManager)
+        {
+            return visible;
+        }
+
+        var membershipIds = await UserDepartmentAccess.GetMembershipDepartmentIdsAsync(
+            _dbContext,
+            tenantId,
+            actor,
+            cancellationToken);
+        foreach (var departmentId in membershipIds)
+        {
+            visible.Add(departmentId);
+        }
+
+        return visible;
     }
 
     private sealed record PendingDepartmentReviewRow(
@@ -143,6 +169,5 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
         string? RequestedByDepartmentName,
         DateTimeOffset RequestedAtUtc,
         string? CitizenPhone,
-        string? CitizenName,
-        string? DismissedByUserIdsJson);
+        string? CitizenName);
 }

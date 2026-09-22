@@ -48,6 +48,8 @@ interface SingleSelectDropdownProps {
   deselectOnReselect?: boolean
   /** Otomatik yukarı çevirmeyi kapat; panel her zaman alta açılır (#3332 reopen). */
   forceDown?: boolean
+  /** Kapalı tetikleyicide, seçimden bağımsız sol ikon. */
+  triggerLeading?: ReactNode
 }
 
 export function SingleSelectDropdown({
@@ -72,6 +74,7 @@ export function SingleSelectDropdown({
   menuExpand = 'right',
   deselectOnReselect = false,
   forceDown = false,
+  triggerLeading,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -254,6 +257,7 @@ export function SingleSelectDropdown({
         <span
           className={cn('flex min-w-0 flex-1 items-center gap-1.5', selected ? 'text-slate-900' : 'text-slate-400')}
         >
+          {triggerLeading}
           {selected?.leading}
           <span className="min-w-0 truncate">
             {selected

@@ -1,3 +1,7 @@
+## Round 1295 — Trello Doing (1 web)
+
+- **#6ab23f79:** İncelemeye Gönder tetikleyicisinin solunda yeşil göz ikonu. Placeholder rengi slate-700.
+
 ## Round 1294 — Trello Doing (1 web, reopen)
 
 - **#6ab23883 reopen:** `Mesaj incelendi` birim müdürünün zil listesinde. Köşe uyarısı yok. Operatör ziline gitmez.

@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo, lazy, Suspense } from 'react'
-import { Ban, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
+import { Ban, Check, ClipboardList, ClipboardPlus, Eye, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -1728,6 +1728,7 @@ function ConversationDetail({
                       matchTriggerWidth
                       menuWidthExtraPx={reviewMenuMatchTrigger ? 0 : 48}
                       menuExpand="right"
+                      triggerLeading={<Eye className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />}
                     />
                     {(detail?.pendingDepartmentReviewCount ?? 0) > 0 ? (
                       <span

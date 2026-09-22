@@ -2542,10 +2542,14 @@
     overflow: visible;
   }
 
-  /* Kapalı placeholder, Dosya ekle ile aynı slate-700 (#6ab190a5 reopen). */
+  /* Kapalı placeholder, Dosya ekle ile aynı slate-700 (#6ab190a5 reopen). İkon yeşil kalır. */
   .whatsapp-review-dept-select .field-select > span:first-child,
   .whatsapp-review-dept-select .field-select > span:first-child span {
     color: #334155 !important;
+  }
+
+  .whatsapp-review-dept-select .field-select > span:first-child svg {
+    color: #059669 !important;
   }
 
   .whatsapp-review-dept-trigger {

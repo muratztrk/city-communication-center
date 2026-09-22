@@ -831,7 +831,6 @@
     },
     "myViews": {
       "pending": "Pending My Tasks",
-      "inProgress": "My Tasks In Progress",
       "completed": "Completed My Tasks",
       "rejected": "Rejected/Cancelled/Returned My Tasks",
       "overdue": "My Overdue Tasks",
@@ -848,7 +847,6 @@
     },
     "departmentViews": {
       "pending": "Pending Tasks",
-      "inProgress": "Tasks In Progress",
       "completed": "Completed Tasks",
       "rejected": "Rejected/Cancelled Tasks",
       "overdue": "Overdue Tasks",

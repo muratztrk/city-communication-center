@@ -147,7 +147,7 @@ const SCOPES: { value: TaskListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'tasks.scopes.all' },
 ]
 
-type MyTaskView = 'pending' | 'in-progress' | 'completed' | 'rejected' | 'overdue' | 'all' | 'open'
+type MyTaskView = 'pending' | 'completed' | 'rejected' | 'overdue' | 'all' | 'open'
 type RequestFlowFilter = 'internal' | 'external' | 'all'
 type TasksPageMode = 'default' | 'departmentTasks' | 'staffTasks'
 
@@ -160,7 +160,6 @@ const STATUS_CHANGE_OPTIONS: { value: string; labelKey: string; fallback: string
 
 const MY_TASK_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.myViews.pending' },
-  { value: 'in-progress', labelKey: 'tasks.myViews.inProgress' },
   { value: 'overdue', labelKey: 'tasks.myViews.overdue' },
   { value: 'completed', labelKey: 'tasks.myViews.completed' },
   { value: 'rejected', labelKey: 'tasks.myViews.rejected' },
@@ -181,7 +180,6 @@ const DEPARTMENT_TASK_FLOWS: { value: RequestFlowFilter; labelKey: string }[] = 
 
 const DEPARTMENT_STATUS_VIEWS: { value: MyTaskView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'tasks.departmentViews.pending' },
-  { value: 'in-progress', labelKey: 'tasks.departmentViews.inProgress' },
   { value: 'overdue', labelKey: 'tasks.departmentViews.overdue' },
   { value: 'completed', labelKey: 'tasks.departmentViews.completed' },
   { value: 'rejected', labelKey: 'tasks.departmentViews.rejected' },
@@ -430,7 +428,7 @@ function getCitizenTaskChannel(task: Task, socialByJobId: Map<string, SocialMess
 
 function getMyTaskView(value: string | null): MyTaskView {
   if (value === 'returned') return 'rejected'
-  return value === 'in-progress' || value === 'completed' || value === 'rejected' || value === 'overdue' || value === 'all' || value === 'open'
+  return value === 'completed' || value === 'rejected' || value === 'overdue' || value === 'all' || value === 'open'
     ? value
     : 'pending'
 }
@@ -477,11 +475,6 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
 
   if (view === 'overdue') {
     return tasks.filter(task => !isClosedStatus(task.currentStatus) && isOverdue(task))
-  }
-
-  if (view === 'in-progress') {
-    return tasks.filter(task =>
-      (task.currentStatus === 'Assigned' || task.currentStatus === 'InProgress') && !isOverdue(task))
   }
 
   // Dashboard "Bekleyen Görevlerim" kartı: bekleyen + son tarihi geçmiş (#6a75c274).
@@ -683,7 +676,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const showTaskTypeColumn = isDepartmentTasksView
   const showTaskTypeUnderDate = isMyTasksView || isStaffTasksView
   // Son Tarih: Birimdeki'de Bekleyen + Son Tarihi Geçmiş (#6a75e88c / #6a75ad62); diğer birim görünümlerinde yok.
-  const hideDueDateColumn = (isDepartmentTasksView && currentMyTaskView !== 'overdue' && currentMyTaskView !== 'pending' && currentMyTaskView !== 'in-progress')
+  const hideDueDateColumn = (isDepartmentTasksView && currentMyTaskView !== 'overdue' && currentMyTaskView !== 'pending')
     || (isMyTasksView && (currentMyTaskView === 'rejected' || currentMyTaskView === 'completed'))
   const hasTerminalDateColumn = (isMyTasksView || isDepartmentTasksView) && (
     currentMyTaskView === 'completed' || currentMyTaskView === 'rejected'

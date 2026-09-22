@@ -2002,10 +2002,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   düzeltmesi yetmez (#6a75994d reopen). Kurum içi iletilmiş satırda Okundu/İletildi satırı
   `mt-1.5` (#6a759a81). Görsel dışı ek/konum ikon rengi çerçevede `text-emerald-700` (#6a75958d).
 - **Header Personel Dahili No bul:** input ikonu `User` (büyüteç değil — #6a759807).
-- **Görevlerim / Birimdeki Görevler chip sırası:** Bekleyen, sonra `Yapılmakta Olan Görevlerim` /
-  `Yapılmakta Olan Görevler` (`view=in-progress`, seçiliyken mavi `scope-chip--in-progress`, #6ab28cfa / #6ab28d84).
-  Filtre `Assigned` + `InProgress` ve son tarihi geçmemiş. Geciken Görevlerim / Geciken Görevler
-  gridinde Durum sütunu İşlemler'in hemen solundadır (#6ab28e14).
+- **Görevlerim / Birimdeki Görevler chip sırası:** Bekleyen'in sağında Geciken gelir.
+  `Yapılmakta Olan Görevlerim` / `Yapılmakta Olan Görevler` chip'i geri alındı (#6ab28cfa / #6ab28d84).
+  Geciken Görevlerim / Geciken Görevler gridinde Durum sütunu İşlemler'in hemen solundadır (#6ab28e14).
 - **Görevlerim grid:** `Görev Tipi / Görevi Yapan` sütunu yok (#6a75a628); tip rozeti
   `Görev Tarihi` altında (#6a75969e). Personelimin’de tip sütunu yok (#6a75af48).
 - **Birimdeki Görevler grid:** `Görev Tipi / Görevi Yapan` sütunu var (#6a75a6ae geri getir).

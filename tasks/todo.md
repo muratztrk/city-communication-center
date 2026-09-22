@@ -1,3 +1,8 @@
+## Round 1304 — Trello Doing (2 web, geri al)
+
+- **#6ab28cfa:** Görevlerim'deki `Yapılmakta Olan Görevlerim` chip'i kaldırıldı. Bekleyen'in sağı yine Geciken.
+- **#6ab28d84:** Birimdeki Görevler'deki `Yapılmakta Olan Görevler` chip'i kaldırıldı.
+
 ## Round 1303 — Trello Doing (4 web)
 
 - **#6ab2811c:** `Mesaj incelendi` metninde operatör adı turuncu. Onaylayan adı yeşil kalır.

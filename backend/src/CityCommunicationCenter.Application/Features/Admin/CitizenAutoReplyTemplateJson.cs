@@ -31,13 +31,16 @@ public sealed record CitizenAutoReplyTemplateModel(
     string? OverdueManagerSms = null,
     bool? OverdueManagerSmsEnabled = null,
     string? OverdueStaffSms = null,
-    bool? OverdueStaffSmsEnabled = null)
+    bool? OverdueStaffSmsEnabled = null,
+    bool? InProgressEnabled = null)
 {
     public bool ManagerSmsIsEnabled => AfterHoursManagerSmsEnabled ?? true;
 
     public bool StaffSmsIsEnabled => AfterHoursStaffSmsEnabled ?? false;
 
     public bool SmsProcessingReceivedIsEnabled => SmsProcessingReceivedEnabled ?? true;
+
+    public bool InProgressIsEnabled => InProgressEnabled ?? true;
 
     public bool OverdueManagerSmsIsEnabled => OverdueManagerSmsEnabled ?? true;
 
@@ -125,7 +128,8 @@ public static class CitizenAutoReplyTemplateJson
                 parsed.OverdueManagerSms,
                 parsed.OverdueManagerSmsEnabled,
                 parsed.OverdueStaffSms,
-                parsed.OverdueStaffSmsEnabled);
+                parsed.OverdueStaffSmsEnabled,
+                parsed.InProgressEnabled);
         }
         catch (JsonException)
         {
@@ -152,7 +156,8 @@ public static class CitizenAutoReplyTemplateJson
             model.OverdueManagerSms,
             model.OverdueManagerSmsEnabled,
             model.OverdueStaffSms,
-            model.OverdueStaffSmsEnabled));
+            model.OverdueStaffSmsEnabled,
+            model.InProgressEnabled));
 
     /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
     private static CitizenAutoReplyGreetings? NormalizeGreetings(CitizenAutoReplyGreetings? greetings)

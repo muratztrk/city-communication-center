@@ -19,7 +19,8 @@ public sealed record UpdateCitizenAutoReplyTemplatesCommand(
     string? OverdueManagerSms = null,
     bool OverdueManagerSmsEnabled = true,
     string? OverdueStaffSms = null,
-    bool OverdueStaffSmsEnabled = false) : ICommand<Unit>;
+    bool OverdueStaffSmsEnabled = false,
+    bool InProgressEnabled = true) : ICommand<Unit>;
 
 public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractValidator<UpdateCitizenAutoReplyTemplatesCommand>
 {
@@ -105,7 +106,8 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
             request.OverdueManagerSms,
             request.OverdueManagerSmsEnabled,
             request.OverdueStaffSms,
-            request.OverdueStaffSmsEnabled));
+            request.OverdueStaffSmsEnabled,
+            request.InProgressEnabled));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

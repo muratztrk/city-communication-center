@@ -1,3 +1,9 @@
+## Round 1290 — Trello Doing (3 web)
+
+- **#6ab21e10:** Vatandaşa Giden Cevaplar → Yapılmakta başlığında Aktif/Pasif. Pasifken Yapılmakta mesajı WhatsApp ve çağrı SMS'ine gitmez.
+- **#6ab2212a:** WhatsApp dropdown placeholder `İncelemeye Gönder`.
+- **#6ab221a7:** İncelemeye Gönder balonu birim sorumlusuna ve Vatandaş Talep Yöneticisine de gider; X altında `Bildirimi Temizle` (popup yok). Müdür `İncelendi Yap` + onay.
+
 ## Round 1289 — Trello Doing (2 web)
 
 - **#6ab19450:** mobil (`≤1023px`) inceleme paneli dropdown ile aynı genişlikte; +24px yalnız masaüstü.

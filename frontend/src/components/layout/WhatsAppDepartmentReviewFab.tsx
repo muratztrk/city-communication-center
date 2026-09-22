@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import type { CitizenConversationDepartmentReview } from '../../types/platform'
 import { ConfirmDialog, type ConfirmDialogState } from '../ui/confirm-dialog'
 import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
+import { hasCitizenRequestManagerRole } from '../../utils/roleAccess'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 import { JobsPage } from '../../pages/JobsPage'
 
@@ -31,7 +32,7 @@ export function WhatsAppDepartmentReviewFab() {
 
   const canSeeReviews = useMemo(() => {
     const roles = [user?.role, ...(user?.additionalRoles ?? [])]
-    return roles.includes('Manager') || roles.includes('SystemAdmin')
+    return roles.includes('Manager') || roles.includes('SystemAdmin') || hasCitizenRequestManagerRole(user)
   }, [user])
 
   const reviewsQuery = useQuery({
@@ -44,6 +45,7 @@ export function WhatsAppDepartmentReviewFab() {
   })
 
   const reviews = reviewsQuery.data ?? []
+  const dismissOnly = reviews.length > 0 && reviews.every(review => review.dismissOnly)
   const reviewQueryKey = ['ccc', 'citizen-conversations', 'department-reviews', 'pending', user?.userId ?? 'anonymous'] as const
 
   const clearReviewSession = useCallback(() => {
@@ -115,9 +117,11 @@ export function WhatsAppDepartmentReviewFab() {
                 <button
                   type="button"
                   className="text-xs font-semibold leading-tight text-orange-600 hover:text-orange-700 hover:underline"
-                  onClick={requestMarkReviewsDone}
+                  onClick={dismissOnly ? () => { void markReviewsDone() } : requestMarkReviewsDone}
                 >
-                  {t('whatsapp.departmentReviewMarkDone', 'İncelendi Yap')}
+                  {dismissOnly
+                    ? t('whatsapp.departmentReviewDismiss', 'Bildirimi Temizle')
+                    : t('whatsapp.departmentReviewMarkDone', 'İncelendi Yap')}
                 </button>
               </div>
             </div>

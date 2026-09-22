@@ -47,6 +47,7 @@ public sealed class GetCitizenAutoReplyTemplatesQueryHandler : IQueryHandler<Get
             templates.OverdueManagerSms,
             templates.OverdueManagerSmsIsEnabled,
             templates.OverdueStaffSms,
-            templates.OverdueStaffSmsIsEnabled);
+            templates.OverdueStaffSmsIsEnabled,
+            templates.InProgressIsEnabled);
     }
 }

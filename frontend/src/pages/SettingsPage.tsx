@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, RefreshCw } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -112,6 +112,7 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   overdueStaffSmsEnabled: false,
   smsProcessingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".",
   smsProcessingReceivedEnabled: true,
+  inProgressEnabled: true,
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -140,7 +141,7 @@ function buildOverdueManagerSmsTemplate(before: string, after: string): string {
   return `${before}${OVERDUE_MANAGER_SMS_MIDDLE}${after}`
 }
 
-type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'overdueManagerSms' | 'overdueStaffSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled' | 'overdueManagerSmsEnabled' | 'overdueStaffSmsEnabled' | 'smsProcessingReceived' | 'smsProcessingReceivedEnabled'>
+type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'overdueManagerSms' | 'overdueStaffSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled' | 'overdueManagerSmsEnabled' | 'overdueStaffSmsEnabled' | 'smsProcessingReceived' | 'smsProcessingReceivedEnabled' | 'inProgressEnabled'>
 
 function OverdueSmsTemplateEditor({
   value,
@@ -330,9 +331,10 @@ interface CitizenAutoReplyTemplateFieldProps {
   onGreetingChange: (value: string) => void
   noteToken?: string
   includeTargetDepartment?: boolean
+  headerExtra?: ReactNode
 }
 
-function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange, noteToken, includeTargetDepartment = true }: CitizenAutoReplyTemplateFieldProps) {
+function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange, noteToken, includeTargetDepartment = true, headerExtra }: CitizenAutoReplyTemplateFieldProps) {
   const statusToneClass = tone === 'danger'
     ? 'border-red-200 bg-red-50 text-red-700'
     : tone === 'warning'
@@ -346,7 +348,10 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
 
   return (
     <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700">
-      <span className="text-slate-800">{label}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-slate-800">{label}</span>
+        {headerExtra}
+      </div>
       <textarea
         className="field-textarea min-h-[4.5rem]"
         value={greeting}
@@ -991,6 +996,7 @@ export function SettingsPage() {
               ?? DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES.smsProcessingReceived,
           ),
           smsProcessingReceivedEnabled: autoReplyResponse.smsProcessingReceivedEnabled ?? true,
+          inProgressEnabled: autoReplyResponse.inProgressEnabled ?? true,
           afterHoursManagerSmsEnabled: autoReplyResponse.afterHoursManagerSmsEnabled ?? true,
           afterHoursStaffSmsEnabled: autoReplyResponse.afterHoursStaffSmsEnabled ?? false,
           overdueManagerSms: autoReplyResponse.overdueManagerSms ?? '',
@@ -2034,6 +2040,7 @@ export function SettingsPage() {
           false,
         ),
         smsProcessingReceivedEnabled: citizenAutoReplyTemplates.smsProcessingReceivedEnabled ?? true,
+        inProgressEnabled: citizenAutoReplyTemplates.inProgressEnabled ?? true,
         afterHoursManagerSms: citizenAutoReplyTemplates.afterHoursManagerSms ?? '',
         afterHoursStaffSms: citizenAutoReplyTemplates.afterHoursStaffSms ?? '',
         afterHoursManagerSmsEnabled: citizenAutoReplyTemplates.afterHoursManagerSmsEnabled ?? true,
@@ -3930,6 +3937,16 @@ export function SettingsPage() {
                     ...current,
                     greetings: { ...current.greetings, [key]: value },
                   }))}
+                  headerExtra={key === 'inProgress' ? (
+                    <SettingsActiveSwitch
+                      label={(citizenAutoReplyTemplates.inProgressEnabled ?? true) ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
+                      checked={citizenAutoReplyTemplates.inProgressEnabled ?? true}
+                      onChange={() => setCitizenAutoReplyTemplates(current => ({
+                        ...current,
+                        inProgressEnabled: !(current.inProgressEnabled ?? true),
+                      }))}
+                    />
+                  ) : undefined}
                 />
               ))}
             </div>

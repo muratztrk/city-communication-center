@@ -538,9 +538,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `ConversationPanel` → `inboundSenderLabel` (card #1716). Vatandaş Talebi Oluştur dahil.
 
 - **Mesajı İncelemeye Gönder (#6aad490e):** operatör `/whatsapp`'ta talep olan birimlere dropdown ile gönderir;
-  onay metni: `Bu mesaj incelenmek üzere seçim yapılan "{Birim}" birimine gönderilecek…`; hedef birimin **yalnız Müdürü**
-  (SystemAdmin dahil) sağ altta WhatsApp bildirim FAB'ı ile aynı yeşil baloncuk + panel görür; `İncelenmesi Gereken Mesajı Oku`
-  → talep Detaylar popup + üstte Yazışmaya Git; FAB yalnız panelde turuncu `İncelendi Yap` ile kapanır (okuma FAB'ı düşürmez).
+  kapalı placeholder `İncelemeye Gönder` (#6ab2212a);
+  onay metni: `Bu mesaj incelenmek üzere seçim yapılan "{Birim}" birimine gönderilecek…`; hedef birimin **Müdürü**
+  (`ManagerUserId` / vekil) ve SystemAdmin sağ altta WhatsApp bildirim FAB'ı ile aynı yeşil baloncuk + panel görür;
+  `İncelenmesi Gereken Mesajı Oku` → talep Detaylar popup + üstte Yazışmaya Git; FAB yalnız panelde turuncu `İncelendi Yap`
+  ile kapanır (okuma FAB'ı düşürmez). Birim **Sorumlusu** (`ResponsibleUserIdsJson`) ve **Vatandaş Talep Yöneticisi**
+  aynı balonu görür; X'in altında `Bildirimi Temizle` vardır ve onay popup'ı açmadan acknowledge eder (#6ab221a7).
+  CRM bekleyen incelemelerin tümünü görür; müdür/vekil kendi biriminde `İncelendi Yap` kalır.
   Personel (Staff) bu inceleme bildirimini görmez.
   Baloncuk panelindeki `İncelendi Yap` onay popup'ı ister: başlık `İncelemeyi Onayla` + alt çizgi,
   metin `Mesajı incelediğinizi onaylıyor musunuz?` (#6ab19108); `Onayla` acknowledge eder (#6ab18bd1).
@@ -1128,7 +1132,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Vatandaşa Giden SMS Gönderimi "İşleme Alındı" Durumu** (#3386/#3604): Vatandaşa Giden Cevaplar ile mesai dışı SMS
   kutularının arasında ayrı bölüm; yalnız `Phone` kanalından gelen taleplerde `İşleme Alındı`
   otomatik SMS'i bu şablonu kullanır (WhatsApp/sosyal kanallar genel İşleme Alındı şablonunda
-  kalır). **Aktif** kapalıysa Phone kanalı İşleme Alındı SMS'i gönderilmez. Durum hitabı
+  kalır). **Aktif** kapalıysa Phone kanalı İşleme Alındı SMS'i gönderilmez.
+  Yapılmakta kartının başlığındaki **Aktif/Pasif** (`inProgressEnabled`, varsayılan açık, #6ab21e10)
+  kapalıyken durum mesajı ne WhatsApp ne çağrı SMS'i olarak vatandaşa gitmez.
+  Durum hitabı
   (`greetings.smsProcessingReceived`) diğer durumlardan bağımsızdır.
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
   Tamamlandı kartında `{Tamamlama Notu}`, İptal kartında `{İptal Notu}` birim ek metninden sonra

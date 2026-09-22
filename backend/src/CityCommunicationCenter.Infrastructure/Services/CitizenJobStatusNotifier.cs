@@ -512,6 +512,11 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return null;
         }
 
+        if (statusLabel == "Yapılmakta" && !templates.InProgressIsEnabled)
+        {
+            return null;
+        }
+
         return statusLabel switch
         {
             "İşleme Alındı" => templates.ResolveProcessingReceivedTemplate(channel),

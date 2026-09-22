@@ -45,7 +45,9 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             tenantId,
             cancellationToken);
 
-        if (actor.RoleCode is not (RoleCode.Manager or RoleCode.SystemAdmin))
+        var isSystemAdmin = actor.RoleCode == RoleCode.SystemAdmin;
+        var isCitizenRequestManager = UserRoleAccess.IsCitizenRequestManager(actor);
+        if (!isSystemAdmin && actor.RoleCode != RoleCode.Manager && !isCitizenRequestManager)
         {
             throw new ForbiddenAccessException("Bu inceleme bildirimini onaylama yetkiniz yok.");
         }
@@ -59,7 +61,7 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             return false;
         }
 
-        if (actor.RoleCode != RoleCode.SystemAdmin)
+        if (!isSystemAdmin && !isCitizenRequestManager)
         {
             var canAccessDepartment = await UserDepartmentAccess.CanWorkInDepartmentAsync(
                 _dbContext,

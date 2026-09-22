@@ -665,6 +665,8 @@ export interface CitizenConversationDepartmentReview {
   requestedAtUtc: string;
   citizenPhone?: string | null;
   citizenName?: string | null;
+  /** Müdür ve sistem yöneticisi dışında (sorumlu, vatandaş talep yöneticisi) onay popup'ı yoktur. */
+  dismissOnly?: boolean;
 }
 
 export interface CitizenConversationDetail {
@@ -1045,6 +1047,8 @@ export interface CitizenAutoReplyTemplates {
   overdueStaffSmsEnabled?: boolean;
   smsProcessingReceived?: string;
   smsProcessingReceivedEnabled?: boolean;
+  /** Kapalıyken Yapılmakta otomatik mesajı WhatsApp ve çağrı SMS'ine gitmez. */
+  inProgressEnabled?: boolean;
 }
 
 export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }

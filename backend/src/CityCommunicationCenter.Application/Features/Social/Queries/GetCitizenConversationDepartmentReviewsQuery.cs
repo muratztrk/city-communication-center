@@ -33,12 +33,15 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
             tenantId,
             cancellationToken);
 
-        if (actor.RoleCode is not (RoleCode.Manager or RoleCode.SystemAdmin))
+        var isSystemAdmin = actor.RoleCode == RoleCode.SystemAdmin;
+        var isCitizenRequestManager = UserRoleAccess.IsCitizenRequestManager(actor);
+        if (!isSystemAdmin && actor.RoleCode != RoleCode.Manager && !isCitizenRequestManager)
         {
             throw new ForbiddenAccessException("Bu inceleme bildirimlerini görüntüleme yetkiniz yok.");
         }
 
-        var scopedDepartmentIds = actor.RoleCode == RoleCode.SystemAdmin
+        // CRM tüm bekleyen incelemeleri görür. Müdür ve sorumlu yalnız kendi birimleriyle sınırlıdır.
+        var scopedDepartmentIds = isSystemAdmin || isCitizenRequestManager
             ? null
             : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
                 _dbContext,
@@ -61,7 +64,16 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
             query = query.Where(review => scopedDepartmentIds.Contains(review.DepartmentId));
         }
 
-        return await query
+        var managedDepartmentIds = isSystemAdmin
+            ? new List<Guid>()
+            : await _dbContext.Departments
+                .AsNoTracking()
+                .Where(department => department.TenantId == tenantId
+                    && (department.ManagerUserId == actor.UserId || department.DeputyManagerUserId == actor.UserId))
+                .Select(department => department.DepartmentId)
+                .ToListAsync(cancellationToken);
+
+        var reviews = await query
             .OrderByDescending(review => review.RequestedAtUtc)
             .Select(review => new CitizenConversationDepartmentReviewDto(
                 review.ReviewId,
@@ -88,5 +100,17 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
                     .Select(conversation => conversation.CitizenName)
                     .FirstOrDefault()))
             .ToListAsync(cancellationToken);
+
+        if (isSystemAdmin)
+        {
+            return reviews;
+        }
+
+        return reviews
+            .Select(review => review with
+            {
+                DismissOnly = !managedDepartmentIds.Contains(review.DepartmentId),
+            })
+            .ToList();
     }
 }

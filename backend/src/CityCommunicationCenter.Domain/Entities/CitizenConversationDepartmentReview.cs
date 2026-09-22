@@ -20,6 +20,12 @@ public sealed class CitizenConversationDepartmentReview : AuditableTenantEntity,
 
     public DateTimeOffset? AcknowledgedAtUtc { get; set; }
 
+    /// <summary>
+    /// Sorumlu veya vatandaş talep yöneticisinin kişisel kapatması. Müdür onayı
+    /// <see cref="AcknowledgedAtUtc"/> ile herkesten düşürür.
+    /// </summary>
+    public string DismissedByUserIdsJson { get; set; } = "[]";
+
     public CitizenConversation CitizenConversation { get; set; } = null!;
 
     public Department Department { get; set; } = null!;

@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Common;
+using CityCommunicationCenter.Application.Features.Departments;
 using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 
@@ -75,7 +76,7 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
 
         var reviews = await query
             .OrderByDescending(review => review.RequestedAtUtc)
-            .Select(review => new CitizenConversationDepartmentReviewDto(
+            .Select(review => new PendingDepartmentReviewRow(
                 review.ReviewId,
                 review.CitizenConversationId,
                 review.DepartmentId,
@@ -98,19 +99,41 @@ public sealed class GetCitizenConversationDepartmentReviewsQueryHandler
                 _dbContext.CitizenConversations
                     .Where(conversation => conversation.CitizenConversationId == review.CitizenConversationId)
                     .Select(conversation => conversation.CitizenName)
-                    .FirstOrDefault()))
+                    .FirstOrDefault(),
+                review.DismissedByUserIdsJson))
             .ToListAsync(cancellationToken);
 
-        if (isSystemAdmin)
-        {
-            return reviews;
-        }
-
         return reviews
-            .Select(review => review with
-            {
-                DismissOnly = !managedDepartmentIds.Contains(review.DepartmentId),
-            })
+            .Where(review => isSystemAdmin
+                || managedDepartmentIds.Contains(review.DepartmentId)
+                || !DepartmentResponseFactory.ParseResponsibleUserIds(review.DismissedByUserIdsJson).Contains(actor.UserId))
+            .Select(review => new CitizenConversationDepartmentReviewDto(
+                review.ReviewId,
+                review.CitizenConversationId,
+                review.DepartmentId,
+                review.DepartmentName,
+                review.JobId,
+                review.SocialMessageId,
+                review.RequestedByUserId,
+                review.RequestedByDisplayName,
+                review.RequestedAtUtc,
+                review.CitizenPhone,
+                review.CitizenName,
+                DismissOnly: !isSystemAdmin && !managedDepartmentIds.Contains(review.DepartmentId)))
             .ToList();
     }
+
+    private sealed record PendingDepartmentReviewRow(
+        Guid ReviewId,
+        Guid CitizenConversationId,
+        Guid DepartmentId,
+        string DepartmentName,
+        Guid JobId,
+        Guid SocialMessageId,
+        Guid RequestedByUserId,
+        string? RequestedByDisplayName,
+        DateTimeOffset RequestedAtUtc,
+        string? CitizenPhone,
+        string? CitizenName,
+        string? DismissedByUserIdsJson);
 }

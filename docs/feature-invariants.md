@@ -543,7 +543,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`ManagerUserId` / vekil) ve SystemAdmin sağ altta WhatsApp bildirim FAB'ı ile aynı yeşil baloncuk + panel görür;
   `İncelenmesi Gereken Mesajı Oku` → talep Detaylar popup + üstte Yazışmaya Git; FAB yalnız panelde turuncu `İncelendi Yap`
   ile kapanır (okuma FAB'ı düşürmez). Birim **Sorumlusu** (`ResponsibleUserIdsJson`) ve **Vatandaş Talep Yöneticisi**
-  aynı balonu görür; X'in altında `Bildirimi Temizle` vardır ve onay popup'ı açmadan acknowledge eder (#6ab221a7).
+  aynı balonu görür; X'in altında `Bildirimi Temizle` vardır ve onay popup'ı açmadan yalnız kendi
+  bildirimini kapatır (`DismissedByUserIdsJson`, #6ab221a7). Bu kapatma müdür/vekil balonunu düşürmez;
+  müdür `İncelendi Yap` onaylarsa kayıt `AcknowledgedAtUtc` olur ve sorumlu ile VTY'den de silinir (#6ab220c0).
   CRM bekleyen incelemelerin tümünü görür; müdür/vekil kendi biriminde `İncelendi Yap` kalır.
   Personel (Staff) bu inceleme bildirimini görmez.
   Baloncuk panelindeki `İncelendi Yap` onay popup'ı ister: başlık `İncelemeyi Onayla` + alt çizgi,

@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Common;
+using CityCommunicationCenter.Application.Features.Departments;
 using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 
@@ -75,8 +76,29 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             }
         }
 
-        review.AcknowledgedAtUtc = DateTimeOffset.UtcNow;
+        var closesForEveryone = isSystemAdmin || await _dbContext.Departments
+            .AsNoTracking()
+            .AnyAsync(
+                department => department.TenantId == tenantId
+                    && department.DepartmentId == review.DepartmentId
+                    && (department.ManagerUserId == actor.UserId || department.DeputyManagerUserId == actor.UserId),
+                cancellationToken);
+
         review.UpdatedByUserId = actor.UserId;
+        if (closesForEveryone)
+        {
+            review.AcknowledgedAtUtc = DateTimeOffset.UtcNow;
+        }
+        else
+        {
+            var dismissedBy = DepartmentResponseFactory.ParseResponsibleUserIds(review.DismissedByUserIdsJson).ToList();
+            if (!dismissedBy.Contains(actor.UserId))
+            {
+                dismissedBy.Add(actor.UserId);
+                review.DismissedByUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(dismissedBy);
+            }
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

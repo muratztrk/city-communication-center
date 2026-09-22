@@ -1,3 +1,7 @@
+## Round 1291 — Trello Doing (1 web)
+
+- **#6ab220c0:** Sorumlu / VTY `Bildirimi Temizle` yalnız kendi balonunu kapatır. Müdür `İncelendi Yap` onaylarsa bildirim sorumludan ve VTY'den de düşer.
+
 ## Round 1290 — Trello Doing (3 web)
 
 - **#6ab21e10:** Vatandaşa Giden Cevaplar → Yapılmakta başlığında Aktif/Pasif. Pasifken Yapılmakta mesajı WhatsApp ve çağrı SMS'ine gitmez.

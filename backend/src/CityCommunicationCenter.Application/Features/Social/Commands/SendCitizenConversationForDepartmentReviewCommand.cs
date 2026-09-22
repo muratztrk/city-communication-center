@@ -117,6 +117,7 @@ public sealed class SendCitizenConversationForDepartmentReviewCommandHandler
             review.RequestedByUserId = actor.UserId;
             review.RequestedAtUtc = utcNow;
             review.UpdatedByUserId = actor.UserId;
+            review.DismissedByUserIdsJson = "[]";
         }
         else
         {

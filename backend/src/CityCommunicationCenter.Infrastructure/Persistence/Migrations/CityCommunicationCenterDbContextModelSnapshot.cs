@@ -495,6 +495,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("departmentid");
 
+                    b.Property<string>("DismissedByUserIdsJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("dismissedbyuseridsjson");
+
                     b.Property<Guid>("JobId")
                         .HasColumnType("uuid")
                         .HasColumnName("jobid");

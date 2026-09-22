@@ -144,7 +144,7 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
     /// <summary>
     /// İncelendi Yap, hedef birimin müdür, vekil, sorumlu ve VTY ziline düşer.
     /// Aynı kayıt incelemeye gönderen Vatandaş Talep Operatörünün ziline de yazılır (#6ab2627f).
-    /// Metin: birim + basan kullanıcı. Köşe uyarısı çıkmaz (#6ab23883, #6ab25b70).
+    /// Metin: birim + onaylayan + incelemeye gönderen operatör (#6ab26637). Köşe uyarısı çıkmaz (#6ab23883, #6ab25b70).
     /// </summary>
     private async Task<IReadOnlyList<Notification>> CreateReviewedNotificationsAsync(
         Guid tenantId,
@@ -219,12 +219,15 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
             return [];
         }
 
-        var actorName = string.IsNullOrWhiteSpace(actor.DisplayName)
-            ? (string.IsNullOrWhiteSpace(actor.Username) ? "Kullanıcı" : actor.Username)
-            : actor.DisplayName.Trim();
-        actorName = actorName.Replace("{", string.Empty, StringComparison.Ordinal).Replace("}", string.Empty, StringComparison.Ordinal);
+        var actorName = FormatNotificationPersonName(actor.DisplayName, actor.Username, "Kullanıcı");
+        var requester = await _dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.TenantId == tenantId && user.UserId == review.RequestedByUserId)
+            .Select(user => new { user.DisplayName, user.Username })
+            .FirstOrDefaultAsync(cancellationToken);
+        var operatorName = FormatNotificationPersonName(requester?.DisplayName, requester?.Username, "Operatör");
         var unitName = string.IsNullOrWhiteSpace(departmentName) ? "Birim" : departmentName.Trim();
-        var message = unitName + " {{" + actorName + "}} tarafından mesaj incelemesi tamamlandı.";
+        var message = unitName + " {{" + actorName + "}} tarafından " + operatorName + " personelinin ilettiği mesaj incelemesi tamamlandı.";
 
         return recipientIds
             .Select(userId => new Notification
@@ -242,6 +245,14 @@ public sealed class AcknowledgeCitizenConversationDepartmentReviewCommandHandler
                 CreatedByUserId = actor.UserId,
             })
             .ToList();
+    }
+
+    private static string FormatNotificationPersonName(string? displayName, string? username, string fallback)
+    {
+        var name = string.IsNullOrWhiteSpace(displayName)
+            ? (string.IsNullOrWhiteSpace(username) ? fallback : username.Trim())
+            : displayName.Trim();
+        return name.Replace("{", string.Empty, StringComparison.Ordinal).Replace("}", string.Empty, StringComparison.Ordinal);
     }
 
     private static bool IsCitizenRequestOperator(RoleCode roleCode, string? additionalRoleCodesJson) =>

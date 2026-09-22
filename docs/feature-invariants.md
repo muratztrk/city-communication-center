@@ -547,7 +547,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile kapanır (okuma FAB'ı düşürmez). Müdür, sorumlu ve o birimdeki VTY için düğme `İncelendi Yap`tır;
   `Bildirimi Temizle` bu üçünde kullanılmaz (#6ab25af6). Onay `AcknowledgedAtUtc` yazar ve üçünün balonundan da düşer.
   Aynı onay, bu üç kişinin ve incelemeye gönderen Vatandaş Talep Operatörünün zil listesine `Mesaj incelendi` yazar (#6ab2627f);
-  metin `{Birim} {{kullanıcı}} tarafından mesaj incelemesi tamamlandı.` ve kullanıcı adı yeşildir (#6ab25b70).
+  metin `{Birim} {{onaylayan}} tarafından {operatör} personelinin ilettiği mesaj incelemesi tamamlandı.`;
+  onaylayan adı yeşildir, operatör incelemeye gönderen kullanıcının görünen adıdır (#6ab25b70, #6ab26637).
   Kayıt sayfa yenilenmeden zilde görünür: SignalR `suppressToast` taşınır, liste önbelleğe hemen eklenir,
   onaylayan istemci de acknowledge yanıtından sonra bildirim sorgusunu tazeler (#6ab265c7).
   Sağ üst köşe uyarısı çıkmaz (#6ab23883).
@@ -1141,7 +1142,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kalır). **Aktif** kapalıysa Phone kanalı İşleme Alındı SMS'i gönderilmez.
   Yapılmakta kartının başlığındaki **Aktif/Pasif** (`inProgressEnabled`, varsayılan açık, #6ab21e10)
   kapalıyken durum mesajı ne WhatsApp ne çağrı SMS'i olarak vatandaşa gitmez.
-  Başlığın hemen altında şu cümle durur (#6ab2637a): «Vatandaşın 24 saat içinde cevap vermemesi ve Meta'nın mesaj gönderme kısıtlaması nedeniyle, talebin hızlı bir şekilde aksiyon alınması gereken durumlarda kullanılması önerilir.»
+  Başlığın hemen altında şu cümle durur (#6ab2637a): «Vatandaşın 24 saat içinde cevap vermemesi, talebin vatandaş mesajından 24 saat sonra yapılması durumunda, Meta'nın mesaj gönderme kısıtlaması nedeniyle, talebin hızlı tamamlandığı durumlarda kullanılması önerilir.»
   Durum hitabı
   (`greetings.smsProcessingReceived`) diğer durumlardan bağımsızdır.
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;

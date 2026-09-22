@@ -1690,7 +1690,7 @@
       "smsProcessingReceivedTitle": "Vatandaşa Giden SMS Gönderimi \"İşleme Alındı\" Durumu",
       "smsProcessingReceivedDescription": "Yalnız çağrı (SMS) kanalından gelen taleplerde İşleme Alındı otomatik SMS metnini düzenler.",
       "smsProcessingReceivedSaved": "SMS gönderimi İşleme Alındı mesajı kaydedildi.",
-      "inProgressHint": "Vatandaşın 24 saat içinde cevap vermemesi ve Meta'nın mesaj gönderme kısıtlaması nedeniyle, talebin hızlı bir şekilde aksiyon alınması gereken durumlarda kullanılması önerilir."
+      "inProgressHint": "Vatandaşın 24 saat içinde cevap vermemesi, talebin vatandaş mesajından 24 saat sonra yapılması durumunda, Meta'nın mesaj gönderme kısıtlaması nedeniyle, talebin hızlı tamamlandığı durumlarda kullanılması önerilir."
     },
     "templates": {
       "createSuccess": "Şablon oluşturuldu.",

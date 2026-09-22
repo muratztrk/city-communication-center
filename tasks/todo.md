@@ -1,3 +1,8 @@
+## Round 1300 — Trello Doing (2 web)
+
+- **#6ab2637a reopen:** Yapılmakta altındaki cümle 24 saat sonra / hızlı tamamlanma metniyle değişti.
+- **#6ab26637:** Zil metni `{Birim} {{onaylayan}} tarafından {operatör} personelinin ilettiği mesaj incelemesi tamamlandı.`
+
 ## Round 1299 — Trello Doing (3 web)
 
 - **#6ab2627f reopen:** İncelendi Yap onayından sonra `Mesaj incelendi` incelemeye gönderen operatörün zilinde kalır.

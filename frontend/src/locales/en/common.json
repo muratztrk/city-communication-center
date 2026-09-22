@@ -1667,7 +1667,7 @@
       "smsProcessingReceivedTitle": "Citizen outbound SMS \"Processing received\" status",
       "smsProcessingReceivedDescription": "Edits the automatic Processing Received SMS text for requests from the phone (call/SMS) channel only.",
       "smsProcessingReceivedSaved": "Processing Received SMS template saved.",
-      "inProgressHint": "Recommended when the citizen does not reply within 24 hours and Meta's messaging restriction means the request should be acted on quickly."
+      "inProgressHint": "Recommended when the citizen does not reply within 24 hours and the request is handled 24 hours after the citizen's message, because Meta's messaging restriction applies when the request is completed quickly."
     },
     "citizen": {
       "sectionTitle": "Create Citizen Request",

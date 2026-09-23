@@ -333,6 +333,7 @@ export function ConversationEntryBubble({
               variant="inline"
               tone="outbound"
               compact={compact}
+              emphasizeOrg={highlightOutboundPhrases && Boolean(entry.isAutomaticMessage)}
             />
           ) : null}
           {hasMedia && (

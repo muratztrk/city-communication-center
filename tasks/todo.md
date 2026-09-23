@@ -1,3 +1,7 @@
+## Round 1313 — Trello Doing (1 web)
+
+- **#6ab40f1e:** Otomatik giden balonun üst başlığında kurum ve birim adı siyah. Gövde boyanmaz.
+
 ## Round 1312 — Trello Doing (2 web)
 
 - **#6ab3e0ea:** Otomatik giden balonda kurum ve birim adının siyah rengi geri alındı.

@@ -309,13 +309,13 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 m.Job != null ? m.Job.DueDateUtc : null,
                 m.Job != null ? m.Job.CompletedAtUtc : null,
                 m.Job != null ? m.Job.UpdatedAtUtc : null,
-                m.Job != null
-                    ? m.Job.Tasks.Count(task =>
-                        task.CurrentStatus != Domain.Enums.TaskStatus.Completed
-                        && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
-                        && task.CurrentStatus != Domain.Enums.TaskStatus.Rejected)
-                    : 0))
+                // Filled below. Counting through Job.Tasks inside this projection
+                // shares the collection with the assignee lookup and can count
+                // closed tasks, so an İşleme Alındı request reads as Yapılmakta.
+                0))
             .ToListAsync(cancellationToken);
+
+        tickets = await ApplyOpenTaskCountsAsync(tickets, cancellationToken);
 
         var statusJobIds = await _dbContext.SocialMessages
             .AsNoTracking()
@@ -403,6 +403,44 @@ public sealed class GetCitizenConversationDetailQueryHandler
             tickets,
             pendingDepartmentReviewDepartmentIds.Count,
             pendingDepartmentReviewDepartmentIds);
+    }
+
+    /// <summary>
+    /// Open tasks only: Completed, Cancelled and Rejected do not count.
+    /// Same rule as the job detail screen and the web client.
+    /// </summary>
+    private async Task<List<CitizenConversationTicketDto>> ApplyOpenTaskCountsAsync(
+        List<CitizenConversationTicketDto> tickets,
+        CancellationToken cancellationToken)
+    {
+        var jobIds = tickets
+            .Where(ticket => ticket.JobId.HasValue)
+            .Select(ticket => ticket.JobId!.Value)
+            .Distinct()
+            .ToList();
+        if (jobIds.Count == 0)
+        {
+            return tickets.Select(ticket => ticket with { OpenTaskCount = 0 }).ToList();
+        }
+
+        var counts = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(task => jobIds.Contains(task.JobId)
+                && task.CurrentStatus != Domain.Enums.TaskStatus.Completed
+                && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
+                && task.CurrentStatus != Domain.Enums.TaskStatus.Rejected)
+            .GroupBy(task => task.JobId)
+            .Select(group => new { group.Key, Count = group.Count() })
+            .ToDictionaryAsync(item => item.Key, item => item.Count, cancellationToken);
+
+        return tickets
+            .Select(ticket => ticket with
+            {
+                OpenTaskCount = ticket.JobId is Guid jobId && counts.TryGetValue(jobId, out var count)
+                    ? count
+                    : 0,
+            })
+            .ToList();
     }
 
     /// <summary>

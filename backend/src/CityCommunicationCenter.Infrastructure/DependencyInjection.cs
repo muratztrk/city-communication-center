@@ -79,6 +79,7 @@ public static class DependencyInjection
         services.AddScoped<IAfterHoursJobSmsNotifier>(provider => provider.GetRequiredService<AfterHoursJobSmsNotifier>());
         services.AddScoped<IOverdueJobSmsNotifier>(provider => provider.GetRequiredService<AfterHoursJobSmsNotifier>());
         services.AddScoped<ITenantFileStorageSettingsService, TenantFileStorageSettingsService>();
+        services.AddHostedService<DatabaseBackupLoginProbeHostedService>();
         services.AddScoped<INasConnectivityTester, SmbNasConnectivityTester>();
         services.AddScoped<INasAttachmentStorage, SmbNasAttachmentStorage>();
         services.AddScoped<IAttachmentContentProvider, AttachmentContentProvider>();

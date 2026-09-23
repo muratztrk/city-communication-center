@@ -152,7 +152,7 @@ export function ConversationEntryBubble({
   const isReEngagementFailure = !isInbound
     && entry.deliveryStatus === 'Failed'
     && isWhatsAppReEngagementError(entry.deliveryError)
-  const isPending = !isInbound && (entry.deliveryStatus === 'Pending' || isReEngagementFailure)
+  const isPending = !isInbound && entry.deliveryStatus === 'Pending'
   const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
   const editedByName = entry.editedByDisplayName?.trim() || null
   const relayedByName = entry.relayedByDisplayName?.trim() || null
@@ -419,7 +419,7 @@ export function ConversationEntryBubble({
             {!isInbound && entry.deliveryStatus ? <span aria-hidden="true">·</span> : null}
             <span title={queuedTimeTitle}>{sentTime}</span>
           </p>
-          {!isInbound && entry.deliveryStatus === 'Failed' && !isReEngagementFailure && deliveryErrorMessage ? (
+          {!isInbound && entry.deliveryStatus === 'Failed' && deliveryErrorMessage ? (
             <p className={`mt-1 text-[10px] leading-snug ${theme === 'light' ? 'text-red-100' : 'text-red-200'}`}>
               {deliveryErrorMessage}
             </p>

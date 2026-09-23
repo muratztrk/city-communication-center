@@ -2554,9 +2554,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
   `onMessageUpdated` ile category seçili kalır.
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği
-  için yalnızca Meta onaylı şablon mesaj gönderilebilir.` Vatandaş yeniden yazdığında pencere
-  açıksa bekleyen/hatalı re-engagement mesaj Düzenle + Mesajı Gönder serbest; BE `Failed`
-  re-engagement girişlerini pencere açıkken düzenle/gönder kabul eder (#2552 reopen).
+  için yalnızca Meta onaylı şablon mesaj gönderilebilir.` `Failed` re-engagement balonu Beklemede
+  ve Mesajı Gönder göstermez; İletilemedi altında bu cümle durur. Yeniden gönderilmez.
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472/#r531):** personel adı `text-sm font-semibold` (#2006).
@@ -3093,9 +3092,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   terminal Pending varsa `ReleaseTerminalMessagesAsync` yalnızca `ReleasedAtUtc` set eder (#3736 reopen).
 - **WA Beklemede Mesajı Gönder (#3739 / #6aad1654):** `/whatsapp` ve `ConversationPanel` Pending balonunda
   24s penceresi kapalıysa `Mesajı Gönder` onay dialogu açılmaz; yalnızca **Meta şablon mesajı gerekli**
-  uyarısı gösterilir (Kapat). Pencere açıkken onay akışı devam eder; gönderim backend'de dener,
-  re-engagement hatasında Pending kalır (#3691). Gönderim tamamlanmazsa API
-  `204` döndürmez — `ValidationProblemDetails` ile Türkçe hata (FE toast/dialog).
+  uyarısı gösterilir (Kapat). Pencere açıkken onay akışı devam eder. Pencere kapalıyken serbest
+  metin WhatsApp'a gitmez. `Failed` re-engagement balonunda Mesajı Gönder yoktur.
+  Gönderim tamamlanmazsa API `204` döndürmez — `ValidationProblemDetails` ile Türkçe hata (FE toast/dialog).
   WhatsApp ham JSON hata yanıtı `DeliveryError` (max 500) alanına yazılmadan önce formatlanır/kısaltılır (#3740).
 - **WA konuşma avatarı (#6aad2479):** `/whatsapp` sol liste ve detay başlık initials dairesi
   `bg-emerald-200 text-emerald-800` (önceki `emerald-100` yerine hafif koyu ton).
@@ -3105,9 +3104,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   mükerrer kontrolü de talep bazlıdır (`ReleaseTerminalMessagesAsync`). `TryClaimPendingSendAsync`
   `ExecuteUpdate` filtresinde `StartsWith` yalnızca EF SQL'e çevrilebilir overload ile kullanılır
   (`StringComparison` overload 500 üretir).
-- **WA Beklemede kalır (#3691):** 24s penceresi kapalı / re-engagement gönderim hatasında
-  kuyruk mesajı `Failed`→`İletilemedi` olmaz; `Pending`/`Beklemede` kalır (BE
-  `ShouldRemainPendingAfterSendFailure`, FE re-engagement Failed balonu da Beklemede gösterir).
+- **WA Beklemede kalır (#3691):** 24s penceresi kapalıyken serbest metin WhatsApp'a gitmez;
+  satır `Pending`/`Beklemede` kalır ve API aynı 24s cümlesini döner. Şablon mesajlar gider.
+  WhatsApp'ın sonradan `Failed` + re-engagement yazdığı balon Beklemede sayılmaz; İletilemedi
+  ve 24s cümlesi gösterilir, Mesajı Gönder yoktur.
 - **WA Yanıt Bekleyen (#3674):** Konuşma listesinde son mesaj yönü `ConversationEntryTimelineTime
   .ResolveSortKey` ile belirlenir; son outbound operatör mesajıysa **Yanıt Bekleyen** olmaz.
 - **Görevsiz iptal outbound Onay Bekleyen (#3664 reopen):** pending değerde başlık ve metin

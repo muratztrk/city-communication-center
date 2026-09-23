@@ -56,6 +56,15 @@ public sealed class EditPendingConversationEntryCommandHandler
                 await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(_dbContext, tenantId, message, cancellationToken),
                 utcNow);
 
+        if (WhatsAppServiceWindow.IsReEngagementFailure(entry))
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(request.EntryId),
+                    WhatsAppServiceWindow.ReEngagementOperatorMessage)
+            ]);
+        }
+
         if (!WhatsAppServiceWindow.IsRetryableOutboundEntry(entry, windowOpen))
         {
             throw new ValidationException([

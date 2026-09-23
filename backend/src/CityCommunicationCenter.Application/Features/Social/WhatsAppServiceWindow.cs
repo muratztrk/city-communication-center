@@ -8,9 +8,18 @@ internal static class WhatsAppServiceWindow
     public static bool IsWindowOpen(DateTimeOffset? lastInboundAt, DateTimeOffset now) =>
         lastInboundAt.HasValue && (now - lastInboundAt.Value) < TimeSpan.FromHours(24);
 
+    public const string ReEngagementOperatorMessage =
+        "Vatandaş son 24 saat içinde mesaj göndermediği için yalnızca Meta onaylı şablon mesaj gönderilebilir.";
+
     public static bool IsReEngagementError(string? error) =>
         !string.IsNullOrWhiteSpace(error)
         && error.Contains("re-engagement", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>WhatsApp'ın reddettiği serbest metin. Yeniden gönderilmez; operatöre 24s açıklaması gösterilir.</summary>
+    public static bool IsReEngagementFailure(SocialConversationEntry entry) =>
+        entry.Direction == ConversationEntryDirection.Outbound
+        && entry.DeliveryStatus == ConversationDeliveryStatus.Failed
+        && IsReEngagementError(entry.DeliveryError);
 
     /// <summary>24s penceresi / re-engagement hatasında kuyruk mesajı Beklemede kalır (#3691).</summary>
     public static bool ShouldRemainPendingAfterSendFailure(string? error, bool windowOpen) =>

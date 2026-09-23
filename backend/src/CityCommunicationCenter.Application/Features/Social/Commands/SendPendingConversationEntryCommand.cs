@@ -57,6 +57,27 @@ public sealed class SendPendingConversationEntryCommandHandler
                 await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(_dbContext, tenantId, message, cancellationToken),
                 utcNow);
 
+        if (WhatsAppServiceWindow.IsReEngagementFailure(entry))
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(request.EntryId),
+                    WhatsAppServiceWindow.ReEngagementOperatorMessage)
+            ]);
+        }
+
+        // Pencere kapalıyken serbest metin WhatsApp'a gitmez; kimlik yazılıp Failed'e düşmesin.
+        if (message.Channel == SocialChannel.WhatsApp
+            && !windowOpen
+            && string.IsNullOrWhiteSpace(entry.WhatsAppTemplateName))
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(request.EntryId),
+                    WhatsAppServiceWindow.ReEngagementOperatorMessage)
+            ]);
+        }
+
         if (!WhatsAppServiceWindow.IsRetryableOutboundEntry(entry, windowOpen))
         {
             throw new ValidationException([

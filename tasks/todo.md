@@ -1,3 +1,9 @@
+## Round 1310 — Trello Doing (3 web)
+
+- **#6ab3da96:** `/whatsapp` giden balonda İşleme Alındı mavi, Yapılmakta turuncu, Tamamlandı turkuaz, İptal Edildi kırmızı.
+- **#6ab3db77:** Aynı balonda `Yapılan İş:` turkuaz, `Not:` kırmızı.
+- **#6ab3c335:** Yedek sunucusu alan sırası ek sunucusundaki NAS bloğuyla aynı; bağlantı testi en altta.
+
 ## Round 1309 — Trello Doing (2 web)
 
 - **#6ab3ae37:** Yedek sunucusu etiket `IP Adresi / Sunucu`. Paylaşım Adı altında Kök Klasör ve NAS bağlantı testi.

@@ -3228,128 +3228,132 @@ export function SettingsPage() {
                 <p className="helper-copy">{t('settings.databaseBackup.sectionDescription')}</p>
               </div>
             </div>
-            <label className="field-row">
-              <span className="field-label">{t('settings.fileStorage.host')}</span>
-              <input
-                className="field-input"
-                placeholder="//sunucu/paylasim"
-                value={databaseBackupForm.nasHost ?? ''}
-                onChange={event => setDatabaseBackupForm(current => ({ ...current, nasHost: event.target.value || null }))}
-              />
-            </label>
-            <label className="field-row">
-              <span className="field-label">{t('settings.fileStorage.shareName')}</span>
-              <input
-                className="field-input"
-                value={databaseBackupForm.nasShareName ?? ''}
-                onChange={event => setDatabaseBackupForm(current => ({ ...current, nasShareName: event.target.value || null }))}
-              />
-            </label>
-            <label className="field-block">
-              <span className="field-label">{t('settings.fileStorage.rootFolder')}</span>
-              <input
-                className="field-input"
-                placeholder="testtim"
-                value={databaseBackupForm.nasRootFolder ?? ''}
-                onChange={event => setDatabaseBackupForm(current => ({ ...current, nasRootFolder: event.target.value || null }))}
-              />
-              <p className="helper-copy mt-1">{t('settings.fileStorage.rootFolderHelp')}</p>
-            </label>
-            <div className="space-y-3 border-t border-slate-200 pt-4">
-              <div className="text-sm font-extrabold text-slate-900">{t('settings.fileStorage.testTitleNas')}</div>
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-sm font-semibold text-slate-700">{t('settings.ldapConnectionStatus')}</div>
-                  {databaseBackupNasTestStatus.type !== 'idle' ? (
-                    <div className={`mt-1 text-sm font-medium ${databaseBackupNasTestStatus.type === 'success' ? 'text-emerald-700' : databaseBackupNasTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
-                      {databaseBackupNasTestStatus.type === 'success' ? '✅ ' : databaseBackupNasTestStatus.type === 'error' ? '❌ ' : '⏳ '}
-                      {databaseBackupNasTestStatus.message}
+            <section className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div className="grid flex-1 gap-4">
+                <label className="field-row">
+                  <span className="field-label">{t('settings.fileStorage.host')}</span>
+                  <input
+                    className="field-input"
+                    placeholder="//sunucu/paylasim"
+                    value={databaseBackupForm.nasHost ?? ''}
+                    onChange={event => setDatabaseBackupForm(current => ({ ...current, nasHost: event.target.value || null }))}
+                  />
+                </label>
+                <label className="field-row">
+                  <span className="field-label">{t('settings.fileStorage.shareName')}</span>
+                  <input
+                    className="field-input"
+                    value={databaseBackupForm.nasShareName ?? ''}
+                    onChange={event => setDatabaseBackupForm(current => ({ ...current, nasShareName: event.target.value || null }))}
+                  />
+                </label>
+                <label className="field-block">
+                  <span className="field-label">{t('settings.fileStorage.rootFolder')}</span>
+                  <input
+                    className="field-input"
+                    placeholder="testtim"
+                    value={databaseBackupForm.nasRootFolder ?? ''}
+                    onChange={event => setDatabaseBackupForm(current => ({ ...current, nasRootFolder: event.target.value || null }))}
+                  />
+                  <p className="helper-copy mt-1">{t('settings.fileStorage.rootFolderHelp')}</p>
+                </label>
+                <label className="field-row">
+                  <span className="field-label">{t('settings.fileStorage.protocol')}</span>
+                  <SingleSelectDropdown
+                    options={[
+                      { value: 'SMB/CIFS', label: 'SMB/CIFS' },
+                      { value: 'NFS', label: 'NFS' },
+                    ]}
+                    value={databaseBackupForm.nasProtocol}
+                    onChange={nasProtocol => setDatabaseBackupForm(current => ({ ...current, nasProtocol: nasProtocol as DatabaseBackupSettingsUpdate['nasProtocol'] }))}
+                    placeholder={t('settings.fileStorage.protocol')}
+                  />
+                </label>
+                <label className="field-row">
+                  <span className="field-label">{t('settings.fileStorage.username')}</span>
+                  <input
+                    className="field-input"
+                    value={databaseBackupForm.nasUsername ?? ''}
+                    onChange={event => setDatabaseBackupForm(current => ({ ...current, nasUsername: event.target.value || null }))}
+                  />
+                </label>
+                <label className="field-row">
+                  <span className="field-label">{t('settings.fileStorage.password')}</span>
+                  <input
+                    className="field-input"
+                    type="password"
+                    placeholder={t('settings.fileStorage.passwordPlaceholder')}
+                    value={databaseBackupForm.nasPassword ?? (databaseBackupSettings?.nasHasPassword ? SMS_PASSWORD_MASK : '')}
+                    onFocus={() => {
+                      if (!databaseBackupForm.nasPassword && databaseBackupSettings?.nasHasPassword) {
+                        setDatabaseBackupForm(current => ({ ...current, nasPassword: '' }))
+                      }
+                    }}
+                    onBlur={() => {
+                      if (databaseBackupForm.nasPassword === '') {
+                        setDatabaseBackupForm(current => ({ ...current, nasPassword: null }))
+                      }
+                    }}
+                    onChange={event => {
+                      const next = event.target.value
+                      setDatabaseBackupForm(current => ({
+                        ...current,
+                        nasPassword: next === SMS_PASSWORD_MASK ? null : (next || null),
+                        clearNasPassword: false,
+                      }))
+                    }}
+                  />
+                </label>
+                <div className="mt-auto space-y-3 border-t border-slate-200 pt-4">
+                  <div className="text-sm font-extrabold text-slate-900">{t('settings.fileStorage.testTitleNas')}</div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-semibold text-slate-700">{t('settings.ldapConnectionStatus')}</div>
+                      {databaseBackupNasTestStatus.type !== 'idle' ? (
+                        <div className={`mt-1 text-sm font-medium ${databaseBackupNasTestStatus.type === 'success' ? 'text-emerald-700' : databaseBackupNasTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                          {databaseBackupNasTestStatus.type === 'success' ? '✅ ' : databaseBackupNasTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                          {databaseBackupNasTestStatus.message}
+                        </div>
+                      ) : null}
+                      {!databaseBackupForm.nasHost?.trim() ? (
+                        <div className="mt-1 text-sm font-medium text-slate-500">{t('settings.fileStorage.hostRequiredNas')}</div>
+                      ) : null}
                     </div>
-                  ) : null}
-                  {!databaseBackupForm.nasHost?.trim() ? (
-                    <div className="mt-1 text-sm font-medium text-slate-500">{t('settings.fileStorage.hostRequiredNas')}</div>
-                  ) : null}
-                </div>
-                <Button type="button" variant="secondary" size="sm" onClick={() => void testDatabaseBackupNasConnectivity()} disabled={databaseBackupNasTestStatus.type === 'testing' || !databaseBackupForm.nasHost?.trim()}>
-                  {databaseBackupNasTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.ldapTestConnectivity')}
-                </Button>
-              </div>
-              <div>
-                <div className="mb-2 text-sm font-semibold text-slate-700">{t('settings.ldapTestUserCredentials')}</div>
-                <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                  <label className="grid gap-1.5 text-sm font-medium text-slate-600">
-                    <span>{t('settings.ldapTestUsername')}</span>
-                    <input className="field-input" value={databaseBackupNasUserTest.username} onChange={e => setDatabaseBackupNasUserTest(c => ({ ...c, username: e.target.value }))} />
-                  </label>
-                  <label className="grid gap-1.5 text-sm font-medium text-slate-600">
-                    <span>{t('settings.ldapTestPassword')}</span>
-                    <input className="field-input" type="password" value={databaseBackupNasUserTest.password} onChange={e => setDatabaseBackupNasUserTest(c => ({ ...c, password: e.target.value }))} />
-                  </label>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => void testDatabaseBackupNasUserCredentials()}
-                    disabled={databaseBackupNasUserTestStatus.type === 'testing' || !databaseBackupNasUserTest.username || !databaseBackupNasUserTest.password}
-                  >
-                    {databaseBackupNasUserTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('common.test')}
-                  </Button>
-                </div>
-                {databaseBackupNasUserTestStatus.type !== 'idle' ? (
-                  <div className={`mt-2 text-sm font-medium ${databaseBackupNasUserTestStatus.type === 'success' ? 'text-emerald-700' : databaseBackupNasUserTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
-                    {databaseBackupNasUserTestStatus.type === 'success' ? '✅ ' : databaseBackupNasUserTestStatus.type === 'error' ? '❌ ' : '⏳ '}
-                    {databaseBackupNasUserTestStatus.message}
+                    <Button type="button" variant="secondary" size="sm" onClick={() => void testDatabaseBackupNasConnectivity()} disabled={databaseBackupNasTestStatus.type === 'testing' || !databaseBackupForm.nasHost?.trim()}>
+                      {databaseBackupNasTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.ldapTestConnectivity')}
+                    </Button>
                   </div>
-                ) : null}
+                  <div>
+                    <div className="mb-2 text-sm font-semibold text-slate-700">{t('settings.ldapTestUserCredentials')}</div>
+                    <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                      <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                        <span>{t('settings.ldapTestUsername')}</span>
+                        <input className="field-input" value={databaseBackupNasUserTest.username} onChange={e => setDatabaseBackupNasUserTest(c => ({ ...c, username: e.target.value }))} />
+                      </label>
+                      <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                        <span>{t('settings.ldapTestPassword')}</span>
+                        <input className="field-input" type="password" value={databaseBackupNasUserTest.password} onChange={e => setDatabaseBackupNasUserTest(c => ({ ...c, password: e.target.value }))} />
+                      </label>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => void testDatabaseBackupNasUserCredentials()}
+                        disabled={databaseBackupNasUserTestStatus.type === 'testing' || !databaseBackupNasUserTest.username || !databaseBackupNasUserTest.password}
+                      >
+                        {databaseBackupNasUserTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('common.test')}
+                      </Button>
+                    </div>
+                    {databaseBackupNasUserTestStatus.type !== 'idle' ? (
+                      <div className={`mt-2 text-sm font-medium ${databaseBackupNasUserTestStatus.type === 'success' ? 'text-emerald-700' : databaseBackupNasUserTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                        {databaseBackupNasUserTestStatus.type === 'success' ? '✅ ' : databaseBackupNasUserTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                        {databaseBackupNasUserTestStatus.message}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
               </div>
-            </div>
-            <label className="field-row">
-              <span className="field-label">{t('settings.fileStorage.protocol')}</span>
-              <SingleSelectDropdown
-                options={[
-                  { value: 'SMB/CIFS', label: 'SMB/CIFS' },
-                  { value: 'NFS', label: 'NFS' },
-                ]}
-                value={databaseBackupForm.nasProtocol}
-                onChange={nasProtocol => setDatabaseBackupForm(current => ({ ...current, nasProtocol: nasProtocol as DatabaseBackupSettingsUpdate['nasProtocol'] }))}
-                placeholder={t('settings.fileStorage.protocol')}
-              />
-            </label>
-            <label className="field-row">
-              <span className="field-label">{t('settings.fileStorage.username')}</span>
-              <input
-                className="field-input"
-                value={databaseBackupForm.nasUsername ?? ''}
-                onChange={event => setDatabaseBackupForm(current => ({ ...current, nasUsername: event.target.value || null }))}
-              />
-            </label>
-            <label className="field-row">
-              <span className="field-label">{t('settings.fileStorage.password')}</span>
-              <input
-                className="field-input"
-                type="password"
-                placeholder={t('settings.fileStorage.passwordPlaceholder')}
-                value={databaseBackupForm.nasPassword ?? (databaseBackupSettings?.nasHasPassword ? SMS_PASSWORD_MASK : '')}
-                onFocus={() => {
-                  if (!databaseBackupForm.nasPassword && databaseBackupSettings?.nasHasPassword) {
-                    setDatabaseBackupForm(current => ({ ...current, nasPassword: '' }))
-                  }
-                }}
-                onBlur={() => {
-                  if (databaseBackupForm.nasPassword === '') {
-                    setDatabaseBackupForm(current => ({ ...current, nasPassword: null }))
-                  }
-                }}
-                onChange={event => {
-                  const next = event.target.value
-                  setDatabaseBackupForm(current => ({
-                    ...current,
-                    nasPassword: next === SMS_PASSWORD_MASK ? null : (next || null),
-                    clearNasPassword: false,
-                  }))
-                }}
-              />
-            </label>
+            </section>
             <div className="inline-actions">
               <Button type="submit">{t('common.save')}</Button>
             </div>

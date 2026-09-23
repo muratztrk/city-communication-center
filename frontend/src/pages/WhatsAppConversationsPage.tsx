@@ -1568,6 +1568,7 @@ function ConversationDetail({
                       <ConversationEntryBubble
                         entry={entry}
                         theme="light"
+                        highlightOutboundPhrases
                         inboundSenderLabel={inboundSenderLabel}
                         canSendPending={canSendPending}
                         suppressPendingUi={suppressedPendingEntryIds.has(entry.entryId)}

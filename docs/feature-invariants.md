@@ -802,6 +802,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görsel ek adı **alt** satırda;
   X fotoğrafın **içinde sağ üst** (#2711 reopen); görsel X çerçevesi kırmızı (#2731). Giden mesajda birim · ad soyad **aynı satırda**, ad birimin yanında (#2405);
   mobilde (`max-width: 1023px`) yalnız `/whatsapp` balon başlığında birim · ad ve vatandaş adı `12px` (#6ab3665d); masaüstü ve telefon satırı değişmez.
+  `/whatsapp` giden balonda `"İşleme Alındı"` mavi, `"Yapılmakta"` turuncu, `"Tamamlandı"` ve `Yapılan İş:` turkuaz, `"İptal Edildi"` ve `Not:` kırmızı (#6ab3da96 / #6ab3db77). Talep popup konuşması boyanmaz.
   görsel dosya adı punto biraz büyük (#2711).
   Görsel dosya adı yanındaki küçük ikonda emerald çerçeve **yok** (#6a7592b2); doküman satırında
   Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-emerald-700`
@@ -1760,7 +1761,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ayrı NAS yolu (ek sunucusundan bağımsız, #2913). Etiket `IP Adresi / Sunucu`; Paylaşım Adı
   altında Kök Klasör ve NAS Bağlantı Testi (ek sunucusundaki NAS bloğuyla aynı). Kaydet, SMB/CIFS
   paylaşımında `{kök}/veritabani_yedek` klasörünü açar ve gzip `pg_dump` dosyasını içine yazar
-  (#6ab3ae37 / #6ab3b441). NFS’te klasör yazılmaz; eksik kimlik bilgisi kaydı Türkçe hata döner.
+  (#6ab3ae37 / #6ab3b441). Alan sırası ek sunucusundaki NAS bloğuyla aynıdır: IP, paylaşım, kök
+  klasör, protokol, kullanıcı, parola, sonra NAS bağlantı testi (#6ab3c335). NFS’te klasör yazılmaz; eksik kimlik bilgisi kaydı Türkçe hata döner.
 - **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız
   kayıtlı `nasUsername` ile girilen adı string karşılaştırıyordu (sahte). Artık `SMBLibrary`
   (Infrastructure/FileStorage/SmbNasConnectivityTester.cs, `INasConnectivityTester` abstraction)

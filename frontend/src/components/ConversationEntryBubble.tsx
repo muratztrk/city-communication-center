@@ -19,6 +19,7 @@ import {
 } from '../utils/socialConversationContent'
 import { extractGoogleMapsUrlFromContent } from '../utils/coordinates'
 import { formatWhatsAppDeliveryError, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
+import { renderWhatsAppOutboundHighlights } from '../utils/whatsappOutboundHighlights'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
 
@@ -67,6 +68,8 @@ interface ConversationEntryBubbleProps {
   compact?: boolean
   /** Çift gönderim koruması sonrası bekleyen aksiyonları gizle (#6ab1289f). */
   suppressPendingUi?: boolean
+  /** /whatsapp giden balonda durum ve Yapılan İş / Not etiketlerini boya. */
+  highlightOutboundPhrases?: boolean
 }
 
 const conversationEntryMetaBadgeClass =
@@ -135,6 +138,7 @@ export function ConversationEntryBubble({
   inboundSenderLabel,
   compact = false,
   suppressPendingUi = false,
+  highlightOutboundPhrases = false,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { t, i18n } = useTranslation()
@@ -372,7 +376,11 @@ export function ConversationEntryBubble({
           ) : (
             <>
               {entry.content && !isPlaceholderBracketContent(entry.content) && (
-                <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere] leading-snug">{formatConversationDisplayContent(entry.content)}</p>
+                <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere] leading-snug">
+                  {highlightOutboundPhrases && !isInbound
+                    ? renderWhatsAppOutboundHighlights(formatConversationDisplayContent(entry.content))
+                    : formatConversationDisplayContent(entry.content)}
+                </p>
               )}
               {isPlaceholderBracketContent(entry.content) && !hasMedia && (
                 <p className="italic opacity-70 text-xs">{formatConversationDisplayContent(entry.content)}</p>

@@ -8838,12 +8838,14 @@
       align-items: center;
     }
 
-    /* İncelemeye Gönder, alttaki mesaj kutusuyla aynı genişlik (gönder düğmesi hariç, #6ab362d3). */
+    /* İncelemeye Gönder şablon satırına çıkmaz; alttaki mesaj kutusuyla aynı genişlik (#6ab362d3).
+       Üst satır zaten gönder düğmesi kadar içeride; tekrar 3.25rem kırpmak hem daraltıyor hem
+       max-width yüzünden kontrolü üst satıra sığdırıyordu. */
     .whatsapp-template-row > .whatsapp-review-dept-select {
-      flex: 1 1 100% !important;
-      width: calc(100% - 3.25rem) !important;
-      max-width: calc(100% - 3.25rem) !important;
-      min-width: 0 !important;
+      flex: 1 0 100% !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 100% !important;
     }
 
     .whatsapp-template-row > .whatsapp-review-dept-select .whatsapp-review-dept-trigger {

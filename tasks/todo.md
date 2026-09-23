@@ -1,3 +1,7 @@
+## Round 1307 — Trello Doing (1 web, reopen)
+
+- **#6ab362d3:** Mobilde İncelemeye Gönder şablon satırına çıkmaz; genişliği alttaki mesaj kutusuyla aynı. Masaüstü değişmedi.
+
 ## Round 1306 — Trello Doing (1 web)
 
 - **#6ab362d3:** Mobilde İncelemeye Gönder, alttaki mesaj kutusunun genişliğinde. Masaüstü değişmedi.

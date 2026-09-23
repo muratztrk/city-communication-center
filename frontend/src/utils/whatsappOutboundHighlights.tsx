@@ -1,19 +1,22 @@
 import type { ReactNode } from 'react'
 
-const TOKEN = /İşleme Alındı|İptal Edildi|Yapılmakta|Tamamlandı|Yapılan İş:|Not:/gu
+const STATUS_TOKENS = ['İşleme Alındı', 'İptal Edildi', 'Yapılmakta', 'Tamamlandı', 'Yapılan İş:', 'Not:'] as const
 
-function classNameFor(token: string): string | null {
+const RELAY_OPERATOR_CLASS = 'font-semibold text-teal-300'
+
+function classNameFor(token: string, orgNames: ReadonlySet<string>): string | null {
+  if (orgNames.has(token)) return 'font-semibold text-black'
   switch (token) {
     case 'İşleme Alındı':
       return 'font-semibold text-sky-300'
     case 'Yapılmakta':
       return 'font-semibold text-orange-300'
     case 'Tamamlandı':
-      return 'font-semibold text-cyan-300'
+      return RELAY_OPERATOR_CLASS
     case 'İptal Edildi':
       return 'font-semibold text-red-300'
     case 'Yapılan İş:':
-      return 'font-semibold text-cyan-300'
+      return RELAY_OPERATOR_CLASS
     case 'Not:':
       return 'font-semibold text-red-300'
     default:
@@ -21,20 +24,31 @@ function classNameFor(token: string): string | null {
   }
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 function isNotLabel(text: string, index: number) {
   if (index <= 0) return true
   return !/\p{L}/u.test(text[index - 1] ?? '')
 }
 
-/** WhatsApp giden balonda talep durumu ve şablon etiketlerini boyar (#6ab3da96 / #6ab3db77). */
-export function renderWhatsAppOutboundHighlights(text: string): ReactNode {
+/** WhatsApp giden balonda talep durumu, şablon etiketi ve otomatik kurum/birim adını boyar. */
+export function renderWhatsAppOutboundHighlights(text: string, orgNames: string[] = []): ReactNode {
+  const names = [...new Set(orgNames.map(name => name.trim()).filter(name => name.length >= 2))]
+    .sort((left, right) => right.length - left.length)
+  const orgNameSet = new Set(names)
+  const pattern = new RegExp(
+    [...STATUS_TOKENS, ...names.map(escapeRegExp)].join('|'),
+    'gu',
+  )
   const nodes: ReactNode[] = []
   let last = 0
-  for (const match of text.matchAll(TOKEN)) {
+  for (const match of text.matchAll(pattern)) {
     const token = match[0]
     const index = match.index ?? 0
     if (token === 'Not:' && !isNotLabel(text, index)) continue
-    const className = classNameFor(token)
+    const className = classNameFor(token, orgNameSet)
     if (!className) continue
     if (index > last) nodes.push(text.slice(last, index))
     nodes.push(

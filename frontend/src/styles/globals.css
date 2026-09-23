@@ -8791,6 +8791,18 @@
       font-size: 12px !important;
     }
 
+    .whatsapp-message-pane .conversation-entry-meta {
+      flex-wrap: wrap;
+      row-gap: 0.125rem;
+    }
+
+    .whatsapp-message-pane .relay-operator-badge {
+      font-size: 10px !important;
+      letter-spacing: 0 !important;
+      white-space: nowrap !important;
+      flex-shrink: 0;
+    }
+
     .whatsapp-composer-top-row {
       grid-template-columns: minmax(0, 1fr) !important;
     }

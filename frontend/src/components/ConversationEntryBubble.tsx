@@ -281,7 +281,13 @@ export function ConversationEntryBubble({
           {isInbound && inboundSenderLabel ? (
             <ConversationSenderHeader label={inboundSenderLabel} variant="inline" tone="inbound" compact={compact} />
           ) : !isInbound && senderLabel ? (
-            <ConversationSenderHeader label={senderLabel} variant="inline" tone="outbound" compact={compact} />
+            <ConversationSenderHeader
+              label={senderLabel}
+              variant="inline"
+              tone="outbound"
+              compact={compact}
+              emphasizeOrg={highlightOutboundPhrases && Boolean(entry.isAutomaticMessage)}
+            />
           ) : null}
           {hasMedia && (
             <div className="mb-1.5">
@@ -378,7 +384,12 @@ export function ConversationEntryBubble({
               {entry.content && !isPlaceholderBracketContent(entry.content) && (
                 <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere] leading-snug">
                   {highlightOutboundPhrases && !isInbound
-                    ? renderWhatsAppOutboundHighlights(formatConversationDisplayContent(entry.content))
+                    ? renderWhatsAppOutboundHighlights(
+                      formatConversationDisplayContent(entry.content),
+                      entry.isAutomaticMessage && senderLabel
+                        ? senderLabel.split(/\s*·\s*/).map(part => part.trim()).filter(Boolean)
+                        : [],
+                    )
                     : formatConversationDisplayContent(entry.content)}
                 </p>
               )}
@@ -387,12 +398,12 @@ export function ConversationEntryBubble({
               )}
             </>
           )}
-          <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] leading-none ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
+          <p className={`conversation-entry-meta mt-1.5 flex items-center justify-end gap-1 text-[10px] leading-none ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
             {showRelayedOperator ? (
               <DelayedHoverTooltip
                 label={t('whatsapp.relayOperator', 'İleten Operatör')}
                 tooltip={relayedByName ?? ''}
-                className={`${conversationEntryMetaBadgeClass} text-teal-300 cursor-default`}
+                className={`${conversationEntryMetaBadgeClass} relay-operator-badge text-teal-300 cursor-default`}
               />
             ) : null}
             {showRelayedOperator ? <span aria-hidden="true">·</span> : null}

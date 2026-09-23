@@ -802,7 +802,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görsel ek adı **alt** satırda;
   X fotoğrafın **içinde sağ üst** (#2711 reopen); görsel X çerçevesi kırmızı (#2731). Giden mesajda birim · ad soyad **aynı satırda**, ad birimin yanında (#2405);
   mobilde (`max-width: 1023px`) yalnız `/whatsapp` balon başlığında birim · ad ve vatandaş adı `12px` (#6ab3665d); masaüstü ve telefon satırı değişmez.
-  `/whatsapp` giden balonda `"İşleme Alındı"` mavi, `"Yapılmakta"` turuncu, `"Tamamlandı"` ve `Yapılan İş:` turkuaz, `"İptal Edildi"` ve `Not:` kırmızı (#6ab3da96 / #6ab3db77). Talep popup konuşması boyanmaz.
+  `/whatsapp` giden balonda `"İşleme Alındı"` mavi, `"Yapılmakta"` turuncu, `"İptal Edildi"` ve `Not:` kırmızı.
+  `"Tamamlandı"` ve `Yapılan İş:` İleten Operatör ile aynı turkuaz (`text-teal-300`, #6ab3e50e / #6ab3e58a).
+  Otomatik giden balonda kurum adı ve birim adı siyah (#6ab3e0ea). Talep popup konuşması boyanmaz.
+  Mobilde (`max-width: 1023px`) İleten Operatör `10px`, satır kırılmaz (#6ab3e40e). Masaüstü `11px` kalır.
   görsel dosya adı punto biraz büyük (#2711).
   Görsel dosya adı yanındaki küçük ikonda emerald çerçeve **yok** (#6a7592b2); doküman satırında
   Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-emerald-700`

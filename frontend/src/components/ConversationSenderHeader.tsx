@@ -5,6 +5,8 @@ interface ConversationSenderHeaderProps {
   tone?: 'inbound' | 'outbound'
   /** Vatandaş Talebi Oluştur konuşmasında başlığı biraz küçült (#2634). */
   compact?: boolean
+  /** Otomatik giden balonda kurum ve birim adını siyah göster. */
+  emphasizeOrg?: boolean
 }
 
 export function ConversationSenderHeader({
@@ -13,6 +15,7 @@ export function ConversationSenderHeader({
   variant = 'pill',
   tone = 'outbound',
   compact = false,
+  emphasizeOrg = false,
 }: ConversationSenderHeaderProps) {
   const nameSize = compact ? 'text-[12px]' : 'text-[13px]'
   const phoneSize = compact ? 'text-[9px]' : 'text-[10px]'
@@ -59,6 +62,18 @@ export function ConversationSenderHeader({
     // Giden görsel/metin: birim · ad soyad aynı satırda, ad birimin yanında (#2405).
     const outboundParts = tone === 'outbound' ? label.split(/\s*·\s*/).filter(Boolean) : []
     if (outboundParts.length >= 2) {
+      if (emphasizeOrg) {
+        return (
+          <p className={`conversation-sender-header mb-1.5 ${nameSize} leading-snug`}>
+            {outboundParts.map((part, index) => (
+              <span key={`${index}-${part}`}>
+                {index > 0 ? <span className={inlineLabelClass}> · </span> : null}
+                <span className="font-semibold text-black">{part}</span>
+              </span>
+            ))}
+          </p>
+        )
+      }
       return (
         <p className={`conversation-sender-header mb-1.5 ${nameSize} leading-snug ${inlineLabelClass}`}>
           {outboundParts.slice(0, -1).join(' · ')} · {outboundParts.at(-1)}
@@ -66,7 +81,7 @@ export function ConversationSenderHeader({
       )
     }
     return (
-      <p className={`conversation-sender-header mb-1.5 ${nameSize} leading-snug ${inlineLabelClass}`}>
+      <p className={`conversation-sender-header mb-1.5 ${nameSize} leading-snug ${emphasizeOrg ? 'font-semibold text-black' : inlineLabelClass}`}>
         {label}
       </p>
     )

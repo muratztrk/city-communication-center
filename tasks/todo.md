@@ -1,3 +1,10 @@
+## Round 1311 — Trello Doing (4 web)
+
+- **#6ab3e0ea:** Otomatik giden balonda kurum adı ve birim adı siyah.
+- **#6ab3e40e:** Mobilde İleten Operatör 10px, satır kırılmaz. Masaüstü aynı.
+- **#6ab3e58a:** `Yapılan İş:` İleten Operatör ile aynı renk.
+- **#6ab3e50e:** `Tamamlandı` İleten Operatör ile aynı renk.
+
 ## Round 1310 — Trello Doing (3 web)
 
 - **#6ab3da96:** `/whatsapp` giden balonda İşleme Alındı mavi, Yapılmakta turuncu, Tamamlandı turkuaz, İptal Edildi kırmızı.

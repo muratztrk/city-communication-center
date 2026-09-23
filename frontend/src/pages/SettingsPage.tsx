@@ -3290,17 +3290,22 @@ export function SettingsPage() {
                       }
                     }}
                     onBlur={() => {
-                      if (databaseBackupForm.nasPassword === '') {
-                        setDatabaseBackupForm(current => ({ ...current, nasPassword: null }))
-                      }
+                      setDatabaseBackupForm(current => (
+                        current.nasPassword ? current : { ...current, nasPassword: null }
+                      ))
                     }}
                     onChange={event => {
                       const next = event.target.value
-                      setDatabaseBackupForm(current => ({
-                        ...current,
-                        nasPassword: next === SMS_PASSWORD_MASK ? null : (next || null),
-                        clearNasPassword: false,
-                      }))
+                      setDatabaseBackupForm(current => {
+                        const showingMask = current.nasPassword == null && Boolean(databaseBackupSettings?.nasHasPassword)
+                        const deletingMask = showingMask
+                          && (next === SMS_PASSWORD_MASK || SMS_PASSWORD_MASK.startsWith(next))
+                        return {
+                          ...current,
+                          nasPassword: deletingMask ? '' : next,
+                          clearNasPassword: false,
+                        }
+                      })
                     }}
                   />
                 </label>

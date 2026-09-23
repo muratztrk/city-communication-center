@@ -1768,7 +1768,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   altında Kök Klasör ve NAS Bağlantı Testi (ek sunucusundaki NAS bloğuyla aynı). Kaydet, SMB/CIFS
   paylaşımında `{kök}/veritabani_yedek` klasörünü açar ve gzip `pg_dump` dosyasını içine yazar
   (#6ab3ae37 / #6ab3b441). Alan sırası ek sunucusundaki NAS bloğuyla aynıdır: IP, paylaşım, kök
-  klasör, protokol, kullanıcı, parola, sonra NAS bağlantı testi (#6ab3c335). NFS’te klasör yazılmaz; eksik kimlik bilgisi kaydı Türkçe hata döner.
+  klasör, protokol, kullanıcı, parola, sonra NAS bağlantı testi (#6ab3c335). Kayıtlı parola
+  maskesi (`********`) silinince geri gelmez; alan boşalır, yeni parola yazılır. Odaktan çıkınca
+  boşsa maske döner ve eski parola durur. NFS’te klasör yazılmaz; eksik kimlik bilgisi kaydı Türkçe hata döner.
 - **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız
   kayıtlı `nasUsername` ile girilen adı string karşılaştırıyordu (sahte). Artık `SMBLibrary`
   (Infrastructure/FileStorage/SmbNasConnectivityTester.cs, `INasConnectivityTester` abstraction)

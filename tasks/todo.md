@@ -1,3 +1,8 @@
+## Round 1309 — Trello Doing (2 web)
+
+- **#6ab3ae37:** Yedek sunucusu etiket `IP Adresi / Sunucu`. Paylaşım Adı altında Kök Klasör ve NAS bağlantı testi.
+- **#6ab3b441:** Kaydet, paylaşımda `veritabani_yedek` klasörünü açar ve sıkıştırılmış yedeği içine yazar.
+
 ## Round 1308 — Trello Doing (1 web)
 
 - **#6ab3665d:** Mobil WhatsApp balonunda birim · ad ve vatandaş adı 13px’ten 12px. Masaüstü ve telefon satırı aynı.

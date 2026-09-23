@@ -50,6 +50,58 @@ internal static class SmbNasFileOperations
         }
     }
 
+    public static void UploadFileFromPath(ISMBFileStore fileStore, string smbPath, string localPath)
+    {
+        EnsureParentDirectories(fileStore, smbPath);
+
+        var status = fileStore.CreateFile(
+            out var handle,
+            out _,
+            smbPath,
+            AccessMask.GENERIC_WRITE | AccessMask.DELETE | AccessMask.SYNCHRONIZE,
+            SMBLibrary.FileAttributes.Normal,
+            ShareAccess.None,
+            CreateDisposition.FILE_OVERWRITE_IF,
+            CreateOptions.FILE_NON_DIRECTORY_FILE | CreateOptions.FILE_SYNCHRONOUS_IO_ALERT,
+            null);
+
+        if (status != NTStatus.STATUS_SUCCESS || handle is null)
+        {
+            throw new SmbNasSessionException($"NAS dosyası oluşturulamadı ({status}).");
+        }
+
+        try
+        {
+            using var stream = File.OpenRead(localPath);
+            var buffer = new byte[WriteChunkSize];
+            long offset = 0;
+            int read;
+            while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                var pending = read;
+                var chunkStart = 0;
+                while (pending > 0)
+                {
+                    var chunk = new byte[pending];
+                    Buffer.BlockCopy(buffer, chunkStart, chunk, 0, pending);
+                    status = fileStore.WriteFile(out var written, handle, offset, chunk);
+                    if (status != NTStatus.STATUS_SUCCESS || written <= 0)
+                    {
+                        throw new SmbNasSessionException($"NAS dosyası yazılamadı ({status}).");
+                    }
+
+                    offset += written;
+                    chunkStart += written;
+                    pending -= written;
+                }
+            }
+        }
+        finally
+        {
+            fileStore.CloseFile(handle);
+        }
+    }
+
     public static byte[] ReadFile(ISMBFileStore fileStore, string smbPath)
     {
         var status = fileStore.CreateFile(

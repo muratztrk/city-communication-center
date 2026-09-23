@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using CityCommunicationCenter.Infrastructure.FileStorage;
 using CityCommunicationCenter.Shared.FileStorage;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -8,14 +9,17 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private readonly IApplicationDbContext _dbContext;
+    private readonly IConfiguration _configuration;
     private readonly IDataProtector _dataProtector;
     private readonly IDataProtector _backupDataProtector;
 
     public TenantFileStorageSettingsService(
         IApplicationDbContext dbContext,
+        IConfiguration configuration,
         IDataProtectionProvider dataProtectionProvider)
     {
         _dbContext = dbContext;
+        _configuration = configuration;
         _dataProtector = dataProtectionProvider.CreateProtector(
             "CityCommunicationCenter.TenantFileStorageSettings.v1");
         _backupDataProtector = dataProtectionProvider.CreateProtector(
@@ -135,6 +139,7 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         return new TenantDatabaseBackupSettingsDescriptor(
             payload.NasHost,
             payload.NasShareName,
+            payload.NasRootFolder,
             payload.NasProtocol,
             payload.NasUsername,
             !string.IsNullOrWhiteSpace(payload.NasPassword));
@@ -151,7 +156,8 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         {
             NasHost = NormalizeNasHost(settings.NasHost),
             NasShareName = NormalizeNasShareName(settings.NasShareName),
-            NasProtocol = settings.NasProtocol,
+            NasRootFolder = ResolveNasRootFolder(settings.NasHost, settings.NasShareName, settings.NasRootFolder),
+            NasProtocol = string.IsNullOrWhiteSpace(settings.NasProtocol) ? "SMB/CIFS" : settings.NasProtocol.Trim(),
             NasUsername = Normalize(settings.NasUsername),
             NasPassword = ResolvePassword(
                 current.NasPassword, settings.NasPassword, settings.ClearNasPassword),
@@ -184,6 +190,58 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await PublishDatabaseBackupAsync(payload, cancellationToken);
+    }
+
+    private async Task PublishDatabaseBackupAsync(
+        TenantDatabaseBackupSettingsPayload payload,
+        CancellationToken cancellationToken)
+    {
+        var hasDestination = !string.IsNullOrWhiteSpace(payload.NasHost)
+            || !string.IsNullOrWhiteSpace(payload.NasShareName)
+            || !string.IsNullOrWhiteSpace(payload.NasUsername)
+            || !string.IsNullOrWhiteSpace(payload.NasPassword);
+        if (!hasDestination)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(payload.NasHost)
+            || string.IsNullOrWhiteSpace(payload.NasShareName)
+            || string.IsNullOrWhiteSpace(payload.NasUsername)
+            || string.IsNullOrWhiteSpace(payload.NasPassword))
+        {
+            throw new FluentValidation.ValidationException(
+                "Yedek klasörü için IP adresi, paylaşım adı, kullanıcı adı ve parola gerekir.");
+        }
+
+        if (!string.Equals(payload.NasProtocol, "SMB/CIFS", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new FluentValidation.ValidationException(
+                "Veritabanı yedeği klasörü SMB/CIFS paylaşımında oluşturulur.");
+        }
+
+        var connectionString = _configuration.GetConnectionString("CityCommunicationCenter");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new FluentValidation.ValidationException("Veritabanı bağlantı dizesi bulunamadı.");
+        }
+
+        try
+        {
+            await DatabaseBackupNasPublisher.PublishAsync(
+                connectionString,
+                payload.NasHost,
+                payload.NasShareName,
+                payload.NasRootFolder,
+                payload.NasUsername,
+                payload.NasPassword,
+                cancellationToken);
+        }
+        catch (SmbNasSessionException ex)
+        {
+            throw new FluentValidation.ValidationException(ex.Message);
+        }
     }
 
     private async Task<TenantFileStorageSettingsPayload> GetPayloadAsync(
@@ -304,6 +362,7 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
     {
         public string? NasHost { get; set; }
         public string? NasShareName { get; set; }
+        public string? NasRootFolder { get; set; }
         public string NasProtocol { get; set; } = "SMB/CIFS";
         public string? NasUsername { get; set; }
         public string? NasPassword { get; set; }

@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
 WORKDIR /app
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-RUN apk add --no-cache icu-libs krb5-libs tzdata libldap
+RUN apk add --no-cache icu-libs krb5-libs tzdata libldap postgresql18-client
 EXPOSE 80
 EXPOSE 443
 

@@ -1164,6 +1164,7 @@ export interface FileStorageSettingsUpdate {
 export interface DatabaseBackupSettings {
   nasHost: string | null;
   nasShareName: string | null;
+  nasRootFolder: string | null;
   nasProtocol: 'SMB/CIFS' | 'NFS';
   nasUsername: string | null;
   nasHasPassword: boolean;
@@ -1172,6 +1173,7 @@ export interface DatabaseBackupSettings {
 export interface DatabaseBackupSettingsUpdate {
   nasHost: string | null;
   nasShareName: string | null;
+  nasRootFolder: string | null;
   nasProtocol: 'SMB/CIFS' | 'NFS';
   nasUsername: string | null;
   nasPassword: string | null;

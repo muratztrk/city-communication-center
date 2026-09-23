@@ -31,6 +31,7 @@ public sealed class GetDatabaseBackupSettingsQueryHandler
         return new DatabaseBackupSettingsResponse(
             settings.NasHost,
             settings.NasShareName,
+            settings.NasRootFolder,
             settings.NasProtocol,
             settings.NasUsername,
             settings.NasHasPassword);

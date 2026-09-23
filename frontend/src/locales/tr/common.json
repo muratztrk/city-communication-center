@@ -1453,9 +1453,7 @@
     },
     "databaseBackup": {
       "sectionTitle": "Veritabanı Yedeği Alınacak Sunucu Bilgileri",
-      "sectionDescription": "Veritabanı yedeğinin aktarılacağı NAS / dosya sunucusu yolunu tanımlayın. Ek sunucusundan bağımsızdır.",
-      "path": "Dosya yolu",
-      "pathPlaceholder": "//sunucu/paylasim",
+      "sectionDescription": "Veritabanı yedeğinin aktarılacağı NAS / dosya sunucusu yolunu tanımlayın. Ek sunucusundan bağımsızdır. Kaydet, paylaşımda veritabani_yedek klasörünü açar ve sıkıştırılmış yedeği içine yazar.",
       "saved": "Veritabanı yedeği sunucu bilgileri kaydedildi."
     },
     "fileStorage": {

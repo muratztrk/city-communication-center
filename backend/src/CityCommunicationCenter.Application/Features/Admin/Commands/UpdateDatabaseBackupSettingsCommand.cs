@@ -4,6 +4,7 @@ public sealed record UpdateDatabaseBackupSettingsCommand(
     Guid TenantId,
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     string? NasPassword,
@@ -46,6 +47,7 @@ public sealed class UpdateDatabaseBackupSettingsCommandHandler
             new TenantDatabaseBackupSettingsUpdate(
                 request.NasHost,
                 request.NasShareName,
+                request.NasRootFolder,
                 request.NasProtocol,
                 request.NasUsername,
                 request.NasPassword,

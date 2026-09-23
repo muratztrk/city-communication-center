@@ -1445,9 +1445,7 @@
     },
     "databaseBackup": {
       "sectionTitle": "Database Backup Destination Server",
-      "sectionDescription": "NAS / file-server path where database backups are copied. Independent from attachment storage.",
-      "path": "File path",
-      "pathPlaceholder": "//server/share",
+      "sectionDescription": "NAS / file-server path where database backups are copied. Independent from attachment storage. Save creates a veritabani_yedek folder on the share and writes a compressed backup into it.",
       "saved": "Database backup server settings saved."
     },
     "fileStorage": {

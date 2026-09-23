@@ -487,6 +487,7 @@ public sealed class AdminController : ApiControllerBase
                 tenantId,
                 request.NasHost,
                 request.NasShareName,
+                request.NasRootFolder,
                 request.NasProtocol,
                 request.NasUsername,
                 request.NasPassword,

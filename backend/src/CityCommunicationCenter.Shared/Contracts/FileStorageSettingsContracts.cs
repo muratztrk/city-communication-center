@@ -54,6 +54,7 @@ public sealed record TestFileStorageNasUserResponse(
 public sealed record DatabaseBackupSettingsResponse(
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     bool NasHasPassword);
@@ -61,6 +62,7 @@ public sealed record DatabaseBackupSettingsResponse(
 public sealed record UpdateDatabaseBackupSettingsRequest(
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     string? NasPassword,

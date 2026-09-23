@@ -1757,7 +1757,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dosya sunucusu test alanları (#6a6cb6ec):** NAS ve FTP kolonlarında ayrı bağlantı +
   kullanıcı giriş testi (ortak alt blok yok). Başlık `Talep ve Görev Eklerini Barındıracak Sunucu
   Bilgileri` (#2916). Kurum İçi Mesajlar’ın sağında **Veritabanı Yedeği Alınacak Sunucu Bilgileri**
-  ayrı NAS yolu (ek sunucusundan bağımsız, #2913).
+  ayrı NAS yolu (ek sunucusundan bağımsız, #2913). Etiket `IP Adresi / Sunucu`; Paylaşım Adı
+  altında Kök Klasör ve NAS Bağlantı Testi (ek sunucusundaki NAS bloğuyla aynı). Kaydet, SMB/CIFS
+  paylaşımında `{kök}/veritabani_yedek` klasörünü açar ve gzip `pg_dump` dosyasını içine yazar
+  (#6ab3ae37 / #6ab3b441). NFS’te klasör yazılmaz; eksik kimlik bilgisi kaydı Türkçe hata döner.
 - **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız
   kayıtlı `nasUsername` ile girilen adı string karşılaştırıyordu (sahte). Artık `SMBLibrary`
   (Infrastructure/FileStorage/SmbNasConnectivityTester.cs, `INasConnectivityTester` abstraction)

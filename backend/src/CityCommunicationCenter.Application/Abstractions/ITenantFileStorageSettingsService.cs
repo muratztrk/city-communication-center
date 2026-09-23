@@ -63,6 +63,7 @@ public sealed record TenantFileStorageSettingsUpdate(
 public sealed record TenantDatabaseBackupSettingsDescriptor(
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     bool NasHasPassword);
@@ -70,6 +71,7 @@ public sealed record TenantDatabaseBackupSettingsDescriptor(
 public sealed record TenantDatabaseBackupSettingsUpdate(
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     string? NasPassword,

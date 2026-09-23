@@ -103,6 +103,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   küçülünce sol menü başlıkları ve içerikteki Birime Gelen / Mesaj Onayı İşlemler butonları
   anlık küçülür. 1920 ekranda %70 kilit yok (başlıklar sabit kalmasın).
   Mobil sol menü sola kaydırılınca parmağı takip ederek kapanır; aniden kaybolmaz (#2739).
+  Menü butonuyla açılış da soldan sağa kayar; ekranda birden belirmez (#6ab421db).
   Sol kenardan sağa kaydırarak menü açma yok (#3025 geri alındı).
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
@@ -1551,7 +1552,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Anasayfa yönetici 6’lı metrik satırı `gap-x-8` (eskiden `gap-x-3` — oklar buradaydı).
   Anasayfa pie ızgara `gap-y-6 gap-x-16` (#6a92852e).
   Anasayfa/Vatandaş Paneli/Birimler/harita `PieLegendSearch` min-height 1.8rem (header ara değil) (#6a92692b).
-  Mobil header Çıkış `height` 1.75rem; ikon-metin `gap` 0.2rem (#6a920226).
+  Mobil header Çıkış `height` 1.95rem, `padding-inline` 0.7rem (#6ab42290); ikon-metin `gap` 0.2rem (#6a920226). Yükseklik değişmez.
   Mobil `/whatsapp` Birim seçiniz: `0.95rem` + `min-height`/`padding-block: 0`
   (`.field-select` `min-height` height’i eziyordu).
   Sistemde ara `jobId`/`taskId` ile detay açılır; thead `background-attachment: fixed` (#r447;

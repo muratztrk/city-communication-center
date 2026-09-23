@@ -130,6 +130,7 @@ export function AppShell() {
   const mobileNavSwipeStartRef = useRef<{ x: number; y: number } | null>(null)
   const mobileNavSwipeAxisRef = useRef<'undecided' | 'x' | 'y'>('undecided')
   const mobileNavCloseTimerRef = useRef<number | null>(null)
+  const mobileNavOpenFrameRef = useRef<number | null>(null)
   const mobileNavDragXRef = useRef(0)
 
   const finishCloseMobileNav = useCallback(() => {
@@ -144,6 +145,10 @@ export function AppShell() {
   }, [])
 
   const closeMobileNav = useCallback(() => {
+    if (mobileNavOpenFrameRef.current != null) {
+      window.cancelAnimationFrame(mobileNavOpenFrameRef.current)
+      mobileNavOpenFrameRef.current = null
+    }
     setMobileNavDragging(false)
     mobileNavDragXRef.current = -320
     setMobileNavDragX(-320)
@@ -152,6 +157,37 @@ export function AppShell() {
     }
     mobileNavCloseTimerRef.current = window.setTimeout(finishCloseMobileNav, 240)
   }, [finishCloseMobileNav])
+
+  const openMobileNav = useCallback(() => {
+    if (mobileNavCloseTimerRef.current != null) {
+      window.clearTimeout(mobileNavCloseTimerRef.current)
+      mobileNavCloseTimerRef.current = null
+    }
+    if (mobileNavOpenFrameRef.current != null) {
+      window.cancelAnimationFrame(mobileNavOpenFrameRef.current)
+      mobileNavOpenFrameRef.current = null
+    }
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduceMotion) {
+      mobileNavDragXRef.current = 0
+      setMobileNavDragX(0)
+      setMobileNavDragging(false)
+      setIsMobileNavOpen(true)
+      return
+    }
+    mobileNavDragXRef.current = -320
+    setMobileNavDragX(-320)
+    setMobileNavDragging(true)
+    setIsMobileNavOpen(true)
+    mobileNavOpenFrameRef.current = window.requestAnimationFrame(() => {
+      setMobileNavDragging(false)
+      mobileNavOpenFrameRef.current = window.requestAnimationFrame(() => {
+        mobileNavOpenFrameRef.current = null
+        mobileNavDragXRef.current = 0
+        setMobileNavDragX(0)
+      })
+    })
+  }, [])
 
   const onMobileNavTouchStart = useCallback((event: TouchEvent) => {
     const touch = event.changedTouches[0]
@@ -204,6 +240,9 @@ export function AppShell() {
   useEffect(() => () => {
     if (mobileNavCloseTimerRef.current != null) {
       window.clearTimeout(mobileNavCloseTimerRef.current)
+    }
+    if (mobileNavOpenFrameRef.current != null) {
+      window.cancelAnimationFrame(mobileNavOpenFrameRef.current)
     }
   }, [])
 
@@ -789,12 +828,7 @@ export function AppShell() {
             <button
               type="button"
               className="sidebar-chip text-slate-700"
-              onClick={() => {
-                mobileNavDragXRef.current = 0
-                setMobileNavDragX(0)
-                setMobileNavDragging(false)
-                setIsMobileNavOpen(true)
-              }}
+              onClick={openMobileNav}
               aria-label={t('nav.openMenu', 'Open menu')}
             >
               <Menu className="size-4.5" />

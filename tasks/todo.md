@@ -1,3 +1,8 @@
+## Round 1314 — Trello Doing (2 web)
+
+- **#6ab421db:** Mobil sol menü soldan sağa kayarak açılır.
+- **#6ab42290:** Mobil Çıkış butonu yalnız genişlikte biraz büyür.
+
 ## Round 1313 — Trello Doing (1 web)
 
 - **#6ab40f1e:** Otomatik giden balonun üst başlığında kurum ve birim adı siyah. Gövde boyanmaz.

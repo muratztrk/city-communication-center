@@ -8741,12 +8741,12 @@
     }
 
     .header-logout-btn {
-      /* Çok az yükseldi: 1.75 → 1.95rem (#3135). */
+      /* Çok az yükseldi: 1.75 → 1.95rem (#3135). Genişlik çok az arttı (#6ab42290). */
       height: 1.95rem !important;
       min-height: 1.95rem !important;
       gap: 0.2rem !important;
       padding-block: 0 !important;
-      padding-inline: 0.45rem !important;
+      padding-inline: 0.7rem !important;
       font-size: 0.6rem !important;
       line-height: 1 !important;
       overflow: hidden;

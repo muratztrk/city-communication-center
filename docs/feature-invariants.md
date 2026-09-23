@@ -539,7 +539,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **Mesajı İncelemeye Gönder (#6aad490e):** operatör `/whatsapp`'ta talep olan birimlere dropdown ile gönderir;
   kapalı placeholder `İncelemeye Gönder` (#6ab2212a), solunda yeşil göz ikonu (#6ab23f79);
-  masaüstünde (`min-width: 1024px`) Dosya ekle ile aynı satırda, hemen yanında; mobilde alt satırda kalır (#6ab26b77);
+  masaüstünde (`min-width: 1024px`) Dosya ekle ile aynı satırda, hemen yanında; mobilde alt satırda kalır (#6ab26b77)
+  ve kapalı kontrol ile açılan liste, alttaki mesaj kutusunun genişliğindedir (#6ab362d3);
   açılan listedeki birim adı soldan `0.75rem` içeride (#6ab23fb0);
   onay metni: `Bu mesaj incelenmek üzere seçim yapılan "{Birim}" birimine gönderilecek…`; balon yalnız seçilen hedef birimin **müdürü**
   (`ManagerUserId` / vekil), **sorumlusu** (`ResponsibleUserIdsJson`) ve o birimdeki **Vatandaş Talep Yöneticisi**nde görünür (#6ab25e9f);

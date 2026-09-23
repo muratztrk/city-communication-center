@@ -8832,16 +8832,22 @@
       display: flex !important;
       flex: 1 1 auto;
       min-width: 0;
-      width: 100%;
+      width: 100% !important;
       flex-wrap: wrap !important;
       gap: 0.35rem !important;
       align-items: center;
     }
 
+    /* İncelemeye Gönder, alttaki mesaj kutusuyla aynı genişlik (gönder düğmesi hariç, #6ab362d3). */
     .whatsapp-template-row > .whatsapp-review-dept-select {
-      flex: 1 1 100%;
-      width: 100%;
-      max-width: 100%;
+      flex: 1 1 100% !important;
+      width: calc(100% - 3.25rem) !important;
+      max-width: calc(100% - 3.25rem) !important;
+      min-width: 0 !important;
+    }
+
+    .whatsapp-template-row > .whatsapp-review-dept-select .whatsapp-review-dept-trigger {
+      width: 100% !important;
     }
 
     .whatsapp-template-row > .relative:not(.whatsapp-review-dept-select),

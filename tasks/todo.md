@@ -1,3 +1,7 @@
+## Round 1306 — Trello Doing (1 web)
+
+- **#6ab362d3:** Mobilde İncelemeye Gönder, alttaki mesaj kutusunun genişliğinde. Masaüstü değişmedi.
+
 ## Round 1305 — 1680×1050 sol menü rozeti
 
 - Sol menü bildirim sayısı, sidebar zoom ters ölçeği yüzünden 1680×1050'de kesiliyordu. Rozet ölçüsü layout'ta ayrılıyor; görsel boy aynı.

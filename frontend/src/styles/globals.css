@@ -8786,6 +8786,11 @@
       max-height: 42vh;
     }
 
+    /* Mobil WA balon başlığı: birim · ad ve vatandaş adı bir punto küçük (#6ab3665d). Telefon aynı kalır. */
+    .whatsapp-message-pane .conversation-sender-header {
+      font-size: 12px !important;
+    }
+
     .whatsapp-composer-top-row {
       grid-template-columns: minmax(0, 1fr) !important;
     }

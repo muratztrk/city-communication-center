@@ -1,3 +1,7 @@
+## Round 1308 — Trello Doing (1 web)
+
+- **#6ab3665d:** Mobil WhatsApp balonunda birim · ad ve vatandaş adı 13px’ten 12px. Masaüstü ve telefon satırı aynı.
+
 ## Round 1307 — Trello Doing (1 web, reopen)
 
 - **#6ab362d3:** Mobilde İncelemeye Gönder şablon satırına çıkmaz; genişliği alttaki mesaj kutusuyla aynı. Masaüstü değişmedi.

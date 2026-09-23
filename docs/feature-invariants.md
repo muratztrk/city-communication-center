@@ -801,6 +801,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `text-[10px]` (#2841).
   Görsel ek adı **alt** satırda;
   X fotoğrafın **içinde sağ üst** (#2711 reopen); görsel X çerçevesi kırmızı (#2731). Giden mesajda birim · ad soyad **aynı satırda**, ad birimin yanında (#2405);
+  mobilde (`max-width: 1023px`) yalnız `/whatsapp` balon başlığında birim · ad ve vatandaş adı `12px` (#6ab3665d); masaüstü ve telefon satırı değişmez.
   görsel dosya adı punto biraz büyük (#2711).
   Görsel dosya adı yanındaki küçük ikonda emerald çerçeve **yok** (#6a7592b2); doküman satırında
   Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-emerald-700`

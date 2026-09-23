@@ -33,7 +33,7 @@ export function ConversationSenderHeader({
       return (
         <div className="mb-1.5 leading-snug">
           <p className={`${nameSize} font-semibold text-orange-400`}>Kurum İçi Mesaj</p>
-          <p className={`mt-1 ${nameSize} ${inlineLabelClass}`}>
+          <p className={`conversation-sender-header mt-1 ${nameSize} ${inlineLabelClass}`}>
             {internalParts.length >= 2 ? (
               <>{internalParts.slice(0, -1).join(' · ')} · <span className="italic">{internalParts.at(-1)}</span></>
             ) : internalMatch[1]}
@@ -44,7 +44,7 @@ export function ConversationSenderHeader({
     if (citizenWithPhoneMatch) {
       return (
         <p className="mb-1.5 flex flex-wrap items-baseline gap-x-1.5 leading-snug">
-          <span className={`${nameSize} font-semibold text-slate-700`}>{citizenWithPhoneMatch[1]}</span>
+          <span className={`conversation-sender-header ${nameSize} font-semibold text-slate-700`}>{citizenWithPhoneMatch[1]}</span>
           <span className={`${phoneSize} font-medium text-slate-400`}>{citizenWithPhoneMatch[2]}</span>
         </p>
       )
@@ -60,13 +60,13 @@ export function ConversationSenderHeader({
     const outboundParts = tone === 'outbound' ? label.split(/\s*·\s*/).filter(Boolean) : []
     if (outboundParts.length >= 2) {
       return (
-        <p className={`mb-1.5 ${nameSize} leading-snug ${inlineLabelClass}`}>
+        <p className={`conversation-sender-header mb-1.5 ${nameSize} leading-snug ${inlineLabelClass}`}>
           {outboundParts.slice(0, -1).join(' · ')} · {outboundParts.at(-1)}
         </p>
       )
     }
     return (
-      <p className={`mb-1.5 ${nameSize} leading-snug ${inlineLabelClass}`}>
+      <p className={`conversation-sender-header mb-1.5 ${nameSize} leading-snug ${inlineLabelClass}`}>
         {label}
       </p>
     )

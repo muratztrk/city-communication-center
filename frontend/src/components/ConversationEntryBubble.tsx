@@ -75,6 +75,26 @@ interface ConversationEntryBubbleProps {
 const conversationEntryMetaBadgeClass =
   'conversation-entry-meta-badge text-[11px] font-bold leading-none tracking-wide'
 
+/** Mobil /whatsapp balonunda satır kırılan meta ayırıcısını gizler (#6ab3e40e). */
+function syncMobileMetaSeparators(row: HTMLElement) {
+  const seps = [...row.querySelectorAll<HTMLElement>('[data-meta-sep]')]
+  const mobilePage = window.matchMedia('(max-width: 1023px)').matches
+    && row.closest('.whatsapp-message-pane') != null
+  if (!mobilePage) {
+    for (const sep of seps) sep.hidden = false
+    return
+  }
+  for (const sep of seps) sep.hidden = false
+  const hideSep = seps.map(sep => {
+    const prev = sep.previousElementSibling as HTMLElement | null
+    const next = sep.nextElementSibling as HTMLElement | null
+    return Boolean(prev && next && prev.offsetTop !== next.offsetTop)
+  })
+  seps.forEach((sep, index) => {
+    sep.hidden = hideSep[index] ?? false
+  })
+}
+
 /** Hover 250ms sonra yönetici adını gösterir (card #2092). */
 function DelayedHoverTooltip({
   label,
@@ -146,6 +166,7 @@ export function ConversationEntryBubble({
   const [draft, setDraft] = useState(entry.content)
   const [savingEdit, setSavingEdit] = useState(false)
   const bubbleRef = useRef<HTMLDivElement>(null)
+  const metaRef = useRef<HTMLParagraphElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [lockedBubbleSize, setLockedBubbleSize] = useState<{ width: number; height: number } | null>(null)
   const isInbound = entry.direction === 'Inbound'
@@ -183,6 +204,32 @@ export function ConversationEntryBubble({
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const { displayAt, queuedAt } = resolveConversationEntryBubbleTime(entry)
   const sentTime = formatConversationMessageTime(displayAt, locale, t)
+  useLayoutEffect(() => {
+    const row = metaRef.current
+    if (row) syncMobileMetaSeparators(row)
+  })
+  useLayoutEffect(() => {
+    const row = metaRef.current
+    if (!row) return
+    let measuredWidth = row.getBoundingClientRect().width
+    const observer = new ResizeObserver(() => {
+      const width = row.getBoundingClientRect().width
+      if (Math.abs(width - measuredWidth) < 0.5) return
+      measuredWidth = width
+      syncMobileMetaSeparators(row)
+    })
+    observer.observe(row)
+    const mobileQuery = window.matchMedia('(max-width: 1023px)')
+    const onChange = () => {
+      measuredWidth = row.getBoundingClientRect().width
+      syncMobileMetaSeparators(row)
+    }
+    mobileQuery.addEventListener('change', onChange)
+    return () => {
+      observer.disconnect()
+      mobileQuery.removeEventListener('change', onChange)
+    }
+  }, [showRelayedOperator, entry.deliveryStatus, entry.editedAtUtc, sentTime, isPending, isInbound])
   const queuedTimeTitle = queuedAt
     ? t('whatsapp.messageQueuedAt', 'Oluşturulma: {{time}}', {
         time: formatConversationMessageTime(queuedAt, locale, t),
@@ -286,7 +333,6 @@ export function ConversationEntryBubble({
               variant="inline"
               tone="outbound"
               compact={compact}
-              emphasizeOrg={highlightOutboundPhrases && Boolean(entry.isAutomaticMessage)}
             />
           ) : null}
           {hasMedia && (
@@ -384,12 +430,7 @@ export function ConversationEntryBubble({
               {entry.content && !isPlaceholderBracketContent(entry.content) && (
                 <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere] leading-snug">
                   {highlightOutboundPhrases && !isInbound
-                    ? renderWhatsAppOutboundHighlights(
-                      formatConversationDisplayContent(entry.content),
-                      entry.isAutomaticMessage && senderLabel
-                        ? senderLabel.split(/\s*·\s*/).map(part => part.trim()).filter(Boolean)
-                        : [],
-                    )
+                    ? renderWhatsAppOutboundHighlights(formatConversationDisplayContent(entry.content))
                     : formatConversationDisplayContent(entry.content)}
                 </p>
               )}
@@ -398,7 +439,7 @@ export function ConversationEntryBubble({
               )}
             </>
           )}
-          <p className={`conversation-entry-meta mt-1.5 flex items-center justify-end gap-1 text-[10px] leading-none ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
+          <p ref={metaRef} className={`conversation-entry-meta mt-1.5 flex items-center justify-end gap-1 text-[10px] leading-none ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
             {showRelayedOperator ? (
               <DelayedHoverTooltip
                 label={t('whatsapp.relayOperator', 'İleten Operatör')}
@@ -406,7 +447,7 @@ export function ConversationEntryBubble({
                 className={`${conversationEntryMetaBadgeClass} relay-operator-badge text-teal-300 cursor-default`}
               />
             ) : null}
-            {showRelayedOperator ? <span aria-hidden="true">·</span> : null}
+            {showRelayedOperator ? <span data-meta-sep aria-hidden="true">·</span> : null}
             {entry.editedAtUtc ? (
               editedByName ? (
                 <DelayedHoverTooltip
@@ -427,7 +468,7 @@ export function ConversationEntryBubble({
                 variant="dark"
               />
             ) : null}
-            {!isInbound && entry.deliveryStatus ? <span aria-hidden="true">·</span> : null}
+            {!isInbound && entry.deliveryStatus ? <span data-meta-sep aria-hidden="true">·</span> : null}
             <span title={queuedTimeTitle}>{sentTime}</span>
           </p>
           {!isInbound && entry.deliveryStatus === 'Failed' && deliveryErrorMessage ? (

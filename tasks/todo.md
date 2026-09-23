@@ -1,3 +1,8 @@
+## Round 1312 — Trello Doing (2 web)
+
+- **#6ab3e0ea:** Otomatik giden balonda kurum ve birim adının siyah rengi geri alındı.
+- **#6ab3e40e:** Mobilde İleten Operatör üst satırdaysa veya saat alt satırdaysa kırılan bullet gizlenir.
+
 ## Round 1311 — Trello Doing (4 web)
 
 - **#6ab3e0ea:** Otomatik giden balonda kurum adı ve birim adı siyah.

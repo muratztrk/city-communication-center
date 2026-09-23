@@ -4,8 +4,7 @@ const STATUS_TOKENS = ['İşleme Alındı', 'İptal Edildi', 'Yapılmakta', 'Tam
 
 const RELAY_OPERATOR_CLASS = 'font-semibold text-teal-300'
 
-function classNameFor(token: string, orgNames: ReadonlySet<string>): string | null {
-  if (orgNames.has(token)) return 'font-semibold text-black'
+function classNameFor(token: string): string | null {
   switch (token) {
     case 'İşleme Alındı':
       return 'font-semibold text-sky-300'
@@ -24,31 +23,21 @@ function classNameFor(token: string, orgNames: ReadonlySet<string>): string | nu
   }
 }
 
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
 function isNotLabel(text: string, index: number) {
   if (index <= 0) return true
   return !/\p{L}/u.test(text[index - 1] ?? '')
 }
 
-/** WhatsApp giden balonda talep durumu, şablon etiketi ve otomatik kurum/birim adını boyar. */
-export function renderWhatsAppOutboundHighlights(text: string, orgNames: string[] = []): ReactNode {
-  const names = [...new Set(orgNames.map(name => name.trim()).filter(name => name.length >= 2))]
-    .sort((left, right) => right.length - left.length)
-  const orgNameSet = new Set(names)
-  const pattern = new RegExp(
-    [...STATUS_TOKENS, ...names.map(escapeRegExp)].join('|'),
-    'gu',
-  )
+/** WhatsApp giden balonda talep durumu ve şablon etiketlerini boyar. */
+export function renderWhatsAppOutboundHighlights(text: string): ReactNode {
+  const pattern = new RegExp(STATUS_TOKENS.join('|'), 'gu')
   const nodes: ReactNode[] = []
   let last = 0
   for (const match of text.matchAll(pattern)) {
     const token = match[0]
     const index = match.index ?? 0
     if (token === 'Not:' && !isNotLabel(text, index)) continue
-    const className = classNameFor(token, orgNameSet)
+    const className = classNameFor(token)
     if (!className) continue
     if (index > last) nodes.push(text.slice(last, index))
     nodes.push(

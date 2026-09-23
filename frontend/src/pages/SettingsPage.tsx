@@ -1744,13 +1744,23 @@ export function SettingsPage() {
     }
   }
 
-  const saveDatabaseBackupSettings = async (event: FormEvent) => {
+  const saveDatabaseBackupSettings = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!user?.tenantId) return
 
     setMessage(null)
     try {
-      await api.updateDatabaseBackupSettings(user.tenantId, databaseBackupForm)
+      const typedPassword = event.currentTarget
+        .querySelector<HTMLInputElement>('input[data-backup-nas-password]')
+        ?.value ?? ''
+      const nasPassword = typedPassword && typedPassword !== SMS_PASSWORD_MASK
+        ? typedPassword
+        : databaseBackupForm.nasPassword
+      await api.updateDatabaseBackupSettings(user.tenantId, {
+        ...databaseBackupForm,
+        nasPassword: nasPassword ? nasPassword : null,
+        clearNasPassword: false,
+      })
       invalidateSettings(queryClient)
       const refreshed = await api.getDatabaseBackupSettings(user.tenantId)
       setDatabaseBackupSettings(refreshed)
@@ -3282,6 +3292,8 @@ export function SettingsPage() {
                   <input
                     className="field-input"
                     type="password"
+                    data-backup-nas-password=""
+                    autoComplete="new-password"
                     placeholder={t('settings.fileStorage.passwordPlaceholder')}
                     value={databaseBackupForm.nasPassword ?? (databaseBackupSettings?.nasHasPassword ? SMS_PASSWORD_MASK : '')}
                     onFocus={() => {
@@ -3289,10 +3301,14 @@ export function SettingsPage() {
                         setDatabaseBackupForm(current => ({ ...current, nasPassword: '' }))
                       }
                     }}
-                    onBlur={() => {
-                      setDatabaseBackupForm(current => (
-                        current.nasPassword ? current : { ...current, nasPassword: null }
-                      ))
+                    onBlur={event => {
+                      const typed = event.currentTarget.value
+                      setDatabaseBackupForm(current => {
+                        if (typed && typed !== SMS_PASSWORD_MASK) {
+                          return { ...current, nasPassword: typed, clearNasPassword: false }
+                        }
+                        return current.nasPassword ? current : { ...current, nasPassword: null }
+                      })
                     }}
                     onChange={event => {
                       const next = event.target.value

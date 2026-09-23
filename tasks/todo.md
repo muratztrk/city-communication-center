@@ -1,3 +1,8 @@
+## Yedek parolası — Kaydet kutudaki değeri gönderir
+
+- Kaydet, parola kutusundaki yazılmış değeri okur. Maske veya boş alan eski parolayı korur.
+- Test sunucusundan `tim` ile paylaşım `Tire Iletisim Merkezi` / `testtim/veritabani_yedek` yazıldı.
+
 ## Round 1314 — Trello Doing (2 web)
 
 - **#6ab421db:** Mobil sol menü soldan sağa kayarak açılır.

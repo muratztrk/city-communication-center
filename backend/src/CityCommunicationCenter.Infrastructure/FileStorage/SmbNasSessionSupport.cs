@@ -112,6 +112,19 @@ internal static class SmbNasSessionSupport
         string password,
         Action<ISMBFileStore> action)
     {
+        // NTLMv2 kullanıcı adını o anki kültürle büyütür. tr-TR'de "i" → "İ" (ör. tim → TİM)
+        // olunca NAS STATUS_LOGON_FAILURE döner. Bağlantı testi bu yüzden invariant çalışır.
+        RunWithInvariantCulture(() =>
+            ExecuteWithAuthenticatedFileStoreCore(host, shareName, username, password, action));
+    }
+
+    private static void ExecuteWithAuthenticatedFileStoreCore(
+        string host,
+        string shareName,
+        string username,
+        string password,
+        Action<ISMBFileStore> action)
+    {
         var normalizedHost = NasPathNormalizer.NormalizeHost(host) ?? host.Trim();
         var normalizedShare = NasPathNormalizer.NormalizeShareName(shareName) ?? shareName.Trim();
         var (explicitDomain, loginUser) = ParseSmbCredentials(username);

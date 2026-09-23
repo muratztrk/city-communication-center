@@ -1,3 +1,7 @@
+## Yedek Kaydet — SMB girişi invariant kültür
+
+- Kaydet, istek kültürü `tr` iken NTLMv2 `tim` → `TİM` yaptığı için doğru parolada da `STATUS_LOGON_FAILURE` dönüyordu. Oturum artık `RunWithInvariantCulture` içinde.
+
 ## Yedek parolası — Kaydet kutudaki değeri gönderir
 
 - Kaydet, parola kutusundaki yazılmış değeri okur. Maske veya boş alan eski parolayı korur.

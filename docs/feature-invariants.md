@@ -1795,7 +1795,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ASCII'ye katlanır (`Tire İletisim Merkezi` → `Tire Iletisim Merkezi`). NAS kullanıcı testi formdaki
   host/paylaşım değerlerini de kabul eder (kaydetmeden test). Başarısız `Login` sonrası aynı
   client'ta `Logoff`+yeniden `Login` yapılmaz (STATUS_USER_SESSION_DELETED); her domain denemesi
-  fresh `Connect`.
+  fresh `Connect`. SMB oturumu `RunWithInvariantCulture` içindedir: istek kültürü `tr` iken
+  NTLMv2 `tim` kullanıcısını `TİM` yapar ve doğru parolada bile `STATUS_LOGON_FAILURE` döner.
+  Yedek Kaydet bu sarmalayıcıyı atlamamalı.
 - **Talep/görev eki NAS replikasyonu (2026-09-03):** Ayarlar'daki "Talep ve Görev Eklerini
   Barındıracak Sunucu Bilgileri" NAS (SMB/CIFS) doluysa `UploadAttachmentCommand` yerel
   `uploads/` yazımından sonra paylaşıma kopyalar; NAS yolu `{talepNo}/{orijinalDosyaAdı}`

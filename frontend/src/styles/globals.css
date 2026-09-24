@@ -8143,13 +8143,27 @@
     font-variant-numeric: tabular-nums;
     box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
     vertical-align: middle;
-    /* Sidebar zoom rozeti görsel olarak küçültmesin (#3442). `zoom` ile ters ölçek
-       flex satırına sığmıyor; 1680×1050'de sayı scrollport dışında kesiliyordu.
-       Ölçüleri zoom öncesi büyütmek, üstteki sidebar zoom ile aynı görsel boyu verir. */
-    width: calc(1.125rem / var(--sidebar-zoom, 1));
-    height: calc(1.125rem / var(--sidebar-zoom, 1));
-    font-size: calc(0.625rem / var(--sidebar-zoom, 1));
-    overflow: visible;
+    /* Sabit layout boyu. Sidebar `zoom` görseli `scale` ile telafi eder; ölçü
+       1/zoom ile büyütülünce 1680×1050'de satır taşar ve scrollport sayıyı keser. */
+    position: absolute;
+    right: 0.35rem;
+    top: 50%;
+    z-index: 1;
+    width: 1.125rem;
+    height: 1.125rem;
+    font-size: 0.625rem;
+    transform: translateY(-50%) scale(calc(1 / var(--sidebar-zoom, 1)));
+    transform-origin: right center;
+  }
+
+  .sidebar-shell .nav-link-with-badge {
+    position: relative;
+    /* px-* utility'sini ezer; rozet için sağda yer kalır. */
+    padding-right: 1.7rem !important;
+  }
+
+  .sidebar-shell .nav-link-with-badge-wide {
+    padding-right: 2.35rem !important;
   }
 
   .citizen-message-approval-actor-name {
@@ -8172,8 +8186,8 @@
 
   .nav-pending-badge--wide {
     width: auto;
-    min-width: calc(1.125rem / var(--sidebar-zoom, 1));
-    padding: 0 calc(0.25rem / var(--sidebar-zoom, 1));
+    min-width: 1.125rem;
+    padding: 0 0.28rem;
   }
 
   /* Bildirim zili okunmamış sayı — scope-chip overdue rozeti ile aynı köşe/z-index (#2793). */

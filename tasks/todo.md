@@ -1,3 +1,7 @@
+## Round 1327 — 1680×1050 sol menü rozeti
+
+- Bildirim sayısı satırın sağına sabitlendi. Zoom layout'u büyütmüyor; sayı scrollport'ta kesilmiyor.
+
 ## Round 1326 — WhatsApp liste saati (Beklemede)
 
 - Görünen Beklemede giden balonun saati listeye yazılır. Gizli terminal onay balonu yazılmaz.

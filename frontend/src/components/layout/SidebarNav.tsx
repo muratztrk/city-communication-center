@@ -97,6 +97,8 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
     const Icon = item.icon
     const isEmphasizedNested = nested && item.emphasized && !collapsed
     const useCompactEmphasis = compactLabels && isEmphasizedNested
+    const showBadge = !collapsed && item.badgeCount != null && item.badgeCount > 0
+    const badgeLabel = showBadge ? formatBadgeCount(item.badgeCount ?? 0) : ''
     const className = cn(
       'flex w-full min-w-0 items-center rounded-xl border text-left font-semibold transition-colors duration-150',
       collapsed
@@ -117,6 +119,8 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
       isActive
         ? 'border-white/10 bg-white text-slate-950 shadow-sm'
         : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78 hover:border-white/8 hover:bg-white/8 hover:text-white',
+      showBadge && 'nav-link-with-badge',
+      showBadge && badgeLabel.length > 1 && 'nav-link-with-badge-wide',
     )
 
     return (
@@ -141,7 +145,6 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
             <span className={cn('inline-flex min-w-0 max-w-full items-center gap-1.5', item.multilineLabel ? 'leading-snug' : '')}>
               {(() => {
                 const lines = item.label.split('\n')
-                const badgeLabel = formatBadgeCount(item.badgeCount)
                 const firstLine = lines[0] ?? item.label
                 const restLines = lines.slice(1)
                 if (item.multilineLabel && restLines.length > 0) {

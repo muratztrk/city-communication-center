@@ -625,7 +625,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ki İptal bekleyenler de görünsün (#3330).
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
   **Görevlerim / Birime Gelen / Birimden Giden** nav satırlarında da aynı `nav-pending-badge`
-  rozeti (görsel boy `1.125rem`; ölçü `1 / --sidebar-zoom` ile layout'ta ayrılır, `zoom` ters ölçek 1680×1050'de sayıyı keser — #3442): Görevlerim = `myPendingTaskCount`, Birime Gelen = Onay Bekleyen grid toplamı
+  rozeti (layout `1.125rem`, satırın sağında `absolute`; sidebar zoom `scale(1 / --sidebar-zoom)`
+  ile sağ kenardan telafi — ölçü büyütmek 1680×1050'de scrollport'un sayıyı kesmesine yol açar, #3442): Görevlerim = `myPendingTaskCount`, Birime Gelen = Onay Bekleyen grid toplamı
   (`useIncomingPendingApprovalCount` / `matchesIncomingStatusFilter` pending-approval — dashboard
   `pendingApprovalCount` ile aynı değil; VT yöneticisi CRM için yalnız vatandaş satırları), Birimden Giden =
   `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).

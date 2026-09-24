@@ -24,7 +24,7 @@ const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: 
   { value: 'reviewRequested', labelKey: 'whatsappMessageApprovalLogs.kinds.reviewRequested', fallback: 'Mesaj İncelemeye Gönderen', chipClass: 'scope-chip--rejected' },
 ]
 
-const COLUMN_COUNT = 7
+const BASE_COLUMN_COUNT = 5
 
 function statusFrameClass(action: string): string {
   const height = 'py-1.5'
@@ -121,6 +121,8 @@ export function WhatsAppMessageApprovalLogsPage() {
   }
 
   const selectedFilter = KIND_FILTERS.find(filter => filter.value === kind) ?? KIND_FILTERS[0]
+  const showReviewColumns = kind === 'reviewRequested'
+  const columnCount = showReviewColumns ? BASE_COLUMN_COUNT + 2 : BASE_COLUMN_COUNT
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -198,28 +200,32 @@ export function WhatsAppMessageApprovalLogsPage() {
                 >
                   {t('whatsappMessageApprovalLogs.columns.actor', 'İşlemi Yapan')}
                 </FilterableTh>
-                <FilterableTh
-                  filterKey="destination"
-                  filterValue={filters['destination'] ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="destinationText"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('whatsappMessageApprovalLogs.columns.destination', 'Gittiği Yer')}
-                </FilterableTh>
-                <FilterableTh
-                  filterKey="reviewer"
-                  filterValue={filters['reviewer'] ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="reviewerText"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('whatsappMessageApprovalLogs.columns.reviewer', 'İnceleyen Personel')}
-                </FilterableTh>
+                {showReviewColumns ? (
+                  <>
+                    <FilterableTh
+                      filterKey="destination"
+                      filterValue={filters['destination'] ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="destinationText"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('whatsappMessageApprovalLogs.columns.destination', 'Gittiği Yer')}
+                    </FilterableTh>
+                    <FilterableTh
+                      filterKey="reviewer"
+                      filterValue={filters['reviewer'] ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="reviewerText"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('whatsappMessageApprovalLogs.columns.reviewer', 'İnceleyen Personel')}
+                    </FilterableTh>
+                  </>
+                ) : null}
                 <FilterableTh
                   className="whatsapp-log-date-col"
                   filterKey="actedAt"
@@ -236,9 +242,9 @@ export function WhatsAppMessageApprovalLogsPage() {
             </thead>
             <tbody>
               {logsQuery.isLoading ? (
-                <TableEmptyStateRows columnCount={COLUMN_COUNT} message={t('common.loading')} />
+                <TableEmptyStateRows columnCount={columnCount} message={t('common.loading')} />
               ) : pagedRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={COLUMN_COUNT} message={t('whatsappMessageApprovalLogs.empty', 'Kayıt yok.')} />
+                <TableEmptyStateRows columnCount={columnCount} message={t('whatsappMessageApprovalLogs.empty', 'Kayıt yok.')} />
               ) : pagedRows.map((row, index) => (
                 <tr key={row.auditLogId}>
                   <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
@@ -266,8 +272,12 @@ export function WhatsAppMessageApprovalLogsPage() {
                     )}
                   </td>
                   <td>{row.actorText}</td>
-                  <td>{row.destinationText}</td>
-                  <td>{row.reviewerText}</td>
+                  {showReviewColumns ? (
+                    <>
+                      <td>{row.destinationText}</td>
+                      <td>{row.reviewerText}</td>
+                    </>
+                  ) : null}
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
                 </tr>
               ))}

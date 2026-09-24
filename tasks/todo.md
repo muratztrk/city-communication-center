@@ -1,3 +1,7 @@
+## Round 1322 — Trello Doing (1 web)
+
+- Whatsapp Mesaj Logları: Gittiği Yer ve İnceleyen Personel yalnız Mesaj İncelemeye Gönderen filtresinde.
+
 ## Round 1321 — Trello Doing (1 web)
 
 - Whatsapp Mesaj Logları: Mesaj İncelemeye Gönderen butonu seçilince kırmızı.

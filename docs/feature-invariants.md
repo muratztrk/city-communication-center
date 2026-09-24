@@ -3221,13 +3221,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesaj Onayı/Cevabı Verildi tıklanınca audit yazılır. Mesajı İleten, iletilmiş WhatsApp giden kaydının
   `RelayedByDisplayName` değeridir. Sütunlar: Sıra, Vatandaş Adı / Telefon No (başlıkta alt alta),
   Durum, İşlemi Yapan, İşlem Tarihi. Durum çerçevesi: Mesajı İleten yeşil, Yanıt Verildi mavi,
-  Mesaj Onayı/Cevabı Verildi turkuaz. İşlem Tarihi takvim ikonlu, saniyesiz. Seçili filtre bannerın
-  ilk satırında. Başlık diğer gridlerle aynı yeşil. Filtre butonları bannerın altında.
+  Mesaj Onayı/Cevabı Verildi turuncu. İşlem Tarihi takvim ikonlu, saniyesiz, sütun diğer tarih
+  hücrelerinden biraz geniş. Seçili filtre bannerın ilk satırında. Başlık diğer gridlerle aynı yeşil.
+  Filtre butonları bannerın altında. Seçili buton: Yanıt Verildi Yapan mavi, Mesaj Onayı/Cevabı
+  Verildi Yapan turuncu, Mesajı İleten yeşil.
   Sayfa varsayılanı Operatör; Vatandaş lisansı açıkken görünür.
 - **Log grid:** Her kapsamın ilk sütunu Sıra. Talep Log sonra Talep No + Başlık; Görev Log Görev No + Başlık.
   Vatandaşa Giden SMS: Sıra, Talep No, Vatandaş Adı (`Job.CitizenName`, personel adı değil).
 - **Vatandaş Talepleri mobil (`max-width: 1023px`):** Yönetici Onayı Bekleyen etiketi sola, tam satır.
-  Mobil Uygulama ve Tüm Talep Durumları e-Devlet çipinden biraz daha küçük (`max-width: 1023px`).
+  Mobil Uygulama çipi üst satırdaki e-Devlet/Çağrı ile aynı boy. Tüm Talep Durumları onlardan biraz küçük.
+  Gecikti mi? ve Yönetici Onayı Bekleyen mi? satırının üstünde biraz boşluk.
 - **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.

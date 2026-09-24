@@ -3574,6 +3574,14 @@
     max-width: 7.5rem;
   }
 
+  /* Whatsapp Mesaj Logları İşlem Tarihi: takvim + saat sığsın, çok az geniş (#6ab4e56c). */
+  .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-date-col,
+  .app-content-shell .data-table.whatsapp-message-logs-table td:has(.date-cell) {
+    width: 9.25rem;
+    min-width: 9.25rem;
+    max-width: 10.5rem;
+  }
+
   .data-table--zebra tbody tr:nth-child(even) td {
     background: #f8fafc;
   }
@@ -9264,17 +9272,15 @@
       justify-content: flex-start;
     }
 
-    .social-scope-chips > .social-mobile-app-chip,
     .social-scope-chips > .social-status-filter {
       width: 92% !important;
       max-width: 92% !important;
       justify-self: center;
     }
 
-    .social-scope-chips > .social-mobile-app-chip {
-      min-height: 1.95rem;
-      padding: 0.28rem 0.42rem;
-      font-size: 0.66rem;
+    .social-scope-chips > .social-overdue-label,
+    .social-scope-chips > .social-manager-approval-label {
+      margin-top: 0.5rem;
     }
 
     .social-scope-chips > .social-status-filter .scope-chip-status-select {

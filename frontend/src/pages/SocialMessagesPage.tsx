@@ -617,7 +617,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
           <button
             key={filter.value || 'all'}
             type="button"
-            className={`scope-chip scope-chip--pending${filter.value === 'MobileApp' ? ' social-mobile-app-chip' : ''}${channelFilter === filter.value ? ' active' : ''}`}
+            className={`scope-chip scope-chip--pending${channelFilter === filter.value ? ' active' : ''}`}
             onClick={() => setChannelFilter(filter.value)}
           >
             {filter.value && <ChannelIcon channel={filter.value} className="size-3.5 shrink-0" />}
@@ -651,7 +651,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
           }}
           placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
         />
-        <label className="ml-3 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
+        <label className="social-overdue-label ml-3 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
           <input
             type="checkbox"
             className="field-checkbox"

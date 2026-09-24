@@ -15,11 +15,11 @@ import { looksLikePhone } from '../utils/phoneDisplay'
 
 type ApprovalLogKind = 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed'
 
-const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: string }> = [
-  { value: 'all', labelKey: 'whatsappMessageApprovalLogs.kinds.all', fallback: 'Tümü' },
-  { value: 'waitingReplied', labelKey: 'whatsappMessageApprovalLogs.kinds.waitingReplied', fallback: 'Yanıt Verildi Yapan' },
-  { value: 'pendingApprovalCleared', labelKey: 'whatsappMessageApprovalLogs.kinds.pendingApprovalCleared', fallback: 'Mesaj Onayı/Cevabı Verildi Yapan' },
-  { value: 'messageRelayed', labelKey: 'whatsappMessageApprovalLogs.kinds.messageRelayed', fallback: 'Mesajı İleten' },
+const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: string; chipClass: string }> = [
+  { value: 'all', labelKey: 'whatsappMessageApprovalLogs.kinds.all', fallback: 'Tümü', chipClass: 'scope-chip--all' },
+  { value: 'waitingReplied', labelKey: 'whatsappMessageApprovalLogs.kinds.waitingReplied', fallback: 'Yanıt Verildi Yapan', chipClass: 'scope-chip--in-progress' },
+  { value: 'pendingApprovalCleared', labelKey: 'whatsappMessageApprovalLogs.kinds.pendingApprovalCleared', fallback: 'Mesaj Onayı/Cevabı Verildi Yapan', chipClass: 'scope-chip--overdue' },
+  { value: 'messageRelayed', labelKey: 'whatsappMessageApprovalLogs.kinds.messageRelayed', fallback: 'Mesajı İleten', chipClass: 'scope-chip--completed' },
 ]
 
 const COLUMN_COUNT = 5
@@ -27,7 +27,7 @@ const COLUMN_COUNT = 5
 function statusFrameClass(action: string): string {
   if (action === 'WhatsAppMessageRelayed') return 'bg-emerald-100 text-emerald-700 ring-emerald-500'
   if (action === 'WhatsAppWaitingReplied') return 'bg-sky-100 text-sky-700 ring-sky-500'
-  if (action === 'WhatsAppPendingApprovalCleared') return 'bg-cyan-50 text-cyan-800 ring-cyan-500'
+  if (action === 'WhatsAppPendingApprovalCleared') return 'bg-orange-100 text-orange-700 ring-orange-500'
   return ''
 }
 
@@ -125,7 +125,7 @@ export function WhatsAppMessageApprovalLogsPage() {
           <button
             key={filter.value}
             type="button"
-            className={`scope-chip scope-chip--pending${kind === filter.value ? ' active' : ''}`}
+            className={`scope-chip ${filter.chipClass}${kind === filter.value ? ' active' : ''}`}
             onClick={() => { setKind(filter.value); setCurrentPage(1) }}
           >
             {t(filter.labelKey, filter.fallback)}
@@ -178,6 +178,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   {t('whatsappMessageApprovalLogs.columns.actor', 'İşlemi Yapan')}
                 </FilterableTh>
                 <FilterableTh
+                  className="whatsapp-log-date-col"
                   filterKey="actedAt"
                   filterValue={filters['actedAt'] ?? ''}
                   onFilter={handleFilter}

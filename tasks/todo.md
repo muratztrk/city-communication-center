@@ -1,3 +1,9 @@
+## Round 1318 — Trello Doing (5 web)
+
+- Whatsapp Mesaj Logları: İşlem Tarihi biraz geniş. Mesaj Onayı çerçevesi turuncu.
+- Seçili filtre: Yanıt Verildi Yapan mavi, Mesaj Onayı turuncu, Mesajı İleten yeşil.
+- Mobil Vatandaş Talepleri: Mobil Uygulama üst satır çipi ile aynı boy. Gecikti / Yönetici Onayı satırında üst boşluk.
+
 ## Round 1317 — Trello Doing (5 web)
 
 - Mobilde yalnız Mobil Uygulama ve Tüm Talep Durumları biraz küçüldü.

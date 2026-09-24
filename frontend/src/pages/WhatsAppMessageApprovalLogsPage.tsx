@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -12,6 +12,7 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
+import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
 import { looksLikePhone } from '../utils/phoneDisplay'
 
 type ApprovalLogKind = 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed' | 'reviewRequested'
@@ -66,6 +67,7 @@ export function WhatsAppMessageApprovalLogsPage() {
   const { filters, setFilter, matchesFilters } = useColumnFilters()
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
   const locale = getLocale(i18n.language)
+  useEffect(() => muteNewRecordSoundWhileMounted(), [])
   const logsQuery = useQuery({
     queryKey: ['whatsapp-message-approval-logs', kind],
     queryFn: () => api.getWhatsAppMessageApprovalLogs(kind),

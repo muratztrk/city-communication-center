@@ -1,3 +1,7 @@
+## Round 1323 — Trello Doing (1 web)
+
+- Whatsapp Mesaj Logları açıkken bildirim sesi çalmaz.
+
 ## Round 1322 — Trello Doing (1 web)
 
 - Whatsapp Mesaj Logları: Gittiği Yer ve İnceleyen Personel yalnız Mesaj İncelemeye Gönderen filtresinde.

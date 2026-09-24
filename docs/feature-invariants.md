@@ -639,7 +639,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`ccc:whatsapp-message`; konuşma `(citizenConversationId, lastMessageAt)` ile dedupe — zaten
   yanıt bekleyen konuşmaya gelen ikinci mesajda da bir kez çalar; nav `waitingReplyCount` artışına
   bağlı değil). Fab/sayfa handler'ları ses çalmaz, yalnız pulse/güncelleme (#3415). Talep
-  oluşturma submit başında `suppressNewRecordSound` (#3414).
+  oluşturma submit başında `suppressNewRecordSound` (#3414). Whatsapp Mesaj Logları açıkken
+  bildirim sesi çalmaz (`muteNewRecordSoundWhileMounted`).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum balonu: `[konum mesajı]` + koordinat **veya** metin içinde Google Maps paylaşım linki (`maps.app.goo.gl` vb.) → MapPin + Haritada Göster (#2838 / #3723); link mesajında thread lat/lng sızmasın. Yer açıklaması varsa açıklama, yoksa **Konum**

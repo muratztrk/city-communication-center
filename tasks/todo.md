@@ -1,3 +1,7 @@
+## Round 1325 — Trello Doing (1 web)
+
+- WhatsApp listesinde gün içi saat, açık konuşmadaki son iletilen mesajın saatidir.
+
 ## Round 1324 — Trello Doing (2 web)
 
 - WhatsApp konuşma listesi son karşıya iletilen mesaja göre sıralanır; saat o mesajın saatidir.

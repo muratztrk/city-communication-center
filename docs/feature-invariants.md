@@ -614,8 +614,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ActorUserId verilir (operatör birimi). `CitizenMessageApprovalReleased` audit, ReleasedAtUtc yoksa
   görünürlük yedeğidir.
   Liste sırası ve saati son karşıya iletilen (`Sent`/`Delivered`/`Read`) giden mesajın balon
-  saatidir (`lastOutboundMessageAt`, `ResolveSortKey`). Bugün `HH:mm`, dün `Dün`, daha eski
-  `gg.aa.yyyy`. İletilmemiş kuyruk saati listeyi üste taşımaz. İletilmiş giden yoksa `lastMessageAt`.
+  saatidir (`lastOutboundMessageAt`, `ResolveSortKey`; telefon kanalındaki şablon dahil).
+  Gün içinde `HH:mm`, dün `Dün`, daha eski `gg.aa.yyyy`. Açık konuşmada giden mesaj liste
+  saatini de günceller. İletilmemiş kuyruk saati listeyi üste taşımaz. İletilmiş giden yoksa `lastMessageAt`.
   Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
   (#3348 yükseklik; #3330 nowrap). Üç chip arası `gap-2.5` (#3354 reopen). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto

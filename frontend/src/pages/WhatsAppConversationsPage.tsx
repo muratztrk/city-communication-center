@@ -2109,7 +2109,15 @@ export function WhatsAppConversationsPage() {
             .then(() => handleReadMarked())
             .catch(() => {})
         }
+        if (payload.isAutomaticOutbound && payload.lastMessageAt) {
+          const sentAt = payload.lastMessageAt
+          setConversations(prev => prev.map(c =>
+            c.citizenConversationId === selectedId
+              ? { ...c, lastOutboundMessageAt: sentAt }
+              : c))
+        }
         setDetailRefreshKey(key => key + 1)
+        void silentRefreshConversations()
         return
       }
 

@@ -130,11 +130,29 @@ public sealed class GetCitizenConversationsQueryHandler
                     .ThenByDescending(row => row.SentAt)
                     .First()
                     .Direction);
-        var lastOutboundAtByConversation = whatsAppEntryRows
-            .Where(row => row.Direction == ConversationEntryDirection.Outbound
-                && row.DeliveryStatus is ConversationDeliveryStatus.Sent
-                    or ConversationDeliveryStatus.Delivered
-                    or ConversationDeliveryStatus.Read)
+        // Balonda görünen son iletim: konuşmadaki tüm kanallar (telefon VT üzerindeki WA şablonu dahil).
+        var outboundEntryRows = await _dbContext.ConversationEntries
+            .AsNoTracking()
+            .Where(entry => entry.Direction == ConversationEntryDirection.Outbound
+                && (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
+                    || entry.DeliveryStatus == ConversationDeliveryStatus.Delivered
+                    || entry.DeliveryStatus == ConversationDeliveryStatus.Read))
+            .Join(
+                _dbContext.SocialMessages.AsNoTracking().Where(message =>
+                    message.CitizenConversationId != null
+                    && conversationIds.Contains(message.CitizenConversationId.Value)),
+                entry => entry.SocialMessageId,
+                message => message.SocialMessageId,
+                (entry, message) => new
+                {
+                    ConversationId = message.CitizenConversationId!.Value,
+                    entry.Direction,
+                    entry.SentAt,
+                    entry.DeliveryStatus,
+                    entry.DeliveryStatusUpdatedAtUtc,
+                })
+            .ToListAsync(cancellationToken);
+        var lastOutboundAtByConversation = outboundEntryRows
             .GroupBy(row => row.ConversationId)
             .ToDictionary(
                 group => group.Key,

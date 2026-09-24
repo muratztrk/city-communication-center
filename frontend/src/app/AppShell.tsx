@@ -522,7 +522,7 @@ export function AppShell() {
       { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), icon: MessageSquareText, emphasized: true, badgeCount: pendingSmsDeliveryApprovalCount },
     ] },
     { pageKey: 'returnedCitizenRequests' as const, path: '/returned-citizen-requests', label: t('nav.returnedCitizenRequests', 'İade Edilen Talepler').replace('\n', ' '), icon: Undo2, emphasized: true, badgeCount: returnedCitizenRequestsNavCount || undefined, requiredRole: 'Operator' },
-    { pageKey: 'whatsappMessageApprovalLogs' as const, path: '/whatsapp-message-approval-logs', label: t('nav.whatsappMessageApprovalLogs', 'Whatsapp Mesaj Onay Logları'), icon: ScrollText, emphasized: true },
+    { pageKey: 'whatsappMessageApprovalLogs' as const, path: '/whatsapp-message-approval-logs', label: t('nav.whatsappMessageApprovalLogs', 'Whatsapp Mesaj Logları'), icon: ScrollText, emphasized: true },
     // Sistem Admin vb.: dizin Vatandaş Talepleri grubundan sonra (eski konum).
     ...(!isCitizenDashboardNav
       ? [
@@ -718,7 +718,7 @@ export function AppShell() {
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
     'incoming-requests': incomingRequestsStatusLabels[incomingStatusKey] || t('jobs.scopes.pendingApprovalRequests', 'Onay Bekleyen Talepler'),
     'returned-citizen-requests': t('nav.returnedCitizenRequests', 'İade Edilen Talepler'),
-    'whatsapp-message-approval-logs': t('nav.whatsappMessageApprovalLogs', 'Whatsapp Mesaj Onay Logları'),
+    'whatsapp-message-approval-logs': t('nav.whatsappMessageApprovalLogs', 'Whatsapp Mesaj Logları'),
     tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
@@ -745,7 +745,7 @@ export function AppShell() {
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
     'incoming-requests': t('nav.incomingRequests', 'Birime Gelen Talepler'),
     'returned-citizen-requests': t('nav.returnedCitizenRequests', 'İade Edilen Talepler'),
-    'whatsapp-message-approval-logs': t('nav.whatsappMessageApprovalLogs', 'Whatsapp Mesaj Onay Logları'),
+    'whatsapp-message-approval-logs': t('nav.whatsappMessageApprovalLogs', 'Whatsapp Mesaj Logları'),
     tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     coordinated: t('nav.incomingRequests', 'Birime Gelen Talepler'),

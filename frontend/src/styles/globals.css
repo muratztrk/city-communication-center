@@ -9248,27 +9248,9 @@
       flex-wrap: wrap;
     }
 
-    /* Vatandaş Talepleri: Yönetici Onayı etiketi sola kayar; Mobil Uygulama ve durum
-       seçimi e-Devlet çipi ile aynı genişlikte kalır. */
+    /* Vatandaş Talepleri: Yönetici Onayı etiketi sola, kendi satırına kayar. */
     .social-scope-chips {
       flex-wrap: wrap !important;
-    }
-
-    .social-scope-chips > .scope-chip,
-    .social-scope-chips > .field-select,
-    .social-scope-chips > .social-status-filter {
-      flex: 0 0 calc(50% - 0.25rem) !important;
-      width: calc(50% - 0.25rem) !important;
-      max-width: calc(50% - 0.25rem) !important;
-      min-width: 0 !important;
-      grid-column: auto !important;
-    }
-
-    .social-scope-chips > .field-select .scope-chip-status-select,
-    .social-scope-chips > .social-status-filter .scope-chip-status-select {
-      width: 100% !important;
-      min-width: 0 !important;
-      max-width: 100% !important;
     }
 
     .social-scope-chips > .social-manager-approval-label {

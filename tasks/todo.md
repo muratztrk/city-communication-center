@@ -1,3 +1,10 @@
+## Round 1316 — Trello Doing (10 web)
+
+- Mobil Vatandaş Talepleri: Mobil Uygulama ve durum seçiminin e-Devlet ile aynı genişliği geri alındı. Yönetici Onayı etiketi sola tam satırda kaldı.
+- Sayfa adı Whatsapp Mesaj Logları. Butonlar banner altında; grid filtre, sıralama ve sayfalama kullanır.
+- Sütunlar: Sıra, Vatandaş Adı / Telefon No, Durum, İşlemi Yapan, İşlem Tarihi. Mesajı İleten iletilmiş WA kaydından gelir.
+- Log gridlerinin ilk sütunu Sıra. Vatandaşa Giden SMS’te Talep No, Vatandaş Adı’nın solunda.
+
 ## Round 1315 — Trello Doing (9 web)
 
 - Mobil Vatandaş Talepleri: Yönetici Onayı etiketi sola; Mobil Uygulama ve durum seçimi e-Devlet ile aynı genişlik.

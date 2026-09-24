@@ -508,6 +508,20 @@ export function AuditLogsPage() {
             <table className="data-table audit-logs-table">
               <thead>
                 <tr>
+                  <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
+                  {activeScope === 'citizenSms' ? (
+                    <FilterableTh
+                      filterKey="requestNumber"
+                      filterValue={filters.requestNumber ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="requestNumber"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('audit.jobNumberPrefix', 'Talep No')}
+                    </FilterableTh>
+                  ) : null}
                   {activeScope === 'citizenSms' ? (
                     <FilterableTh
                       filterKey="citizenDisplayName"
@@ -556,17 +570,19 @@ export function AuditLogsPage() {
                   >
                     {t('audit.smsPhoneNo', 'Telefon No')}
                   </FilterableTh>
-                  <FilterableTh
-                    filterKey="requestNumber"
-                    filterValue={filters.requestNumber ?? ''}
-                    onFilter={handleFilter}
-                    sortKey="requestNumber"
-                    currentSortKey={sortKey}
-                    sortDir={sortDir}
-                    onSort={handleSort}
-                  >
-                    {t('audit.jobNumberPrefix', 'Talep No')}
-                  </FilterableTh>
+                  {activeScope !== 'citizenSms' ? (
+                    <FilterableTh
+                      filterKey="requestNumber"
+                      filterValue={filters.requestNumber ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="requestNumber"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('audit.jobNumberPrefix', 'Talep No')}
+                    </FilterableTh>
+                  ) : null}
                   <FilterableTh
                     filterKey="kindLabel"
                     filterValue={filters.kindLabel ?? ''}
@@ -614,13 +630,15 @@ export function AuditLogsPage() {
                 </tr>
               </thead>
               <tbody>
-                {pagedSmsRows.map(log => (
+                {pagedSmsRows.map((log, index) => (
                   <tr key={log.smsOutboundLogId}>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(smsSafePage - 1) * pageSize + index + 1}</td>
+                    {activeScope === 'citizenSms' ? <td>{log.requestNumber?.trim() || '—'}</td> : null}
                     {activeScope === 'citizenSms' ? <td>{log.citizenDisplayName}</td> : null}
                     <td>{log.dateText}</td>
                     {activeScope === 'internalSms' ? <td>{log.recipientStaffName}</td> : null}
                     <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
-                    <td>{log.requestNumber?.trim() || '—'}</td>
+                    {activeScope !== 'citizenSms' ? <td>{log.requestNumber?.trim() || '—'}</td> : null}
                     <td>{log.kindLabel}</td>
                     <td className="max-w-[18rem] text-left text-sm text-slate-700">
                       <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body break-words" />
@@ -639,7 +657,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {smsRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={8} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={9} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>
@@ -647,6 +665,7 @@ export function AuditLogsPage() {
             <table className="data-table audit-logs-table">
               <thead>
                 <tr>
+                  <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                   {activeScope === 'job' || activeScope === 'task' ? (
                     <>
                       <FilterableTh
@@ -711,8 +730,9 @@ export function AuditLogsPage() {
                 </tr>
               </thead>
               <tbody>
-                {pagedRows.map(log => (
+                {pagedRows.map((log, index) => (
                   <tr key={log.auditLogId}>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
                     {activeScope === 'job' || activeScope === 'task' ? (
                       <>
                         <td>{log.entityNumber?.trim() || '—'}</td>
@@ -734,7 +754,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {pagedRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={activeScope === 'job' || activeScope === 'task' ? 5 : 3} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={activeScope === 'job' || activeScope === 'task' ? 6 : 4} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>

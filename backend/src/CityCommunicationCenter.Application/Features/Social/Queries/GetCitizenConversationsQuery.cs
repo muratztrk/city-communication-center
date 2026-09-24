@@ -130,6 +130,19 @@ public sealed class GetCitizenConversationsQueryHandler
                     .ThenByDescending(row => row.SentAt)
                     .First()
                     .Direction);
+        var lastOutboundAtByConversation = whatsAppEntryRows
+            .Where(row => row.Direction == ConversationEntryDirection.Outbound
+                && row.DeliveryStatus is ConversationDeliveryStatus.Sent
+                    or ConversationDeliveryStatus.Delivered
+                    or ConversationDeliveryStatus.Read)
+            .GroupBy(row => row.ConversationId)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Max(row => ConversationEntryTimelineTime.ResolveSortKey(
+                    row.Direction,
+                    row.SentAt,
+                    row.DeliveryStatus,
+                    row.DeliveryStatusUpdatedAtUtc)));
 
         // "BEKLEMEDE" personel yanıtı — FAB'da görünsün (card #1472).
         // İşleme Alındı/Yapılmakta/Tamamlandı/İptal otomatik durum şablonları (belediye
@@ -474,7 +487,10 @@ public sealed class GetCitizenConversationsQueryHandler
                     hasPendingMessageApproval ? latestPendingApprovalAt : null,
                     c.PendingApprovalClearedAtUtc,
                     c.BlockedByDisplayName,
-                    c.BlockedAtUtc);
+                    c.BlockedAtUtc,
+                    lastOutboundAtByConversation.TryGetValue(c.CitizenConversationId, out var lastOutboundAt)
+                        ? lastOutboundAt
+                        : null);
 
                 return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);
             })

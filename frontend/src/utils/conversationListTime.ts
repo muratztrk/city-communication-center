@@ -36,6 +36,25 @@ export function formatConversationListTime(dateStr: string, locale: string, t: T
   return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
+/** WhatsApp konuşma listesi: bugün saat, dün «Dün», daha eski tarih. */
+export function formatWhatsAppConversationListTime(dateStr: string, locale: string, t: TFunction): string {
+  const date = new Date(dateStr)
+  if (Number.isNaN(date.getTime())) return ''
+  const now = new Date()
+  const yesterday = new Date()
+  yesterday.setDate(now.getDate() - 1)
+
+  if (sameDay(date, now)) {
+    return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+  }
+
+  if (sameDay(date, yesterday)) {
+    return t('common.yesterday', 'Dün')
+  }
+
+  return date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 /** Mesaj balonu zamanı: yalnızca gönderim saati (HH:mm). */
 export function formatConversationMessageTime(dateStr: string, locale: string, _t?: TFunction): string {
   const date = new Date(dateStr)

@@ -48,7 +48,7 @@ import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
-import { formatConversationMessageTime } from '../utils/conversationListTime'
+import { formatConversationMessageTime, formatWhatsAppConversationListTime } from '../utils/conversationListTime'
 
 const DUPLICATE_PENDING_SEND_ERROR_SNIPPET = 'gönderimi zaten devam ediyor veya tamamlanmış'
 import { compareConversationEntriesByDisplayTime, resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
@@ -189,12 +189,9 @@ function isRecentConversationTime(dateStr: string): boolean {
   return diffMin >= 0 && diffMin < 60
 }
 
-/** İletilmemiş onay bekleyen mesajın kuyruk saati — vatandaşa gitene kadar değişmez (#3750). */
+/** Liste sırası ve saati: son karşıya iletilen mesajın balon saati. */
 function conversationListTimestamp(conv: CitizenConversationSummary): string {
-  if (conv.hasPendingMessageApproval && conv.pendingMessageApprovalAtUtc) {
-    return conv.pendingMessageApprovalAtUtc
-  }
-  return conv.lastMessageAt
+  return conv.lastOutboundMessageAt || conv.lastMessageAt
 }
 
 function isPendingApprovalClearedForCurrentMessage(
@@ -247,7 +244,7 @@ function ConversationListItem({
   const ticketOpen = isConversationTicketOpen(conv)
   const pendingApprovalStatus = conversationHasPendingMessageApprovalQueue(conv)
   const listTimestamp = conversationListTimestamp(conv)
-  const timeLabel = formatConversationMessageTime(listTimestamp, locale, t)
+  const timeLabel = formatWhatsAppConversationListTime(listTimestamp, locale, t)
   const recentTime = isRecentConversationTime(listTimestamp)
   const responseStatus = pendingApprovalStatus ? (
     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
@@ -2016,7 +2013,7 @@ export function WhatsAppConversationsPage() {
           || (normalizedSearchTicket.length >= 3 && ticketNumber.includes(normalizedSearchTicket))
       if (!matchesSearch) return false
       if (filterFrom || filterTo) {
-        const date = conversation.lastMessageAt.slice(0, 10)
+        const date = conversationListTimestamp(conversation).slice(0, 10)
         if (filterFrom && date < filterFrom.slice(0, 10)) return false
         if (filterTo && date > filterTo.slice(0, 10)) return false
       }
@@ -2317,7 +2314,12 @@ export function WhatsAppConversationsPage() {
               onOutboundSent={() => {
                 setConversations(prev => prev.map(c =>
                   c.citizenConversationId === selectedId
-                    ? { ...c, lastMessageDirection: 'Outbound', lastMessageAt: new Date().toISOString() }
+                    ? {
+                        ...c,
+                        lastMessageDirection: 'Outbound',
+                        lastMessageAt: new Date().toISOString(),
+                        lastOutboundMessageAt: new Date().toISOString(),
+                      }
                     : c,
                 ))
                 void silentRefreshConversations()

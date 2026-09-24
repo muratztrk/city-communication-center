@@ -1,3 +1,8 @@
+## Round 1324 — Trello Doing (2 web)
+
+- WhatsApp konuşma listesi son karşıya iletilen mesaja göre sıralanır; saat o mesajın saatidir.
+- Dün ise listede `Dün`, daha eskiyse tarih yazılır.
+
 ## Round 1323 — Trello Doing (1 web)
 
 - Whatsapp Mesaj Logları açıkken bildirim sesi çalmaz.

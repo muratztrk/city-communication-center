@@ -573,6 +573,8 @@ export interface CitizenConversationSummary {
   /** Engellenenler: engelleyen görünen ad + zaman (#3560). */
   blockedByDisplayName?: string | null;
   blockedAtUtc?: string | null;
+  /** Son karşıya iletilen giden mesajın balon saati — liste sırası ve saati. */
+  lastOutboundMessageAt?: string | null;
 }
 
 // Kurum içi (personel-arası) mesajlaşma — card #1539.

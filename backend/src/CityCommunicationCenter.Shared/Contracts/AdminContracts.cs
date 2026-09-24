@@ -242,7 +242,8 @@ public sealed record SmsOutboundLogItemResponse(
     string? BodyPreview,
     DateTimeOffset CreatedAtUtc,
     string? RecipientPhone = null,
-    string? RecipientDisplayName = null);
+    string? RecipientDisplayName = null,
+    string? CitizenDisplayName = null);
 
 public sealed record SmsOutboundLogsResponse(
     int TotalMatching,

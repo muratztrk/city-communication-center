@@ -31,6 +31,7 @@ interface MyRequestTaskDetailsSectionProps {
   citizenMessageApproverDisplayName?: string | null
   /** Vatandaşa giden mesajı düzenleyen operatör (#3655/#3656). */
   citizenOutboundEditorDisplayName?: string | null
+  citizenOutboundRelayerDisplayName?: string | null
   /** Mesaj Onayı Bekleyen detay popup — onaylayan/outbound satırları gizle (#3519). */
   hideMessageApprovalPendingFields?: boolean
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
@@ -157,6 +158,7 @@ export function MyRequestTaskDetailsSection({
   citizenApprovalReleasedNote,
   citizenMessageApproverDisplayName,
   citizenOutboundEditorDisplayName,
+  citizenOutboundRelayerDisplayName,
   hideMessageApprovalPendingFields = false,
   addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
@@ -254,6 +256,7 @@ export function MyRequestTaskDetailsSection({
             t,
             isCancelledTask,
             outboundField.pending,
+            citizenOutboundRelayerDisplayName ?? detail.citizenOutboundRelayerDisplayName,
           )
           const primaryTerminalTaskId = detail.tasks.find(item =>
             item.currentStatus === 'Completed'

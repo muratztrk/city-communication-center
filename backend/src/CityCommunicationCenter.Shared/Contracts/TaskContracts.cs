@@ -185,4 +185,5 @@ public sealed record TaskDetailResponse(
     string? CitizenApprovalReleasedNote = null,
     string? CitizenOutboundMessage = null,
     string? CitizenOutboundEditorDisplayName = null,
+    string? CitizenOutboundRelayerDisplayName = null,
     string? JobCancelReason = null);

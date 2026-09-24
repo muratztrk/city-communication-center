@@ -234,6 +234,7 @@ function buildCancelledWithoutTaskInfoRows(
       t,
       true,
       outboundField.pending,
+      detail.citizenOutboundRelayerDisplayName,
     )
     if (editorField) {
       rows.push({
@@ -3338,6 +3339,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           t,
                           true,
                           outboundField.pending,
+                          detail.citizenOutboundRelayerDisplayName,
                         )
                         if (editorField) {
                           rows.push({

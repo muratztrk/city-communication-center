@@ -226,6 +226,7 @@ export function MyRequestDetailModal({
           hideProjectRow={forceCitizenDetailCards}
           citizenOutboundMessage={outboundMessage}
           citizenOutboundEditorDisplayName={detail.citizenOutboundEditorDisplayName}
+          citizenOutboundRelayerDisplayName={detail.citizenOutboundRelayerDisplayName}
           operatorSocialEdit={operatorSocialEdit}
           returnedRequestDetail={returnedRequestDetail}
           canEditSocialTitleDescription={canEditSocialTitleDescription}
@@ -329,6 +330,7 @@ export function MyRequestDetailModal({
           citizenApprovalReleasedNote={releasedNote}
           citizenMessageApproverDisplayName={detail.citizenMessageApproverDisplayName}
           citizenOutboundEditorDisplayName={detail.citizenOutboundEditorDisplayName}
+          citizenOutboundRelayerDisplayName={detail.citizenOutboundRelayerDisplayName}
         />
       </div>
     </section>

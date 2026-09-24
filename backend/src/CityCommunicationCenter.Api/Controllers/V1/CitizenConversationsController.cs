@@ -154,6 +154,16 @@ public sealed class CitizenConversationsController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpGet("message-approval-logs")]
+    [ProducesResponseType<IReadOnlyList<WhatsAppMessageApprovalLogItemResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<WhatsAppMessageApprovalLogItemResponse>>> GetMessageApprovalLogs(
+        [FromQuery] string? kind,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetWhatsAppMessageApprovalLogsQuery(kind), cancellationToken);
+        return Ok(result);
+    }
+
     [HttpGet("tags")]
     [ProducesResponseType<IReadOnlyList<RequestTagResponse>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RequestTagResponse>>> GetTags(CancellationToken cancellationToken)

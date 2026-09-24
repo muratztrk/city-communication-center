@@ -612,7 +612,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
       )}
 
       {embedded ? null : (
-      <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
+      <nav className="scope-chips social-scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
         {channelQuickFilters.map(filter => (
           <button
             key={filter.value || 'all'}
@@ -631,7 +631,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
         ))}
         <span className="scope-chip-divider" aria-hidden="true">|</span>
         <SingleSelectDropdown
-          className="w-auto"
+          className="social-status-filter w-auto"
           triggerClassName="scope-chip-year-select scope-chip-status-select w-[11.5rem] min-w-[11.5rem] max-w-[11.5rem]"
           menuScrollClassName="scope-chip-status-menu-scroll"
           options={REQUEST_STATUS_FILTERS.map(filter => ({ value: filter.value, label: t(filter.labelKey, filter.fallback) }))}
@@ -672,7 +672,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
           />
           {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
         </label>
-        <label className="ml-3 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
+        <label className="social-manager-approval-label ml-3 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
           <input
             type="checkbox"
             className="field-checkbox"

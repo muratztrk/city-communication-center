@@ -181,6 +181,8 @@ public sealed record JobDetailResponse(
     string? CitizenMessageApproverDisplayName = null,
     /// <summary>Vatandaşa giden mesajı düzenleyen operatör (#3655/#3656).</summary>
     string? CitizenOutboundEditorDisplayName = null,
+    /// <summary>Mesaj düzenlenmeden olduğu gibi iletildiyse gönderen operatör.</summary>
+    string? CitizenOutboundRelayerDisplayName = null,
     /// <summary>VT kaynak sosyal mesajındaki Talep Etiketi değerleri.</summary>
     IReadOnlyCollection<string>? RequestTags = null,
     DateTimeOffset? ReturnedToOperatorAtUtc = null,

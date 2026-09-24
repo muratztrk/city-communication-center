@@ -18,6 +18,7 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'smsDeliveryApproval', path: '/sms-delivery-approval', labelKey: 'nav.smsDeliveryApproval' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },
   { key: 'returnedCitizenRequests', path: '/returned-citizen-requests', labelKey: 'nav.returnedCitizenRequests' },
+  { key: 'whatsappMessageApprovalLogs', path: '/whatsapp-message-approval-logs', labelKey: 'nav.whatsappMessageApprovalLogs' },
   { key: 'citizenRequestMap', path: '/citizen-request-map', labelKey: 'nav.citizenRequestMap' },
   { key: 'departmentRequestMap', path: '/department-request-map', labelKey: 'nav.departmentRequestMap' },
   { key: 'citizenDirectory', path: '/citizen-directory', labelKey: 'nav.citizenDirectory' },
@@ -66,6 +67,7 @@ export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, PageLicenseRequi
   citizenMessageApproval: 'citizen',
   smsDeliveryApproval: 'citizen',
   returnedCitizenRequests: 'citizen',
+  whatsappMessageApprovalLogs: 'citizen',
   // Vatandaş İş Takip Sistemi'nde olmamalı (#MHrIEwuE): birim-içi iş takibine özgü sayfalar.
   myRequests: 'internal',
   outgoingRequests: 'internal',
@@ -111,7 +113,8 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
       && pageKey !== 'edevletActivityPlan'
       && pageKey !== 'edevletActivityPlansList'
       && pageKey !== 'smsDeliveryApproval'
-      && pageKey !== 'returnedCitizenRequests',
+      && pageKey !== 'returnedCitizenRequests'
+      && pageKey !== 'whatsappMessageApprovalLogs',
     ),
   CitizenRequestManager: [
     'dashboard',
@@ -129,6 +132,7 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
     'departmentRequestMap',
     'citizenDirectory',
     'returnedCitizenRequests',
+    'whatsappMessageApprovalLogs',
     'display',
     'departments',
     'users',

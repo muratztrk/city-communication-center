@@ -27,6 +27,7 @@ function decodeOriginalFileNameHeader(header: string | null): string | null {
 import type {
   AuditLog,
   SmsOutboundLogsResponse,
+  WhatsAppMessageApprovalLogItem,
   SupportRequest,
   Attachment,
   DashboardSnapshot,
@@ -1910,6 +1911,18 @@ export const api = {
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.genericDeleteFailed', 'Silinemedi.'))
+  },
+
+  async getWhatsAppMessageApprovalLogs(kind: 'all' | 'waitingReplied' | 'pendingApprovalCleared' = 'all'): Promise<WhatsAppMessageApprovalLogItem[]> {
+    const search = new URLSearchParams()
+    if (kind !== 'all') search.set('kind', kind)
+    const query = search.toString()
+    const response = await fetchWithCredentials(
+      `${API_BASE}/citizen-conversations/message-approval-logs${query ? `?${query}` : ''}`,
+      { headers: await getAuthHeaders() },
+    )
+    await ensureOk(response, i18n.t('errors.genericLoadFailed', 'Veriler yüklenemedi.'))
+    return response.json() as Promise<WhatsAppMessageApprovalLogItem[]>
   },
 
   async getAuditLogs(): Promise<AuditLog[]> {

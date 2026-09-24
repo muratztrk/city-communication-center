@@ -29,6 +29,12 @@ public sealed class MarkConversationWaitingRepliedCommandHandler
         if (conversation is null) return false;
 
         conversation.WaitingReplyClearedAtUtc = DateTimeOffset.UtcNow;
+        await WhatsAppMessageApprovalLog.WriteAsync(
+            _dbContext,
+            _tenantContextAccessor,
+            conversation,
+            WhatsAppMessageApprovalLog.WaitingRepliedAction,
+            cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

@@ -82,6 +82,13 @@ public sealed class GetSmsOutboundLogsQueryHandler : IQueryHandler<GetSmsOutboun
                         .Where(user => user.UserId == entity.RecipientUserId.Value)
                         .Select(user => (string?)user.DisplayName)
                         .FirstOrDefault()
+                    : null,
+                entity.Kind == SmsOutboundKind.CitizenStatus && entity.JobId.HasValue
+                    ? _dbContext.Jobs
+                        .AsNoTracking()
+                        .Where(job => job.JobId == entity.JobId.Value && job.TenantId == entity.TenantId)
+                        .Select(job => job.CitizenName)
+                        .FirstOrDefault()
                     : null))
             .ToListAsync(cancellationToken);
 

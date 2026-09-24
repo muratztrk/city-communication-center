@@ -803,7 +803,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görsel ek adı **alt** satırda;
   X fotoğrafın **içinde sağ üst** (#2711 reopen); görsel X çerçevesi kırmızı (#2731). Giden mesajda birim · ad soyad **aynı satırda**, ad birimin yanında (#2405);
   mobilde (`max-width: 1023px`) yalnız `/whatsapp` balon başlığında birim · ad ve vatandaş adı `12px` (#6ab3665d); masaüstü ve telefon satırı değişmez.
-  `/whatsapp` giden balonda `"İşleme Alındı"` mavi, `"Yapılmakta"` turuncu, `"İptal Edildi"` ve `Not:` kırmızı.
+  `/whatsapp` giden balonda `"İşleme Alındı"` sarı (`text-yellow-300`), `"Yapılmakta"` turuncu, `"İptal Edildi"` ve `Not:` kırmızı.
   `"Tamamlandı"` ve `Yapılan İş:` İleten Operatör ile aynı turkuaz (`text-teal-300`, #6ab3e50e / #6ab3e58a).
   Otomatik giden balonun üst başlığında kurum adı ve birim adı siyah (`text-black`, #6ab40f1e).
   Ayırıcı ve mesaj gövdesi boyanmaz. Personel `Birim · Ad` başlığı beyaz kalır. Talep popup konuşması boyanmaz.
@@ -3215,6 +3215,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   operatör birimi (`ReleaseTerminalMessagesAsync` + `routingDepartmentUserId`). Chip
   `Onaylayan Personel` = `JobCancelled` audit actor. Detayda `Vatandaşa Giden Mesajı Düzenleyen`
   = `ResolveOutboundEditorDisplayNameAsync` (#3655/#3656).
+  Tamamlandı/İptal ve mesaj düzenlenmeden iletildiyse aynı satırın yerine `Vatandaşa Giden Mesajı İleten`
+  gelir (`CitizenOutboundRelayerDisplayName`: WA `RelayedByDisplayName` veya `CitizenTerminalSmsSent`).
+- **Whatsapp Mesaj Onay Logları:** sol menüde İade Edilen Talepler altında. Yanıt Verildi ve
+  Mesaj Onayı/Cevabı Verildi tıklanınca audit yazılır. Sayfa varsayılanı Operatör; Vatandaş lisansı açıkken görünür.
+- **Log grid:** Talep Log ilk sütunlar Talep No + Başlık; Görev Log Görev No + Başlık. Vatandaşa Giden SMS
+  ilk sütun Vatandaş Adı (`Job.CitizenName`, personel adı değil).
+- **Vatandaş Talepleri mobil (`max-width: 1023px`):** Yönetici Onayı Bekleyen etiketi sola, tam satır.
+  Mobil Uygulama ve Tüm Talep Durumları, e-Devlet çipi ile aynı genişlik.
 - **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.

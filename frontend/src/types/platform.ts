@@ -264,6 +264,7 @@ export interface TaskDetail {
   citizenApprovalReleasedNote?: string | null;
   citizenOutboundMessage?: string | null;
   citizenOutboundEditorDisplayName?: string | null;
+  citizenOutboundRelayerDisplayName?: string | null;
   jobCancelReason?: string | null;
 }
 
@@ -470,6 +471,8 @@ export interface JobDetail {
   citizenMessageApproverDisplayName?: string | null;
   /** Vatandaşa giden mesajı düzenleyen operatör (#3655/#3656). */
   citizenOutboundEditorDisplayName?: string | null;
+  /** Mesaj düzenlenmeden iletildiyse gönderen operatör. */
+  citizenOutboundRelayerDisplayName?: string | null;
   returnedToOperatorAtUtc?: string | null;
   returnedToOperatorReason?: string | null;
   returnedToOperatorFromDepartmentId?: string | null;
@@ -771,6 +774,16 @@ export interface SmsOutboundLogItem {
   textLength: number;
   bodyPreview?: string | null;
   createdAtUtc: string;
+  citizenDisplayName?: string | null;
+}
+
+export interface WhatsAppMessageApprovalLogItem {
+  auditLogId: string;
+  citizenName?: string | null;
+  citizenPhone?: string | null;
+  eventTimeUtc: string;
+  action: string;
+  actorDisplayName?: string | null;
 }
 
 export interface SmsOutboundLogsResponse {

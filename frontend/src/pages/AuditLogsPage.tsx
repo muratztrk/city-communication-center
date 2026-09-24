@@ -156,6 +156,7 @@ type SmsOutboundLogRow = SmsOutboundLogItem & {
   detailText: string
   recipientPhoneDisplay: string
   recipientStaffName: string
+  citizenDisplayName: string
 }
 
 function getSmsRecipientPhoneDisplay(item: SmsOutboundLogItem): string {
@@ -340,6 +341,7 @@ export function AuditLogsPage() {
         bodyPreview,
         recipientPhoneDisplay: getSmsRecipientPhoneDisplay(item),
         recipientStaffName: item.recipientDisplayName?.trim() || '—',
+        citizenDisplayName: item.citizenDisplayName?.trim() || '—',
         statusLabel: item.success
           ? t('audit.smsSuccess', 'Başarılı')
           : t('audit.smsFailure', 'Başarısız'),
@@ -356,6 +358,7 @@ export function AuditLogsPage() {
           row.bodyPreview,
           row.recipientPhoneDisplay,
           row.recipientStaffName,
+          row.citizenDisplayName,
           row.requestNumber ?? '',
           row.smsOutboundLogId,
         ].join(' ').toLocaleLowerCase('tr')
@@ -365,6 +368,7 @@ export function AuditLogsPage() {
         if (key === 'createdAtUtc') return item.dateText
         if (key === 'recipientPhoneMasked') return item.recipientPhoneDisplay
         if (key === 'recipientDisplayName') return item.recipientStaffName
+        if (key === 'citizenDisplayName') return item.citizenDisplayName
         if (key === 'requestNumber') return item.requestNumber ?? ''
         if (key === 'kindLabel') return item.kindLabel
         if (key === 'bodyPreview') return item.bodyPreview
@@ -504,6 +508,19 @@ export function AuditLogsPage() {
             <table className="data-table audit-logs-table">
               <thead>
                 <tr>
+                  {activeScope === 'citizenSms' ? (
+                    <FilterableTh
+                      filterKey="citizenDisplayName"
+                      filterValue={filters.citizenDisplayName ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="citizenDisplayName"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('audit.citizenName', 'Vatandaş Adı')}
+                    </FilterableTh>
+                  ) : null}
                   <FilterableTh
                     filterKey="createdAtUtc"
                     filterValue={filters.createdAtUtc ?? ''}
@@ -599,6 +616,7 @@ export function AuditLogsPage() {
               <tbody>
                 {pagedSmsRows.map(log => (
                   <tr key={log.smsOutboundLogId}>
+                    {activeScope === 'citizenSms' ? <td>{log.citizenDisplayName}</td> : null}
                     <td>{log.dateText}</td>
                     {activeScope === 'internalSms' ? <td>{log.recipientStaffName}</td> : null}
                     <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
@@ -621,7 +639,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {smsRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={activeScope === 'internalSms' ? 8 : 7} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={8} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>
@@ -629,6 +647,34 @@ export function AuditLogsPage() {
             <table className="data-table audit-logs-table">
               <thead>
                 <tr>
+                  {activeScope === 'job' || activeScope === 'task' ? (
+                    <>
+                      <FilterableTh
+                        filterKey="entityNumber"
+                        filterValue={filters.entityNumber ?? ''}
+                        onFilter={handleFilter}
+                        sortKey="entityNumber"
+                        currentSortKey={sortKey}
+                        sortDir={sortDir}
+                        onSort={handleSort}
+                      >
+                        {activeScope === 'job'
+                          ? t('audit.jobNumberPrefix', 'Talep No')
+                          : t('audit.taskNumber', 'Görev No')}
+                      </FilterableTh>
+                      <FilterableTh
+                        filterKey="entityTitle"
+                        filterValue={filters.entityTitle ?? ''}
+                        onFilter={handleFilter}
+                        sortKey="entityTitle"
+                        currentSortKey={sortKey}
+                        sortDir={sortDir}
+                        onSort={handleSort}
+                      >
+                        {t('audit.entityTitle', 'Başlık')}
+                      </FilterableTh>
+                    </>
+                  ) : null}
                   <FilterableTh
                     filterKey="eventTimeUtc"
                     filterValue={filters.eventTimeUtc ?? ''}
@@ -667,6 +713,12 @@ export function AuditLogsPage() {
               <tbody>
                 {pagedRows.map(log => (
                   <tr key={log.auditLogId}>
+                    {activeScope === 'job' || activeScope === 'task' ? (
+                      <>
+                        <td>{log.entityNumber?.trim() || '—'}</td>
+                        <td>{log.entityTitle?.trim() || '—'}</td>
+                      </>
+                    ) : null}
                     <td>{log.dateText}</td>
                     <td>
                       <StatusPill tone={getActionTone(log.action)}>{log.actionLabel}</StatusPill>
@@ -682,7 +734,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {pagedRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={3} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={activeScope === 'job' || activeScope === 'task' ? 5 : 3} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>

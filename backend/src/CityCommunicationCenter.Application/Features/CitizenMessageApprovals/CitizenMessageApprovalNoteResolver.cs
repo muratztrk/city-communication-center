@@ -259,11 +259,55 @@ internal static class CitizenMessageApprovalNoteResolver
         return string.IsNullOrWhiteSpace(actorName) ? null : actorName.Trim();
     }
 
+    public readonly record struct OutboundDeliveryActors(string? EditorDisplayName, string? RelayerDisplayName);
+
+    /// <summary>
+    /// Düzenleme varsa yalnız düzenleyen. Düzenleme yoksa ve mesaj olduğu gibi gittiyse
+    /// ileten operatör. İkisi de yoksa iptal başlatanı düzenleyen alanında bırakır.
+    /// </summary>
+    public static async Task<OutboundDeliveryActors> ResolveOutboundDeliveryActorsAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        Guid? socialMessageId,
+        CancellationToken cancellationToken)
+    {
+        var editor = await ResolveActualOutboundEditorDisplayNameAsync(
+            dbContext, tenantId, jobId, socialMessageId, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(editor))
+        {
+            return new OutboundDeliveryActors(editor, null);
+        }
+
+        var relayer = await ResolveSentOutboundRelayerDisplayNameAsync(
+            dbContext, tenantId, jobId, socialMessageId, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(relayer))
+        {
+            return new OutboundDeliveryActors(null, relayer);
+        }
+
+        var fallback = await ResolveCancelledJobInitiatorDisplayNameAsync(
+            dbContext, tenantId, jobId, cancellationToken);
+        return new OutboundDeliveryActors(fallback, null);
+    }
+
     /// <summary>
     /// Vatandaşa Giden Mesajı düzenleyen operatör — Mesaj Onayı not düzenleme veya WA
     /// beklemede balon düzenleme (#3655 / #3656).
     /// </summary>
     public static async Task<string?> ResolveOutboundEditorDisplayNameAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        Guid? socialMessageId,
+        CancellationToken cancellationToken)
+    {
+        var actors = await ResolveOutboundDeliveryActorsAsync(
+            dbContext, tenantId, jobId, socialMessageId, cancellationToken);
+        return actors.EditorDisplayName;
+    }
+
+    private static async Task<string?> ResolveActualOutboundEditorDisplayNameAsync(
         IApplicationDbContext dbContext,
         Guid tenantId,
         Guid jobId,
@@ -310,11 +354,53 @@ internal static class CitizenMessageApprovalNoteResolver
             }
         }
 
-        return await ResolveCancelledJobInitiatorDisplayNameAsync(
-            dbContext,
-            tenantId,
-            jobId,
-            cancellationToken);
+        return null;
+    }
+
+    private static async Task<string?> ResolveSentOutboundRelayerDisplayNameAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        Guid? socialMessageId,
+        CancellationToken cancellationToken)
+    {
+        var jobStatus = await dbContext.Jobs.AsNoTracking()
+            .Where(job => job.JobId == jobId && job.TenantId == tenantId)
+            .Select(job => (JobStatus?)job.Status)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (jobStatus is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected))
+        {
+            return null;
+        }
+
+        if (socialMessageId.HasValue)
+        {
+            var relayedBy = await dbContext.ConversationEntries.AsNoTracking()
+                .Where(entry => entry.SocialMessageId == socialMessageId.Value
+                    && entry.Direction == ConversationEntryDirection.Outbound
+                    && entry.RelayedByDisplayName != null
+                    && (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
+                        || entry.DeliveryStatus == ConversationDeliveryStatus.Delivered
+                        || entry.DeliveryStatus == ConversationDeliveryStatus.Read))
+                .OrderByDescending(entry => entry.SentAt)
+                .Select(entry => entry.RelayedByDisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (!string.IsNullOrWhiteSpace(relayedBy))
+            {
+                return relayedBy.Trim();
+            }
+        }
+
+        var jobKey = jobId.ToString();
+        var smsActor = await dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityType == nameof(Job)
+                && audit.EntityId == jobKey
+                && audit.Action == TerminalSmsSentAction)
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => audit.ActorDisplayName)
+            .FirstOrDefaultAsync(cancellationToken);
+        return string.IsNullOrWhiteSpace(smsActor) ? null : smsActor.Trim();
     }
 
     /// <summary>

@@ -35,6 +35,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
         string? citizenApprovalReleasedNote = null;
         string? citizenOutboundMessage = null;
         string? citizenOutboundEditorDisplayName = null;
+        string? citizenOutboundRelayerDisplayName = null;
         if (jobEntity is not null && JobCitizenRequestHelper.IsCitizenRequest(jobEntity))
         {
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
@@ -133,12 +134,14 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                     }
                 }
 
-                citizenOutboundEditorDisplayName = await CitizenMessageApprovalNoteResolver.ResolveOutboundEditorDisplayNameAsync(
+                var outboundActors = await CitizenMessageApprovalNoteResolver.ResolveOutboundDeliveryActorsAsync(
                     _dbContext,
                     tenantId,
                     task.JobId,
                     outboundSocialMessageId ?? jobEntity.SourceRefId,
                     cancellationToken);
+                citizenOutboundEditorDisplayName = outboundActors.EditorDisplayName;
+                citizenOutboundRelayerDisplayName = outboundActors.RelayerDisplayName;
             }
         }
 
@@ -327,6 +330,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             citizenApprovalReleasedNote,
             citizenOutboundMessage,
             citizenOutboundEditorDisplayName,
+            citizenOutboundRelayerDisplayName,
             JobCancelReason: jobEntity?.CancelReason);
     }
 

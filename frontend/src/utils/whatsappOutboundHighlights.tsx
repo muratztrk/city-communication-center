@@ -7,7 +7,7 @@ const RELAY_OPERATOR_CLASS = 'font-semibold text-teal-300'
 function classNameFor(token: string): string | null {
   switch (token) {
     case 'İşleme Alındı':
-      return 'font-semibold text-sky-300'
+      return 'font-semibold text-yellow-300'
     case 'Yapılmakta':
       return 'font-semibold text-orange-300'
     case 'Tamamlandı':

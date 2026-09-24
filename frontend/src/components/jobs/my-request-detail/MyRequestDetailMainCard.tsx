@@ -249,6 +249,7 @@ interface MyRequestDetailMainCardProps {
   /** Görev oluşmadan iptal edilen VT — Talep Bilgileri kırmızı notlar (#3490). */
   citizenOutboundMessage?: string | null
   citizenOutboundEditorDisplayName?: string | null
+  citizenOutboundRelayerDisplayName?: string | null
   /** Operatör + Vatandaş Talepleri Düzenle: yalnız öncelik/etiket (#3597). */
   operatorSocialEdit?: boolean
   /** İade edilen talep detayında hedef/iade alanları (#3686). */
@@ -297,6 +298,7 @@ export function MyRequestDetailMainCard({
   canEditSocialTitleDescription = false,
   citizenOutboundMessage,
   citizenOutboundEditorDisplayName,
+  citizenOutboundRelayerDisplayName,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -377,6 +379,7 @@ export function MyRequestDetailMainCard({
     t,
     true,
     cancelledOutboundField.pending,
+    citizenOutboundRelayerDisplayName ?? detail.citizenOutboundRelayerDisplayName,
   )
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),

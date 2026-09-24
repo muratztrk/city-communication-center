@@ -1,3 +1,11 @@
+## Round 1315 — Trello Doing (9 web)
+
+- Mobil Vatandaş Talepleri: Yönetici Onayı etiketi sola; Mobil Uygulama ve durum seçimi e-Devlet ile aynı genişlik.
+- WhatsApp giden balonda İşleme Alındı sarı.
+- Whatsapp Mesaj Onay Logları sayfası (Operatör, vatandaş lisansı).
+- Tamamlandı/İptal ve düzenlenmeden iletilen mesajda Vatandaşa Giden Mesajı İleten.
+- Log: Talep No/Görev No + Başlık; vatandaş SMS ilk sütun Vatandaş Adı.
+
 ## Yedek Kaydet — SMB girişi invariant kültür
 
 - Kaydet, istek kültürü `tr` iken NTLMv2 `tim` → `TİM` yaptığı için doğru parolada da `STATUS_LOGON_FAILURE` dönüyordu. Oturum artık `RunWithInvariantCulture` içinde.

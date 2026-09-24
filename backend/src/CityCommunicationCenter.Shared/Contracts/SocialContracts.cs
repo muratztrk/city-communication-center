@@ -401,3 +401,11 @@ public sealed record SocialConnectionTestResponse(
     string Channel,
     bool Connected,
     string Message);
+
+public sealed record WhatsAppMessageApprovalLogItemResponse(
+    Guid AuditLogId,
+    string? CitizenName,
+    string? CitizenPhone,
+    DateTimeOffset EventTimeUtc,
+    string Action,
+    string? ActorDisplayName);

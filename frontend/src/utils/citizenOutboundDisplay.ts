@@ -79,13 +79,27 @@ export function buildCitizenOutboundEditorField(
   t: TFunction,
   forceShow = false,
   outboundPending = false,
+  relayerName?: string | null,
 ): { label: string; value: string } | null {
   if (outboundPending) return null
-  const trimmed = editorName?.trim()
-  if (!forceShow && !trimmed) return null
+  const editor = editorName?.trim()
+  if (editor) {
+    return {
+      label: t('jobs.detail.citizenOutboundEditor', 'Vatandaşa Giden Mesajı Düzenleyen'),
+      value: editor,
+    }
+  }
+  const relayer = relayerName?.trim()
+  if (relayer) {
+    return {
+      label: t('jobs.detail.citizenOutboundRelayer', 'Vatandaşa Giden Mesajı İleten'),
+      value: relayer,
+    }
+  }
+  if (!forceShow) return null
   return {
     label: t('jobs.detail.citizenOutboundEditor', 'Vatandaşa Giden Mesajı Düzenleyen'),
-    value: trimmed || '—',
+    value: '—',
   }
 }
 

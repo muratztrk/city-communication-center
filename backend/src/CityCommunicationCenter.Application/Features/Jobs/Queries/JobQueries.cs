@@ -721,6 +721,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         string? citizenApprovalReleasedNote = null;
         string? citizenMessageApproverDisplayName = null;
         string? citizenOutboundEditorDisplayName = null;
+        string? citizenOutboundRelayerDisplayName = null;
         var hasCitizenWaPhoneLink = citizenRequest is not null
             && (citizenRequest.Channel == SocialChannel.WhatsApp
                 || citizenRequest.Channel == SocialChannel.Phone);
@@ -829,12 +830,14 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
 
             }
 
-            citizenOutboundEditorDisplayName = await CitizenMessageApprovalNoteResolver.ResolveOutboundEditorDisplayNameAsync(
+            var outboundActors = await CitizenMessageApprovalNoteResolver.ResolveOutboundDeliveryActorsAsync(
                 _dbContext,
                 tenantId,
                 job.JobId,
                 sourceSocialMessageId,
                 cancellationToken);
+            citizenOutboundEditorDisplayName = outboundActors.EditorDisplayName;
+            citizenOutboundRelayerDisplayName = outboundActors.RelayerDisplayName;
         }
 
         return new JobDetailResponse(
@@ -858,6 +861,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             sourceChannel, sourceSocialMessageId,
             citizenMessageApproverDisplayName,
             citizenOutboundEditorDisplayName,
+            citizenOutboundRelayerDisplayName,
             SplitRequestTags(citizenRequest?.Tags, citizenRequest?.Category),
             job.ReturnedToOperatorAtUtc,
             job.ReturnedToOperatorReason,

@@ -130,13 +130,11 @@ public sealed class GetCitizenConversationsQueryHandler
                     .ThenByDescending(row => row.SentAt)
                     .First()
                     .Direction);
-        // Balonda görünen son iletim: konuşmadaki tüm kanallar (telefon VT üzerindeki WA şablonu dahil).
+        // Balonda görünen son giden ileti (Beklemede dahil). Yönetici onayı bekleyen gizli
+        // terminal balonlar aşağıda elenir.
         var outboundEntryRows = await _dbContext.ConversationEntries
             .AsNoTracking()
-            .Where(entry => entry.Direction == ConversationEntryDirection.Outbound
-                && (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
-                    || entry.DeliveryStatus == ConversationDeliveryStatus.Delivered
-                    || entry.DeliveryStatus == ConversationDeliveryStatus.Read))
+            .Where(entry => entry.Direction == ConversationEntryDirection.Outbound)
             .Join(
                 _dbContext.SocialMessages.AsNoTracking().Where(message =>
                     message.CitizenConversationId != null
@@ -146,21 +144,15 @@ public sealed class GetCitizenConversationsQueryHandler
                 (entry, message) => new
                 {
                     ConversationId = message.CitizenConversationId!.Value,
+                    message.JobId,
                     entry.Direction,
                     entry.SentAt,
                     entry.DeliveryStatus,
                     entry.DeliveryStatusUpdatedAtUtc,
+                    entry.SenderLabel,
+                    entry.Content,
                 })
             .ToListAsync(cancellationToken);
-        var lastOutboundAtByConversation = outboundEntryRows
-            .GroupBy(row => row.ConversationId)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Max(row => ConversationEntryTimelineTime.ResolveSortKey(
-                    row.Direction,
-                    row.SentAt,
-                    row.DeliveryStatus,
-                    row.DeliveryStatusUpdatedAtUtc)));
 
         // "BEKLEMEDE" personel yanıtı — FAB'da görünsün (card #1472).
         // İşleme Alındı/Yapılmakta/Tamamlandı/İptal otomatik durum şablonları (belediye
@@ -201,6 +193,23 @@ public sealed class GetCitizenConversationsQueryHandler
             tenantId,
             releasedAtByJobId,
             cancellationToken);
+        var lastOutboundAtByConversation = outboundEntryRows
+            .Where(row => !ConversationEntryOperatorVisibility.IsTerminalPendingAwaitingManagerRelease(
+                row.Direction,
+                row.DeliveryStatus,
+                row.SenderLabel,
+                row.Content,
+                row.JobId is Guid jobId && releasedAtByJobId.TryGetValue(jobId, out var releasedAt)
+                    ? releasedAt
+                    : null))
+            .GroupBy(row => row.ConversationId)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Max(row => ConversationEntryTimelineTime.ResolveSortKey(
+                    row.Direction,
+                    row.SentAt,
+                    row.DeliveryStatus,
+                    row.DeliveryStatusUpdatedAtUtc)));
         var pendingOutboundConversationIds = pendingOutboundRows
             .Where(row => !ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
                 ConversationEntryDirection.Outbound,

@@ -1,3 +1,7 @@
+## Round 1326 — WhatsApp liste saati (Beklemede)
+
+- Görünen Beklemede giden balonun saati listeye yazılır. Gizli terminal onay balonu yazılmaz.
+
 ## Round 1325 — Trello Doing (1 web)
 
 - WhatsApp listesinde gün içi saat, açık konuşmadaki son iletilen mesajın saatidir.

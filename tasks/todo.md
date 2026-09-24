@@ -1,3 +1,7 @@
+## Round 1328 — iPhone grid başlık rengi
+
+- ≤1023px grid thead `background-attachment: fixed` kapatıldı. iPhone Safari/Chrome siyah bant basıyordu.
+
 ## Round 1327 — 1680×1050 sol menü rozeti
 
 - Bildirim sayısı satırın sağına sabitlendi. Zoom layout'u büyütmüyor; sayı scrollport'ta kesilmiyor.

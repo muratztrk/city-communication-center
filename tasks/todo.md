@@ -1,3 +1,9 @@
+## Round 1319 — Trello Doing (4 web)
+
+- Whatsapp Mesaj Logları: ad, durum ve yapan biraz dar; İşlem Tarihi daha geniş.
+- Durum yazısı beyaz. Mesaj Onayı turuncusu Yapılmakta (Geciken) ile aynı.
+- Mobilde Tüm Talep Durumları biraz genişledi.
+
 ## Round 1318 — Trello Doing (5 web)
 
 - Whatsapp Mesaj Logları: İşlem Tarihi biraz geniş. Mesaj Onayı çerçevesi turuncu.

@@ -25,9 +25,9 @@ const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: 
 const COLUMN_COUNT = 5
 
 function statusFrameClass(action: string): string {
-  if (action === 'WhatsAppMessageRelayed') return 'bg-emerald-100 text-emerald-700 ring-emerald-500'
-  if (action === 'WhatsAppWaitingReplied') return 'bg-sky-100 text-sky-700 ring-sky-500'
-  if (action === 'WhatsAppPendingApprovalCleared') return 'bg-orange-100 text-orange-700 ring-orange-500'
+  if (action === 'WhatsAppMessageRelayed') return 'bg-emerald-600 !text-white ring-emerald-700'
+  if (action === 'WhatsAppWaitingReplied') return 'bg-sky-500 !text-white ring-sky-600'
+  if (action === 'WhatsAppPendingApprovalCleared') return 'bg-orange-500 !text-white ring-orange-600'
   return ''
 }
 
@@ -142,6 +142,7 @@ export function WhatsAppMessageApprovalLogsPage() {
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                 <FilterableTh
+                  className="whatsapp-log-citizen-col"
                   filterKey="citizen"
                   filterValue={filters['citizen'] ?? ''}
                   onFilter={handleFilter}
@@ -156,6 +157,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   </span>
                 </FilterableTh>
                 <FilterableTh
+                  className="whatsapp-log-status-col"
                   filterKey="status"
                   filterValue={filters['status'] ?? ''}
                   onFilter={handleFilter}
@@ -167,6 +169,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   {t('whatsappMessageApprovalLogs.columns.status', 'Durum')}
                 </FilterableTh>
                 <FilterableTh
+                  className="whatsapp-log-actor-col"
                   filterKey="actor"
                   filterValue={filters['actor'] ?? ''}
                   onFilter={handleFilter}

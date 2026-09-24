@@ -3220,12 +3220,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Whatsapp Mesaj Logları:** sol menüde İade Edilen Talepler altında. Yanıt Verildi ve
   Mesaj Onayı/Cevabı Verildi tıklanınca audit yazılır. Mesajı İleten, iletilmiş WhatsApp giden kaydının
   `RelayedByDisplayName` değeridir. Sütunlar: Sıra, Vatandaş Adı / Telefon No (başlıkta alt alta),
-  Durum, İşlemi Yapan, İşlem Tarihi. Filtre butonları bannerın altında. Sayfa varsayılanı Operatör;
-  Vatandaş lisansı açıkken görünür.
+  Durum, İşlemi Yapan, İşlem Tarihi. Durum çerçevesi: Mesajı İleten yeşil, Yanıt Verildi mavi,
+  Mesaj Onayı/Cevabı Verildi turkuaz. İşlem Tarihi takvim ikonlu, saniyesiz. Seçili filtre bannerın
+  ilk satırında. Başlık diğer gridlerle aynı yeşil. Filtre butonları bannerın altında.
+  Sayfa varsayılanı Operatör; Vatandaş lisansı açıkken görünür.
 - **Log grid:** Her kapsamın ilk sütunu Sıra. Talep Log sonra Talep No + Başlık; Görev Log Görev No + Başlık.
   Vatandaşa Giden SMS: Sıra, Talep No, Vatandaş Adı (`Job.CitizenName`, personel adı değil).
 - **Vatandaş Talepleri mobil (`max-width: 1023px`):** Yönetici Onayı Bekleyen etiketi sola, tam satır.
-  Mobil Uygulama ve Tüm Talep Durumları e-Devlet çipi ile aynı genişliğe zorlanmaz.
+  Mobil Uygulama ve Tüm Talep Durumları e-Devlet çipinden biraz daha küçük (`max-width: 1023px`).
 - **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.

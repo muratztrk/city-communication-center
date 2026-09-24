@@ -1,3 +1,9 @@
+## Round 1317 — Trello Doing (5 web)
+
+- Mobilde yalnız Mobil Uygulama ve Tüm Talep Durumları biraz küçüldü.
+- Whatsapp Mesaj Logları: seçili filtre bannerın ilk satırı. Başlık diğer gridlerle aynı yeşil.
+- Durum çerçevesi yeşil / mavi / turkuaz. İşlem Tarihi takvim ikonlu, saniyesiz.
+
 ## Round 1316 — Trello Doing (10 web)
 
 - Mobil Vatandaş Talepleri: Mobil Uygulama ve durum seçiminin e-Devlet ile aynı genişliği geri alındı. Yönetici Onayı etiketi sola tam satırda kaldı.

@@ -617,7 +617,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
           <button
             key={filter.value || 'all'}
             type="button"
-            className={`scope-chip scope-chip--pending${channelFilter === filter.value ? ' active' : ''}`}
+            className={`scope-chip scope-chip--pending${filter.value === 'MobileApp' ? ' social-mobile-app-chip' : ''}${channelFilter === filter.value ? ' active' : ''}`}
             onClick={() => setChannelFilter(filter.value)}
           >
             {filter.value && <ChannelIcon channel={filter.value} className="size-3.5 shrink-0" />}

@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
+import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -21,6 +23,13 @@ const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: 
 ]
 
 const COLUMN_COUNT = 5
+
+function statusFrameClass(action: string): string {
+  if (action === 'WhatsAppMessageRelayed') return 'bg-emerald-100 text-emerald-700 ring-emerald-500'
+  if (action === 'WhatsAppWaitingReplied') return 'bg-sky-100 text-sky-700 ring-sky-500'
+  if (action === 'WhatsAppPendingApprovalCleared') return 'bg-cyan-50 text-cyan-800 ring-cyan-500'
+  return ''
+}
 
 function actionLabel(action: string, t: (key: string, fallback: string) => string): string {
   if (action === 'WhatsAppWaitingReplied') {
@@ -59,7 +68,13 @@ export function WhatsAppMessageApprovalLogsPage() {
         citizenPhoneText: phoneText,
         statusLabel: actionLabel(row.action, t),
         actorText: row.actorDisplayName?.trim() || '—',
-        dateText: new Date(row.eventTimeUtc).toLocaleString(locale),
+        dateText: new Date(row.eventTimeUtc).toLocaleString(locale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       }
     })
     const filtered = source.filter(row => matchesFilters(row, (key, item) => {
@@ -87,12 +102,15 @@ export function WhatsAppMessageApprovalLogsPage() {
     setCurrentPage(1)
   }
 
+  const selectedFilter = KIND_FILTERS.find(filter => filter.value === kind) ?? KIND_FILTERS[0]
+
   return (
     <div className="page-stack desktop-page-shell">
       <section className="section-card p-0">
         <div className="sticky-page-header !rounded-b-none border-0 shadow-none">
           <div className="page-header-row">
             <div className="space-y-1">
+              <div className="page-kicker">{t(selectedFilter.labelKey, selectedFilter.fallback)}</div>
               <h1 className="page-title">{t('nav.whatsappMessageApprovalLogs', 'Whatsapp Mesaj Logları')}</h1>
               <p className="page-subtitle">
                 {t('whatsappMessageApprovalLogs.subtitle', 'Yanıt Verildi, Mesaj Onayı/Cevabı Verildi ve Mesajı İleten yapan operatör kullanıcılar görüntülenir.')}
@@ -119,7 +137,7 @@ export function WhatsAppMessageApprovalLogsPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table data-table--zebra">
+          <table className="data-table data-table--zebra whatsapp-message-logs-table">
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -184,9 +202,11 @@ export function WhatsAppMessageApprovalLogsPage() {
                     <span className="block">{row.citizenNameText}</span>
                     {row.citizenPhoneText ? <span className="block text-slate-600">{row.citizenPhoneText}</span> : null}
                   </td>
-                  <td>{row.statusLabel}</td>
+                  <td>
+                    <StatusPill className={statusFrameClass(row.action)}>{row.statusLabel}</StatusPill>
+                  </td>
                   <td>{row.actorText}</td>
-                  <td>{row.dateText}</td>
+                  <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
                 </tr>
               ))}
             </tbody>

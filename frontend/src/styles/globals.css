@@ -3135,6 +3135,7 @@
   .departments-table thead th,
   .users-table thead th,
   .audit-logs-table thead th,
+  .whatsapp-message-logs-table thead th,
   .role-matrix-table thead th {
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
@@ -3154,6 +3155,7 @@
   .departments-table thead,
   .users-table thead,
   .audit-logs-table thead,
+  .whatsapp-message-logs-table thead,
   .role-matrix-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
@@ -3196,7 +3198,9 @@
   .users-table thead th.sortable-th:hover,
   .users-table thead th.sort-active,
   .audit-logs-table thead th.sortable-th:hover,
-  .audit-logs-table thead th.sort-active {
+  .audit-logs-table thead th.sort-active,
+  .whatsapp-message-logs-table thead th.sortable-th:hover,
+  .whatsapp-message-logs-table thead th.sort-active {
     color: rgba(255, 255, 255, 0.8);
   }
 
@@ -9258,6 +9262,27 @@
       width: 100%;
       margin-left: 0 !important;
       justify-content: flex-start;
+    }
+
+    .social-scope-chips > .social-mobile-app-chip,
+    .social-scope-chips > .social-status-filter {
+      width: 92% !important;
+      max-width: 92% !important;
+      justify-self: center;
+    }
+
+    .social-scope-chips > .social-mobile-app-chip {
+      min-height: 1.95rem;
+      padding: 0.28rem 0.42rem;
+      font-size: 0.66rem;
+    }
+
+    .social-scope-chips > .social-status-filter .scope-chip-status-select {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      min-height: 1.95rem;
+      font-size: 0.66rem;
     }
   }
 }

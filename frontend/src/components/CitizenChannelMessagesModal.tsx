@@ -29,6 +29,7 @@ interface CitizenChannelMessagesModalProps {
   sliceKey: string
   from?: string
   to?: string
+  overdueOnly?: boolean
   onClose: () => void
   /** Pie → Detaylar nested başlık (#6a6da49d). */
   jobDetailTitle?: string
@@ -51,6 +52,7 @@ export function CitizenChannelMessagesModal({
   sliceKey,
   from,
   to,
+  overdueOnly = false,
   jobDetailTitle,
   onClose,
 }: CitizenChannelMessagesModalProps) {
@@ -69,7 +71,7 @@ export function CitizenChannelMessagesModal({
 
   useEffect(() => {
     let cancelled = false
-    api.getDashboardChartDrilldown(CHART_KEY, sliceKey, from, to)
+    api.getDashboardChartDrilldown(CHART_KEY, sliceKey, from, to, undefined, overdueOnly)
       .then(response => {
         if (!cancelled) setRows(response.rows)
       })
@@ -81,7 +83,7 @@ export function CitizenChannelMessagesModal({
     return () => {
       cancelled = true
     }
-  }, [sliceKey, from, to, t])
+  }, [sliceKey, from, to, overdueOnly, t])
 
   const maxPage = Math.max(1, Math.ceil((rows?.length ?? 0) / pageSize) || 1)
   const safePage = Math.min(page, maxPage)

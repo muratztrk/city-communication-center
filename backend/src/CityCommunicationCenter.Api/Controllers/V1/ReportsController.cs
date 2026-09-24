@@ -41,10 +41,11 @@ public sealed class ReportsController : ApiControllerBase
         [FromQuery] TaskDashboardFilter staffTaskType = TaskDashboardFilter.All,
         [FromQuery] TaskDashboardFilter departmentTaskType = TaskDashboardFilter.All,
         [FromQuery] TaskDashboardFilter myTaskType = TaskDashboardFilter.All,
-        [FromQuery] RequestTagDashboardFilter requestTagStatus = RequestTagDashboardFilter.All)
+        [FromQuery] RequestTagDashboardFilter requestTagStatus = RequestTagDashboardFilter.All,
+        [FromQuery] bool overdueOnly = false)
     {
         var response = await _sender.Send(new GetDashboardStatusChartsQuery(
-            from, to, staffTaskType, departmentTaskType, myTaskType, requestTagStatus), cancellationToken);
+            from, to, staffTaskType, departmentTaskType, myTaskType, requestTagStatus, overdueOnly), cancellationToken);
         return Ok(response);
     }
 
@@ -55,6 +56,7 @@ public sealed class ReportsController : ApiControllerBase
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
         [FromQuery] RequestTagDashboardFilter requestTagStatus = RequestTagDashboardFilter.All,
+        [FromQuery] bool overdueOnly = false,
         CancellationToken cancellationToken = default)
     {
         var response = await _sender.Send(
@@ -63,7 +65,8 @@ public sealed class ReportsController : ApiControllerBase
                 sliceKey ?? string.Empty,
                 from,
                 to,
-                requestTagStatus),
+                requestTagStatus,
+                overdueOnly),
             cancellationToken);
         return Ok(response);
     }
@@ -106,9 +109,10 @@ public sealed class ReportsController : ApiControllerBase
     public async Task<ActionResult<DashboardChartResponse>> GetCitizenChannelChart(
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [FromQuery] bool overdueOnly = false)
     {
-        var response = await _sender.Send(new GetCitizenChannelChartQuery(from, to), cancellationToken);
+        var response = await _sender.Send(new GetCitizenChannelChartQuery(from, to, overdueOnly), cancellationToken);
         return Ok(response);
     }
 

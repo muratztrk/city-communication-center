@@ -408,4 +408,5 @@ public sealed record WhatsAppMessageApprovalLogItemResponse(
     string? CitizenPhone,
     DateTimeOffset EventTimeUtc,
     string Action,
-    string? ActorDisplayName);
+    string? ActorDisplayName,
+    Guid? SocialMessageId = null);

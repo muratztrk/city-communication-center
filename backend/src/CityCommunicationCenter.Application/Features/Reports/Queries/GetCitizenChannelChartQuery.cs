@@ -3,10 +3,14 @@ using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 using CityCommunicationCenter.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Reports;
 
-public sealed record GetCitizenChannelChartQuery(DateTimeOffset? FromUtc, DateTimeOffset? ToUtc)
+public sealed record GetCitizenChannelChartQuery(
+    DateTimeOffset? FromUtc,
+    DateTimeOffset? ToUtc,
+    bool OverdueOnly = false)
     : IQuery<DashboardChartResponse>;
 
 public sealed class GetCitizenChannelChartQueryHandler
@@ -84,6 +88,29 @@ public sealed class GetCitizenChannelChartQueryHandler
                 || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
                     && jd.Role == JobDepartmentRole.Target
                     && scopedDepartmentIds.Contains(jd.DepartmentId)));
+        }
+
+        if (request.OverdueOnly)
+        {
+            var now = DateTimeOffset.UtcNow;
+            var overdueCandidates = await citizenJobs
+                .Select(job => new
+                {
+                    job.JobId,
+                    job.Status,
+                    job.DueDateUtc,
+                    TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                        && task.CurrentStatus != WorkflowTaskStatus.Completed
+                        && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                        && task.CurrentStatus != WorkflowTaskStatus.Rejected),
+                })
+                .ToListAsync(cancellationToken);
+            var overdueJobIds = overdueCandidates
+                .Where(job => CitizenVtDashboardClassification.IsCitizenPieOverdue(
+                    job.Status, job.DueDateUtc, job.TaskCount, now))
+                .Select(job => job.JobId)
+                .ToList();
+            citizenJobs = citizenJobs.Where(job => overdueJobIds.Contains(job.JobId));
         }
 
         // VT numbers live on SocialMessage; use the JobId link as the canonical channel source.

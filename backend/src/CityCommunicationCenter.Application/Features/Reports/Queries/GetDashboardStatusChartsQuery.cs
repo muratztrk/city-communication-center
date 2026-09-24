@@ -15,7 +15,8 @@ public sealed record GetDashboardStatusChartsQuery(
     TaskDashboardFilter StaffTaskType = TaskDashboardFilter.All,
     TaskDashboardFilter DepartmentTaskType = TaskDashboardFilter.All,
     TaskDashboardFilter MyTaskType = TaskDashboardFilter.All,
-    RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All)
+    RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All,
+    bool OverdueOnly = false)
     : IQuery<DashboardStatusChartsResponse>;
 
 public sealed class GetDashboardStatusChartsQueryHandler
@@ -382,6 +383,12 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 (message, job) => new
                 {
                     job.JobId,
+                    job.Status,
+                    job.DueDateUtc,
+                    TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                        && task.CurrentStatus != WorkflowTaskStatus.Completed
+                        && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                        && task.CurrentStatus != WorkflowTaskStatus.Rejected),
                     message.Category,
                     ConversationLabel = message.CitizenConversationId.HasValue
                         ? _dbContext.CitizenConversations
@@ -393,7 +400,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 })
             .ToListAsync(cancellationToken);
 
-        var tagsByJob = taggedRows
+        var now = DateTimeOffset.UtcNow;
+        var visibleTaggedRows = request.OverdueOnly
+            ? taggedRows.Where(row => CitizenVtDashboardClassification.IsCitizenPieOverdue(
+                row.Status, row.DueDateUtc, row.TaskCount, now)).ToList()
+            : taggedRows;
+
+        var tagsByJob = visibleTaggedRows
             .Select(row => new
             {
                 row.JobId,
@@ -478,9 +491,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 continue;
             }
 
-            var display = ClassifyCitizenJobStatus(
-                new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount),
-                now);
+            var statusItem = new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount);
+            if (request.OverdueOnly
+                && ClassifyCitizenRequestsPieStatus(statusItem, now) != CitizenJobDisplayStatus.Overdue)
+            {
+                continue;
+            }
+
+            var display = ClassifyCitizenJobStatus(statusItem, now);
             var bucket = display switch
             {
                 CitizenJobDisplayStatus.ProcessingReceived => processing,
@@ -663,6 +681,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
         GetDashboardStatusChartsQuery request,
         CancellationToken cancellationToken)
     {
+        if (request.OverdueOnly)
+        {
+            return BuildNeighborhoodChartWithZeros(
+                "dashboard.charts.neighborhoodCompletedRequests",
+                new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase));
+        }
+
         var counts = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
                 && job.Status == JobStatus.Completed
@@ -719,8 +744,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var counts = rows
             .Where(row =>
             {
-                var display = ClassifyCitizenJobStatus(
-                    new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount), now);
+                var statusItem = new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount);
+                var display = ClassifyCitizenJobStatus(statusItem, now);
+                if (request.OverdueOnly)
+                {
+                    return display == CitizenJobDisplayStatus.Overdue;
+                }
+
                 return display is CitizenJobDisplayStatus.InProgress or CitizenJobDisplayStatus.Overdue;
             })
             .GroupBy(row => row.Neighborhood)
@@ -768,9 +798,17 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken);
 
         var counts = rows
-            .Where(row => ClassifyCitizenJobStatus(
-                new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount), now)
-                == CitizenJobDisplayStatus.ProcessingReceived)
+            .Where(row =>
+            {
+                var statusItem = new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount);
+                if (ClassifyCitizenJobStatus(statusItem, now) != CitizenJobDisplayStatus.ProcessingReceived)
+                {
+                    return false;
+                }
+
+                return !request.OverdueOnly
+                    || ClassifyCitizenRequestsPieStatus(statusItem, now) == CitizenJobDisplayStatus.Overdue;
+            })
             .GroupBy(row => row.Neighborhood)
             .Select(group => new { Neighborhood = group.Key, Count = group.Count() })
             .ToList();

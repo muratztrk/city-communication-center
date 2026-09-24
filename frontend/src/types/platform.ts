@@ -784,6 +784,7 @@ export interface WhatsAppMessageApprovalLogItem {
   eventTimeUtc: string;
   action: string;
   actorDisplayName?: string | null;
+  socialMessageId?: string | null;
 }
 
 export interface SmsOutboundLogsResponse {

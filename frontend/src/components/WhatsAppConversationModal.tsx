@@ -10,6 +10,8 @@ interface WhatsAppConversationModalProps {
   onClose: () => void
   /** Birim inceleme FAB veya Yazışmaya Git: müdür/personel Beklemede yazar (#6ab1131 / #6aad490e). */
   allowManagerReply?: boolean
+  /** Mesaj logundan açılınca işaretlenecek giden kayıt. */
+  highlightEntryId?: string | null
 }
 
 export function WhatsAppConversationModal({
@@ -19,6 +21,7 @@ export function WhatsAppConversationModal({
   citizenName,
   onClose,
   allowManagerReply: allowManagerReplyOverride,
+  highlightEntryId,
 }: WhatsAppConversationModalProps) {
   const { user } = useAuth()
   // Yazışmaya Git: yalnız birim müdürü (ve SystemAdmin) yazar; mesajlar Beklemede kuyruğa girer (#6ab1131).
@@ -49,6 +52,7 @@ export function WhatsAppConversationModal({
           compactActions
           enableConversationPrint
           enableConversationSearch
+          highlightEntryId={highlightEntryId}
         />
       </section>
     </div>,

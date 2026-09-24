@@ -39,6 +39,7 @@ interface DashboardChartDrilldownModalProps {
   from?: string
   to?: string
   requestTagStatus?: string
+  overdueOnly?: boolean
   onClose: () => void
   /** Pie → Detaylar nested başlık (#6a6da49d / #6a6da519). */
   jobDetailTitle?: string
@@ -339,7 +340,7 @@ export function printDrilldownRows(
  * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343 / #r542).
  * İçerik shell zoom stacking-context'inden kaçmak için body'ye portallanır.
  */
-export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, requestTagStatus, onClose, jobDetailTitle, rowSearch }: DashboardChartDrilldownModalProps) {
+export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, requestTagStatus, overdueOnly = false, onClose, jobDetailTitle, rowSearch }: DashboardChartDrilldownModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const [rows, setRows] = useState<DashboardChartDrilldownRow[] | null>(null)
@@ -490,7 +491,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
 
   useEffect(() => {
     let cancelled = false
-    api.getDashboardChartDrilldown(chartKey, sliceKey, from, to, requestTagStatus)
+    api.getDashboardChartDrilldown(chartKey, sliceKey, from, to, requestTagStatus, overdueOnly)
       .then(response => {
         if (!cancelled) setRows(response.rows)
       })
@@ -500,7 +501,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     return () => {
       cancelled = true
     }
-  }, [chartKey, sliceKey, from, to, requestTagStatus, t])
+  }, [chartKey, sliceKey, from, to, requestTagStatus, overdueOnly, t])
 
   const loadCitizenSourceMessage = async (jobDetail: JobDetail): Promise<SocialMessage | null> => {
     if (!isCitizenRequestJob(jobDetail)) return null

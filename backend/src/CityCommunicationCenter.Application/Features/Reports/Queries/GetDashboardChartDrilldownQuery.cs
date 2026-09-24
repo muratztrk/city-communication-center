@@ -12,7 +12,8 @@ public sealed record GetDashboardChartDrilldownQuery(
     string SliceKey,
     DateTimeOffset? FromUtc,
     DateTimeOffset? ToUtc,
-    RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All) : IQuery<DashboardChartDrilldownResponse>;
+    RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All,
+    bool OverdueOnly = false) : IQuery<DashboardChartDrilldownResponse>;
 
 public sealed class GetDashboardChartDrilldownQueryHandler
     : IQueryHandler<GetDashboardChartDrilldownQuery, DashboardChartDrilldownResponse>
@@ -294,6 +295,12 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Where(job =>
             {
                 if (departmentId is Guid requiredDepartment && job.TargetDepartmentId != requiredDepartment)
+                {
+                    return false;
+                }
+
+                if (request.OverdueOnly
+                    && !CitizenVtDashboardClassification.IsCitizenPieOverdue(job.Status, job.DueDateUtc, job.TaskCount, now))
                 {
                     return false;
                 }
@@ -767,6 +774,12 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 (message, job) => new
                 {
                     job.JobId,
+                    job.Status,
+                    job.DueDateUtc,
+                    TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                        && task.CurrentStatus != WorkflowTaskStatus.Completed
+                        && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                        && task.CurrentStatus != WorkflowTaskStatus.Rejected),
                     message.Category,
                     ConversationLabel = message.CitizenConversationId.HasValue
                         ? _dbContext.CitizenConversations
@@ -777,7 +790,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 })
             .ToListAsync(cancellationToken);
 
+        var tagNow = DateTimeOffset.UtcNow;
         var matchingJobIds = taggedRows
+            .Where(row => !request.OverdueOnly
+                || CitizenVtDashboardClassification.IsCitizenPieOverdue(row.Status, row.DueDateUtc, row.TaskCount, tagNow))
             .Select(row => new
             {
                 row.JobId,
@@ -970,6 +986,29 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                     || linkedCitizenJobIds.Contains(job.JobId))
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
+
+        if (request.OverdueOnly)
+        {
+            var channelNow = DateTimeOffset.UtcNow;
+            var overdueCandidates = await citizenJobs
+                .Select(job => new
+                {
+                    job.JobId,
+                    job.Status,
+                    job.DueDateUtc,
+                    TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                        && task.CurrentStatus != WorkflowTaskStatus.Completed
+                        && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                        && task.CurrentStatus != WorkflowTaskStatus.Rejected),
+                })
+                .ToListAsync(cancellationToken);
+            var overdueJobIds = overdueCandidates
+                .Where(job => CitizenVtDashboardClassification.IsCitizenPieOverdue(
+                    job.Status, job.DueDateUtc, job.TaskCount, channelNow))
+                .Select(job => job.JobId)
+                .ToList();
+            citizenJobs = citizenJobs.Where(job => overdueJobIds.Contains(job.JobId));
+        }
 
         var socialRows = await linkedCitizenMessages
             .Where(message => message.Channel == channel)

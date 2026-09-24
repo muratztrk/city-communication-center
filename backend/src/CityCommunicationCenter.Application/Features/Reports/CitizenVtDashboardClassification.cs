@@ -73,4 +73,10 @@ internal static class CitizenVtDashboardClassification
 
         return display;
     }
+
+    /// <summary>
+    /// Vatandaş Talepleri pie dilimindeki Geciken ile aynı küme (işleme alındı geciken dahil).
+    /// </summary>
+    internal static bool IsCitizenPieOverdue(JobStatus status, DateTimeOffset? dueDateUtc, int openTaskCount, DateTimeOffset now) =>
+        ClassifyCitizenRequestsPie(new JobSlice(status, dueDateUtc, openTaskCount), now) == DisplayStatus.Overdue;
 }

@@ -302,7 +302,7 @@ export const api = {
     return response.json() as Promise<DashboardChartResponse>
   },
 
-  async getDashboardStatusCharts(from?: string, to?: string, filters?: { staff: string; department?: string; mine: string; requestTagStatus?: string }): Promise<DashboardStatusChartsResponse> {
+  async getDashboardStatusCharts(from?: string, to?: string, filters?: { staff: string; department?: string; mine: string; requestTagStatus?: string; overdueOnly?: boolean }): Promise<DashboardStatusChartsResponse> {
     const params = new URLSearchParams()
     if (from) params.set('from', from)
     if (to) params.set('to', to)
@@ -311,6 +311,7 @@ export const api = {
       if (filters.department) params.set('departmentTaskType', filters.department)
       params.set('myTaskType', filters.mine)
       if (filters.requestTagStatus) params.set('requestTagStatus', filters.requestTagStatus)
+      if (filters.overdueOnly) params.set('overdueOnly', 'true')
     }
     const qs = params.toString()
     const url = `${API_BASE}/reports/dashboard-status-charts${qs ? `?${qs}` : ''}`
@@ -325,6 +326,7 @@ export const api = {
     from?: string,
     to?: string,
     requestTagStatus?: string,
+    overdueOnly?: boolean,
   ): Promise<DashboardChartDrilldownResponse> {
     const params = new URLSearchParams()
     params.set('chartKey', chartKey)
@@ -332,6 +334,7 @@ export const api = {
     if (from) params.set('from', from)
     if (to) params.set('to', to)
     if (requestTagStatus) params.set('requestTagStatus', requestTagStatus)
+    if (overdueOnly) params.set('overdueOnly', 'true')
     const response = await fetchWithCredentials(`${API_BASE}/reports/dashboard-chart-drilldown?${params}`, {
       headers: await getAuthHeaders(),
     })
@@ -339,10 +342,11 @@ export const api = {
     return response.json() as Promise<DashboardChartDrilldownResponse>
   },
 
-  async getCitizenChannelChart(from?: string, to?: string): Promise<DashboardChartResponse> {
+  async getCitizenChannelChart(from?: string, to?: string, overdueOnly?: boolean): Promise<DashboardChartResponse> {
     const params = new URLSearchParams()
     if (from) params.set('from', from)
     if (to) params.set('to', to)
+    if (overdueOnly) params.set('overdueOnly', 'true')
     const qs = params.toString()
     const url = `${API_BASE}/reports/citizen-channels${qs ? `?${qs}` : ''}`
     const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })

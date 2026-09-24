@@ -116,6 +116,18 @@ const CITIZEN_DASHBOARD_CHART_KEYS = new Set([
   'dashboard.citizenChannels.title',
 ])
 
+/** Gecikti mi? açıkken dilim etiketi süzülmez; sayılar API'de yalnız geciken taleptir. */
+const OVERDUE_ENTITY_CHART_KEYS = new Set([
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.neighborhoodOpenRequests',
+  'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.citizenDepartmentAllRequests',
+  'dashboard.charts.citizenDepartmentOpenRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
+  'dashboard.charts.requestTags',
+  'dashboard.citizenChannels.title',
+])
+
 /** Mahalle/birim durum pie'ları vatandaş anasayfada birleşik 3 dilimli pie'lara toplanır (#2935/#2936). */
 const CITIZEN_SOURCE_CHART_KEYS = {
   neighborhoodAll: [
@@ -518,9 +530,19 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const isInternalModuleUsable = isModuleUsable('internal')
   const canSeeCitizenChannels = isModuleUsable('citizen')
     && (role === 'SystemAdmin' || role === 'Manager' || role === 'Operator' || role === 'Reporter')
+  const dashboardOverdueOnly = wasOverdueFilter && (
+    effectiveView === 'citizen'
+    || effectiveView === 'departments'
+    || (effectiveView === 'full' && (role === 'Manager' || role === 'SystemAdmin'))
+  )
   const citizenChannelQuery = useQuery({
-    queryKey: queryKeys.dashboard.citizenChannels({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
-    queryFn: () => api.getCitizenChannelChart(apiFrom, apiTo),
+    queryKey: queryKeys.dashboard.citizenChannels({
+      from: activeFrom,
+      to: activeTo,
+      departmentId: activeDeptId,
+      overdueOnly: dashboardOverdueOnly || undefined,
+    }),
+    queryFn: () => api.getCitizenChannelChart(apiFrom, apiTo, dashboardOverdueOnly),
     enabled: canSeeCitizenChannels,
     refetchInterval: 60_000,
   })
@@ -533,10 +555,12 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       departmentId: activeDeptId,
       staffTaskType: taskChartFilters['dashboard.charts.staffTasks'],
       myTaskType: taskChartFilters['dashboard.charts.myTasks'],
+      overdueOnly: dashboardOverdueOnly || undefined,
     }),
     queryFn: () => api.getDashboardStatusCharts(apiFrom, apiTo, {
       staff: taskChartFilters['dashboard.charts.staffTasks'],
       mine: taskChartFilters['dashboard.charts.myTasks'],
+      overdueOnly: dashboardOverdueOnly,
     }),
     enabled: true,
     refetchInterval: 60_000,
@@ -803,10 +827,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     || effectiveView === 'departments'
     || (effectiveView === 'full' && isManagerOrAdmin)
   const displayChartCards = wasOverdueFilter && showDashboardOverdueControls
-    ? visibleChartCards.map(card => ({
-        ...card,
-        slices: card.slices.filter(slice => slice.label === OVERDUE_SLICE_LABEL),
-      }))
+    ? visibleChartCards.map(card => (
+        OVERDUE_ENTITY_CHART_KEYS.has(card.titleKey)
+          ? card
+          : {
+              ...card,
+              slices: card.slices.filter(slice => slice.label === OVERDUE_SLICE_LABEL),
+            }
+      ))
     : visibleChartCards
 
   const pageTitle = effectiveView === 'citizen'
@@ -1157,20 +1185,22 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       ) : null}
       {chartDrilldown?.chartKey === 'dashboard.citizenChannels.title' ? (
         <CitizenChannelMessagesModal
-          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}`}
+          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}|${dashboardOverdueOnly ? 'overdue' : 'all'}`}
           sliceKey={chartDrilldown.sliceKey}
           from={apiFrom}
           to={apiTo}
+          overdueOnly={dashboardOverdueOnly}
           jobDetailTitle={t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')}
           onClose={() => setChartDrilldown(null)}
         />
       ) : chartDrilldown ? (
         <DashboardChartDrilldownModal
-          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}`}
+          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}|${dashboardOverdueOnly ? 'overdue' : 'all'}`}
           chartKey={chartDrilldown.chartKey}
           sliceKey={chartDrilldown.sliceKey}
           from={apiFrom}
           to={apiTo}
+          overdueOnly={dashboardOverdueOnly}
           rowSearch={effectiveView === 'citizen' ? debouncedPanelSearch : undefined}
           jobDetailTitle={
             effectiveView === 'citizen'

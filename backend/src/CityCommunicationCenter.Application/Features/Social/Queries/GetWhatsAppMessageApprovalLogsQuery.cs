@@ -47,7 +47,8 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                     log.Notes,
                     log.EventTimeUtc,
                     log.Action,
-                    log.ActorDisplayName))
+                    log.ActorDisplayName,
+                    null))
                 .ToListAsync(cancellationToken));
         }
 
@@ -88,7 +89,8 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 conversation != null ? conversation.CitizenPhone : message.CitizenHandle,
                 entry.SentAt,
                 WhatsAppMessageApprovalLog.MessageRelayedAction,
-                entry.RelayedByDisplayName))
+                entry.RelayedByDisplayName,
+                message.SocialMessageId))
             .Take(MaxItems)
             .ToListAsync(cancellationToken);
     }

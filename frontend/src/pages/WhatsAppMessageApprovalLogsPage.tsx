@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
+import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
@@ -25,10 +26,11 @@ const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: 
 const COLUMN_COUNT = 5
 
 function statusFrameClass(action: string): string {
-  if (action === 'WhatsAppMessageRelayed') return 'bg-emerald-600 !text-white ring-emerald-700'
-  if (action === 'WhatsAppWaitingReplied') return 'bg-sky-500 !text-white ring-sky-600'
-  if (action === 'WhatsAppPendingApprovalCleared') return 'bg-orange-500 !text-white ring-orange-600'
-  return ''
+  const height = 'py-1.5'
+  if (action === 'WhatsAppMessageRelayed') return `bg-emerald-600 !text-white ring-emerald-700 ${height}`
+  if (action === 'WhatsAppWaitingReplied') return `bg-sky-500 !text-white ring-sky-600 ${height}`
+  if (action === 'WhatsAppPendingApprovalCleared') return `bg-orange-500 !text-white ring-orange-600 ${height}`
+  return height
 }
 
 function actionLabel(action: string, t: (key: string, fallback: string) => string): string {
@@ -47,6 +49,13 @@ function actionLabel(action: string, t: (key: string, fallback: string) => strin
 export function WhatsAppMessageApprovalLogsPage() {
   const { t, i18n } = useTranslation()
   const [kind, setKind] = useState<ApprovalLogKind>('all')
+  const [relayConversation, setRelayConversation] = useState<{
+    socialMessageId: string
+    citizenHandle: string
+    citizenPhone?: string | null
+    citizenName?: string | null
+    entryId: string
+  } | null>(null)
   const [pageSize, setPageSize] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const { filters, setFilter, matchesFilters } = useColumnFilters()
@@ -207,7 +216,23 @@ export function WhatsAppMessageApprovalLogsPage() {
                     {row.citizenPhoneText ? <span className="block text-slate-600">{row.citizenPhoneText}</span> : null}
                   </td>
                   <td>
-                    <StatusPill className={statusFrameClass(row.action)}>{row.statusLabel}</StatusPill>
+                    {row.action === 'WhatsAppMessageRelayed' && row.socialMessageId ? (
+                      <button
+                        type="button"
+                        className="inline-flex cursor-pointer border-0 bg-transparent p-0"
+                        onClick={() => setRelayConversation({
+                          socialMessageId: row.socialMessageId!,
+                          citizenHandle: row.citizenPhone?.trim() || row.citizenNameText || 'whatsapp',
+                          citizenPhone: row.citizenPhone,
+                          citizenName: row.citizenName,
+                          entryId: row.auditLogId,
+                        })}
+                      >
+                        <StatusPill className={statusFrameClass(row.action)}>{row.statusLabel}</StatusPill>
+                      </button>
+                    ) : (
+                      <StatusPill className={statusFrameClass(row.action)}>{row.statusLabel}</StatusPill>
+                    )}
                   </td>
                   <td>{row.actorText}</td>
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
@@ -224,6 +249,16 @@ export function WhatsAppMessageApprovalLogsPage() {
           onPageChange={setCurrentPage}
         />
       </section>
+      {relayConversation ? (
+        <WhatsAppConversationModal
+          socialMessageId={relayConversation.socialMessageId}
+          citizenHandle={relayConversation.citizenHandle}
+          citizenPhone={relayConversation.citizenPhone}
+          citizenName={relayConversation.citizenName}
+          highlightEntryId={relayConversation.entryId}
+          onClose={() => setRelayConversation(null)}
+        />
+      ) : null}
     </div>
   )
 }

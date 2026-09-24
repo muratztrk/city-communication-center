@@ -69,6 +69,8 @@ interface ConversationPanelProps {
   enableConversationPrint?: boolean
   /** Yazışmaya Git popup: Yazdır yanında konuşma içi arama (#3472). */
   enableConversationSearch?: boolean
+  /** Mesaj logu: bu giden kaydı «İletilen Mesaj» olarak işaretle. */
+  highlightEntryId?: string | null
 }
 
 function getInitials(value: string): string | null {
@@ -91,7 +93,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false, enableConversationSearch = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false, enableConversationSearch = false, highlightEntryId = null }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -180,14 +182,21 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   }, [])
 
   useEffect(() => {
-    const frameId = window.requestAnimationFrame(scrollConversationToBottom)
-    const timeoutId = window.setTimeout(scrollConversationToBottom, 50)
+    const scrollTarget = () => {
+      if (highlightEntryId) {
+        document.getElementById(`conversation-entry-${highlightEntryId}`)?.scrollIntoView({ behavior: 'auto', block: 'center' })
+        return
+      }
+      scrollConversationToBottom()
+    }
+    const frameId = window.requestAnimationFrame(scrollTarget)
+    const timeoutId = window.setTimeout(scrollTarget, 50)
 
     return () => {
       window.cancelAnimationFrame(frameId)
       window.clearTimeout(timeoutId)
     }
-  }, [lastEntryKey, scrollConversationToBottom, socialMessageId, pendingFile])
+  }, [highlightEntryId, lastEntryKey, scrollConversationToBottom, socialMessageId, pendingFile])
 
   useEffect(() => {
     if (!pendingFile) {
@@ -500,9 +509,19 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               ? resolveConversationEntryBubbleTime(visibleEntries[i - 1]).displayAt
               : null
             const showDivider = i === 0 || (previousDisplayAt && !conversationSameDay(entryDisplayAt, previousDisplayAt))
+            const isRelayedHighlight = Boolean(highlightEntryId) && entry.entryId === highlightEntryId
             return (
               <Fragment key={entry.entryId || i}>
                 {showDivider && <DateDivider label={dayLabel(entryDisplayAt)} />}
+                <div
+                  id={isRelayedHighlight ? `conversation-entry-${entry.entryId}` : undefined}
+                  className={isRelayedHighlight ? 'rounded-xl ring-2 ring-emerald-500' : undefined}
+                >
+                {isRelayedHighlight ? (
+                  <p className="mb-1 text-center text-[11px] font-semibold text-emerald-700">
+                    {t('whatsappMessageApprovalLogs.relayedMessageMark', 'İletilen Mesaj')}
+                  </p>
+                ) : null}
                 <ConversationEntryBubble
                   entry={entry}
                   socialMessageId={entry.socialMessageId ?? socialMessageId}
@@ -519,6 +538,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   conversationOutside24hWindow={!windowOpen}
                   onShowTerminalNote={handleShowTerminalNote}
                 />
+                </div>
               </Fragment>
             )
           })

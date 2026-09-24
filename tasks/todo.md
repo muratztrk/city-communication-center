@@ -1,3 +1,9 @@
+## Round 1320 — Trello Doing (3 web)
+
+- Whatsapp Mesaj Logları durum çerçevesi biraz yükseldi.
+- Mesajı İleten tıklanınca yazışma açılır; iletilen kayıt işaretlenir.
+- Vatandaş Paneli Gecikti mi?: geciken talep mahalle, birim, etiket ve kanal pie'larında da görünür.
+
 ## Round 1319 — Trello Doing (4 web)
 
 - Whatsapp Mesaj Logları: ad, durum ve yapan biraz dar; İşlem Tarihi daha geniş.

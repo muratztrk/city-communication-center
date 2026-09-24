@@ -3220,8 +3220,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Whatsapp Mesaj Logları:** sol menüde İade Edilen Talepler altında. Yanıt Verildi ve
   Mesaj Onayı/Cevabı Verildi tıklanınca audit yazılır. Mesajı İleten, iletilmiş WhatsApp giden kaydının
   `RelayedByDisplayName` değeridir. Sütunlar: Sıra, Vatandaş Adı / Telefon No (başlıkta alt alta),
-  Durum, İşlemi Yapan, İşlem Tarihi. Durum çerçevesi dolu renk, yazı beyaz: Mesajı İleten yeşil,
+  Durum, İşlemi Yapan, İşlem Tarihi.   Durum çerçevesi dolu renk, yazı beyaz, çerçeve biraz yüksek (`py-1.5`): Mesajı İleten yeşil,
   Yanıt Verildi mavi, Mesaj Onayı/Cevabı Verildi turuncu (`bg-orange-500`, Yapılmakta Geciken ile aynı).
+  Mesajı İleten tıklanınca Yazışmaya Git popup'ı açılır; o giden kayıt «İletilen Mesaj» olarak işaretlenir.
   İşlem Tarihi takvim ikonlu, saniyesiz; ad, durum ve yapan sütunları biraz dar, tarih sütunu daha geniş.
   Seçili filtre bannerın ilk satırında. Başlık diğer gridlerle aynı yeşil.
   Filtre butonları bannerın altında. Seçili buton: Yanıt Verildi Yapan mavi, Mesaj Onayı/Cevabı
@@ -3232,9 +3233,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri mobil (`max-width: 1023px`):** Yönetici Onayı Bekleyen etiketi sola, tam satır.
   Mobil Uygulama çipi üst satırdaki e-Devlet/Çağrı ile aynı boy. Tüm Talep Durumları kendi hücresini doldurur.
   Gecikti mi? ve Yönetici Onayı Bekleyen mi? satırının üstünde biraz boşluk.
-- **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
-  tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
-  yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.
+- **Dashboard Gecikti mi? (#3467/#3465/#3866):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
+  tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox. Durum pie'larında dilim
+  yalnız `dashboard.chart.overdue`. Mahalle, birim, etiket ve kanal pie'ları aynı Geciken kümesinden
+  (`ClassifyCitizenRequestsPie`) sayılır; açık geciken talep Tamamlanan pie'da durmaz. Tıklanınca
+  açılan liste ve Tüm Talepler popup'ları aynı filtreyi uygular.
 - **İş akışı not limiti (#3466/#3516):** tamamlama/iptal/durum değişikliği notu, talep yönlendirme notu,
   vatandaş mesaj onay notu ve **Talebi İptal Et** (`CancelJob`) nedeni FE+BE **400 karakter**.
 - **GetJobById outbound (#3513/#3515/#3512/#3518/#3521/#3527):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`

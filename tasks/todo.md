@@ -1,3 +1,8 @@
+## Round 1321 — Trello Doing (1 web)
+
+- Whatsapp Mesaj Logları: Mesaj İncelemeye Gönderen butonu seçilince kırmızı.
+- İşlemi Yapan ardından Gittiği Yer ve İnceleyen Personel.
+
 ## Round 1320 — Trello Doing (3 web)
 
 - Whatsapp Mesaj Logları durum çerçevesi biraz yükseldi.

@@ -3223,6 +3223,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Durum, İşlemi Yapan, İşlem Tarihi.   Durum çerçevesi dolu renk, yazı beyaz, çerçeve biraz yüksek (`py-1.5`): Mesajı İleten yeşil,
   Yanıt Verildi mavi, Mesaj Onayı/Cevabı Verildi turuncu (`bg-orange-500`, Yapılmakta Geciken ile aynı).
   Mesajı İleten tıklanınca Yazışmaya Git popup'ı açılır; o giden kayıt «İletilen Mesaj» olarak işaretlenir.
+  Mesaj İncelemeye Gönderen seçilince buton kırmızı. İşlemi Yapan ardından Gittiği Yer ve İnceleyen Personel gelir.
   İşlem Tarihi takvim ikonlu, saniyesiz; ad, durum ve yapan sütunları biraz dar, tarih sütunu daha geniş.
   Seçili filtre bannerın ilk satırında. Başlık diğer gridlerle aynı yeşil.
   Filtre butonları bannerın altında. Seçili buton: Yanıt Verildi Yapan mavi, Mesaj Onayı/Cevabı

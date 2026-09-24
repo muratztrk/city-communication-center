@@ -27,6 +27,7 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
         var includeWaiting = kind is null or "" or "all" or "waitingReplied";
         var includeCleared = kind is null or "" or "all" or "pendingApprovalCleared";
         var includeRelayed = kind is null or "" or "all" or "messageRelayed";
+        var includeReviewRequested = kind is null or "" or "all" or "reviewRequested";
 
         var rows = new List<WhatsAppMessageApprovalLogItemResponse>();
         if (includeWaiting || includeCleared)
@@ -55,6 +56,11 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
         if (includeRelayed)
         {
             rows.AddRange(await LoadRelayedAsync(tenantId, cancellationToken));
+        }
+
+        if (includeReviewRequested)
+        {
+            rows.AddRange(await LoadReviewRequestedAsync(tenantId, cancellationToken));
         }
 
         return rows
@@ -91,6 +97,38 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 WhatsAppMessageApprovalLog.MessageRelayedAction,
                 entry.RelayedByDisplayName,
                 message.SocialMessageId))
+            .Take(MaxItems)
+            .ToListAsync(cancellationToken);
+    }
+
+    private async Task<List<WhatsAppMessageApprovalLogItemResponse>> LoadReviewRequestedAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        return await (
+            from review in _dbContext.CitizenConversationDepartmentReviews.AsNoTracking()
+            where review.TenantId == tenantId
+            join department in _dbContext.Departments.AsNoTracking()
+                on review.DepartmentId equals department.DepartmentId
+            join sender in _dbContext.Users.AsNoTracking()
+                on review.RequestedByUserId equals sender.UserId
+            join conversation in _dbContext.CitizenConversations.AsNoTracking()
+                on review.CitizenConversationId equals conversation.CitizenConversationId into conversationJoin
+            from conversation in conversationJoin.DefaultIfEmpty()
+            join reviewer in _dbContext.Users.AsNoTracking()
+                on review.UpdatedByUserId equals (Guid?)reviewer.UserId into reviewerJoin
+            from reviewer in reviewerJoin.DefaultIfEmpty()
+            orderby review.RequestedAtUtc descending
+            select new WhatsAppMessageApprovalLogItemResponse(
+                review.ReviewId,
+                conversation != null ? conversation.CitizenName : null,
+                conversation != null ? conversation.CitizenPhone : null,
+                review.RequestedAtUtc,
+                WhatsAppMessageApprovalLog.ReviewRequestedAction,
+                sender.DisplayName,
+                review.SocialMessageId,
+                department.Name,
+                review.AcknowledgedAtUtc != null && reviewer != null ? reviewer.DisplayName : null))
             .Take(MaxItems)
             .ToListAsync(cancellationToken);
     }

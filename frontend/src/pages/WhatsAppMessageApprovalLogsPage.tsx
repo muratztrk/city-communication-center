@@ -14,20 +14,22 @@ import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { looksLikePhone } from '../utils/phoneDisplay'
 
-type ApprovalLogKind = 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed'
+type ApprovalLogKind = 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed' | 'reviewRequested'
 
 const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: string; chipClass: string }> = [
   { value: 'all', labelKey: 'whatsappMessageApprovalLogs.kinds.all', fallback: 'Tümü', chipClass: 'scope-chip--all' },
   { value: 'waitingReplied', labelKey: 'whatsappMessageApprovalLogs.kinds.waitingReplied', fallback: 'Yanıt Verildi Yapan', chipClass: 'scope-chip--in-progress' },
   { value: 'pendingApprovalCleared', labelKey: 'whatsappMessageApprovalLogs.kinds.pendingApprovalCleared', fallback: 'Mesaj Onayı/Cevabı Verildi Yapan', chipClass: 'scope-chip--overdue' },
   { value: 'messageRelayed', labelKey: 'whatsappMessageApprovalLogs.kinds.messageRelayed', fallback: 'Mesajı İleten', chipClass: 'scope-chip--completed' },
+  { value: 'reviewRequested', labelKey: 'whatsappMessageApprovalLogs.kinds.reviewRequested', fallback: 'Mesaj İncelemeye Gönderen', chipClass: 'scope-chip--rejected' },
 ]
 
-const COLUMN_COUNT = 5
+const COLUMN_COUNT = 7
 
 function statusFrameClass(action: string): string {
   const height = 'py-1.5'
   if (action === 'WhatsAppMessageRelayed') return `bg-emerald-600 !text-white ring-emerald-700 ${height}`
+  if (action === 'WhatsAppReviewRequested') return `bg-red-600 !text-white ring-red-700 ${height}`
   if (action === 'WhatsAppWaitingReplied') return `bg-sky-500 !text-white ring-sky-600 ${height}`
   if (action === 'WhatsAppPendingApprovalCleared') return `bg-orange-500 !text-white ring-orange-600 ${height}`
   return height
@@ -42,6 +44,9 @@ function actionLabel(action: string, t: (key: string, fallback: string) => strin
   }
   if (action === 'WhatsAppMessageRelayed') {
     return t('whatsappMessageApprovalLogs.status.messageRelayed', 'Mesajı İleten')
+  }
+  if (action === 'WhatsAppReviewRequested') {
+    return t('whatsappMessageApprovalLogs.status.reviewRequested', 'Mesaj İncelemeye Gönderen')
   }
   return action
 }
@@ -77,6 +82,8 @@ export function WhatsAppMessageApprovalLogsPage() {
         citizenPhoneText: phoneText,
         statusLabel: actionLabel(row.action, t),
         actorText: row.actorDisplayName?.trim() || '—',
+        destinationText: row.destinationName?.trim() || '—',
+        reviewerText: row.reviewerDisplayName?.trim() || '—',
         dateText: new Date(row.eventTimeUtc).toLocaleString(locale, {
           day: '2-digit',
           month: '2-digit',
@@ -90,6 +97,8 @@ export function WhatsAppMessageApprovalLogsPage() {
       if (key === 'citizen') return `${item.citizenNameText} ${item.citizenPhoneText}`
       if (key === 'status') return item.statusLabel
       if (key === 'actor') return item.actorText
+      if (key === 'destination') return item.destinationText
+      if (key === 'reviewer') return item.reviewerText
       if (key === 'actedAt') return item.dateText
       return ''
     }))
@@ -190,6 +199,28 @@ export function WhatsAppMessageApprovalLogsPage() {
                   {t('whatsappMessageApprovalLogs.columns.actor', 'İşlemi Yapan')}
                 </FilterableTh>
                 <FilterableTh
+                  filterKey="destination"
+                  filterValue={filters['destination'] ?? ''}
+                  onFilter={handleFilter}
+                  sortKey="destinationText"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                >
+                  {t('whatsappMessageApprovalLogs.columns.destination', 'Gittiği Yer')}
+                </FilterableTh>
+                <FilterableTh
+                  filterKey="reviewer"
+                  filterValue={filters['reviewer'] ?? ''}
+                  onFilter={handleFilter}
+                  sortKey="reviewerText"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                >
+                  {t('whatsappMessageApprovalLogs.columns.reviewer', 'İnceleyen Personel')}
+                </FilterableTh>
+                <FilterableTh
                   className="whatsapp-log-date-col"
                   filterKey="actedAt"
                   filterValue={filters['actedAt'] ?? ''}
@@ -235,6 +266,8 @@ export function WhatsAppMessageApprovalLogsPage() {
                     )}
                   </td>
                   <td>{row.actorText}</td>
+                  <td>{row.destinationText}</td>
+                  <td>{row.reviewerText}</td>
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
                 </tr>
               ))}

@@ -785,6 +785,8 @@ export interface WhatsAppMessageApprovalLogItem {
   action: string;
   actorDisplayName?: string | null;
   socialMessageId?: string | null;
+  destinationName?: string | null;
+  reviewerDisplayName?: string | null;
 }
 
 export interface SmsOutboundLogsResponse {

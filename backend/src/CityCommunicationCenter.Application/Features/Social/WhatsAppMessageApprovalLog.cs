@@ -4,6 +4,7 @@ internal static class WhatsAppMessageApprovalLog
 {
     public const string WaitingRepliedAction = "WhatsAppWaitingReplied";
     public const string PendingApprovalClearedAction = "WhatsAppPendingApprovalCleared";
+    public const string ReviewRequestedAction = "WhatsAppReviewRequested";
     public const string MessageRelayedAction = "WhatsAppMessageRelayed";
 
     public static async Task WriteAsync(

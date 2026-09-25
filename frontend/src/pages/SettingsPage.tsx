@@ -309,6 +309,73 @@ const BACKUP_SCHEDULE_DAYS = [
   { value: 0, labelKey: 'settings.databaseBackup.sunday' },
 ] as const
 
+function appendBackupTimeDigit(digits: string, digit: string): string {
+  if (!/^[0-9]$/.test(digit) || digits.length >= 4) return digits
+  const next = digits + digit
+  if (next.length === 1 && Number(next) > 2) return digits
+  if (next.length === 2 && Number(next) > 23) return digits
+  if (next.length === 3 && Number(next[2]) > 5) return digits
+  if (next.length === 4 && Number(next.slice(2)) > 59) return digits
+  return next
+}
+
+function formatBackupTimeDigits(digits: string): string {
+  if (digits.length <= 2) return digits
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`
+}
+
+function foldBackupTimeDigits(incoming: string): string {
+  let next = ''
+  for (const digit of incoming) next = appendBackupTimeDigit(next, digit)
+  return next
+}
+
+function ScheduledBackupTimeField({
+  time,
+  onTimeChange,
+}: {
+  time: string
+  onTimeChange: (value: string) => void
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [digits, setDigits] = useState(() => time.replace(/\D/g, '').slice(0, 4))
+
+  const applyDigits = (next: string) => {
+    setDigits(next)
+    onTimeChange(next.length === 4 ? `${next.slice(0, 2)}:${next.slice(2)}` : '')
+    requestAnimationFrame(() => {
+      const field = inputRef.current
+      if (!field) return
+      const end = field.value.length
+      field.setSelectionRange(end, end)
+    })
+  }
+
+  return (
+    <input
+      ref={inputRef}
+      type="text"
+      inputMode="numeric"
+      autoComplete="off"
+      dir="ltr"
+      placeholder="00:00"
+      className="field-input text-left"
+      value={formatBackupTimeDigits(digits)}
+      onFocus={event => event.currentTarget.select()}
+      onChange={event => {
+        const incoming = event.target.value.replace(/\D/g, '')
+        if (incoming.startsWith(digits)) {
+          let next = digits
+          for (const digit of incoming.slice(digits.length)) next = appendBackupTimeDigit(next, digit)
+          applyDigits(next)
+          return
+        }
+        applyDigits(foldBackupTimeDigits(incoming))
+      }}
+    />
+  )
+}
+
 function ScheduledBackupDialog({
   time,
   days,
@@ -342,12 +409,7 @@ function ScheduledBackupDialog({
         <h2 className="mb-4 text-lg font-bold text-slate-950">{t('settings.databaseBackup.scheduled')}</h2>
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           <span>{t('settings.databaseBackup.startTime')}</span>
-          <input
-            type="time"
-            className="field-input"
-            value={time}
-            onChange={event => onTimeChange(event.target.value)}
-          />
+          <ScheduledBackupTimeField time={time} onTimeChange={onTimeChange} />
         </label>
         <div className="mt-4 grid gap-2">
           <span className="text-sm font-semibold text-slate-700">{t('settings.databaseBackup.daysLabel')}</span>

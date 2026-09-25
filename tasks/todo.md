@@ -1,3 +1,7 @@
+## Round 1334 — zamanlı yedek saati soldan sağa
+
+- Başlama saati rakamları soldan sağa birikir. Tarayıcı saat kutusunun sağdan sola yazması kalktı.
+
 ## Round 1333 — zamanlı yedek saat listesini geri al
 
 - Popup başlığında çizgi yok. Özel saat/dakika listesi kalktı; yeniden tarayıcı saat kutusu.

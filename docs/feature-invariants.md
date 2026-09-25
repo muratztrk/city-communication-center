@@ -1778,7 +1778,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   paylaşımında `{kök}/veritabani_yedek` klasörünü açar ve gzip `pg_dump` dosyasını içine yazar
   (#6ab3ae37 / #6ab3b441). **Zamanlı Yedek** anahtarı açılınca popup: başlama saati + günler.
   Kayıt yedek dökmez; seçilen günde saatten sonra günde bir kez aynı klasöre yazar. Popup başlığının
-  altında çizgi yok; saat alanı tarayıcının kendi saat kutusudur (özel saat listesi yok, #6ab639df geri alındı).
+  altında çizgi yok; özel saat listesi yok (#6ab639df). Başlama saati metin kutusudur: rakamlar
+  soldan sağa birikir (`09` sonra `30` → `09:30`), tarayıcı saat kutusu sağdan sola yazmaz.
   Anahtar açıkken sağında **Gün ve Saatleri değiştir** aynı popup'ı açar. Saat geçtiyse
   bugün atlanır. Alan sırası ek sunucusundaki NAS bloğuyla aynıdır: IP, paylaşım, kök
   klasör, protokol, kullanıcı, parola, sonra NAS bağlantı testi (#6ab3c335). Kayıtlı parola

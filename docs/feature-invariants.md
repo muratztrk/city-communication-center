@@ -1774,7 +1774,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ayrı NAS yolu (ek sunucusundan bağımsız, #2913). Etiket `IP Adresi / Sunucu`; Paylaşım Adı
   altında Kök Klasör ve NAS Bağlantı Testi (ek sunucusundaki NAS bloğuyla aynı). Kaydet, SMB/CIFS
   paylaşımında `{kök}/veritabani_yedek` klasörünü açar ve gzip `pg_dump` dosyasını içine yazar
-  (#6ab3ae37 / #6ab3b441). Alan sırası ek sunucusundaki NAS bloğuyla aynıdır: IP, paylaşım, kök
+  (#6ab3ae37 / #6ab3b441). **Zamanlı Yedek** anahtarı açılınca popup: başlama saati + günler.
+  Kayıt yedek dökmez; seçilen günde saatten sonra günde bir kez aynı klasöre yazar. Saat geçtiyse
+  bugün atlanır. Alan sırası ek sunucusundaki NAS bloğuyla aynıdır: IP, paylaşım, kök
   klasör, protokol, kullanıcı, parola, sonra NAS bağlantı testi (#6ab3c335). Kayıtlı parola
   maskesi (`********`) silinince geri gelmez; alan boşalır, yeni parola yazılır. Odaktan çıkınca
   boşsa maske döner ve eski parola durur. Kaydet, kutudaki yazılmış parolayı gönderir; maske
@@ -3007,7 +3009,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sabit `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}` (kayıt tek string). Açık VT `dueDateUtc < now`
   olduğunda `OverdueJobSmsPollingHostedService` (15 dk): yönetici → müdür/sorumlu/VTY (`OverdueManager`,
   talep bazlı tek gönderim); personel → açık görevli Staff atanan (`OverdueStaff`, alıcı bazlı tek gönderim).
-  Hitap yok; token'lar mesai dışı ile aynı.
+  Hitap yok; token'lar mesai dışı ile aynı. Özellik ilk açıldığında mevcut gecikenlere SMS gitmez
+  (`OverdueSmsCursorUtc`); yalnızca imleçten sonra geciken her talep numarasına bir kez gider.
 - **WA İleten Operatör / Düzenlendi bold (#6aaccdd):** balon alt satırında `conversation-entry-meta-badge`
   + `font-bold` — İleten Operatör (turkuaz) ve Düzenlendi (turuncu) aynı kalınlık.
 - **WhatsApp hitap:** serbest metin / yanıt / medya caption aynı hitap (`WhatsAppClient` + konuşma kaydı).

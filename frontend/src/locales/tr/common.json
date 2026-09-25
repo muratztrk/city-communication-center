@@ -212,6 +212,7 @@
     "fileStorageSettingsSaveFailed": "Dosya sunucusu ayarları kaydedilemedi.",
     "databaseBackupSettingsLoadFailed": "Veritabanı yedeği sunucu ayarları alınamadı.",
     "databaseBackupSettingsSaveFailed": "Veritabanı yedeği sunucu ayarları kaydedilemedi.",
+    "databaseBackupScheduleSaveFailed": "Zamanlı yedek ayarı kaydedilemedi.",
     "slaWeekendSettingsLoadFailed": "SLA hafta sonu ayarları alınamadı.",
     "slaWeekendSettingsSaveFailed": "SLA hafta sonu ayarları kaydedilemedi.",
     "attachmentUploadFailed": "Ek yüklenemedi.",
@@ -1458,7 +1459,20 @@
     "databaseBackup": {
       "sectionTitle": "Veritabanı Yedeği Alınacak Sunucu Bilgileri",
       "sectionDescription": "Veritabanı yedeğinin aktarılacağı NAS / dosya sunucusu yolunu tanımlayın. Ek sunucusundan bağımsızdır. Kaydet, paylaşımda veritabani_yedek klasörünü açar ve sıkıştırılmış yedeği içine yazar.",
-      "saved": "Veritabanı yedeği sunucu bilgileri kaydedildi."
+      "saved": "Veritabanı yedeği sunucu bilgileri kaydedildi.",
+      "scheduled": "Zamanlı Yedek",
+      "scheduledSaved": "Zamanlı yedek ayarı kaydedildi.",
+      "scheduledSummary": "{{days}} günleri, saat {{time}}",
+      "startTime": "Başlama saati",
+      "daysLabel": "Günler",
+      "daysRequired": "En az bir gün seçin.",
+      "monday": "Pazartesi",
+      "tuesday": "Salı",
+      "wednesday": "Çarşamba",
+      "thursday": "Perşembe",
+      "friday": "Cuma",
+      "saturday": "Cumartesi",
+      "sunday": "Pazar"
     },
     "fileStorage": {
       "sectionTitle": "Talep ve Görev Eklerini Barındıracak Sunucu Bilgileri",

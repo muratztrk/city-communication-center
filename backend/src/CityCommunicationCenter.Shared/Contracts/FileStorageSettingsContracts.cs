@@ -57,7 +57,15 @@ public sealed record DatabaseBackupSettingsResponse(
     string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
-    bool NasHasPassword);
+    bool NasHasPassword,
+    bool ScheduledEnabled = false,
+    string? ScheduledTime = null,
+    IReadOnlyList<int>? ScheduledDays = null);
+
+public sealed record UpdateDatabaseBackupScheduleRequest(
+    bool Enabled,
+    string? Time,
+    int[]? Days);
 
 public sealed record UpdateDatabaseBackupSettingsRequest(
     string? NasHost,

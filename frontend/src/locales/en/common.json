@@ -212,6 +212,7 @@
     "fileStorageSettingsSaveFailed": "Failed to save file server settings.",
     "databaseBackupSettingsLoadFailed": "Failed to load database backup server settings.",
     "databaseBackupSettingsSaveFailed": "Failed to save database backup server settings.",
+    "databaseBackupScheduleSaveFailed": "Failed to save the scheduled backup.",
     "slaWeekendSettingsLoadFailed": "Failed to load SLA weekend settings.",
     "slaWeekendSettingsSaveFailed": "Failed to save SLA weekend settings.",
     "attachmentUploadFailed": "Failed to upload attachment.",
@@ -1450,7 +1451,20 @@
     "databaseBackup": {
       "sectionTitle": "Database Backup Destination Server",
       "sectionDescription": "NAS / file-server path where database backups are copied. Independent from attachment storage. Save creates a veritabani_yedek folder on the share and writes a compressed backup into it.",
-      "saved": "Database backup server settings saved."
+      "saved": "Database backup server settings saved.",
+      "scheduled": "Scheduled Backup",
+      "scheduledSaved": "Scheduled backup saved.",
+      "scheduledSummary": "{{days}} at {{time}}",
+      "startTime": "Start time",
+      "daysLabel": "Days",
+      "daysRequired": "Select at least one day.",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
     },
     "fileStorage": {
       "sectionTitle": "Server Information for Request and Task Attachments",

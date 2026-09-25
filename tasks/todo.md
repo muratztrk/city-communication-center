@@ -1,3 +1,9 @@
+## Round 1329 — SMS kutusu, zamanlı yedek, geciken SMS
+
+- Mesai dışı ve geciken SMS kutuları 12rem → 10rem.
+- Veritabanı yedeği: Zamanlı Yedek anahtarı, saat + gün popup, günde bir kez.
+- Geciken SMS yalnız imleçten sonra geciken talep numarasına bir kez.
+
 ## Round 1328 — iPhone grid başlık rengi
 
 - ≤1023px grid thead `background-attachment: fixed` kapatıldı. iPhone Safari/Chrome siyah bant basıyordu.

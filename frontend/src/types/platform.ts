@@ -1186,6 +1186,9 @@ export interface DatabaseBackupSettings {
   nasProtocol: 'SMB/CIFS' | 'NFS';
   nasUsername: string | null;
   nasHasPassword: boolean;
+  scheduledEnabled: boolean;
+  scheduledTime: string | null;
+  scheduledDays: number[];
 }
 
 export interface DatabaseBackupSettingsUpdate {

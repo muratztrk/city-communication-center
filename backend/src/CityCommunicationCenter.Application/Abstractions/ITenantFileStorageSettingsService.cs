@@ -28,6 +28,16 @@ public interface ITenantFileStorageSettingsService
         TenantDatabaseBackupSettingsUpdate settings,
         Guid? actorUserId,
         CancellationToken cancellationToken = default);
+
+    Task SaveDatabaseBackupScheduleAsync(
+        Guid tenantId,
+        bool enabled,
+        string? time,
+        IReadOnlyList<int> days,
+        Guid? actorUserId,
+        CancellationToken cancellationToken = default);
+
+    Task ProcessScheduledDatabaseBackupsAsync(CancellationToken cancellationToken = default);
 }
 
 public sealed record TenantFileStorageSettingsDescriptor(
@@ -66,7 +76,10 @@ public sealed record TenantDatabaseBackupSettingsDescriptor(
     string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
-    bool NasHasPassword);
+    bool NasHasPassword,
+    bool ScheduledEnabled,
+    string? ScheduledTime,
+    IReadOnlyList<int> ScheduledDays);
 
 public sealed record TenantDatabaseBackupSettingsUpdate(
     string? NasHost,

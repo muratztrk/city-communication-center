@@ -1,5 +1,6 @@
 import type { FormEvent, ReactNode } from 'react'
-import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, RefreshCw } from 'lucide-react'
+import { createPortal } from 'react-dom'
+import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, RefreshCw, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -24,6 +25,7 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { Toast } from '../components/ui/toast'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { StatusPill } from '../components/ui/status-pill'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -295,6 +297,87 @@ function cloneCitizenAutoReplyTemplates(value: CitizenAutoReplyTemplates): Citiz
     ...value,
     greetings: { ...value.greetings },
   }
+}
+
+const BACKUP_SCHEDULE_DAYS = [
+  { value: 1, labelKey: 'settings.databaseBackup.monday' },
+  { value: 2, labelKey: 'settings.databaseBackup.tuesday' },
+  { value: 3, labelKey: 'settings.databaseBackup.wednesday' },
+  { value: 4, labelKey: 'settings.databaseBackup.thursday' },
+  { value: 5, labelKey: 'settings.databaseBackup.friday' },
+  { value: 6, labelKey: 'settings.databaseBackup.saturday' },
+  { value: 0, labelKey: 'settings.databaseBackup.sunday' },
+] as const
+
+function ScheduledBackupDialog({
+  time,
+  days,
+  saving,
+  onTimeChange,
+  onToggleDay,
+  onClose,
+  onSave,
+}: {
+  time: string
+  days: number[]
+  saving: boolean
+  onTimeChange: (value: string) => void
+  onToggleDay: (day: number) => void
+  onClose: () => void
+  onSave: () => void
+}) {
+  const { t } = useTranslation()
+  return createPortal(
+    <ModalBackdrop onEscapeClose={saving ? undefined : onClose}>
+      <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          aria-label={t('common.close', 'Kapat')}
+          className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+        >
+          <X className="size-4" />
+        </button>
+        <h2 className="mb-4 text-lg font-bold text-slate-950">{t('settings.databaseBackup.scheduled')}</h2>
+        <label className="grid gap-2 text-sm font-semibold text-slate-700">
+          <span>{t('settings.databaseBackup.startTime')}</span>
+          <input
+            type="time"
+            className="field-input"
+            value={time}
+            onChange={event => onTimeChange(event.target.value)}
+          />
+        </label>
+        <div className="mt-4 grid gap-2">
+          <span className="text-sm font-semibold text-slate-700">{t('settings.databaseBackup.daysLabel')}</span>
+          <div className="flex flex-wrap gap-2">
+            {BACKUP_SCHEDULE_DAYS.map(day => {
+              const selected = days.includes(day.value)
+              return (
+                <button
+                  key={day.value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onToggleDay(day.value)}
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${selected ? 'border-emerald-600 bg-emerald-500 text-white' : 'border-slate-200 bg-white text-slate-600'}`}
+                >
+                  {t(day.labelKey)}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={saving}>{t('common.cancel', 'Vazgeç')}</Button>
+          <Button type="button" onClick={onSave} disabled={saving || days.length === 0 || !time}>
+            {saving ? t('common.loading') : t('common.save', 'Kaydet')}
+          </Button>
+        </div>
+      </div>
+    </ModalBackdrop>,
+    document.body,
+  )
 }
 
 function SettingsActiveSwitch({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
@@ -808,6 +891,9 @@ export function SettingsPage() {
     nasPassword: null,
     clearNasPassword: false,
   })
+  const [backupScheduleOpen, setBackupScheduleOpen] = useState(false)
+  const [backupScheduleSaving, setBackupScheduleSaving] = useState(false)
+  const [backupScheduleDraft, setBackupScheduleDraft] = useState({ time: '02:00', days: [1, 2, 3, 4, 5] as number[] })
   const [slaWeekendForm, setSlaWeekendForm] = useState<SlaWeekendSettingsUpdate>({
     excludeWeekends: true, exemptDepartmentIds: [],
   })
@@ -1777,6 +1863,40 @@ export function SettingsPage() {
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
+  }
+
+  const saveDatabaseBackupSchedule = async (enabled: boolean, time: string | null, days: number[]) => {
+    if (!user?.tenantId) return
+    setBackupScheduleSaving(true)
+    setMessage(null)
+    try {
+      await api.updateDatabaseBackupSchedule(user.tenantId, { enabled, time, days })
+      const refreshed = await api.getDatabaseBackupSettings(user.tenantId)
+      setDatabaseBackupSettings(refreshed)
+      setBackupScheduleOpen(false)
+      setMessage({ type: 'success', text: t('settings.databaseBackup.scheduledSaved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    } finally {
+      setBackupScheduleSaving(false)
+    }
+  }
+
+  const toggleDatabaseBackupSchedule = () => {
+    if (databaseBackupSettings?.scheduledEnabled) {
+      void saveDatabaseBackupSchedule(
+        false,
+        databaseBackupSettings.scheduledTime,
+        databaseBackupSettings.scheduledDays ?? [],
+      )
+      return
+    }
+    const savedDays = databaseBackupSettings?.scheduledDays ?? []
+    setBackupScheduleDraft({
+      time: databaseBackupSettings?.scheduledTime || '02:00',
+      days: savedDays.length > 0 ? [...savedDays] : [1, 2, 3, 4, 5],
+    })
+    setBackupScheduleOpen(true)
   }
 
   const saveSyslogSettings = async (event: FormEvent) => {
@@ -3234,10 +3354,44 @@ export function SettingsPage() {
           <form className="section-card page-stack" onSubmit={event => void saveDatabaseBackupSettings(event)}>
             <div className="page-header-row">
               <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.databaseBackup.sectionTitle')}</h2>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.databaseBackup.sectionTitle')}</h2>
+                  <SettingsActiveSwitch
+                    label={t('settings.databaseBackup.scheduled')}
+                    checked={databaseBackupSettings?.scheduledEnabled ?? false}
+                    onChange={toggleDatabaseBackupSchedule}
+                  />
+                </div>
                 <p className="helper-copy">{t('settings.databaseBackup.sectionDescription')}</p>
+                {databaseBackupSettings?.scheduledEnabled && databaseBackupSettings.scheduledTime && (
+                  <p className="helper-copy">
+                    {t('settings.databaseBackup.scheduledSummary', {
+                      time: databaseBackupSettings.scheduledTime,
+                      days: BACKUP_SCHEDULE_DAYS
+                        .filter(day => (databaseBackupSettings.scheduledDays ?? []).includes(day.value))
+                        .map(day => t(day.labelKey))
+                        .join(', '),
+                    })}
+                  </p>
+                )}
               </div>
             </div>
+            {backupScheduleOpen && (
+              <ScheduledBackupDialog
+                time={backupScheduleDraft.time}
+                days={backupScheduleDraft.days}
+                saving={backupScheduleSaving}
+                onTimeChange={value => setBackupScheduleDraft(current => ({ ...current, time: value }))}
+                onToggleDay={day => setBackupScheduleDraft(current => ({
+                  ...current,
+                  days: current.days.includes(day)
+                    ? current.days.filter(item => item !== day)
+                    : [...current.days, day],
+                }))}
+                onClose={() => { if (!backupScheduleSaving) setBackupScheduleOpen(false) }}
+                onSave={() => void saveDatabaseBackupSchedule(true, backupScheduleDraft.time, backupScheduleDraft.days)}
+              />
+            )}
             <section className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <div className="grid flex-1 gap-4">
                 <label className="field-row">

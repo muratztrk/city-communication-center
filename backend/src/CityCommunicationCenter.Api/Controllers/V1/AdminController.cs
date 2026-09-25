@@ -496,6 +496,22 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPut("tenants/{tenantId:guid}/database-backup-settings/schedule")]
+    public async Task<IActionResult> UpdateDatabaseBackupSchedule(
+        Guid tenantId,
+        [FromBody] UpdateDatabaseBackupScheduleRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateDatabaseBackupScheduleCommand(
+                tenantId,
+                request.Enabled,
+                request.Time,
+                request.Days ?? []),
+            cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("tenants/{tenantId:guid}/syslog-settings")]
     public async Task<ActionResult<SyslogSettingsResponse>> GetSyslogSettings(Guid tenantId, CancellationToken cancellationToken)
     {

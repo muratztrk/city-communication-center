@@ -1033,6 +1033,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.databaseBackupSettingsSaveFailed'))
   },
 
+  async updateDatabaseBackupSchedule(tenantId: string, data: { enabled: boolean; time: string | null; days: number[] }): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/database-backup-settings/schedule`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.databaseBackupScheduleSaveFailed'))
+  },
+
   async getSyslogSettings(tenantId: string): Promise<SyslogSettings> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/syslog-settings`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.syslogSettingsLoadFailed'))

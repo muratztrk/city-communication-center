@@ -81,6 +81,10 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
             settings.UpdatedAtUtc = DateTimeOffset.UtcNow;
         }
 
+        var existingCursor = CitizenAutoReplyTemplateJson
+            .ParseOrDefault(settings.CitizenAutoReplyTemplatesJson)
+            .OverdueSmsCursorUtc;
+
         settings.CitizenAutoReplyTemplatesJson = CitizenAutoReplyTemplateJson.Serialize(new CitizenAutoReplyTemplateModel(
             request.ProcessingReceived.TrimStart(),
             request.InProgress.Trim(),
@@ -107,7 +111,8 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
             request.OverdueManagerSmsEnabled,
             request.OverdueStaffSms,
             request.OverdueStaffSmsEnabled,
-            request.InProgressEnabled));
+            request.InProgressEnabled,
+            existingCursor));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

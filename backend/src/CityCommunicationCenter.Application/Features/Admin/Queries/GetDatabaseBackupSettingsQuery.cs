@@ -34,6 +34,9 @@ public sealed class GetDatabaseBackupSettingsQueryHandler
             settings.NasRootFolder,
             settings.NasProtocol,
             settings.NasUsername,
-            settings.NasHasPassword);
+            settings.NasHasPassword,
+            settings.ScheduledEnabled,
+            settings.ScheduledTime,
+            settings.ScheduledDays);
     }
 }

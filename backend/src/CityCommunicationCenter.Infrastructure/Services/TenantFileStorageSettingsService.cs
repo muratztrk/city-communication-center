@@ -2,24 +2,29 @@ using System.Security.Cryptography;
 using CityCommunicationCenter.Infrastructure.FileStorage;
 using CityCommunicationCenter.Shared.FileStorage;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
 
 internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSettingsService
 {
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
+    private static readonly TimeZoneInfo TurkeyTimeZone = ResolveTurkeyTimeZone();
     private readonly IApplicationDbContext _dbContext;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<TenantFileStorageSettingsService> _logger;
     private readonly IDataProtector _dataProtector;
     private readonly IDataProtector _backupDataProtector;
 
     public TenantFileStorageSettingsService(
         IApplicationDbContext dbContext,
         IConfiguration configuration,
-        IDataProtectionProvider dataProtectionProvider)
+        IDataProtectionProvider dataProtectionProvider,
+        ILogger<TenantFileStorageSettingsService> logger)
     {
         _dbContext = dbContext;
         _configuration = configuration;
+        _logger = logger;
         _dataProtector = dataProtectionProvider.CreateProtector(
             "CityCommunicationCenter.TenantFileStorageSettings.v1");
         _backupDataProtector = dataProtectionProvider.CreateProtector(
@@ -142,7 +147,10 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
             payload.NasRootFolder,
             payload.NasProtocol,
             payload.NasUsername,
-            !string.IsNullOrWhiteSpace(payload.NasPassword));
+            !string.IsNullOrWhiteSpace(payload.NasPassword),
+            payload.ScheduledEnabled,
+            payload.ScheduledTime,
+            payload.ScheduledDays ?? []);
     }
 
     public async Task SaveDatabaseBackupSettingsAsync(
@@ -161,6 +169,11 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
             NasUsername = Normalize(settings.NasUsername),
             NasPassword = ResolvePassword(
                 current.NasPassword, settings.NasPassword, settings.ClearNasPassword),
+            ScheduledEnabled = current.ScheduledEnabled,
+            ScheduledTime = current.ScheduledTime,
+            ScheduledDays = current.ScheduledDays ?? [],
+            LastScheduledBackupLocalDate = current.LastScheduledBackupLocalDate,
+            LastScheduledBackupAttemptUtc = current.LastScheduledBackupAttemptUtc,
         };
 
         var serializedPayload = _backupDataProtector.Protect(
@@ -191,6 +204,205 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         await PublishDatabaseBackupAsync(payload, cancellationToken);
+    }
+
+    public async Task SaveDatabaseBackupScheduleAsync(
+        Guid tenantId,
+        bool enabled,
+        string? time,
+        IReadOnlyList<int> days,
+        Guid? actorUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedDays = (days ?? [])
+            .Where(day => day is >= 0 and <= 6)
+            .Distinct()
+            .Order()
+            .ToArray();
+        var normalizedTime = string.IsNullOrWhiteSpace(time) ? null : time.Trim();
+        if (enabled)
+        {
+            if (!TryParseScheduleTime(normalizedTime, out _))
+            {
+                throw new FluentValidation.ValidationException("Zamanlı yedek için başlangıç saati HH:mm olmalıdır.");
+            }
+
+            if (normalizedDays.Length == 0)
+            {
+                throw new FluentValidation.ValidationException("Zamanlı yedek için en az bir gün seçilmelidir.");
+            }
+        }
+
+        var current = await GetBackupPayloadAsync(tenantId, cancellationToken);
+        current.ScheduledEnabled = enabled;
+        current.ScheduledTime = normalizedTime;
+        current.ScheduledDays = normalizedDays;
+        StampScheduleCursor(current);
+        await StoreBackupPayloadAsync(tenantId, current, actorUserId, cancellationToken);
+    }
+
+    public async Task ProcessScheduledDatabaseBackupsAsync(CancellationToken cancellationToken = default)
+    {
+        var rows = await _dbContext.TenantSettings
+            .IgnoreQueryFilters()
+            .Where(entity => entity.DatabaseBackupSettingsJson != null)
+            .Select(entity => new { entity.TenantId, entity.DatabaseBackupSettingsJson })
+            .ToListAsync(cancellationToken);
+
+        var now = DateTimeOffset.UtcNow;
+        foreach (var row in rows)
+        {
+            TenantDatabaseBackupSettingsPayload payload;
+            try
+            {
+                payload = UnprotectBackupPayload(row.DatabaseBackupSettingsJson);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Zamanlı veritabanı yedeği ayarı okunamadı. TenantId={TenantId}", row.TenantId);
+                continue;
+            }
+
+            if (!IsScheduleDue(payload, now))
+            {
+                continue;
+            }
+
+            payload.LastScheduledBackupAttemptUtc = now;
+            await StoreBackupPayloadAsync(row.TenantId, payload, null, cancellationToken);
+
+            try
+            {
+                await PublishDatabaseBackupAsync(payload, cancellationToken);
+                var local = TimeZoneInfo.ConvertTime(now, TurkeyTimeZone);
+                payload.LastScheduledBackupLocalDate = local.ToString("yyyy-MM-dd");
+                await StoreBackupPayloadAsync(row.TenantId, payload, null, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex, "Zamanlı veritabanı yedeği yazılamadı. TenantId={TenantId}", row.TenantId);
+            }
+        }
+    }
+
+    private async Task StoreBackupPayloadAsync(
+        Guid tenantId,
+        TenantDatabaseBackupSettingsPayload payload,
+        Guid? actorUserId,
+        CancellationToken cancellationToken)
+    {
+        var serializedPayload = _backupDataProtector.Protect(
+            JsonSerializer.Serialize(payload, SerializerOptions));
+        var tenantSetting = await _dbContext.TenantSettings
+            .IgnoreQueryFilters()
+            .SingleOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);
+        if (tenantSetting is null)
+        {
+            _dbContext.TenantSettings.Add(new TenantSetting
+            {
+                TenantSettingId = Guid.NewGuid(),
+                TenantId = tenantId,
+                DisplayName = string.Empty,
+                DefaultSlaHours = 48,
+                AutoRoutingEnabled = false,
+                DatabaseBackupSettingsJson = serializedPayload,
+                CreatedByUserId = actorUserId,
+            });
+        }
+        else
+        {
+            tenantSetting.DatabaseBackupSettingsJson = serializedPayload;
+            tenantSetting.UpdatedAtUtc = DateTimeOffset.UtcNow;
+            tenantSetting.UpdatedByUserId = actorUserId;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static void StampScheduleCursor(TenantDatabaseBackupSettingsPayload payload)
+    {
+        if (!payload.ScheduledEnabled || !TryParseScheduleTime(payload.ScheduledTime, out var start))
+        {
+            return;
+        }
+
+        var local = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TurkeyTimeZone);
+        var today = local.ToString("yyyy-MM-dd");
+        var selectedToday = (payload.ScheduledDays ?? []).Contains((int)local.DayOfWeek);
+        if (!selectedToday)
+        {
+            return;
+        }
+
+        if (local.TimeOfDay >= start.ToTimeSpan())
+        {
+            payload.LastScheduledBackupLocalDate = today;
+            return;
+        }
+
+        if (string.Equals(payload.LastScheduledBackupLocalDate, today, StringComparison.Ordinal))
+        {
+            payload.LastScheduledBackupLocalDate = null;
+        }
+    }
+
+    private static bool IsScheduleDue(TenantDatabaseBackupSettingsPayload payload, DateTimeOffset utcNow)
+    {
+        if (!payload.ScheduledEnabled || !TryParseScheduleTime(payload.ScheduledTime, out var start))
+        {
+            return false;
+        }
+
+        var local = TimeZoneInfo.ConvertTime(utcNow, TurkeyTimeZone);
+        if (!(payload.ScheduledDays ?? []).Contains((int)local.DayOfWeek))
+        {
+            return false;
+        }
+
+        if (local.TimeOfDay < start.ToTimeSpan())
+        {
+            return false;
+        }
+
+        var today = local.ToString("yyyy-MM-dd");
+        if (string.Equals(payload.LastScheduledBackupLocalDate, today, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return payload.LastScheduledBackupAttemptUtc is not DateTimeOffset attempt
+            || utcNow - attempt >= TimeSpan.FromMinutes(15);
+    }
+
+    private static bool TryParseScheduleTime(string? value, out TimeOnly time)
+    {
+        time = default;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        return TimeOnly.TryParseExact(value.Trim(), "HH:mm", out time)
+            || TimeOnly.TryParseExact(value.Trim(), "H:mm", out time);
+    }
+
+    private static TimeZoneInfo ResolveTurkeyTimeZone()
+    {
+        foreach (var id in new[] { "Europe/Istanbul", "Turkey Standard Time" })
+        {
+            try
+            {
+                return TimeZoneInfo.FindSystemTimeZoneById(id);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+            }
+            catch (InvalidTimeZoneException)
+            {
+            }
+        }
+
+        return TimeZoneInfo.Utc;
     }
 
     private async Task PublishDatabaseBackupAsync(
@@ -280,6 +492,11 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
             .Where(entity => entity.TenantId == tenantId)
             .Select(entity => entity.DatabaseBackupSettingsJson)
             .SingleOrDefaultAsync(cancellationToken);
+        return UnprotectBackupPayload(raw);
+    }
+
+    private TenantDatabaseBackupSettingsPayload UnprotectBackupPayload(string? raw)
+    {
         if (string.IsNullOrWhiteSpace(raw))
         {
             return new TenantDatabaseBackupSettingsPayload();
@@ -366,5 +583,10 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         public string NasProtocol { get; set; } = "SMB/CIFS";
         public string? NasUsername { get; set; }
         public string? NasPassword { get; set; }
+        public bool ScheduledEnabled { get; set; }
+        public string? ScheduledTime { get; set; }
+        public int[] ScheduledDays { get; set; } = [];
+        public string? LastScheduledBackupLocalDate { get; set; }
+        public DateTimeOffset? LastScheduledBackupAttemptUtc { get; set; }
     }
 }

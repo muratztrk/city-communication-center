@@ -144,6 +144,7 @@ public sealed class GetCitizenConversationsQueryHandler
                 (entry, message) => new
                 {
                     ConversationId = message.CitizenConversationId!.Value,
+                    message.SocialMessageId,
                     message.JobId,
                     entry.Direction,
                     entry.SentAt,
@@ -193,15 +194,18 @@ public sealed class GetCitizenConversationsQueryHandler
             tenantId,
             releasedAtByJobId,
             cancellationToken);
+        var releasedAtByMessageId = await ConversationEntryOperatorVisibility.ResolveReleasedAtByMessageIdAsync(
+            _dbContext,
+            tenantId,
+            outboundEntryRows.Select(row => row.SocialMessageId).Distinct().ToArray(),
+            cancellationToken);
         var lastOutboundAtByConversation = outboundEntryRows
             .Where(row => !ConversationEntryOperatorVisibility.IsTerminalPendingAwaitingManagerRelease(
                 row.Direction,
                 row.DeliveryStatus,
                 row.SenderLabel,
                 row.Content,
-                row.JobId is Guid jobId && releasedAtByJobId.TryGetValue(jobId, out var releasedAt)
-                    ? releasedAt
-                    : null))
+                releasedAtByMessageId.GetValueOrDefault(row.SocialMessageId)))
             .GroupBy(row => row.ConversationId)
             .ToDictionary(
                 group => group.Key,

@@ -270,6 +270,20 @@ public sealed class SendPendingConversationEntryCommandHandler
             PendingTerminalOutboundSendGuard.ClearSendClaimIfPresent(entry);
         }
 
+        if (entry.DeliveryStatus is ConversationDeliveryStatus.Sent
+                or ConversationDeliveryStatus.Delivered
+                or ConversationDeliveryStatus.Read
+            && message.CitizenConversationId is Guid sentConversationId)
+        {
+            var conversation = await _dbContext.CitizenConversations.FirstOrDefaultAsync(
+                entity => entity.CitizenConversationId == sentConversationId && entity.TenantId == tenantId,
+                cancellationToken);
+            if (conversation is not null && utcNow > conversation.LastMessageAt)
+            {
+                conversation.LastMessageAt = utcNow;
+            }
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         if (entry.DeliveryStatus is ConversationDeliveryStatus.Sent

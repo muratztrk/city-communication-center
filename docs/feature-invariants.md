@@ -616,8 +616,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünürlük yedeğidir.
   Liste sırası ve saati son görünen giden balonun saatidir (`lastOutboundMessageAt`,
   `ResolveSortKey`; Beklemede personel yanıtı ve telefon kanalındaki şablon dahil). Yönetici
-  onayı bekleyen gizli terminal balon sayılmaz. Gün içinde `HH:mm`, dün `Dün`, daha eski
-  `gg.aa.yyyy`. Açık konuşmada giden mesaj liste saatini de günceller. Giden balon yoksa `lastMessageAt`.
+  onayı bekleyen gizli terminal balon sayılmaz. Operatörün onaylayıp gönderdiği Tamamlandı/İptal
+  şablonu, güncellenen `SentAt` ile sayılır; serbest bırakma konuşma detayıyla aynı
+  (`ResolveReleasedAtByMessageIdAsync`: `JobId` veya `SourceRefId`). Gün içinde `HH:mm`, dün `Dün`, daha eski
+  `gg.aa.yyyy`. Açık konuşma ve `Mesajı Gönder` liste saatini de günceller. Giden balon yoksa `lastMessageAt`.
   Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
   (#3348 yükseklik; #3330 nowrap). Üç chip arası `gap-2.5` (#3354 reopen). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto

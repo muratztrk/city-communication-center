@@ -107,13 +107,26 @@ public static class ConversationEntryOperatorVisibility
             .Select(m => m.JobId!.Value)
             .Distinct()
             .ToList();
-        var jobs = jobIds.Count == 0
+        var jobsById = jobIds.Count == 0
             ? []
             : await dbContext.Jobs
                 .AsNoTracking()
                 .Where(j => j.TenantId == tenantId && jobIds.Contains(j.JobId))
                 .Select(j => new { j.JobId, j.SourceRefId, j.CitizenTerminalMessageReleasedAtUtc })
                 .ToListAsync(cancellationToken);
+        // Terminal şablon, talebin kaynak mesajına JobId yazılmadan da bağlanabiliyor.
+        var jobsBySource = await dbContext.Jobs
+            .AsNoTracking()
+            .Where(j => j.TenantId == tenantId
+                && j.SourceRefId.HasValue
+                && messageIds.Contains(j.SourceRefId.Value))
+            .Select(j => new { j.JobId, j.SourceRefId, j.CitizenTerminalMessageReleasedAtUtc })
+            .ToListAsync(cancellationToken);
+        var jobs = jobsById
+            .Concat(jobsBySource)
+            .GroupBy(job => job.JobId)
+            .Select(group => group.First())
+            .ToList();
 
         var releasedByJobId = jobs.ToDictionary(j => j.JobId, j => j.CitizenTerminalMessageReleasedAtUtc);
         await ApplyCitizenMessageApprovalReleasedFallbackAsync(
@@ -121,9 +134,18 @@ public static class ConversationEntryOperatorVisibility
             tenantId,
             releasedByJobId,
             cancellationToken);
-        var releasedBySourceRef = jobs
-            .Where(j => j.SourceRefId.HasValue)
-            .ToDictionary(j => j.SourceRefId!.Value, j => j.CitizenTerminalMessageReleasedAtUtc);
+        var releasedBySourceRef = new Dictionary<Guid, DateTimeOffset?>();
+        foreach (var job in jobs)
+        {
+            if (job.SourceRefId is not Guid sourceRefId)
+            {
+                continue;
+            }
+
+            releasedBySourceRef[sourceRefId] = releasedByJobId.TryGetValue(job.JobId, out var releasedAt)
+                ? releasedAt
+                : job.CitizenTerminalMessageReleasedAtUtc;
+        }
 
         var result = new Dictionary<Guid, DateTimeOffset?>();
         foreach (var linkedMessage in linkedMessages)

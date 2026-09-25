@@ -33,6 +33,22 @@ export function resolveConversationEntryBubbleTime(entry: ConversationEntryTimeF
   return { displayAt: entry.sentAt, queuedAt: null }
 }
 
+/** Liste saati: konuşmada görünen son giden balonun saati. */
+export function latestVisibleOutboundDisplayAt(entries: readonly ConversationEntryTimeFields[]): string | null {
+  let latest: string | null = null
+  let latestMs = Number.NEGATIVE_INFINITY
+  for (const entry of entries) {
+    if (entry.direction !== 'Outbound') continue
+    const displayAt = resolveConversationEntryBubbleTime(entry).displayAt
+    if (!displayAt) continue
+    const ms = Date.parse(displayAt)
+    if (!Number.isFinite(ms) || ms <= latestMs) continue
+    latestMs = ms
+    latest = displayAt
+  }
+  return latest
+}
+
 export function compareConversationEntriesByDisplayTime(
   left: ConversationEntryTimeFields,
   right: ConversationEntryTimeFields,

@@ -1,3 +1,8 @@
+## Round 1331 — WhatsApp liste saati (onaylanan otomatik mesaj)
+
+- Operatörün gönderdiği Tamamlandı/İptal şablonu, güncellenen saatiyle listeyi sıralar.
+- Serbest bırakma konuşma detayıyla aynı (`JobId` veya `SourceRefId`). Açık konuşma liste saatini balondan yazar.
+
 ## Round 1330 — yedek saat imleci, bildirim sayfalama, mesai dışı kutu
 
 - Zamanlı Yedek başlığı altı çizgi; saat seçiminde el imleci.

@@ -1324,6 +1324,24 @@
     max-height: calc(100dvh - 2rem);
   }
 
+  /* Dar bildirim penceresinde sayfa numarası ve oklar bar yüksekliğine sıkışıp kaybolmasın. */
+  .notification-modal-shell .table-pagination-bar {
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    max-height: none;
+    height: auto;
+  }
+
+  .notification-modal-shell .table-pagination-navigation {
+    flex: 1 0 auto;
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .notification-modal-shell .table-pagination-bar .table-pagination-control:not(.active) {
+    color: #fff !important;
+  }
+
   .notification-modal-search.scope-chip-search-wrap {
     width: 7.25rem;
     background: rgba(255, 255, 255, 0.14);
@@ -2007,7 +2025,11 @@
     }
 
     .app-content-shell .admin-surface-page .settings-after-hours-sms {
-      min-height: 10rem;
+      min-height: 12rem;
+    }
+
+    .app-content-shell .admin-surface-page .settings-after-hours-sms-compact {
+      min-height: 8.75rem;
     }
 
     .app-content-shell .admin-surface-page label.text-sm,

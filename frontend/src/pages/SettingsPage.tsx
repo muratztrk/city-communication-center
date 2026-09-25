@@ -327,6 +327,10 @@ function ScheduledBackupDialog({
   onSave: () => void
 }) {
   const { t } = useTranslation()
+  const [timeOpen, setTimeOpen] = useState(false)
+  const [hour, minute] = (time || '00:00').split(':')
+  const hours = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, '0'))
+  const minutes = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, '0'))
   return createPortal(
     <ModalBackdrop onEscapeClose={saving ? undefined : onClose}>
       <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl">
@@ -339,16 +343,52 @@ function ScheduledBackupDialog({
         >
           <X className="size-4" />
         </button>
-        <h2 className="mb-4 text-lg font-bold text-slate-950">{t('settings.databaseBackup.scheduled')}</h2>
-        <label className="grid gap-2 text-sm font-semibold text-slate-700">
+        <h2 className="mb-4 border-b border-slate-200 pb-3 text-lg font-bold text-slate-950">{t('settings.databaseBackup.scheduled')}</h2>
+        <div className="grid gap-2 text-sm font-semibold text-slate-700">
           <span>{t('settings.databaseBackup.startTime')}</span>
-          <input
-            type="time"
-            className="field-input"
-            value={time}
-            onChange={event => onTimeChange(event.target.value)}
-          />
-        </label>
+          <div className="relative">
+            <div className="field-input flex items-center justify-between">
+              <span>{`${hour ?? '00'}:${minute ?? '00'}`}</span>
+              <button
+                type="button"
+                className="cursor-pointer text-slate-500"
+                aria-label={t('settings.databaseBackup.startTime')}
+                aria-expanded={timeOpen}
+                onClick={() => setTimeOpen(open => !open)}
+              >
+                <Clock className="size-4" />
+              </button>
+            </div>
+            {timeOpen && (
+              <div className="absolute left-0 top-full z-20 mt-1 flex max-h-48 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+                <div className="max-h-48 w-14 overflow-y-auto">
+                  {hours.map(value => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`block w-full cursor-pointer px-2 py-1 text-center text-sm ${value === hour ? 'bg-blue-600 font-semibold text-white' : 'hover:bg-slate-100'}`}
+                      onClick={() => onTimeChange(`${value}:${minute ?? '00'}`)}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+                <div className="max-h-48 w-14 overflow-y-auto border-l border-slate-100">
+                  {minutes.map(value => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`block w-full cursor-pointer px-2 py-1 text-center text-sm ${value === minute ? 'bg-blue-600 font-semibold text-white' : 'hover:bg-slate-100'}`}
+                      onClick={() => onTimeChange(`${hour ?? '00'}:${value}`)}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
         <div className="mt-4 grid gap-2">
           <span className="text-sm font-semibold text-slate-700">{t('settings.databaseBackup.daysLabel')}</span>
           <div className="flex flex-wrap gap-2">
@@ -4300,7 +4340,7 @@ export function SettingsPage() {
               <span>{t('settings.routing.afterHoursManagerSmsLabel')}</span>
               <textarea
                 aria-label={t('settings.routing.afterHoursManagerSmsLabel')}
-                className="field-input settings-after-hours-sms min-h-48 whitespace-pre-wrap"
+                className="field-input settings-after-hours-sms settings-after-hours-sms-compact min-h-48 whitespace-pre-wrap"
                 placeholder={t('settings.routing.afterHoursManagerSmsPlaceholder')}
                 value={citizenAutoReplyTemplates.afterHoursManagerSms ?? ''}
                 onChange={event => setCitizenAutoReplyTemplates(current => ({
@@ -4332,7 +4372,7 @@ export function SettingsPage() {
               <span>{t('settings.routing.afterHoursStaffSmsLabel')}</span>
               <textarea
                 aria-label={t('settings.routing.afterHoursStaffSmsLabel')}
-                className="field-input settings-after-hours-sms min-h-48 whitespace-pre-wrap"
+                className="field-input settings-after-hours-sms settings-after-hours-sms-compact min-h-48 whitespace-pre-wrap"
                 placeholder={t('settings.routing.afterHoursStaffSmsPlaceholder')}
                 value={citizenAutoReplyTemplates.afterHoursStaffSms ?? ''}
                 onChange={event => setCitizenAutoReplyTemplates(current => ({

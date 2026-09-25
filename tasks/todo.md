@@ -1,3 +1,9 @@
+## Round 1330 — yedek saat imleci, bildirim sayfalama, mesai dışı kutu
+
+- Zamanlı Yedek başlığı altı çizgi; saat seçiminde el imleci.
+- Bildirim modalı sayfa numarası ve okları bar içinde kalır.
+- Yalnız mesai dışı SMS kutuları 8.75rem; geciken kutular 12rem.
+
 ## Round 1329 — SMS kutusu, zamanlı yedek, geciken SMS
 
 - Mesai dışı ve geciken SMS kutuları 12rem → 10rem.

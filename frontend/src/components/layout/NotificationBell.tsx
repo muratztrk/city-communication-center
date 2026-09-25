@@ -630,6 +630,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
             </div>
             {!notifQuery.isLoading && (
               <TablePagination
+                className="shrink-0"
                 totalCount={filteredModal.length}
                 pageSize={modalPageSize}
                 currentPage={modalPage}

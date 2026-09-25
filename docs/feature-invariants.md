@@ -1778,7 +1778,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   paylaşımında `{kök}/veritabani_yedek` klasörünü açar ve gzip `pg_dump` dosyasını içine yazar
   (#6ab3ae37 / #6ab3b441). **Zamanlı Yedek** anahtarı açılınca popup: başlama saati + günler.
   Kayıt yedek dökmez; seçilen günde saatten sonra günde bir kez aynı klasöre yazar. Popup başlığının
-  altında çizgi; saat listesi el imleci (`cursor: pointer`). Saat geçtiyse
+  altında çizgi yok; saat listesinde el imleci yok (`cursor: default`, #6ab639df geri alındı).
+  Anahtar açıkken sağında **Gün ve Saatleri değiştir** aynı popup'ı açar. Saat geçtiyse
   bugün atlanır. Alan sırası ek sunucusundaki NAS bloğuyla aynıdır: IP, paylaşım, kök
   klasör, protokol, kullanıcı, parola, sonra NAS bağlantı testi (#6ab3c335). Kayıtlı parola
   maskesi (`********`) silinince geri gelmez; alan boşalır, yeni parola yazılır. Odaktan çıkınca
@@ -2079,7 +2080,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Reporter vatandaş anasayfa (#2519):** pie grid son kutusu `Bildirimler` — son 3 bildirim (sıra no),
   mesaj `line-clamp-1` + `title` tooltip; başlık satırında `Tüm bildirimleri gör`. Tüm anasayfalarda
   pie bölümü sonunda (#2519 reopen). Bildirim modalı (`max-w-xl`) sayfalama barı
-  `max-height` ile ikinci satırı kesmez; sayfa numarası ve oklar görünür.
+  `max-height` ile ikinci satırı kesmez; sayfa numarası ve oklar sola dayalıdır.
 - **Sol menü rozetleri (#2523):** `myPendingTaskNavBadgeCount` son tarihi geçmiş görevleri saymaz;
   job rozetleri `DueDateUtc >= now` ile zaten filtreli.
 - **Kurum içi mesaj ünvan (#2518):** `TenantSetting.InternalMessagesSettingsJson`;

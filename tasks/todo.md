@@ -1,3 +1,9 @@
+## Round 1332 — zamanlı yedek linki, çizgi geri al, bildirim sayfalama sola
+
+- Zamanlı Yedek popup başlık çizgisi ve saat listesi el imleci geri alındı.
+- Anahtar açıkken sağında «Gün ve Saatleri değiştir» popup'ı açar.
+- Bildirim modalı sayfa numarası ve okları sola dayalı.
+
 ## Round 1331 — WhatsApp liste saati (onaylanan otomatik mesaj)
 
 - Operatörün gönderdiği Tamamlandı/İptal şablonu, güncellenen saatiyle listeyi sıralar.

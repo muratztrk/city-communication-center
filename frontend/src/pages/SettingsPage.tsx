@@ -343,7 +343,7 @@ function ScheduledBackupDialog({
         >
           <X className="size-4" />
         </button>
-        <h2 className="mb-4 border-b border-slate-200 pb-3 text-lg font-bold text-slate-950">{t('settings.databaseBackup.scheduled')}</h2>
+        <h2 className="mb-4 text-lg font-bold text-slate-950">{t('settings.databaseBackup.scheduled')}</h2>
         <div className="grid gap-2 text-sm font-semibold text-slate-700">
           <span>{t('settings.databaseBackup.startTime')}</span>
           <div className="relative">
@@ -351,7 +351,7 @@ function ScheduledBackupDialog({
               <span>{`${hour ?? '00'}:${minute ?? '00'}`}</span>
               <button
                 type="button"
-                className="cursor-pointer text-slate-500"
+                className="cursor-default text-slate-500"
                 aria-label={t('settings.databaseBackup.startTime')}
                 aria-expanded={timeOpen}
                 onClick={() => setTimeOpen(open => !open)}
@@ -366,7 +366,7 @@ function ScheduledBackupDialog({
                     <button
                       key={value}
                       type="button"
-                      className={`block w-full cursor-pointer px-2 py-1 text-center text-sm ${value === hour ? 'bg-blue-600 font-semibold text-white' : 'hover:bg-slate-100'}`}
+                      className={`block w-full cursor-default px-2 py-1 text-center text-sm ${value === hour ? 'bg-blue-600 font-semibold text-white' : 'hover:bg-slate-100'}`}
                       onClick={() => onTimeChange(`${value}:${minute ?? '00'}`)}
                     >
                       {value}
@@ -378,7 +378,7 @@ function ScheduledBackupDialog({
                     <button
                       key={value}
                       type="button"
-                      className={`block w-full cursor-pointer px-2 py-1 text-center text-sm ${value === minute ? 'bg-blue-600 font-semibold text-white' : 'hover:bg-slate-100'}`}
+                      className={`block w-full cursor-default px-2 py-1 text-center text-sm ${value === minute ? 'bg-blue-600 font-semibold text-white' : 'hover:bg-slate-100'}`}
                       onClick={() => onTimeChange(`${hour ?? '00'}:${value}`)}
                     >
                       {value}
@@ -1922,6 +1922,15 @@ export function SettingsPage() {
     }
   }
 
+  const openDatabaseBackupScheduleEditor = () => {
+    const savedDays = databaseBackupSettings?.scheduledDays ?? []
+    setBackupScheduleDraft({
+      time: databaseBackupSettings?.scheduledTime || '02:00',
+      days: savedDays.length > 0 ? [...savedDays] : [1, 2, 3, 4, 5],
+    })
+    setBackupScheduleOpen(true)
+  }
+
   const toggleDatabaseBackupSchedule = () => {
     if (databaseBackupSettings?.scheduledEnabled) {
       void saveDatabaseBackupSchedule(
@@ -1931,12 +1940,7 @@ export function SettingsPage() {
       )
       return
     }
-    const savedDays = databaseBackupSettings?.scheduledDays ?? []
-    setBackupScheduleDraft({
-      time: databaseBackupSettings?.scheduledTime || '02:00',
-      days: savedDays.length > 0 ? [...savedDays] : [1, 2, 3, 4, 5],
-    })
-    setBackupScheduleOpen(true)
+    openDatabaseBackupScheduleEditor()
   }
 
   const saveSyslogSettings = async (event: FormEvent) => {
@@ -3396,11 +3400,22 @@ export function SettingsPage() {
               <div>
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                   <h2 className="text-xl font-extrabold text-slate-950">{t('settings.databaseBackup.sectionTitle')}</h2>
-                  <SettingsActiveSwitch
-                    label={t('settings.databaseBackup.scheduled')}
-                    checked={databaseBackupSettings?.scheduledEnabled ?? false}
-                    onChange={toggleDatabaseBackupSchedule}
-                  />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <SettingsActiveSwitch
+                      label={t('settings.databaseBackup.scheduled')}
+                      checked={databaseBackupSettings?.scheduledEnabled ?? false}
+                      onChange={toggleDatabaseBackupSchedule}
+                    />
+                    {databaseBackupSettings?.scheduledEnabled ? (
+                      <button
+                        type="button"
+                        className="text-sm font-semibold text-sky-700 underline underline-offset-2"
+                        onClick={openDatabaseBackupScheduleEditor}
+                      >
+                        {t('settings.databaseBackup.changeSchedule')}
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
                 <p className="helper-copy">{t('settings.databaseBackup.sectionDescription')}</p>
                 {databaseBackupSettings?.scheduledEnabled && databaseBackupSettings.scheduledTime && (

@@ -1453,6 +1453,7 @@
       "sectionDescription": "NAS / file-server path where database backups are copied. Independent from attachment storage. Save creates a veritabani_yedek folder on the share and writes a compressed backup into it.",
       "saved": "Database backup server settings saved.",
       "scheduled": "Scheduled Backup",
+      "changeSchedule": "Change days and times",
       "scheduledSaved": "Scheduled backup saved.",
       "scheduledSummary": "{{days}} at {{time}}",
       "startTime": "Start time",

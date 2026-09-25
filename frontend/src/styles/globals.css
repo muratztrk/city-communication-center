@@ -1330,12 +1330,13 @@
     flex-wrap: wrap;
     max-height: none;
     height: auto;
+    justify-content: flex-start;
   }
 
   .notification-modal-shell .table-pagination-navigation {
-    flex: 1 0 auto;
-    justify-content: flex-end;
-    margin-left: auto;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    margin-left: 0;
   }
 
   .notification-modal-shell .table-pagination-bar .table-pagination-control:not(.active) {

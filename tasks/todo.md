@@ -1,3 +1,7 @@
+## Round 1333 — zamanlı yedek saat listesini geri al
+
+- Popup başlığında çizgi yok. Özel saat/dakika listesi kalktı; yeniden tarayıcı saat kutusu.
+
 ## Round 1332 — zamanlı yedek linki, çizgi geri al, bildirim sayfalama sola
 
 - Zamanlı Yedek popup başlık çizgisi ve saat listesi el imleci geri alındı.

@@ -320,8 +320,9 @@ function appendBackupTimeDigit(digits: string, digit: string): string {
 }
 
 function formatBackupTimeDigits(digits: string): string {
-  if (digits.length <= 2) return digits
-  return `${digits.slice(0, 2)}:${digits.slice(2)}`
+  const hour = `${digits.slice(0, 2)}__`.slice(0, 2)
+  const minute = `${digits.slice(2, 4)}__`.slice(0, 2)
+  return `${hour}:${minute}`
 }
 
 function foldBackupTimeDigits(incoming: string): string {
@@ -343,11 +344,11 @@ function ScheduledBackupTimeField({
   const applyDigits = (next: string) => {
     setDigits(next)
     onTimeChange(next.length === 4 ? `${next.slice(0, 2)}:${next.slice(2)}` : '')
+    const caret = next.length < 2 ? next.length : next.length + 1
     requestAnimationFrame(() => {
       const field = inputRef.current
       if (!field) return
-      const end = field.value.length
-      field.setSelectionRange(end, end)
+      field.setSelectionRange(caret, caret)
     })
   }
 
@@ -358,10 +359,16 @@ function ScheduledBackupTimeField({
       inputMode="numeric"
       autoComplete="off"
       dir="ltr"
-      placeholder="00:00"
       className="field-input text-left"
       value={formatBackupTimeDigits(digits)}
       onFocus={event => event.currentTarget.select()}
+      onKeyDown={event => {
+        if (event.key !== 'Backspace') return
+        event.preventDefault()
+        const field = event.currentTarget
+        const allSelected = field.selectionStart === 0 && field.selectionEnd === field.value.length
+        applyDigits(allSelected ? '' : digits.slice(0, -1))
+      }}
       onChange={event => {
         const incoming = event.target.value.replace(/\D/g, '')
         if (incoming.startsWith(digits)) {

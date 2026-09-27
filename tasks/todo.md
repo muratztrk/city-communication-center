@@ -1,3 +1,7 @@
+## Round 1335 — zamanlı yedek saati maskesi
+
+- Başlama saatinde `:` kaybolmaz. Boş haneler `_` olur (`__:__`, `1_:__`, `13:2_`).
+
 ## Round 1334 — zamanlı yedek saati soldan sağa
 
 - Başlama saati rakamları soldan sağa birikir. Tarayıcı saat kutusunun sağdan sola yazması kalktı.

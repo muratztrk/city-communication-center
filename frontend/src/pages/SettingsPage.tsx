@@ -3479,8 +3479,8 @@ export function SettingsPage() {
                 </div>
                 <p className="helper-copy">{t('settings.databaseBackup.sectionDescription')}</p>
                 {databaseBackupSettings?.scheduledEnabled && databaseBackupSettings.scheduledTime && (
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="helper-copy mb-0">
+                  <p className="helper-copy mb-0 inline-flex flex-wrap items-center gap-x-2">
+                    <span>
                       {t('settings.databaseBackup.scheduledSummary', {
                         time: databaseBackupSettings.scheduledTime,
                         days: BACKUP_SCHEDULE_DAYS
@@ -3488,7 +3488,7 @@ export function SettingsPage() {
                           .map(day => t(day.labelKey))
                           .join(', '),
                       })}
-                    </p>
+                    </span>
                     <button
                       type="button"
                       className="shrink-0 text-sm font-semibold text-sky-700 underline underline-offset-2"
@@ -3496,7 +3496,7 @@ export function SettingsPage() {
                     >
                       {t('settings.databaseBackup.changeSchedule')}
                     </button>
-                  </div>
+                  </p>
                 )}
               </div>
             </div>

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { JobDueDateChange } from '../../../types/platform'
 import { formatDateTime } from './format'
 import { Button } from '../../ui/button'
+import { cn } from '../../../lib/cn'
 
 interface DueDateEditorsHintProps {
   changes: JobDueDateChange[]
@@ -28,15 +29,16 @@ export function DueDateEditorsHint({ changes, locale }: DueDateEditorsHintProps)
 
   return (
     <>
-      <Button
+      <button
         type="button"
-        size="sm"
-        variant="ghost"
-        className="ml-1 h-auto px-1 py-0 text-xs font-bold text-[#f97316] underline underline-offset-2"
+        className={cn(
+          'ml-1 border-0 bg-transparent p-0 text-xs font-bold text-[#f97316]',
+          'cursor-pointer transition-colors hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]/30',
+        )}
         onClick={() => setOpen(true)}
       >
         {t('jobs.dueDate.editorsButton', 'Düzenleyenler')}
-      </Button>
+      </button>
       {open ? (
         <div
           className="fixed inset-0 z-[140] flex items-center justify-center bg-black/40 p-4"
@@ -48,7 +50,7 @@ export function DueDateEditorsHint({ changes, locale }: DueDateEditorsHintProps)
             className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl"
             onClick={event => event.stopPropagation()}
           >
-            <h3 className="mb-3 text-base font-extrabold text-slate-950">
+            <h3 className="mb-3 border-b border-slate-200 pb-3 text-base font-extrabold text-slate-950">
               {t('jobs.dueDate.editorsTitle', 'Son tarihi düzenleyenler')}
             </h3>
             <ul className="space-y-2 text-sm">

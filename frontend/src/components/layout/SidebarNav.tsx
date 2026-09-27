@@ -144,52 +144,26 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
           <Icon className={cn('shrink-0', isEmphasizedNested ? 'size-5' : nested && !collapsed ? 'size-4' : 'size-4.5', item.iconClassName)} />
         ) : null}
         {!collapsed ? (
-          item.badgeCount != null && item.badgeCount > 0 ? (
-            <span className={cn('inline-flex min-w-0 max-w-full items-center gap-1.5', item.multilineLabel ? 'leading-snug' : '')}>
-              {(() => {
-                const firstLine = labelLines[0] ?? item.label
-                const restLines = labelLines.slice(1)
-                if (item.multilineLabel && restLines.length > 0) {
-                  return (
-                    <span className="min-w-0 leading-snug">
-                      <span>{firstLine}</span>
-                      <br />
-                      <span className="inline-flex max-w-full items-center gap-1.5">
-                        <span>{restLines.join('\n')}</span>
-                        <span
-                          className={`nav-pending-badge shrink-0 ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
-                          aria-label={`${item.badgeCount}`}
-                        >
-                          {badgeLabel}
-                        </span>
-                      </span>
-                    </span>
-                  )
-                }
-                return (
-                  <>
-                    <span className={cn('min-w-0', (isEmphasizedNested && !compactLabels) ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>
-                      {item.label}
-                    </span>
-                    <span
-                      className={`nav-pending-badge shrink-0 ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
-                      aria-label={`${item.badgeCount}`}
-                    >
-                      {badgeLabel}
-                    </span>
-                  </>
-                )
-              })()}
-            </span>
-          ) : (
-            <span className={cn('min-w-0', (isEmphasizedNested && !compactLabels) ? 'whitespace-nowrap' : item.multilineLabel ? 'block leading-snug' : 'truncate')}>
+          <>
+            <span className={cn(
+              'min-w-0 flex-1',
+              (isEmphasizedNested && !compactLabels) ? 'whitespace-nowrap' : item.multilineLabel ? 'block leading-snug' : 'truncate',
+            )}>
               {item.multilineLabel && labelLines.length > 1
                 ? labelLines.map((line, lineIndex) => (
                   <span key={`${item.path}-line-${lineIndex}`} className="block">{line}</span>
                 ))
                 : item.label}
             </span>
-          )
+            {showBadge ? (
+              <span
+                className={`nav-pending-badge ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
+                aria-label={`${item.badgeCount}`}
+              >
+                {badgeLabel}
+              </span>
+            ) : null}
+          </>
         ) : null}
       </NavLink>
     )

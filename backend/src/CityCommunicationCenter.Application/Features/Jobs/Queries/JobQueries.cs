@@ -841,15 +841,33 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             citizenOutboundRelayerDisplayName = outboundActors.RelayerDisplayName;
         }
 
-        var dueDateAuditRows = await _dbContext.AuditLogs
+        var linkedTaskIdStrings = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(task => task.JobId == job.JobId && task.TenantId == tenantId)
+            .Select(task => task.TaskId.ToString())
+            .ToListAsync(cancellationToken);
+        var jobDueDateAuditRows = await _dbContext.AuditLogs
             .AsNoTracking()
             .Where(log => log.TenantId == tenantId
                 && log.EntityType == nameof(Job)
                 && log.EntityId == job.JobId.ToString()
                 && log.Action == "JobDueDateUpdated")
-            .OrderByDescending(log => log.EventTimeUtc)
             .Select(log => new { log.ActorUserId, log.ActorDisplayName, log.EventTimeUtc })
             .ToListAsync(cancellationToken);
+        var taskDueDateAuditRows = linkedTaskIdStrings.Count == 0
+            ? []
+            : await _dbContext.AuditLogs
+                .AsNoTracking()
+                .Where(log => log.TenantId == tenantId
+                    && log.EntityType == nameof(WorkTask)
+                    && linkedTaskIdStrings.Contains(log.EntityId)
+                    && log.Action == "TaskDueDateUpdated")
+                .Select(log => new { log.ActorUserId, log.ActorDisplayName, log.EventTimeUtc })
+                .ToListAsync(cancellationToken);
+        var dueDateAuditRows = jobDueDateAuditRows
+            .Concat(taskDueDateAuditRows)
+            .OrderByDescending(row => row.EventTimeUtc)
+            .ToList();
         var dueDateActorIds = dueDateAuditRows
             .Where(row => row.ActorUserId.HasValue && string.IsNullOrWhiteSpace(row.ActorDisplayName))
             .Select(row => row.ActorUserId!.Value)

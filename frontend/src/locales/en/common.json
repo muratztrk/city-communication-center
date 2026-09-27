@@ -256,6 +256,8 @@
     "incomingRequestsAll": "All Incoming Unit Requests",
     "outgoingRequests": "Outgoing Unit Requests",
     "citizenMessageApproval": "Citizen Message\nApproval",
+    "citizenMessageApprovalLine1": "Citizen Message",
+    "citizenMessageApprovalLine2": "Approval",
     "citizenMessageApprovalBreadcrumb": "Citizen Message Approval",
     "smsDeliveryApproval": "SMS Approval",
     "smsDeliveryApprovalBreadcrumb": "SMS Approval",

@@ -79,6 +79,7 @@ interface JobProcessTimelineProps {
   overdueJobStatus?: string
   overdueCompletedAtUtc?: string | null
   overdueUpdatedAtUtc?: string | null
+  dueDateLabelExtra?: ReactNode
 }
 
 function DateTimeParts({ parts }: { parts: { date: string; time: string } }) {
@@ -198,6 +199,7 @@ export function JobProcessTimeline({
   overdueJobStatus = 'Active',
   overdueCompletedAtUtc,
   overdueUpdatedAtUtc,
+  dueDateLabelExtra,
 }: JobProcessTimelineProps) {
   const { t } = useTranslation()
   const overdueYes = wasJobOverdueWhenClosed({
@@ -324,6 +326,7 @@ export function JobProcessTimeline({
                   ) : (
                     <span className="inline-flex flex-wrap items-center gap-x-1">
                       {step.label}
+                      {step.id === 'dueDate' ? dueDateLabelExtra : null}
                       {step.displayMetaOnLabel && step.displayMeta ? (
                         <span className="text-red-600">({step.displayMeta})</span>
                       ) : null}

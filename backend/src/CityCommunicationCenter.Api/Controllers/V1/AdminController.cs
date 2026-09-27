@@ -512,6 +512,13 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("tenants/{tenantId:guid}/database-backup-settings/trigger")]
+    public async Task<IActionResult> TriggerDatabaseBackup(Guid tenantId, CancellationToken cancellationToken)
+    {
+        await _sender.Send(new TriggerDatabaseBackupCommand(tenantId), cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("tenants/{tenantId:guid}/syslog-settings")]
     public async Task<ActionResult<SyslogSettingsResponse>> GetSyslogSettings(Guid tenantId, CancellationToken cancellationToken)
     {

@@ -241,6 +241,14 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         await StoreBackupPayloadAsync(tenantId, current, actorUserId, cancellationToken);
     }
 
+    public async Task TriggerImmediateDatabaseBackupAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var payload = await GetBackupPayloadAsync(tenantId, cancellationToken);
+        await PublishDatabaseBackupAsync(payload, cancellationToken);
+    }
+
     public async Task ProcessScheduledDatabaseBackupsAsync(CancellationToken cancellationToken = default)
     {
         var rows = await _dbContext.TenantSettings

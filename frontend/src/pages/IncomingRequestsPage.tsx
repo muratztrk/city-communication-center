@@ -66,7 +66,7 @@ import { JobsPage } from './JobsPage'
 import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { isIncomingPendingApprovalOverdue, matchesIncomingStatusFilter } from '../utils/incomingRequestGrid'
 import { matchesBannerSearch } from '../utils/bannerSearch'
-import { isJobDueDateOverdue, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
+import { shouldShowJobOverdueLabel, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
 import { isModuleUsable } from '../lib/licenseModules'
 
 function resolveIncomingSourceChannel(
@@ -200,7 +200,7 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
   if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
     return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
   }
-  if (isJobDueDateOverdue(row)) {
+  if (shouldShowJobOverdueLabel(row)) {
     return formatOverdueInProgressStatus(t)
   }
   if (row.kind === 'external') {

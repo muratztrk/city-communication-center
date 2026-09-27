@@ -20,6 +20,7 @@ import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, 
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
+import { DueDateEditorsHint } from './DueDateEditorsHint'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import type { MyRequestDetailField } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
@@ -652,6 +653,12 @@ export function MyRequestDetailMainCard({
             overdueJobStatus={detail.status}
             overdueCompletedAtUtc={detail.completedAtUtc}
             overdueUpdatedAtUtc={detail.updatedAtUtc}
+            dueDateLabelExtra={
+              <DueDateEditorsHint
+                changes={detail.dueDateChanges ?? []}
+                locale={locale}
+              />
+            }
           />
         </div>
       </div>

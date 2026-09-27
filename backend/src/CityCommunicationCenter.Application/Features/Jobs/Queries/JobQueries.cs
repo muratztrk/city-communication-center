@@ -361,7 +361,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                 ? returnedByDisplayNameMap.GetValueOrDefault(returnedByUserId)
                 : null,
             releasedAtByJobId.GetValueOrDefault(r.Job.JobId),
-            cancelledByRoleCodeMap.GetValueOrDefault(r.Job.JobId))).ToArray();
+            cancelledByRoleCodeMap.GetValueOrDefault(r.Job.JobId),
+            r.Job.HadOverdueDueDate)).ToArray();
     }
 }
 
@@ -840,6 +841,37 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             citizenOutboundRelayerDisplayName = outboundActors.RelayerDisplayName;
         }
 
+        var dueDateAuditRows = await _dbContext.AuditLogs
+            .AsNoTracking()
+            .Where(log => log.TenantId == tenantId
+                && log.EntityType == nameof(Job)
+                && log.EntityId == job.JobId.ToString()
+                && log.Action == "JobDueDateUpdated")
+            .OrderByDescending(log => log.EventTimeUtc)
+            .Select(log => new { log.ActorUserId, log.ActorDisplayName, log.EventTimeUtc })
+            .ToListAsync(cancellationToken);
+        var dueDateActorIds = dueDateAuditRows
+            .Where(row => row.ActorUserId.HasValue && string.IsNullOrWhiteSpace(row.ActorDisplayName))
+            .Select(row => row.ActorUserId!.Value)
+            .Distinct()
+            .ToList();
+        var dueDateActorNames = dueDateActorIds.Count == 0
+            ? new Dictionary<Guid, string?>()
+            : await _dbContext.Users
+                .AsNoTracking()
+                .Where(user => dueDateActorIds.Contains(user.UserId))
+                .Select(user => new { user.UserId, user.DisplayName })
+                .ToDictionaryAsync(user => user.UserId, user => user.DisplayName, cancellationToken);
+        var dueDateChanges = dueDateAuditRows
+            .Select(row => new JobDueDateChangeResponse(
+                !string.IsNullOrWhiteSpace(row.ActorDisplayName)
+                    ? row.ActorDisplayName
+                    : row.ActorUserId is Guid actorId && dueDateActorNames.TryGetValue(actorId, out var name)
+                        ? name
+                        : null,
+                row.EventTimeUtc))
+            .ToList();
+
         return new JobDetailResponse(
             job.JobId, job.TenantId, job.Title, job.Description,
             job.Status.ToString(), job.Priority,
@@ -867,7 +899,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.ReturnedToOperatorReason,
             job.ReturnedToOperatorFromDepartmentId,
             returnedFromDepartmentName,
-            returnedByDisplayName);
+            returnedByDisplayName,
+            job.HadOverdueDueDate,
+            dueDateChanges);
     }
 
     private static IReadOnlyCollection<string> SplitRequestTags(string? tags, string? category = null)

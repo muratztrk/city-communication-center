@@ -116,7 +116,12 @@ public sealed record JobSummaryResponse(
     string? ReturnedByDisplayName = null,
     DateTimeOffset? CitizenTerminalMessageReleasedAtUtc = null,
     /// <summary>Son JobCancelled audit aktörünün rolü — operatör iptalinde VT grid etiketi gizlenir (#3760).</summary>
-    string? CancelledByRoleCode = null);
+    string? CancelledByRoleCode = null,
+    bool HadOverdueDueDate = false);
+
+public sealed record JobDueDateChangeResponse(
+    string? ActorDisplayName,
+    DateTimeOffset ChangedAtUtc);
 
 public sealed record JobDetailResponse(
     Guid JobId,
@@ -189,4 +194,6 @@ public sealed record JobDetailResponse(
     string? ReturnedToOperatorReason = null,
     Guid? ReturnedToOperatorFromDepartmentId = null,
     string? ReturnedFromDepartmentName = null,
-    string? ReturnedByDisplayName = null);
+    string? ReturnedByDisplayName = null,
+    bool HadOverdueDueDate = false,
+    IReadOnlyCollection<JobDueDateChangeResponse>? DueDateChanges = null);

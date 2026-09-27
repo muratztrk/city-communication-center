@@ -32,6 +32,9 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 
     public DateTimeOffset? DueDateUtc { get; set; }
 
+    /// <summary>Bir kez gecikmiş açık talep; son tarih ileri alındığında (Geciken) etiketi kalır (#3885).</summary>
+    public bool HadOverdueDueDate { get; set; }
+
     public DateTimeOffset? CompletedAtUtc { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }

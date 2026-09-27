@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import { getEffectiveUserRoles } from '../lib/rolePageAccess'
-import { isJobDueDateOverdue } from './dateTimePicker'
+import { isJobDueDateOverdue, shouldShowJobOverdueLabel } from './dateTimePicker'
 import { formatOverdueInProgressStatus, type GridStatusTone } from './localization'
 import { formatDirectoryPhone } from './phoneDisplay'
 
@@ -51,6 +51,7 @@ export function countOpenWorkTasks(job: {
 type CitizenRequestStatusSource = {
   status: string
   dueDateUtc?: string | null
+  hadOverdueDueDate?: boolean
   completedAtUtc?: string | null
   updatedAtUtc?: string | null
   taskCount?: number
@@ -85,9 +86,8 @@ export function formatProcessingReceivedOverdueStatus(t: TFunction): string {
  *  Son Tarih pill ile aynı: saat dilimine bakmadan `dueDateUtc < now`.
  *  PendingExternalApproval satırında takvim-günü kuralı kullanma — aynı gün geçmiş saat kırmızı pill olur. */
 export function isCitizenProcessingReceivedOverdue(job: CitizenRequestStatusSource): boolean {
-  if (!isCitizenProcessingReceivedState(job) || !job.dueDateUtc) return false
-  const dueTime = new Date(job.dueDateUtc).getTime()
-  return !Number.isNaN(dueTime) && dueTime < Date.now()
+  if (!isCitizenProcessingReceivedState(job)) return false
+  return shouldShowJobOverdueLabel(job)
 }
 
 export function getCitizenRequestStatusLabel(
@@ -104,7 +104,7 @@ export function getCitizenRequestStatusLabel(
     }
     return t('social.requestStatus.processingReceived', 'İşleme Alındı')
   }
-  if (isJobDueDateOverdue({ status: job.status, dueDateUtc: job.dueDateUtc })) {
+  if (shouldShowJobOverdueLabel(job)) {
     return formatOverdueInProgressStatus(t)
   }
 

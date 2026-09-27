@@ -16,6 +16,8 @@ export interface SidebarNavLinkItem {
   newTab?: boolean
   /** Render label on two lines (e.g. long menu titles). */
   multilineLabel?: boolean
+  /** İki satırlı menü başlığı — `\n` kaybına karşı sabit satırlar (#3887). */
+  labelLines?: string[]
   /** Optional count badge (WhatsApp FAB style) — after label, or after second line when multiline (cards #2056 / #6a6b685d). */
   badgeCount?: number
   /** Slightly enlarge important nested links without changing the whole sidebar. */
@@ -99,6 +101,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
     const useCompactEmphasis = compactLabels && isEmphasizedNested
     const showBadge = !collapsed && item.badgeCount != null && item.badgeCount > 0
     const badgeLabel = showBadge ? formatBadgeCount(item.badgeCount ?? 0) : ''
+    const labelLines = item.labelLines ?? (item.multilineLabel ? item.label.split('\n').filter(Boolean) : [item.label])
     const className = cn(
       'flex w-full min-w-0 items-center rounded-xl border text-left font-semibold transition-colors duration-150',
       collapsed
@@ -144,9 +147,8 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
           item.badgeCount != null && item.badgeCount > 0 ? (
             <span className={cn('inline-flex min-w-0 max-w-full items-center gap-1.5', item.multilineLabel ? 'leading-snug' : '')}>
               {(() => {
-                const lines = item.label.split('\n')
-                const firstLine = lines[0] ?? item.label
-                const restLines = lines.slice(1)
+                const firstLine = labelLines[0] ?? item.label
+                const restLines = labelLines.slice(1)
                 if (item.multilineLabel && restLines.length > 0) {
                   return (
                     <span className="min-w-0 leading-snug">
@@ -180,7 +182,13 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
               })()}
             </span>
           ) : (
-            <span className={cn('min-w-0', (isEmphasizedNested && !compactLabels) ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>{item.label}</span>
+            <span className={cn('min-w-0', (isEmphasizedNested && !compactLabels) ? 'whitespace-nowrap' : item.multilineLabel ? 'block leading-snug' : 'truncate')}>
+              {item.multilineLabel && labelLines.length > 1
+                ? labelLines.map((line, lineIndex) => (
+                  <span key={`${item.path}-line-${lineIndex}`} className="block">{line}</span>
+                ))
+                : item.label}
+            </span>
           )
         ) : null}
       </NavLink>

@@ -1876,6 +1876,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `UpdateTaskDueDate`, ek süre onayı `ApproveTaskRevision` + `NewDueDateUtc`) bağlı talebin
   `DueDateUtc` aynı değere çekilir (`JobDueDateUpdated` audit); aynı talepteki diğer aktif
   görevler de talep son tarihiyle hizalanır.
+- **Geciken etiketi son tarih uzatınca (card #3885):** Açık talep bir kez gecikmişse `HadOverdueDueDate`
+  kalır; son tarih ileri alındığında grid/detay `(Geciken)` / `Yapılmakta (Geciken)` silinmez.
+  Geciken **filtre** yalnızca anlık `DueDateUtc` overdue ile çalışır (bayrak filtrede kullanılmaz).
 - **Talep son tarihi min + onay bekleyen overdue (card #1819):** Manuel Son Tarih seçimi
   (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Hafta sonu SLA durduruluyorsa Cmt/Paz
   oluştururken/seçerken en erken sonraki Pazartesi mesai + varsayılan SLA saat

@@ -384,6 +384,12 @@ export interface JobSummary {
   returnedByDisplayName?: string | null;
   citizenTerminalMessageReleasedAtUtc?: string | null;
   cancelledByRoleCode?: string | null;
+  hadOverdueDueDate?: boolean;
+}
+
+export interface JobDueDateChange {
+  actorDisplayName: string | null;
+  changedAtUtc: string;
 }
 
 export interface JobDepartmentInfo {
@@ -478,6 +484,8 @@ export interface JobDetail {
   returnedToOperatorFromDepartmentId?: string | null;
   returnedFromDepartmentName?: string | null;
   returnedByDisplayName?: string | null;
+  hadOverdueDueDate?: boolean;
+  dueDateChanges?: JobDueDateChange[];
 }
 
 export interface SocialConversationEntry {

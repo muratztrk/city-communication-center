@@ -938,6 +938,7 @@ export function SettingsPage() {
   const [smsSettings, setSmsSettings] = useState<SmsSettings | null>(null)
   const [fileStorageSettings, setFileStorageSettings] = useState<FileStorageSettings | null>(null)
   const [databaseBackupSettings, setDatabaseBackupSettings] = useState<DatabaseBackupSettings | null>(null)
+  const [databaseBackupTriggering, setDatabaseBackupTriggering] = useState(false)
   const [smsTestPhone, setSmsTestPhone] = useState('')
   const [smsTestStatus, setSmsTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [smsForm, setSmsForm] = useState<SmsSettingsUpdate>({
@@ -1946,6 +1947,20 @@ export function SettingsPage() {
       setMessage({ type: 'success', text: t('settings.databaseBackup.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const triggerImmediateDatabaseBackup = async () => {
+    if (!user?.tenantId) return
+    setDatabaseBackupTriggering(true)
+    setMessage(null)
+    try {
+      await api.triggerDatabaseBackup(user.tenantId)
+      setMessage({ type: 'success', text: t('settings.databaseBackup.triggerSuccess', 'Veritabanı yedeği alındı.') })
+    } catch (triggerError) {
+      setMessage({ type: 'error', text: triggerError instanceof Error ? triggerError.message : t('common.error') })
+    } finally {
+      setDatabaseBackupTriggering(false)
     }
   }
 
@@ -3441,7 +3456,7 @@ export function SettingsPage() {
 
           <form className="section-card page-stack" onSubmit={event => void saveDatabaseBackupSettings(event)}>
             <div className="page-header-row">
-              <div>
+              <div className="w-full">
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                   <h2 className="text-xl font-extrabold text-slate-950">{t('settings.databaseBackup.sectionTitle')}</h2>
                   <div className="flex flex-wrap items-center gap-3">
@@ -3450,28 +3465,38 @@ export function SettingsPage() {
                       checked={databaseBackupSettings?.scheduledEnabled ?? false}
                       onChange={toggleDatabaseBackupSchedule}
                     />
-                    {databaseBackupSettings?.scheduledEnabled ? (
-                      <button
-                        type="button"
-                        className="text-sm font-semibold text-sky-700 underline underline-offset-2"
-                        onClick={openDatabaseBackupScheduleEditor}
-                      >
-                        {t('settings.databaseBackup.changeSchedule')}
-                      </button>
-                    ) : null}
+                    <button
+                      type="button"
+                      className="text-sm font-bold text-[#f97316] underline underline-offset-2 disabled:opacity-50"
+                      disabled={databaseBackupTriggering}
+                      onClick={() => void triggerImmediateDatabaseBackup()}
+                    >
+                      {databaseBackupTriggering
+                        ? t('common.loading')
+                        : t('settings.databaseBackup.triggerNow', 'Anlık Yedek Al')}
+                    </button>
                   </div>
                 </div>
                 <p className="helper-copy">{t('settings.databaseBackup.sectionDescription')}</p>
                 {databaseBackupSettings?.scheduledEnabled && databaseBackupSettings.scheduledTime && (
-                  <p className="helper-copy">
-                    {t('settings.databaseBackup.scheduledSummary', {
-                      time: databaseBackupSettings.scheduledTime,
-                      days: BACKUP_SCHEDULE_DAYS
-                        .filter(day => (databaseBackupSettings.scheduledDays ?? []).includes(day.value))
-                        .map(day => t(day.labelKey))
-                        .join(', '),
-                    })}
-                  </p>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="helper-copy mb-0">
+                      {t('settings.databaseBackup.scheduledSummary', {
+                        time: databaseBackupSettings.scheduledTime,
+                        days: BACKUP_SCHEDULE_DAYS
+                          .filter(day => (databaseBackupSettings.scheduledDays ?? []).includes(day.value))
+                          .map(day => t(day.labelKey))
+                          .join(', '),
+                      })}
+                    </p>
+                    <button
+                      type="button"
+                      className="shrink-0 text-sm font-semibold text-sky-700 underline underline-offset-2"
+                      onClick={openDatabaseBackupScheduleEditor}
+                    >
+                      {t('settings.databaseBackup.changeSchedule')}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

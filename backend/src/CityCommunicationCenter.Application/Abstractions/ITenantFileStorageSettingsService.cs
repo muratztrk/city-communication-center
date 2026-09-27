@@ -38,6 +38,10 @@ public interface ITenantFileStorageSettingsService
         CancellationToken cancellationToken = default);
 
     Task ProcessScheduledDatabaseBackupsAsync(CancellationToken cancellationToken = default);
+
+    Task TriggerImmediateDatabaseBackupAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record TenantFileStorageSettingsDescriptor(

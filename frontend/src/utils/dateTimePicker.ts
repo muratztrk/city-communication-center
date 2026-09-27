@@ -171,10 +171,22 @@ export function isPendingApprovalJobStatus(status: string): boolean {
   return status === 'PendingOwnerApproval' || status === 'PendingExternalApproval' || status === 'PendingApproval'
 }
 
-export function isJobDueDateOverdue(job: { status: string; dueDateUtc: string | null | undefined }): boolean {
+export function isJobDueDateOverdue(job: { status: string; dueDateUtc?: string | null | undefined }): boolean {
   if (!job.dueDateUtc) return false
   if (isPendingApprovalJobStatus(job.status)) return isDueDatePastCalendarDay(job.dueDateUtc)
   return new Date(job.dueDateUtc).getTime() < Date.now()
+}
+
+/** Aktif talepte gecikmiş etiketi: anlık overdue veya bir kez gecikmiş bayrak (#3885). */
+export function shouldShowJobOverdueLabel(job: {
+  status: string
+  dueDateUtc?: string | null | undefined
+  hadOverdueDueDate?: boolean
+}): boolean {
+  if (job.status === 'Completed' || job.status === 'Cancelled' || job.status === 'Rejected') {
+    return isJobDueDateOverdue(job)
+  }
+  return isJobDueDateOverdue(job) || Boolean(job.hadOverdueDueDate)
 }
 
 /** Tamamlandı/iptalde Gecikti mi = kapanış anı son tarihten sonra mı (#2885). */

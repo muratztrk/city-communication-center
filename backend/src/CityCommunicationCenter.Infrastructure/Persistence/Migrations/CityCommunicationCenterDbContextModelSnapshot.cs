@@ -1149,6 +1149,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("duedateutc");
 
+                    b.Property<bool>("HadOverdueDueDate")
+                        .HasColumnType("boolean")
+                        .HasColumnName("hadoverdueduedate");
+
                     b.Property<bool>("IsCoordinated")
                         .HasColumnType("boolean")
                         .HasColumnName("iscoordinated");

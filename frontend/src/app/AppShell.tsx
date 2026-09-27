@@ -386,7 +386,7 @@ export function AppShell() {
     .toUpperCase()
   type NavLinkConfig = SidebarNavLinkItem & { pageKey?: PageAccessKey; requiredRole?: string }
 
-  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean; badgeCount?: number; iconClassName?: string }
+  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean; labelLines?: string[]; badgeCount?: number; iconClassName?: string }
 
   const canSeeCitizenMessageApproval = useMemo(
     () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'citizenMessageApproval'),
@@ -532,7 +532,7 @@ export function AppShell() {
       : []),
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban, badgeCount: incomingPendingApprovalNavCount },
     { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, separatorAfter: true, badgeCount: navDashboardCounts?.outgoingPendingCount ?? 0 },
-    { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), icon: Send, multilineLabel: true, badgeCount: pendingCitizenMessageApprovalCount },
+    { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), labelLines: [t('nav.citizenMessageApprovalLine1', 'Vatandaşa Gönderilecek'), t('nav.citizenMessageApprovalLine2', 'Mesaj Onayı')], icon: Send, multilineLabel: true, badgeCount: pendingCitizenMessageApprovalCount },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
     { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks, badgeCount: navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount ?? 0 },
     { pageKey: 'departmentTasks' as const, path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban },
@@ -579,7 +579,7 @@ export function AppShell() {
           })),
         })
       } else {
-        items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, badgeCount: item.badgeCount, newTab: item.newTab, iconClassName: item.iconClassName })
+        items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, labelLines: item.labelLines, badgeCount: item.badgeCount, newTab: item.newTab, iconClassName: item.iconClassName })
       }
       if (item.separatorAfter) items.push({ type: 'separator' })
     }

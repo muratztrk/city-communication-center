@@ -10,7 +10,7 @@ import {
 import { formatDateTime, formatDueDateTime } from './format'
 import { formatOverdueInProgressStatus } from '../../../utils/localization'
 import { getJobTargetApproverDisplayName } from '../../../utils/jobDetails'
-import { isJobDueDateOverdue } from '../../../utils/dateTimePicker'
+import { shouldShowJobOverdueLabel } from '../../../utils/dateTimePicker'
 
 export type JobProcessStepState = 'completed' | 'current' | 'pending' | 'upcoming' | 'terminal-success' | 'terminal-danger'
 
@@ -91,7 +91,7 @@ function isTerminalStatus(status: string): boolean {
  * takvim günü değişince geçerli olur (card #1819). */
 function isActiveJobOverdue(detail: JobDetail): boolean {
   if (isTerminalStatus(detail.status)) return false
-  return isJobDueDateOverdue(detail)
+  return shouldShowJobOverdueLabel(detail)
 }
 
 /** İşleme Alındı (Geciken) → mavi pending; Yapılmakta (Geciken) turuncu current (#2875). */

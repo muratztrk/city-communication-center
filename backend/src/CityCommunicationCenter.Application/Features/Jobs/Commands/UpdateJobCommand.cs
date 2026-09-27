@@ -86,7 +86,9 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         }
 
         var utcNow = DateTimeOffset.UtcNow;
+        JobDueDateOverdueHelper.StampHadOverdueIfApplicable(job, utcNow);
         var previousDueDateUtc = job.DueDateUtc;
+        var previousStatus = job.Status;
         var previousTitle = job.Title;
         var previousDescription = job.Description;
         var previousPriority = job.Priority;
@@ -239,6 +241,11 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             || previousIsProjectCreatorRequested != job.IsProjectCreatorRequested;
         if (dueDateChanged)
         {
+            if (JobDueDateOverdueHelper.IsOverdue(previousStatus, previousDueDateUtc, utcNow))
+            {
+                job.HadOverdueDueDate = true;
+            }
+
             _dbContext.AuditLogs.Add(new AuditLog
             {
                 AuditLogId = Guid.NewGuid(),
@@ -247,6 +254,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 EntityId = job.JobId.ToString(),
                 Action = "JobDueDateUpdated",
                 ActorUserId = actor.UserId,
+                ActorDisplayName = actor.DisplayName,
                 StatusAtEvent = job.Status.ToString(),
                 Notes = job.DueDateUtc?.ToString("O"),
                 Details = job.DueDateUtc?.ToString("O"),

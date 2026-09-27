@@ -53,6 +53,12 @@ internal static class JobTaskDueDateSynchronizer
     {
         if (DateChangedAtMinutePrecision(job.DueDateUtc, sourceTask.DueDateUtc))
         {
+            JobDueDateOverdueHelper.StampHadOverdueIfApplicable(job, utcNow);
+            if (JobDueDateOverdueHelper.IsOverdue(job.Status, job.DueDateUtc, utcNow))
+            {
+                job.HadOverdueDueDate = true;
+            }
+
             job.DueDateUtc = sourceTask.DueDateUtc;
             job.UpdatedAtUtc = utcNow;
             job.UpdatedByUserId = actorUserId;

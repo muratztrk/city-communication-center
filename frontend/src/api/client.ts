@@ -1042,6 +1042,14 @@ export const api = {
     await ensureOk(response, i18n.t('errors.databaseBackupScheduleSaveFailed'))
   },
 
+  async triggerDatabaseBackup(tenantId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/database-backup-settings/trigger`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.databaseBackupTriggerFailed', 'Anlık yedek alınamadı.'))
+  },
+
   async getSyslogSettings(tenantId: string): Promise<SyslogSettings> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/syslog-settings`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.syslogSettingsLoadFailed'))

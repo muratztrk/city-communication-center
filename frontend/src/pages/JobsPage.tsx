@@ -81,6 +81,7 @@ import { StackedFieldLabel, StackedFieldValue } from '../components/jobs/my-requ
 import { CitizenAddressPeekButton } from '../components/jobs/my-request-detail/CitizenAddressPeekButton'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation, wasReopenedViaCitizenMessageApproval } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from '../components/jobs/my-request-detail/JobProcessTimeline'
+import { DueDateEditorsHint } from '../components/jobs/my-request-detail/DueDateEditorsHint'
 import { isPendingApprovalText } from '../components/jobs/my-request-detail/format'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -91,7 +92,7 @@ import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } f
 import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, resolveCitizenCancelOutboundDisplay } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey } from '../utils/dateTimePicker'
+import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, shouldShowJobOverdueLabel, toLocalDateKey } from '../utils/dateTimePicker'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -269,7 +270,7 @@ function getJobDisplayStatus(
   if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') {
     return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
   }
-  if (isJobDueDateOverdue(job)) {
+  if (shouldShowJobOverdueLabel(job)) {
     return formatOverdueInProgressStatus(t)
   }
   const externalOwnerStatus = getExternalUnitOwnerDisplayStatus(t, job)
@@ -2690,7 +2691,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               overdueSubline={
                                 (isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job))
                                 || (
-                                  isJobDueDateOverdue(job)
+                                  shouldShowJobOverdueLabel(job)
                                   && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
                                 )
                               }
@@ -3369,7 +3370,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         // Birime Gelen: Active + görev yok da UI'da Onay Bekleyen (card #1535).
                         unassignedActiveAsPending: isIncomingRequestDetail,
                       })
-                      const detailOverdue = isJobDueDateOverdue(detail)
+                      const detailOverdue = shouldShowJobOverdueLabel(detail)
                       const activeStatusLabel = detailOverdue
                         ? formatOverdueInProgressStatus(t)
                         : t('jobs.statusLabel.inProgress', 'Yapılmakta')
@@ -3494,6 +3495,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           overdueJobStatus={detail.status}
                           overdueCompletedAtUtc={detail.completedAtUtc}
                           overdueUpdatedAtUtc={detail.updatedAtUtc}
+                          dueDateLabelExtra={
+                            <DueDateEditorsHint
+                              changes={detail.dueDateChanges ?? []}
+                              locale={locale}
+                            />
+                          }
                         />
                       )
                     })()}

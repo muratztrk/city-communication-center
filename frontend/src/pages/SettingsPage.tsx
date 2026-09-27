@@ -2970,14 +2970,14 @@ export function SettingsPage() {
                   ) : (
                     <div className="grid gap-2">
                       {workingHoursForm.default.schedule.map(daySchedule => (
-                        <div key={daySchedule.day} className="grid grid-cols-[120px_1fr_1fr] gap-3 items-center">
+                        <div key={daySchedule.day} className="settings-working-hours-schedule-row">
                           <span className="text-sm font-semibold text-slate-700">{t(`settings.workingHours.days.${daySchedule.day}`)}</span>
                           {daySchedule.from !== null || daySchedule.to !== null ? (
                             <>
-                              <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                              <label className="grid min-w-0 gap-1 text-xs font-semibold text-slate-500">
                                 <span>{t('settings.workingHours.from')}</span>
                                 <input
-                                  className="field-input"
+                                  className="field-input settings-working-hours-time-input"
                                   type="time"
                                   value={daySchedule.from ?? ''}
                                   onChange={event => setWorkingHoursForm(current => current ? {
@@ -2989,10 +2989,10 @@ export function SettingsPage() {
                                   } : current)}
                                 />
                               </label>
-                              <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                              <label className="grid min-w-0 gap-1 text-xs font-semibold text-slate-500">
                                 <span>{t('settings.workingHours.to')}</span>
                                 <input
-                                  className="field-input"
+                                  className="field-input settings-working-hours-time-input"
                                   type="time"
                                   value={daySchedule.to ?? ''}
                                   onChange={event => setWorkingHoursForm(current => current ? {
@@ -3047,14 +3047,14 @@ export function SettingsPage() {
                       {!override.isAlwaysOpen && (
                         <div className="grid gap-2">
                           {override.schedule.map(daySchedule => (
-                            <div key={daySchedule.day} className="grid grid-cols-[120px_1fr_1fr] gap-3 items-center">
+                            <div key={daySchedule.day} className="settings-working-hours-schedule-row">
                               <span className="text-sm font-semibold text-slate-700">{t(`settings.workingHours.days.${daySchedule.day}`)}</span>
                               {daySchedule.from !== null || daySchedule.to !== null ? (
                                 <>
-                                  <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                                  <label className="grid min-w-0 gap-1 text-xs font-semibold text-slate-500">
                                     <span>{t('settings.workingHours.from')}</span>
                                     <input
-                                      className="field-input"
+                                      className="field-input settings-working-hours-time-input"
                                       type="time"
                                       value={daySchedule.from ?? ''}
                                       onChange={event => setWorkingHoursForm(current => current ? {
@@ -3066,10 +3066,10 @@ export function SettingsPage() {
                                       } : current)}
                                     />
                                   </label>
-                                  <label className="grid gap-1 text-xs font-semibold text-slate-500">
+                                  <label className="grid min-w-0 gap-1 text-xs font-semibold text-slate-500">
                                     <span>{t('settings.workingHours.to')}</span>
                                     <input
-                                      className="field-input"
+                                      className="field-input settings-working-hours-time-input"
                                       type="time"
                                       value={daySchedule.to ?? ''}
                                       onChange={event => setWorkingHoursForm(current => current ? {

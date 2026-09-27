@@ -3597,6 +3597,30 @@
     max-width: 7.5rem;
   }
 
+  /* Ayarlar → Kurum → Mesai saatleri: mobilde açılış/kapanış saat kutuları kart dışına taşmaz (#6ab94626). */
+  .settings-working-hours-schedule-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  @media (max-width: 1023px) {
+    .settings-working-hours-schedule-row {
+      grid-template-columns: minmax(0, 5.5rem) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0.5rem;
+    }
+
+    .settings-working-hours-schedule-row .settings-working-hours-time-input {
+      width: 100%;
+      min-width: 0;
+      max-width: 6.5rem;
+      padding-left: 0.375rem;
+      padding-right: 0.375rem;
+      font-size: 0.8125rem;
+    }
+  }
+
   /* Whatsapp Mesaj Logları: ad/durum/yapan biraz dar, İşlem Tarihi daha geniş (#6ab4e56c). */
   .app-content-shell .data-table.whatsapp-message-logs-table {
     table-layout: fixed;

@@ -2662,6 +2662,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Personelimin Görevleri `separatePriorityProjectRows` satırında da aynı sınıf (önce renk yoktu).
 - **Ayarlar Kurum Bilgisi (#r522 / #6a6cbd61 / #6a6cd81e / #6a6cdd37):** başlık `text-xl`;
   Aktif/Alan Adı/Dağıtım/Tema yok; readonly KURUM ADI/SLA özet satırı yok (yalnız form).
+  Mesai saatleri açılış/kapanış satırı masaüstünde `120px` gün + iki sütun; ≤1023px gün sütunu dar,
+  saat kutuları `max-width: 6.5rem` — kart kenarından taşmaz (#6ab94626).
 - **Ayarlar Lisans sekmesi:** lumespec-license'tan (Ed25519 imzalı) gerçek modül durumu gösterilir.
   SystemAdmin kapalı ağda Lumespec'ten aldığı JWT'yi modül başına kaydedebilir (`PUT /me/license-modules/{module}`).
   Çözümleme sırası: uzaktan servis (online) → kayıtlı token yalnızca servise **ulaşılamazsa**

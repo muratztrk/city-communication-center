@@ -1,3 +1,7 @@
+## Round 1340 — mobil mesai saat kutuları
+
+- Ayarlar Kurum Mesai saatleri: ≤1023px açılış/kapanış saat kutuları daraltıldı, kart dışına taşmaz (#6ab94626).
+
 ## Round 1339 — Trello Doing (2 web)
 
 - Zamanlı Yedek popup başlığının altında çizgi (#6ab661d0).

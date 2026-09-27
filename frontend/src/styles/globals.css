@@ -3619,6 +3619,28 @@
     max-width: none;
   }
 
+  /* Mobil: sabit yüzde sütunlar dar ekranda başlıkları üst üste bindiriyordu (#6ab94034).
+     Sütunlar içeriğe göre açılır; tablo .table-wrap içinde yatay kayar. */
+  @media (max-width: 1023px) {
+    .app-content-shell .data-table.whatsapp-message-logs-table {
+      table-layout: auto;
+      width: max-content;
+      min-width: 100%;
+    }
+
+    .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-citizen-col,
+    .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-status-col,
+    .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-actor-col {
+      width: auto;
+    }
+
+    .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-date-col,
+    .app-content-shell .data-table.whatsapp-message-logs-table td:has(.date-cell) {
+      width: auto;
+      min-width: 0;
+    }
+  }
+
   .data-table--zebra tbody tr:nth-child(even) td {
     background: #f8fafc;
   }

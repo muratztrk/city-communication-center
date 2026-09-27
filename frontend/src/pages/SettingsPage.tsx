@@ -428,7 +428,7 @@ function ScheduledBackupDialog({
         >
           <X className="size-4" />
         </button>
-        <h2 className="mb-4 text-lg font-bold text-slate-950">{t('settings.databaseBackup.scheduled')}</h2>
+        <h2 className="mb-4 border-b border-slate-200 pb-3 text-lg font-bold text-slate-950">{t('settings.databaseBackup.scheduled')}</h2>
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           <span>{t('settings.databaseBackup.startTime')}</span>
           <ScheduledBackupTimeField time={time} onTimeChange={onTimeChange} />

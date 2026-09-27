@@ -1781,7 +1781,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   paylaşımında `{kök}/veritabani_yedek` klasörünü açar ve gzip `pg_dump` dosyasını içine yazar
   (#6ab3ae37 / #6ab3b441). **Zamanlı Yedek** anahtarı açılınca popup: başlama saati + günler.
   Kayıt yedek dökmez; seçilen günde saatten sonra günde bir kez aynı klasöre yazar. Popup başlığının
-  altında çizgi yok; özel saat listesi yok (#6ab639df). Başlama saati metin kutusudur: rakamlar
+  altında ince çizgi var (`border-b`, #6ab661d0 — #6ab639df ile kaldırılmış, sonra yeniden istendi);
+  özel saat listesi yok (#6ab639df). Başlama saati metin kutusudur: rakamlar
   soldan sağa birikir (`1` `3` `2` `1` → `13:21`). İki nokta durur; boş hane `_` olur (`1_:__`).
   iPhone'da imleç her tuşta kodla taşınmaz (WebKit klavyeyi kapatır); masaüstünde imleç son rakamın sağındadır.
   Anahtar açıkken sağında **Gün ve Saatleri değiştir** aynı popup'ı açar. Saat geçtiyse
@@ -3244,7 +3245,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesajı İleten tıklanınca Yazışmaya Git popup'ı açılır; o giden kayıt «İletilen Mesaj» olarak işaretlenir.
   Mesaj İncelemeye Gönderen seçilince buton kırmızı. Gittiği Yer ve İnceleyen Personel yalnız bu
   filtrede, İşlemi Yapan ardından gelir; diğer filtrelerde bu iki başlık yoktur.
-  İşlem Tarihi takvim ikonlu, saniyesiz; ad, durum ve yapan sütunları biraz dar, tarih sütunu daha geniş.
+  İşlem Tarihi takvim ikonlu, saniyesiz; ad, durum ve yapan sütunları biraz dar, tarih sütunu daha geniş
+  (masaüstü `table-layout: fixed` + yüzde). ≤1023px'de sabit yüzde yok: sütunlar içeriğe açılır, tablo
+  `.table-wrap` içinde yatay kayar — başlıklar üst üste binmez (#6ab94034).
   Seçili filtre bannerın ilk satırında. Başlık diğer gridlerle aynı yeşil.
   Filtre butonları bannerın altında. Seçili buton: Yanıt Verildi Yapan mavi, Mesaj Onayı/Cevabı
   Verildi Yapan turuncu, Mesajı İleten yeşil.

@@ -1,3 +1,8 @@
+## Round 1339 — Trello Doing (2 web)
+
+- Zamanlı Yedek popup başlığının altında çizgi (#6ab661d0).
+- Whatsapp Mesaj Logları mobilde sütunlar içeriğe açılır, yatay kayar; başlıklar üst üste binmez (#6ab94034).
+
 ## Round 1338 — mobil grid başlığı tek parça
 
 - ≤1023px grid başlık gradienti `thead`'de, hücreler saydam. Hücre başına gradient sütunları bloklara ayırıyordu.

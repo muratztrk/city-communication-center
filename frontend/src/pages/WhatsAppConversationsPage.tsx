@@ -51,7 +51,7 @@ import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime, formatWhatsAppConversationListTime } from '../utils/conversationListTime'
 
 const DUPLICATE_PENDING_SEND_ERROR_SNIPPET = 'gönderimi zaten devam ediyor veya tamamlanmış'
-import { compareConversationEntriesByDisplayTime, latestVisibleOutboundDisplayAt, resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
+import { compareConversationEntriesByDisplayTime, latestVisibleEntryDisplayAt, resolveConversationEntryBubbleTime } from '../utils/conversationEntryTime'
 import { formatDateTime } from '../components/jobs/my-request-detail/format'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
 import { syncWhatsAppUnreadMessageCount } from '../utils/whatsappUnreadMessageCount'
@@ -189,9 +189,9 @@ function isRecentConversationTime(dateStr: string): boolean {
   return diffMin >= 0 && diffMin < 60
 }
 
-/** Liste sırası ve saati: son karşıya iletilen mesajın balon saati. */
+/** Liste sırası ve saati: konuşmada görünen son balonun (gelen veya giden) saati. */
 function conversationListTimestamp(conv: CitizenConversationSummary): string {
-  return conv.lastOutboundMessageAt || conv.lastMessageAt
+  return conv.lastVisibleMessageAt || conv.lastMessageAt
 }
 
 function isPendingApprovalClearedForCurrentMessage(
@@ -812,7 +812,7 @@ function ConversationDetail({
   onOpenViewRequests,
   onProfileSaved,
   onOutboundSent,
-  onVisibleOutboundAt,
+  onVisibleEntryAt,
   onMarkWaitingReplied,
   onMarkPendingApprovalCleared,
 }: {
@@ -834,8 +834,8 @@ function ConversationDetail({
   onProfileSaved: () => void
   /** Vatandaşa giden yanıt sonrası liste/rozet anında güncellenir (card #6a6b6ec6). */
   onOutboundSent?: () => void
-  /** Açık konuşmadaki son görünen giden balonun saati listeyi de günceller. */
-  onVisibleOutboundAt?: (displayAt: string) => void
+  /** Açık konuşmadaki son görünen balonun (gelen veya giden) saati listeyi de günceller. */
+  onVisibleEntryAt?: (displayAt: string) => void
   /** Konuşmayı yanıt verildi olarak işaretle (#3403 / #6a6bab12). */
   onMarkWaitingReplied?: () => void
   /** Mesaj Onayı Bekleyen listesinden manuel çıkar (#3446). */
@@ -951,9 +951,9 @@ function ConversationDetail({
 
   useEffect(() => {
     if (!detail || detail.citizenConversationId !== conversationId) return
-    const displayAt = latestVisibleOutboundDisplayAt(detail.timeline)
-    if (displayAt) onVisibleOutboundAt?.(displayAt)
-  }, [detail, conversationId, onVisibleOutboundAt])
+    const displayAt = latestVisibleEntryDisplayAt(detail.timeline)
+    if (displayAt) onVisibleEntryAt?.(displayAt)
+  }, [detail, conversationId, onVisibleEntryAt])
 
   const updatePinnedToBottom = useCallback(() => {
     const container = scrollContainerRef.current
@@ -2054,19 +2054,19 @@ export function WhatsAppConversationsPage() {
   const showConversationDetail = selectedId != null
     && filtered.some(conversation => conversation.citizenConversationId === selectedId)
 
-  const handleVisibleOutboundAt = useCallback((displayAt: string) => {
+  const handleVisibleEntryAt = useCallback((displayAt: string) => {
     if (!selectedId) return
     const nextMs = Date.parse(displayAt)
     if (!Number.isFinite(nextMs)) return
     setConversations(prev => {
       const current = prev.find(item => item.citizenConversationId === selectedId)
       if (!current) return prev
-      const currentMs = current.lastOutboundMessageAt
-        ? Date.parse(current.lastOutboundMessageAt)
+      const currentMs = current.lastVisibleMessageAt
+        ? Date.parse(current.lastVisibleMessageAt)
         : Number.NEGATIVE_INFINITY
       if (nextMs <= currentMs) return prev
       return prev.map(item => item.citizenConversationId === selectedId
-        ? { ...item, lastOutboundMessageAt: displayAt }
+        ? { ...item, lastVisibleMessageAt: displayAt }
         : item)
     })
   }, [selectedId])
@@ -2140,7 +2140,7 @@ export function WhatsAppConversationsPage() {
           const sentAt = payload.lastMessageAt
           setConversations(prev => prev.map(c =>
             c.citizenConversationId === selectedId
-              ? { ...c, lastOutboundMessageAt: sentAt }
+              ? { ...c, lastVisibleMessageAt: sentAt }
               : c))
         }
         setDetailRefreshKey(key => key + 1)
@@ -2353,13 +2353,13 @@ export function WhatsAppConversationsPage() {
                         ...c,
                         lastMessageDirection: 'Outbound',
                         lastMessageAt: new Date().toISOString(),
-                        lastOutboundMessageAt: new Date().toISOString(),
+                        lastVisibleMessageAt: new Date().toISOString(),
                       }
                     : c,
                 ))
                 void silentRefreshConversations()
               }}
-              onVisibleOutboundAt={handleVisibleOutboundAt}
+              onVisibleEntryAt={handleVisibleEntryAt}
               onMarkWaitingReplied={selectedId ? () => handleMarkWaitingReplied(selectedId) : undefined}
               onMarkPendingApprovalCleared={selectedId ? () => handleMarkPendingApprovalCleared(selectedId) : undefined}
             />

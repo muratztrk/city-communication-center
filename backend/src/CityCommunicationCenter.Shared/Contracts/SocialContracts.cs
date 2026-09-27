@@ -247,8 +247,8 @@ public sealed record CitizenConversationSummaryDto(
     // Engellenenler listesi: engelleyen adı + zaman (#3560).
     string? BlockedByDisplayName = null,
     DateTimeOffset? BlockedAtUtc = null,
-    /// <summary>Son karşıya iletilen (Sent/Delivered/Read) giden mesajın balon saati — liste sırası ve saati.</summary>
-    DateTimeOffset? LastOutboundMessageAt = null);
+    /// <summary>Konuşmada görünen son balonun saati (gelen veya giden; gizli terminal onay balonu hariç) — liste sırası ve saati.</summary>
+    DateTimeOffset? LastVisibleMessageAt = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

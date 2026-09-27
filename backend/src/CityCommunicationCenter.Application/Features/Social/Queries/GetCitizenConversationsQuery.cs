@@ -130,11 +130,10 @@ public sealed class GetCitizenConversationsQueryHandler
                     .ThenByDescending(row => row.SentAt)
                     .First()
                     .Direction);
-        // Balonda görünen son giden ileti (Beklemede dahil). Yönetici onayı bekleyen gizli
-        // terminal balonlar aşağıda elenir.
-        var outboundEntryRows = await _dbContext.ConversationEntries
+        // Konuşmada görünen son balon — gelen ve giden (Beklemede dahil). Yönetici onayı
+        // bekleyen gizli terminal balonlar aşağıda elenir (#6ab525ed / #6ab52823).
+        var visibleEntryRows = await _dbContext.ConversationEntries
             .AsNoTracking()
-            .Where(entry => entry.Direction == ConversationEntryDirection.Outbound)
             .Join(
                 _dbContext.SocialMessages.AsNoTracking().Where(message =>
                     message.CitizenConversationId != null
@@ -197,9 +196,13 @@ public sealed class GetCitizenConversationsQueryHandler
         var releasedAtByMessageId = await ConversationEntryOperatorVisibility.ResolveReleasedAtByMessageIdAsync(
             _dbContext,
             tenantId,
-            outboundEntryRows.Select(row => row.SocialMessageId).Distinct().ToArray(),
+            visibleEntryRows
+                .Where(row => row.Direction == ConversationEntryDirection.Outbound)
+                .Select(row => row.SocialMessageId)
+                .Distinct()
+                .ToArray(),
             cancellationToken);
-        var lastOutboundAtByConversation = outboundEntryRows
+        var lastVisibleAtByConversation = visibleEntryRows
             .Where(row => !ConversationEntryOperatorVisibility.IsTerminalPendingAwaitingManagerRelease(
                 row.Direction,
                 row.DeliveryStatus,
@@ -519,8 +522,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.PendingApprovalClearedAtUtc,
                     c.BlockedByDisplayName,
                     c.BlockedAtUtc,
-                    lastOutboundAtByConversation.TryGetValue(c.CitizenConversationId, out var lastOutboundAt)
-                        ? lastOutboundAt
+                    lastVisibleAtByConversation.TryGetValue(c.CitizenConversationId, out var lastVisibleAt)
+                        ? lastVisibleAt
                         : null);
 
                 return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);

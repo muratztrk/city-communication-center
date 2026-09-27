@@ -1,3 +1,7 @@
+## Round 1337 — WhatsApp liste saati (gelen mesaj)
+
+- Liste saati ve sırası konuşmada görünen son balondur; vatandaşın bugün yazdığı mesaj da sayılır. Eskiden yalnız giden balona bakılıyordu.
+
 ## Round 1336 — iPhone saat kutusunda klavye
 
 - Başlama saatinde iPhone klavyesi yazarken kapanmasın. Masaüstü imleç davranışı aynı.

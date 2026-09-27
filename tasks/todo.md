@@ -1,3 +1,7 @@
+## Round 1336 — iPhone saat kutusunda klavye
+
+- Başlama saatinde iPhone klavyesi yazarken kapanmasın. Masaüstü imleç davranışı aynı.
+
 ## Round 1335 — zamanlı yedek saati maskesi
 
 - Başlama saatinde `:` kaybolmaz. Boş haneler `_` olur (`__:__`, `1_:__`, `13:2_`).

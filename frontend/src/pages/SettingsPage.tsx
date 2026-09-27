@@ -331,6 +331,17 @@ function foldBackupTimeDigits(incoming: string): string {
   return next
 }
 
+// iPhone Chrome (WebKit) yazarken setSelectionRange çağrılırsa klavyeyi kapatır.
+// Masaüstünde imleç son rakamın sağında kalır; telefonda tarayıcının kendi imleci kullanılır.
+function backupTimeShouldKeepNativeCaret(): boolean {
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent
+  return /iPad|iPhone|iPod/.test(ua)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+}
+
+const backupTimeKeepsNativeCaret = backupTimeShouldKeepNativeCaret()
+
 function ScheduledBackupTimeField({
   time,
   onTimeChange,
@@ -344,6 +355,7 @@ function ScheduledBackupTimeField({
   const applyDigits = (next: string) => {
     setDigits(next)
     onTimeChange(next.length === 4 ? `${next.slice(0, 2)}:${next.slice(2)}` : '')
+    if (backupTimeKeepsNativeCaret) return
     const caret = next.length < 2 ? next.length : next.length + 1
     requestAnimationFrame(() => {
       const field = inputRef.current
@@ -361,7 +373,10 @@ function ScheduledBackupTimeField({
       dir="ltr"
       className="field-input text-left"
       value={formatBackupTimeDigits(digits)}
-      onFocus={event => event.currentTarget.select()}
+      onFocus={event => {
+        if (backupTimeKeepsNativeCaret) return
+        event.currentTarget.select()
+      }}
       onKeyDown={event => {
         if (event.key !== 'Backspace') return
         event.preventDefault()

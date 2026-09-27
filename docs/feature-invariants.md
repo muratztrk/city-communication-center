@@ -1885,8 +1885,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Tek düzenleme → `(Ad)`, birden fazla → `(Düzenleyenler)`; ActorDisplayName boşsa Users'tan çözülür.
   Görev detayındaki **İlgili Talep Detayları** kartı görev son tarihi kaydedilince
   `refreshParentJobDetailForJob` ile yenilenir.
-- **Sol menü iki satırlı başlık (#3887):** `labelLines` satırları `block whitespace-nowrap`; 
-  «Vatandaşa Gönderilecek» rozet padding'i yüzünden tekrar kırılıp 3 satıra düşmemeli.
+- **Sol menü iki satırlı başlık (#3887):** `labelLines` satırları `block whitespace-nowrap`;
+  «Vatandaşa Gönderilecek» rozet padding'i yüzünden tekrar kırılıp 3 satıra düşmemeli. Nav grid'leri
+  `grid-cols-[minmax(0,1fr)]` — nowrap metin izi min-content'e büyütüp `.sidebar-scroll-area`'da
+  yatay scroll çıkarmamalı (2 px taşma bile scrollbar üretir).
 - **Bildirim `unread-count` (#3890 yan bulgu):** `NotificationAuditRules.ShouldCountAuditAsUnread`
   SQL'e çevrilemez — AuditLog adayları SQL'de daraltılıp kural bellekte uygulanır; predicate'e
   geri taşınırsa endpoint 500 döner.

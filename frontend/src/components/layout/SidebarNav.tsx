@@ -173,7 +173,9 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
 
   return (
     <div className="relative">
-      <nav className="grid gap-0">
+      {/* Tek sütun minmax(0,1fr): iki satırlı `whitespace-nowrap` başlık (#3887) grid izini
+          min-content'e büyütüp sol menüde yatay scroll çıkarmasın; taşma link padding'inde kalır. */}
+      <nav className="grid grid-cols-[minmax(0,1fr)] gap-0">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
           const separator = !isLast ? (
@@ -199,7 +201,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
 
           return (
             <Fragment key={item.label}>
-            <div className={cn('grid gap-1 py-0.5', collapsed ? 'justify-stretch' : '')}>
+            <div className={cn('grid grid-cols-[minmax(0,1fr)] gap-1 py-0.5', collapsed ? 'justify-stretch' : '')}>
               {!collapsed ? (
                 <button
                   type="button"
@@ -220,7 +222,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
                   <span className="truncate" title={item.label}>{item.label}</span>
                 </button>
               ) : null}
-              <div className={cn('grid gap-1', collapsed ? '' : 'ml-4 border-l border-white/10 pl-2.5')}>
+              <div className={cn('grid grid-cols-[minmax(0,1fr)] gap-1', collapsed ? '' : 'ml-4 border-l border-white/10 pl-2.5')}>
                 {(() => {
                   const page = getGroupPage(item.label)
                   const totalPages = Math.ceil(item.children.length / PAGE_SIZE)

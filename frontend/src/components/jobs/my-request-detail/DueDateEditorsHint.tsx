@@ -27,18 +27,24 @@ export function DueDateEditorsHint({ changes, locale }: DueDateEditorsHintProps)
     )
   }
 
+  const editorsLabel = t('jobs.dueDate.editorsButton', 'Düzenleyenler')
+
   return (
     <>
-      <button
-        type="button"
-        className={cn(
-          'ml-1 border-0 bg-transparent p-0 text-xs font-bold text-[#f97316]',
-          'cursor-pointer transition-colors hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]/30',
-        )}
-        onClick={() => setOpen(true)}
-      >
-        {t('jobs.dueDate.editorsButton', 'Düzenleyenler')}
-      </button>
+      <span className="font-semibold text-[#f97316]">
+        {' '}(
+        <button
+          type="button"
+          className={cn(
+            'border-0 bg-transparent p-0 text-xs font-bold text-inherit',
+            'cursor-pointer transition-colors hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]/30',
+          )}
+          onClick={() => setOpen(true)}
+        >
+          {editorsLabel}
+        </button>
+        )
+      </span>
       {open ? (
         <div
           className="fixed inset-0 z-[140] flex items-center justify-center bg-black/40 p-4"

@@ -5662,8 +5662,29 @@
 
   /* iPhone Safari ve Chrome (ikisi de WebKit) tablo hücresinde background-attachment:fixed
      boyamaz; gradient viewport'a kilitlenir ve hücre ortası siyah bant olur. Dar ekranda
-     gradient hücreye alınır. Masaüstü sürekli şerit fixed kalır. */
+     gradient hücre yerine thead'e alınır: hücreler saydam, şerit tek parça (hücre başına
+     gradient sütunları ayrı bloklar gibi gösteriyordu). Masaüstü sürekli şerit fixed kalır. */
   @media (max-width: 1023px) {
+    .my-requests-table thead,
+    .incoming-requests-table thead,
+    .department-tasks-table thead,
+    .staff-tasks-table thead,
+    .citizen-message-approval-table thead,
+    .citizen-directory-table thead,
+    .citizen-directory-tickets-table thead,
+    .social-messages-table thead,
+    .departments-table thead,
+    .users-table thead,
+    .audit-logs-table thead,
+    .whatsapp-message-logs-table thead,
+    .role-matrix-table thead,
+    .detail-modal-shell .dashboard-drilldown-table thead,
+    .data-table.dashboard-drilldown-table thead {
+      background-color: var(--color-header-from);
+      background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+      background-attachment: scroll;
+    }
+
     .my-requests-table thead th,
     .incoming-requests-table thead th,
     .department-tasks-table thead th,
@@ -5679,6 +5700,8 @@
     .role-matrix-table thead th,
     .detail-modal-shell .dashboard-drilldown-table thead th,
     .data-table.dashboard-drilldown-table thead th {
+      background-color: transparent;
+      background-image: none;
       background-attachment: scroll;
     }
   }

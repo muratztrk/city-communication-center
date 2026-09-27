@@ -1,3 +1,7 @@
+## Round 1338 — mobil grid başlığı tek parça
+
+- ≤1023px grid başlık gradienti `thead`'de, hücreler saydam. Hücre başına gradient sütunları bloklara ayırıyordu.
+
 ## Round 1337 — WhatsApp liste saati (gelen mesaj)
 
 - Liste saati ve sırası konuşmada görünen son balondur; vatandaşın bugün yazdığı mesaj da sayılır. Eskiden yalnız giden balona bakılıyordu.

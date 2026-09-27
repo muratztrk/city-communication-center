@@ -63,7 +63,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Talepleri / Yönetim gridleri
   (Birimler, Kullanıcılar, Log, Sayfa Yetkileri / `.role-matrix-table`) tablolarında sütunlar arası tek gradient için `fixed` kullanılır (#r447). Pie drilldown popup grid (`dashboard-drilldown-table`) aynı kalıp —
   genel `.data-table thead th`'de `fixed` yok (#2824). ≤1023px (iPhone Safari/Chrome) `fixed` kapatılır —
-  WebKit tablo hücresinde siyah bant basar; gradient `scroll` ile hücreye alınır.
+  WebKit tablo hücresinde siyah bant basar; gradient `thead`'e alınır, `th` saydam olur. Hücre başına
+  gradient verilmez — sütunlar ayrı bloklar gibi görünüyordu (koyu SIRA, yeniden başlayan TALEP NO).
 - **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
   olan tablolarda kavis `thead th:first-child/:last-child`'a verilir (araya `overflow:hidden` bir
   sarmalayıcı koymak sticky thead'i bozar); ayrı wrap'i olanlarda (`.dashboard-drilldown-table-wrap`)

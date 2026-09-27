@@ -864,10 +864,33 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     && log.Action == "TaskDueDateUpdated")
                 .Select(log => new { log.ActorUserId, log.ActorDisplayName, log.EventTimeUtc })
                 .ToListAsync(cancellationToken);
-        var dueDateAuditRows = jobDueDateAuditRows
-            .Concat(taskDueDateAuditRows)
-            .OrderByDescending(row => row.EventTimeUtc)
-            .ToList();
+        // Tek bir kullanıcı işlemi birden fazla audit üretir: görev son tarihi değişince
+        // TaskDueDateUpdated + senkron JobDueDateUpdated (ve diğer aktif görevler), talep son
+        // tarihi değişince JobDueDateUpdated + her aktif görev için TaskDueDateUpdated. Bunlar
+        // aynı SaveChanges içinde yazıldığı için aynı aktör + birkaç saniye penceresi tek
+        // "düzenleme" sayılır; yoksa tek değişiklikte ad yerine «Düzenleyenler» çıkıyordu (#3890).
+        var dueDateAuditRows = new List<(Guid? ActorUserId, string? ActorDisplayName, DateTimeOffset EventTimeUtc)>();
+        foreach (var row in jobDueDateAuditRows
+                     .Concat(taskDueDateAuditRows)
+                     .OrderByDescending(row => row.EventTimeUtc))
+        {
+            var duplicateIndex = dueDateAuditRows.FindIndex(existing =>
+                existing.ActorUserId == row.ActorUserId
+                && (existing.EventTimeUtc - row.EventTimeUtc).Duration() <= TimeSpan.FromSeconds(10));
+            if (duplicateIndex >= 0)
+            {
+                if (string.IsNullOrWhiteSpace(dueDateAuditRows[duplicateIndex].ActorDisplayName)
+                    && !string.IsNullOrWhiteSpace(row.ActorDisplayName))
+                {
+                    dueDateAuditRows[duplicateIndex] = (row.ActorUserId, row.ActorDisplayName, dueDateAuditRows[duplicateIndex].EventTimeUtc);
+                }
+
+                continue;
+            }
+
+            dueDateAuditRows.Add((row.ActorUserId, row.ActorDisplayName, row.EventTimeUtc));
+        }
+
         var dueDateActorIds = dueDateAuditRows
             .Where(row => row.ActorUserId.HasValue && string.IsNullOrWhiteSpace(row.ActorDisplayName))
             .Select(row => row.ActorUserId!.Value)

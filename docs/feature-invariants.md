@@ -1879,6 +1879,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Geciken etiketi son tarih uzatınca (card #3885):** Açık talep bir kez gecikmişse `HadOverdueDueDate`
   kalır; son tarih ileri alındığında grid/detay `(Geciken)` / `Yapılmakta (Geciken)` silinmez.
   Geciken **filtre** yalnızca anlık `DueDateUtc` overdue ile çalışır (bayrak filtrede kullanılmaz).
+- **Son Tarih düzenleyen ipucu (#3886/#3890):** `JobDetailResponse.DueDateChanges` = talebin
+  `JobDueDateUpdated` + bağlı görevlerin `TaskDueDateUpdated` audit'leri; **aynı aktör + ≤10 sn**
+  içindeki satırlar tek düzenleme sayılır (görev↔talep senkronu aynı SaveChanges'te 2+ audit yazar).
+  Tek düzenleme → `(Ad)`, birden fazla → `(Düzenleyenler)`; ActorDisplayName boşsa Users'tan çözülür.
+  Görev detayındaki **İlgili Talep Detayları** kartı görev son tarihi kaydedilince
+  `refreshParentJobDetailForJob` ile yenilenir.
+- **Sol menü iki satırlı başlık (#3887):** `labelLines` satırları `block whitespace-nowrap`; 
+  «Vatandaşa Gönderilecek» rozet padding'i yüzünden tekrar kırılıp 3 satıra düşmemeli.
+- **Bildirim `unread-count` (#3890 yan bulgu):** `NotificationAuditRules.ShouldCountAuditAsUnread`
+  SQL'e çevrilemez — AuditLog adayları SQL'de daraltılıp kural bellekte uygulanır; predicate'e
+  geri taşınırsa endpoint 500 döner.
 - **Talep son tarihi min + onay bekleyen overdue (card #1819):** Manuel Son Tarih seçimi
   (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Hafta sonu SLA durduruluyorsa Cmt/Paz
   oluştururken/seçerken en erken sonraki Pazartesi mesai + varsayılan SLA saat

@@ -151,7 +151,9 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
             )}>
               {item.multilineLabel && labelLines.length > 1
                 ? labelLines.map((line, lineIndex) => (
-                  <span key={`${item.path}-line-${lineIndex}`} className="block">{line}</span>
+                  // Her satır tek parça: «Vatandaşa Gönderilecek» rozet payı yüzünden ikinci kez
+                  // kırılıp 3 satıra düşmesin (#3887 reopen; taşma rozet padding'ine biner).
+                  <span key={`${item.path}-line-${lineIndex}`} className="block whitespace-nowrap">{line}</span>
                 ))
                 : item.label}
             </span>

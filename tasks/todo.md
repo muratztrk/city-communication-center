@@ -1,3 +1,9 @@
+## Round 1345 — #3887/#3890 ikinci reopen kök neden
+
+- #3887: «Vatandaşa Gönderilecek» satırı rozet padding'i yüzünden 2 px taşıp 3 satıra kırılıyordu; satırlar `whitespace-nowrap` (testtim'de DOM ölçümüyle doğrulandı).
+- #3890: Görev son tarihi değişince görev + talep senkron audit'i aynı saniyede 2 satır üretiyordu → tek düzenlemede ad yerine «Düzenleyenler». Aynı aktör ≤10 sn tek satır.
+- Yan bulgu: `/notifications/unread-count` 500 (`ShouldCountAuditAsUnread` LINQ'ta çevrilemiyor, 11 Eylül'den beri); kural belleğe alındı.
+
 ## Round 1340 — mobil mesai saat kutuları
 
 - Ayarlar Kurum Mesai saatleri: ≤1023px açılış/kapanış saat kutuları daraltıldı, kart dışına taşmaz (#6ab94626).

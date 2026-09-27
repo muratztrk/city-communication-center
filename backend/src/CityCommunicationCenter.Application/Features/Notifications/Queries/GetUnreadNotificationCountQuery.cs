@@ -63,18 +63,30 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
                     && user.RoleCode == RoleCode.Operator,
                 cancellationToken);
 
-        var historicalUnread = await _dbContext.AuditLogs
+        // NotificationAuditRules.ShouldCountAuditAsUnread SQL'e çevrilemez (EF "could not be
+        // translated" → /notifications/unread-count 500). SQL tarafında daraltılan adaylar
+        // belleğe alınır, kural orada uygulanır; feed (GetNotificationsQuery) ile aynı davranış.
+        var candidateAudits = await _dbContext.AuditLogs
             .AsNoTracking()
-            .CountAsync(
-                auditLog =>
-                    auditLog.TenantId == tenantId
-                    && entityIds.Contains(auditLog.EntityId)
-                    && auditLog.EventTimeUtc > readThroughUtc
-                    && auditLog.EventTimeUtc > dismissedThroughUtc
-                    && !readAuditIds.Contains(auditLog.AuditLogId)
-                    && NotificationAuditRules.ShouldCountAuditAsUnread(auditLog, request.UserId)
-                    && !(hideDueDateUpdates && auditLog.Action == "JobDueDateUpdated"),
-                cancellationToken);
+            .Where(auditLog =>
+                auditLog.TenantId == tenantId
+                && entityIds.Contains(auditLog.EntityId)
+                && auditLog.EventTimeUtc > readThroughUtc
+                && auditLog.EventTimeUtc > dismissedThroughUtc
+                && !readAuditIds.Contains(auditLog.AuditLogId)
+                && auditLog.ActorUserId != request.UserId
+                && !(hideDueDateUpdates && auditLog.Action == "JobDueDateUpdated"))
+            .Select(auditLog => new { auditLog.EntityType, auditLog.Action, auditLog.ActorUserId, auditLog.Notes })
+            .ToListAsync(cancellationToken);
+        var historicalUnread = candidateAudits.Count(audit => NotificationAuditRules.ShouldCountAuditAsUnread(
+            new AuditLog
+            {
+                EntityType = audit.EntityType,
+                Action = audit.Action,
+                ActorUserId = audit.ActorUserId,
+                Notes = audit.Notes,
+            },
+            request.UserId));
 
         return realUnread + historicalUnread;
     }

@@ -1,7 +1,7 @@
 ## Round 1346 — Trello Doing (2 web)
 
 - [x] `#3893` / `6ab9f723` — Mobil grid: yönlendirilen talepte Talep No altı rozet + öncelik satırı `table-number-cell--forwarded`.
-- [x] `#3892` / `6ab98510` — Görevlerim detay Son Tarih: `(Ek süre talebi Ad)` (`PendingExtraTimeRequesterDisplayName`).
+- [x] `#3892` / `6ab98510` — Görevlerim detay: bekleyen `(Ek süre talebi Ad)`; onayda Son Tarih başlığında `(onaylayan)`.
 
 ## Round 1345 — #3887/#3890 ikinci reopen kök neden
 

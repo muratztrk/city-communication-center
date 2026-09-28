@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageAccess'
 import type { Department, JobSummary, SocialMessage, Task, User } from '../../types/platform'
 import { ChannelIcon } from '../ui/channel-icon'
-import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../../utils/citizenRequests'
+import { getCitizenRequestStatusLabel, isCitizenRequestJob, formatCitizenPhoneDisplay } from '../../utils/citizenRequests'
 import { getTaskStatusLabel } from '../../utils/localization'
 import { includesFoldedTr } from '../../utils/textNormalization'
 
@@ -29,8 +29,9 @@ interface SearchResultItem {
   subtitle: string
   path: string
   channel?: string | null
-  /** Vatandaş Talepleri sonucu başlığın sağında VT no (#3897 r3). */
+  /** Vatandaş Talepleri / vatandaş işi: başlığın sağında VT no (#3897 r3/r4). */
   requestNumber?: string | null
+  citizenPhone?: string | null
 }
 
 interface SearchData {
@@ -233,7 +234,6 @@ function pushJobResults(
   socialByJobId: Map<string, string>,
   showCitizenChannel: boolean,
   t: ReturnType<typeof useTranslation>['t'],
-  numberFor?: (job: JobSummary) => string | null,
 ) {
   let added = 0
   for (const job of jobs) {
@@ -243,14 +243,17 @@ function pushJobResults(
     const channel = showCitizenChannel ? resolveJobChannel(job, socialByJobId) : null
     const channelLabel = localizeSearchChannel(channel)
     const status = searchCitizenStatusLabel(t, job)
+    const citizen = isCitizenRequestJob(job)
+    const phone = citizen ? formatCitizenPhoneDisplay(job.citizenPhone) : null
     results.push({
       id: `${category}-${job.jobId}`,
       category,
-      title: job.title,
+      title: citizen ? (job.citizenName?.trim() || job.title) : job.title,
       subtitle: channelLabel ? `${channelLabel} • ${status}` : jobSubtitle(job),
       path: pathFor(job),
       channel,
-      requestNumber: numberFor?.(job) ?? null,
+      requestNumber: citizen ? citizenJobDisplayNumber(job) : null,
+      citizenPhone: phone && phone !== '—' ? phone : null,
     })
     added += 1
   }
@@ -407,7 +410,6 @@ function filterResults(
       socialByJobId,
       showCitizenChannel,
       t,
-      citizenJobDisplayNumber,
     )
 
     let socialAdded = 0
@@ -422,6 +424,7 @@ function filterResults(
       const messageNumber = msg.citizenRequestNumber != null
         ? `VT-${msg.citizenRequestNumberYear ?? new Date(msg.receivedAtUtc).getFullYear()}-${msg.citizenRequestNumber}`
         : null
+      const phone = formatCitizenPhoneDisplay(msg.citizenPhone)
       results.push({
         id: `social-${msg.socialMessageId}`,
         category: 'social',
@@ -430,6 +433,7 @@ function filterResults(
         path: msg.jobId ? `/social?jobId=${msg.jobId}` : `/social?channel=${msg.channel}`,
         channel: msg.channel,
         requestNumber: messageNumber,
+        citizenPhone: phone && phone !== '—' ? phone : null,
       })
     }
   }
@@ -704,6 +708,9 @@ export function GlobalSearchBar() {
                               </span>
                             ) : null}
                           </span>
+                          {item.citizenPhone ? (
+                            <span className="text-xs font-semibold tabular-nums text-slate-500">{item.citizenPhone}</span>
+                          ) : null}
                           {item.subtitle ? (
                             <span className="inline-flex items-center gap-1 text-xs text-slate-400">
                               {iconBesideChannel && item.channel ? (

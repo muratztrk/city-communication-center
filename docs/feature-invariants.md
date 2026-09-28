@@ -1557,7 +1557,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yönetici/personel metrik başlıkları `whitespace-nowrap` — «Geciken Taleplerim» kırılmaz (#6a92acaa).
   Vatandaş Talepleri sayfası yetkisiyle `getJobs(all, Citizen)` listesi de aranır; ad/telefon/VT no
   eşleşmesi `jobId` ile `/social?jobId=` açılır (#3897). Sosyal mesaj satırı aynı `jobId` için
-  tekrarlanmaz. Vatandaş Talepleri sonuç başlığının **sağında** `VT-2026-155` (#3897 r3; başlığa önek yok).
+  tekrarlanmaz. Vatandaş işi sonuçlarında (Operatör ve diğer yetkiler, Birime Gelen dahil) başlık
+  vatandaş adı, sağda VT no, alt satır telefon (#3897 r4). Vatandaş Talepleri sonuç başlığının
+  **sağında** `VT-2026-155` (#3897 r3; başlığa önek yok).
   Ad/telefon **contains** (telefon `+90` / `0554` / `554`; rakam eşiği 2 — #3898).
   Sistemde ara sosyal satır durumu bağlı Job’dan gelir (`getJobs(all, Citizen)`);
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;

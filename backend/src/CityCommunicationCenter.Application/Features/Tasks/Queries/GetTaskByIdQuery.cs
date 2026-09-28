@@ -303,6 +303,9 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
         statusTransitions.Reverse(); // en yeni üstte
         var statusChangeHistory = statusTransitions.ToArray();
 
+        var dueDateChanges = await JobDueDateChangeResolver.ResolveAsync(
+            _dbContext, tenantId, task.JobId, [request.TaskId], cancellationToken);
+
         return new TaskDetailResponse(
             task.TaskId,
             task.TenantId,
@@ -368,7 +371,8 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             citizenOutboundMessage,
             citizenOutboundEditorDisplayName,
             citizenOutboundRelayerDisplayName,
-            JobCancelReason: jobEntity?.CancelReason);
+            JobCancelReason: jobEntity?.CancelReason,
+            DueDateChanges: dueDateChanges);
     }
 
     private static string ResolveTaskDescription(string? taskDescription, string? jobDescription)

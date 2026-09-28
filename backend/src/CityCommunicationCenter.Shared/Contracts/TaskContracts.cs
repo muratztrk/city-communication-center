@@ -190,4 +190,6 @@ public sealed record TaskDetailResponse(
     string? CitizenOutboundMessage = null,
     string? CitizenOutboundEditorDisplayName = null,
     string? CitizenOutboundRelayerDisplayName = null,
-    string? JobCancelReason = null);
+    string? JobCancelReason = null,
+    // Son Tarih düzenleyenleri — talep detayı ile aynı liste (bu görev + bağlı talep, #3890 r3).
+    IReadOnlyCollection<JobDueDateChangeResponse>? DueDateChanges = null);

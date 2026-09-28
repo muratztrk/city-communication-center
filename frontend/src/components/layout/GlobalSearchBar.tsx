@@ -143,6 +143,22 @@ function jobMatches(job: JobSummary, q: string): boolean {
   return false
 }
 
+/** Vatandaş Talepleri sonucu: başlığın önünde talep numarası (`VT-2026-155 · Başlık`, #3897 r2). */
+function citizenJobDisplayNumber(job: Pick<JobSummary, 'jobNumber' | 'jobNumberYear' | 'citizenRequestNumber' | 'citizenRequestNumberYear'>): string | null {
+  if (job.citizenRequestNumber != null) {
+    const year = job.citizenRequestNumberYear ?? job.jobNumberYear
+    return year != null ? `VT-${year}-${job.citizenRequestNumber}` : `VT-${job.citizenRequestNumber}`
+  }
+  if (job.jobNumber != null && job.jobNumberYear != null) {
+    return `T-${job.jobNumberYear}-${job.jobNumber}`
+  }
+  return null
+}
+
+function withDisplayNumber(displayNumber: string | null, text: string): string {
+  return displayNumber ? `${displayNumber} · ${text}` : text
+}
+
 function jobSubtitle(job: JobSummary): string {
   return [
     job.ownerDepartmentName,
@@ -209,6 +225,7 @@ function pushJobResults(
   socialByJobId: Map<string, string>,
   showCitizenChannel: boolean,
   t: ReturnType<typeof useTranslation>['t'],
+  titleFor: (job: JobSummary) => string = job => job.title,
 ) {
   let added = 0
   for (const job of jobs) {
@@ -221,7 +238,7 @@ function pushJobResults(
     results.push({
       id: `${category}-${job.jobId}`,
       category,
-      title: job.title,
+      title: titleFor(job),
       subtitle: channelLabel ? `${channelLabel} • ${status}` : jobSubtitle(job),
       path: pathFor(job),
       channel,
@@ -381,6 +398,7 @@ function filterResults(
       socialByJobId,
       showCitizenChannel,
       t,
+      job => withDisplayNumber(citizenJobDisplayNumber(job), job.title),
     )
 
     let socialAdded = 0
@@ -392,10 +410,13 @@ function filterResults(
       const job = msg.jobId ? jobsById.get(msg.jobId) : undefined
       const status = searchSocialStatusLabel(t, msg.status, job)
       const channelLabel = localizeSearchChannel(msg.channel)
+      const messageNumber = msg.citizenRequestNumber != null
+        ? `VT-${msg.citizenRequestNumberYear ?? new Date(msg.receivedAtUtc).getFullYear()}-${msg.citizenRequestNumber}`
+        : null
       results.push({
         id: `social-${msg.socialMessageId}`,
         category: 'social',
-        title: msg.citizenName?.trim() || msg.citizenHandle,
+        title: withDisplayNumber(messageNumber, msg.citizenName?.trim() || msg.citizenHandle),
         subtitle: [channelLabel, status].filter(Boolean).join(' • '),
         path: msg.jobId ? `/social?jobId=${msg.jobId}` : `/social?channel=${msg.channel}`,
         channel: msg.channel,

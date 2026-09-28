@@ -268,6 +268,8 @@ export interface TaskDetail {
   citizenOutboundEditorDisplayName?: string | null;
   citizenOutboundRelayerDisplayName?: string | null;
   jobCancelReason?: string | null;
+  /** Son Tarih düzenleyenleri — Talep Detayları ile aynı (#3890 r3). */
+  dueDateChanges?: JobDueDateChange[] | null;
 }
 
 export interface TaskStatusChangeHistory {

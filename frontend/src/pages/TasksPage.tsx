@@ -107,6 +107,7 @@ import { FramedDepartmentStack } from '../components/jobs/my-request-detail/Fram
 import { JobProcessTimeline, TimelineDateTimeValue } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { buildInProgressPeriodStep, type JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { StatusChangeTransition } from '../components/jobs/my-request-detail/StatusChangeTransition'
+import { DueDateEditorsHint } from '../components/jobs/my-request-detail/DueDateEditorsHint'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface TaskScopeFiltersProps {
@@ -2860,18 +2861,25 @@ const pageKicker = isMyTasksView
                                 overdueJobStatus={taskDetail.currentStatus}
                                 overdueCompletedAtUtc={taskDetail.completedAtUtc}
                                 overdueUpdatedAtUtc={isCancelledTimelineTask ? cancelledAtUtc : taskDetail.updatedAtUtc}
-                                dueDateLabelExtra={
-                                  isMyTasksView
-                                  && !isManagerLike
-                                  && latestExtraTimeApproval?.decision === 'Approved'
-                                  && taskDetail.lastExtraTimeApproverDisplayName?.trim()
-                                    ? (
-                                      <span className="text-xs font-semibold text-emerald-600">
-                                        ({taskDetail.lastExtraTimeApproverDisplayName.trim()})
-                                      </span>
-                                    )
-                                    : null
-                                }
+                                dueDateLabelExtra={(
+                                  <>
+                                    {/* Son Tarih düzenleyen adı / «Düzenleyenler» — Talep Detayları ile aynı (#3890 r3). */}
+                                    <DueDateEditorsHint
+                                      changes={taskDetail.dueDateChanges ?? []}
+                                      locale={locale}
+                                    />
+                                    {isMyTasksView
+                                      && !isManagerLike
+                                      && latestExtraTimeApproval?.decision === 'Approved'
+                                      && taskDetail.lastExtraTimeApproverDisplayName?.trim()
+                                      ? (
+                                        <span className="text-xs font-semibold text-emerald-600">
+                                          {' '}({taskDetail.lastExtraTimeApproverDisplayName.trim()})
+                                        </span>
+                                      )
+                                      : null}
+                                  </>
+                                )}
                               />
                               {firstStatusChange && latestStatusChange && firstChangedStatus ? (
                                 <div className="task-process-status-change mt-1 border-t border-slate-100 pt-1">

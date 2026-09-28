@@ -1557,7 +1557,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yönetici/personel metrik başlıkları `whitespace-nowrap` — «Geciken Taleplerim» kırılmaz (#6a92acaa).
   Vatandaş Talepleri sayfası yetkisiyle `getJobs(all, Citizen)` listesi de aranır; ad/telefon/VT no
   eşleşmesi `jobId` ile `/social?jobId=` açılır (#3897). Sosyal mesaj satırı aynı `jobId` için
-  tekrarlanmaz.
+  tekrarlanmaz. Vatandaş Talepleri sonuç başlığı `VT-2026-155 · Başlık` (mesaj satırında
+  `VT-… · Vatandaş Adı`) — talep numarası başlıkta (#3897 r2).
   Sistemde ara sosyal satır durumu bağlı Job’dan gelir (`getJobs(all, Citizen)`);
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;
   kanal eşlemesi `getSocialMessages` ile (#6a92aaca).
@@ -2955,7 +2956,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Overflow tooltip (#r545/#2065/#2072/#2078):** hücre ortası; max-width ~18rem; 2. satır `text-align: center`.
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
 - **Vatandaş grid Durum tarihi (#3896):** `getCitizenGridStatusDateUtc` — Tamamlandı/İptal aynı;
-  İşleme Alındı ve Yapılmakta `updatedAtUtc` (yoksa `createdAtUtc`); aktif ton `text-slate-600`.
+  İşleme Alındı ve Yapılmakta `updatedAtUtc` (yoksa `createdAtUtc`); aktif tarih `text-inherit` —
+  koyu turkuaz İşleme Alındı / turuncu Geciken pill'de **beyaz**, açık mavi Yapılmakta'da pill yazı rengi
+  (#3896 r2; `text-slate-600` koyu pill'de okunmuyordu).
+- **Görev detay Son Tarih düzenleyenleri (#3890 r3):** Görevlerim/Birimdeki Görevler detay Süreç
+  `Son Tarih` başlığı yanında Talep Detayları ile aynı `DueDateEditorsHint` (`(Ad)` / `(Düzenleyenler)`);
+  kaynak `TaskDetailResponse.DueDateChanges` = `JobDueDateChangeResolver` (bu görev TaskDueDateUpdated +
+  bağlı talep JobDueDateUpdated, aynı aktör ≤10 sn tek satır). Talep detayı da aynı resolver'ı kullanır.
 - **Mesaj Onayı banner (#2064/#3541):** “Mesaj gönderimi onayladığında, kurumunuz operatörüne
   vatandaşımıza…” (`Mesajı` değil; `operatörüne` sonrası virgül yok);
   “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).

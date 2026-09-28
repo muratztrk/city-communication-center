@@ -145,10 +145,11 @@ export function getCitizenGridStatusDateUtc(job: CitizenRequestStatusSource & {
   return null
 }
 
+/** Aktif (İşleme Alındı / Yapılmakta) tarih, pill yazı rengini alır — koyu turkuaz/turuncu pill'de beyaz (#3896 r2). */
 export function getCitizenGridStatusDateFooterClass(status: string): string {
   if (status === 'Completed') return 'text-emerald-700'
   if (status === 'Cancelled' || status === 'Rejected') return 'text-red-700'
-  return 'text-slate-600'
+  return 'text-inherit'
 }
 
 export function getCitizenRequestStatusTone(job: CitizenRequestStatusSource): GridStatusTone {

@@ -1,3 +1,7 @@
+## Round 1347 — Trello Doing (1 web)
+
+- [x] `#3894` / `6aba0634` — Vatandaş Talepleri grid varsayılan sıra `statusAtUtc` desc (Durum zamanı).
+
 ## Round 1346 — Trello Doing (2 web)
 
 - [x] `#3893` / `6ab9f723` — Mobil grid: yönlendirilen talepte Talep No altı rozet + öncelik satırı `table-number-cell--forwarded`.

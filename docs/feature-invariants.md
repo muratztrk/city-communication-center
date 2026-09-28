@@ -2953,6 +2953,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **alt satırında** (Giden grid ile aynı — ayrı `Tamamlanma Tarihi` sütunu yok); yazdırmada `Tamamlanma Tarihi` sütunu kalır.
 - **Overflow tooltip (#r545/#2065/#2072/#2078):** hücre ortası; max-width ~18rem; 2. satır `text-align: center`.
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
+- **Vatandaş grid Durum tarihi (#3896):** `getCitizenGridStatusDateUtc` — Tamamlandı/İptal aynı;
+  İşleme Alındı ve Yapılmakta `updatedAtUtc` (yoksa `createdAtUtc`); aktif ton `text-slate-600`.
 - **Mesaj Onayı banner (#2064/#3541):** “Mesaj gönderimi onayladığında, kurumunuz operatörüne
   vatandaşımıza…” (`Mesajı` değil; `operatörüne` sonrası virgül yok);
   “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).

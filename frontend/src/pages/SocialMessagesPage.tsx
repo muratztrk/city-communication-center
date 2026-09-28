@@ -127,6 +127,23 @@ function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary, dueDateUtc: st
   return getCitizenRequestStatusLabel(t, { ...job, dueDateUtc })
 }
 
+/** Durum hücresindeki tarih / son durum güncellemesi — grid varsayılan sırası (#3894). */
+function getSocialMessageStatusAtUtc(message: SocialMessage, linkedJob?: JobSummary): string {
+  if (!linkedJob) {
+    return message.updatedAtUtc ?? message.receivedAtUtc
+  }
+
+  if (linkedJob.status === 'Completed') {
+    return linkedJob.completedAtUtc ?? linkedJob.updatedAtUtc ?? message.receivedAtUtc
+  }
+
+  if (linkedJob.status === 'Cancelled' || linkedJob.status === 'Rejected') {
+    return linkedJob.updatedAtUtc ?? message.receivedAtUtc
+  }
+
+  return linkedJob.updatedAtUtc ?? linkedJob.createdAtUtc ?? message.receivedAtUtc
+}
+
 type SocialRequestStatusFilter = 'all' | 'processing-received' | 'in-progress' | 'completed' | 'cancelled'
 
 const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: string; fallback: string }[] = [
@@ -394,7 +411,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
   }
 
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable({
-    sortKey: 'jobNumber',
+    sortKey: 'statusAtUtc',
     sortDir: 'desc',
   })
   const { filters: socialFilters, setFilter: setSocialFilter, clearFilters: clearSocialFilters, matchesFilters: socialMatchesFilters, hasActiveFilters: hasActiveSocialColumnFilters } = useColumnFilters()
@@ -411,6 +428,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
       whatsAppPhone: getSocialMessageWhatsAppPhone(message),
       priority: linkedJob?.priority ?? '',
       statusSortText: linkedJob ? getLinkedJobDisplayStatus(t, linkedJob, dueDateUtc) : '',
+      statusAtUtc: getSocialMessageStatusAtUtc(message, linkedJob),
       labelSortText: message.category ?? '',
     }
   }), [messages, jobsById, locale, t])
@@ -725,7 +743,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                 {embedded ? null : (
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
                 )}
-                <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
+                <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
                 {embedded ? null : (
                 <FilterableTh filterKey="labelSortText" filterValue={socialFilters['labelSortText'] ?? ''} onFilter={setSocialFilter} sortKey="labelSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('whatsapp.label', 'Talep Etiketi')}</FilterableTh>
                 )}

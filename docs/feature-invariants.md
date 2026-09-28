@@ -2538,7 +2538,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → **Telefon No** (#3272; eski
   Numara, #3108; hücre stili dizin Numara ile aynı #3107) → Talep Tarihi →
   Gittiği Yer → Talep Etiketi → **Durum** → İşlemler (#2646; eski Süreç başlığı). Varsayılan sıra
-  Vatandaş Talep No **yıl+sıra desc** (en yüksek numara üstte, #2691). Durum hücresi
+  **Durum zamanı desc** (`statusAtUtc`: tamamlanan `completedAtUtc`, iptal `updatedAtUtc`, açık talep
+  job `updatedAtUtc`; job yoksa mesaj zamanı, #3894). Durum başlığı tıklanınca aynı anahtar. Durum hücresi
   Taleplerim `StatusPill` + `GridStatusLabel`. **Tüm Talep Durumları** dropdown’da Geciken yok;
   yanında **Gecikti mi?** checkbox (`wasOverdue=1`, detay `wasJobOverdueWhenClosed` ile aynı, #2860);
   ve **Yönetici Onayı Bekleyen mi?** (`managerApprovalPending=1`, terminal mesaj onayı bekleyen

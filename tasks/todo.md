@@ -1,3 +1,7 @@
+## Round 1352 — #3901 Sistemde ara talep başlığı
+
+- [x] `6aba5e9c` — Vatandaş işi arama sonucunda talep başlığı (`job.title`) durum satırının sağında yeşil (`--color-primary`).
+
 ## Round 1351 — #3897 r4 `d97545b2`
 
 - [x] `6aba230c` — Sistemde ara vatandaş işi (Operatör + diğer yetkiler, Birime Gelen dahil): başlık adı, sağda VT, alt satır telefon.

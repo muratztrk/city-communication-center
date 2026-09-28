@@ -18,7 +18,7 @@ import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { ClearPieFilterLink } from './ui/ClearPieFilterLink'
 import { ChannelIcon } from './ui/channel-icon'
 import { FramedDepartmentStack } from './jobs/my-request-detail/FramedDepartmentStack'
-import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, formatCitizenRequestNumber, getCitizenGridStatusDateFooterClass } from '../utils/citizenRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, type GridStatusTone } from '../utils/localization'
 import { isJobDueDateOverdue } from '../utils/dateTimePicker'
@@ -311,7 +311,9 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                       const statusLabel = pinStatusLabel(t, pin, variant)
                       const statusDate = pin.displayStatus === 'completed' ? pin.completedAtUtc
                         : pin.displayStatus === 'cancelled' ? pin.updatedAtUtc
-                        : null
+                        : (pin.displayStatus === 'processingReceived' || pin.displayStatus === 'inProgress' || pin.displayStatus === 'overdue')
+                          ? (pin.updatedAtUtc ?? pin.createdAtUtc ?? null)
+                          : null
                       const statusDateText = statusDate
                         ? new Date(statusDate).toLocaleString(locale, {
                           day: '2-digit',
@@ -378,7 +380,11 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                                   && pin.displayStatus === 'processingReceived'
                                   && isJobDueDateOverdue({ status: pin.jobStatus ?? 'Active', dueDateUtc: pin.dueDateUtc })}
                                 footer={statusDateText
-                                  ? <span className={`text-[0.68rem] font-bold ${pin.displayStatus === 'completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
+                                  ? (
+                                    <span className={`text-[0.68rem] font-bold ${pin.displayStatus === 'completed' ? 'text-emerald-700' : pin.displayStatus === 'cancelled' ? 'text-red-700' : getCitizenGridStatusDateFooterClass('Active')}`}>
+                                      {statusDateText}
+                                    </span>
+                                  )
                                   : undefined}
                               />
                             </StatusPill>

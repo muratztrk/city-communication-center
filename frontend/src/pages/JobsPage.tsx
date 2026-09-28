@@ -53,6 +53,8 @@ import {
   canShowCitizenWhatsAppConversation,
   formatCitizenRequestNumber,
   formatCitizenPhoneDisplay,
+  getCitizenGridStatusDateFooterClass,
+  getCitizenGridStatusDateUtc,
   getCitizenRequestDetailStatusLabel,
   getCitizenRequestStatusLabel,
   getCitizenRequestStatusTone,
@@ -2678,9 +2680,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
                     {showJobsGridStatusColumn && (() => {
                       const statusDate = activeJobView === 'all'
-                        ? (job.status === 'Completed' ? job.completedAtUtc
-                          : job.status === 'Cancelled' ? job.updatedAtUtc
-                          : null)
+                        ? (isCitizenRequestJob(job)
+                          ? getCitizenGridStatusDateUtc(job)
+                          : job.status === 'Completed' ? job.completedAtUtc
+                            : job.status === 'Cancelled' ? job.updatedAtUtc
+                              : null)
                         : null
                       return (
                         <td>
@@ -2697,7 +2701,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               }
                               hideInProgressOverdueSubline={activeJobView === 'overdue'}
                               footer={statusDate
-                                ? <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
+                                ? (
+                                  <span className={`text-[0.68rem] font-bold ${isCitizenRequestJob(job) ? getCitizenGridStatusDateFooterClass(job.status) : job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                    {formatDateTime(statusDate, locale)}
+                                  </span>
+                                )
                                 : undefined}
                             />
                           </StatusPill>

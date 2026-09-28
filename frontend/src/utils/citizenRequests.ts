@@ -124,6 +124,33 @@ export function getCitizenRequestDetailStatusLabel(
   return getCitizenRequestStatusLabel(t, job)
 }
 
+/** Grid Durum hücresi alt satır tarihi — İşleme Alındı / Yapılmakta dahil (#3896). */
+export function getCitizenGridStatusDateUtc(job: CitizenRequestStatusSource & {
+  completedAtUtc?: string | null
+  updatedAtUtc?: string | null
+  createdAtUtc?: string | null
+}): string | null {
+  if (job.status === 'Completed') {
+    return job.completedAtUtc ?? null
+  }
+
+  if (job.status === 'Cancelled' || job.status === 'Rejected') {
+    return job.updatedAtUtc ?? null
+  }
+
+  if (isCitizenProcessingReceivedState(job) || isCitizenInProgressState(job)) {
+    return job.updatedAtUtc ?? job.createdAtUtc ?? null
+  }
+
+  return null
+}
+
+export function getCitizenGridStatusDateFooterClass(status: string): string {
+  if (status === 'Completed') return 'text-emerald-700'
+  if (status === 'Cancelled' || status === 'Rejected') return 'text-red-700'
+  return 'text-slate-600'
+}
+
 export function getCitizenRequestStatusTone(job: CitizenRequestStatusSource): GridStatusTone {
   if (job.status === 'Completed') return 'completed'
   if (job.status === 'Cancelled') return 'cancelled'

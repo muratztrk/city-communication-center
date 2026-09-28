@@ -17,7 +17,7 @@ import { DueDatePill } from './ui/due-date-pill'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, formatOverdueInProgressStatus } from '../utils/localization'
-import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, getCitizenGridStatusDateFooterClass, getCitizenGridStatusDateUtc, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue, isCitizenRequestJob } from '../utils/citizenRequests'
 import { drilldownRowMatchesCitizenSearch } from '../utils/requestSearch'
 import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -694,9 +694,17 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                       />
                     ) : visibleRows.slice((safePage - 1) * pageSize, safePage * pageSize).map((row, index) => {
                       const statusLabel = getDrilldownStatusLabel(t, row)
-                      const statusDate = (useTaleplerimStatusStyle || !showTerminalDateColumn)
-                        && (row.status === 'Completed' || isCancelledLike(row.status))
-                        ? row.terminalDateUtc
+                      const statusDate = useTaleplerimStatusStyle || !showTerminalDateColumn
+                        ? (row.citizenRequestNumber != null
+                          ? getCitizenGridStatusDateUtc({
+                            status: row.status,
+                            dueDateUtc: row.dueDateUtc,
+                            taskCount: row.openTaskCount ?? 0,
+                            completedAtUtc: row.status === 'Completed' ? row.terminalDateUtc : null,
+                            updatedAtUtc: isCancelledLike(row.status) ? row.terminalDateUtc : null,
+                            createdAtUtc: row.createdAtUtc,
+                          })
+                          : (row.status === 'Completed' || isCancelledLike(row.status) ? row.terminalDateUtc : null))
                         : null
                       const statusDateText = statusDate
                         ? new Date(statusDate).toLocaleString(locale, {
@@ -791,7 +799,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                                   taskCount: row.openTaskCount ?? 0,
                                 })}
                                 footer={statusDateText
-                                  ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
+                                  ? (
+                                    <span className={`text-[0.68rem] font-bold ${row.citizenRequestNumber != null ? getCitizenGridStatusDateFooterClass(row.status) : row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                      {statusDateText}
+                                    </span>
+                                  )
                                   : undefined}
                               />
                             </StatusPill>

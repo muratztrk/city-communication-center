@@ -371,22 +371,36 @@ function filterResults(
   }
 
   if (access.social) {
-    data.social
-      .filter(msg => socialMatches(msg, q))
-      .slice(0, MAX_PER_CATEGORY)
-      .forEach(msg => {
-        const job = msg.jobId ? jobsById.get(msg.jobId) : undefined
-        const status = searchSocialStatusLabel(t, msg.status, job)
-        const channelLabel = localizeSearchChannel(msg.channel)
-        results.push({
-          id: `social-${msg.socialMessageId}`,
-          category: 'social',
-          title: msg.citizenName?.trim() || msg.citizenHandle,
-          subtitle: [channelLabel, status].filter(Boolean).join(' • '),
-          path: `/social?channel=${msg.channel}`,
-          channel: msg.channel,
-        })
+    pushJobResults(
+      results,
+      data.citizenJobs,
+      'social',
+      job => `/social?jobId=${job.jobId}`,
+      seenJobs,
+      q,
+      socialByJobId,
+      showCitizenChannel,
+      t,
+    )
+
+    let socialAdded = 0
+    for (const msg of data.social) {
+      if (socialAdded >= MAX_PER_CATEGORY) break
+      if (!socialMatches(msg, q)) continue
+      if (msg.jobId && seenJobs.has(msg.jobId)) continue
+      socialAdded += 1
+      const job = msg.jobId ? jobsById.get(msg.jobId) : undefined
+      const status = searchSocialStatusLabel(t, msg.status, job)
+      const channelLabel = localizeSearchChannel(msg.channel)
+      results.push({
+        id: `social-${msg.socialMessageId}`,
+        category: 'social',
+        title: msg.citizenName?.trim() || msg.citizenHandle,
+        subtitle: [channelLabel, status].filter(Boolean).join(' • '),
+        path: msg.jobId ? `/social?jobId=${msg.jobId}` : `/social?channel=${msg.channel}`,
+        channel: msg.channel,
       })
+    }
   }
 
   return results

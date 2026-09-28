@@ -24,7 +24,7 @@ import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLab
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
-import { formatCitizenPhoneDisplay, formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenInProgressState, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState } from '../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, formatCitizenRequestNumber, getCitizenGridStatusDateFooterClass, getCitizenGridStatusDateUtc, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenInProgressState, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState } from '../utils/citizenRequests'
 import { looksLikePhone } from '../utils/phoneDisplay'
 import { wasJobOverdueWhenClosed } from '../utils/dateTimePicker'
 import { emitPageToast } from '../components/ui/pageToast'
@@ -305,6 +305,15 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
     setFilterFrom(searchParams.get('from') ?? '')
     setFilterTo(searchParams.get('to') ?? '')
   }, [embedded, searchParams])
+
+  useEffect(() => {
+    if (embedded) return
+    const jobId = searchParams.get('jobId')?.trim()
+    if (!jobId) return
+    if (messages.some(message => message.jobId === jobId) || jobsById.has(jobId)) {
+      setDetailJobId(jobId)
+    }
+  }, [embedded, jobsById, messages, searchParams])
 
   useEffect(() => {
     let isActive = true
@@ -816,8 +825,12 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                         const statusLabel = linkedJob
                           ? getLinkedJobDisplayStatus(t, linkedJob, dueDateUtc)
                           : t('social.requestStatus.processingReceived', 'İşleme Alındı')
-                        const statusDate = linkedJob?.status === 'Completed' ? linkedJob.completedAtUtc
-                          : linkedJob?.status === 'Cancelled' ? linkedJob.updatedAtUtc
+                        const statusDate = linkedJob
+                          ? getCitizenGridStatusDateUtc({
+                            ...linkedJob,
+                            dueDateUtc,
+                            taskCount: linkedJob.taskCount,
+                          })
                           : null
                         const statusDateText = statusDate
                           ? new Date(statusDate).toLocaleString(locale, {
@@ -842,7 +855,11 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                               })}
                               hideInProgressOverdueSubline={false}
                               footer={statusDateText
-                                ? <span className={`text-[0.68rem] font-bold ${linkedJob?.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
+                                ? (
+                                  <span className={`text-[0.68rem] font-bold ${getCitizenGridStatusDateFooterClass(linkedJob?.status ?? 'Active')}`}>
+                                    {statusDateText}
+                                  </span>
+                                )
                                 : undefined}
                             />
                           </StatusPill>

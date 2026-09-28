@@ -1554,6 +1554,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Banner `page-kicker` title case (`capitalize`). Anasayfa metrik etiketleri title case
   (`capitalize`, ALL CAPS değil — #6a92852e yeniden).
   Yönetici/personel metrik başlıkları `whitespace-nowrap` — «Geciken Taleplerim» kırılmaz (#6a92acaa).
+  Vatandaş Talepleri sayfası yetkisiyle `getJobs(all, Citizen)` listesi de aranır; ad/telefon/VT no
+  eşleşmesi `jobId` ile `/social?jobId=` açılır (#3897). Sosyal mesaj satırı aynı `jobId` için
+  tekrarlanmaz.
   Sistemde ara sosyal satır durumu bağlı Job’dan gelir (`getJobs(all, Citizen)`);
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;
   kanal eşlemesi `getSocialMessages` ile (#6a92aaca).

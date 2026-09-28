@@ -1,3 +1,8 @@
+## Round 1348 — Trello Doing (2 web)
+
+- [x] `#3896` / `6aba1ee8` — Grid Durum alt satır: İşleme Alındı/Yapılmakta `updatedAtUtc` (`getCitizenGridStatusDateUtc`).
+- [x] `#3897` / `6aba230c` — Sistemde ara vatandaş job listesi + `/social?jobId=` detay; mesaj dedupe.
+
 ## Round 1347 — Trello Doing (1 web)
 
 - [x] `#3894` / `6aba0634` — Vatandaş Talepleri grid varsayılan sıra `statusAtUtc` desc (Durum zamanı).

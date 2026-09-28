@@ -1,3 +1,7 @@
+## Round 1351 — #3897 r4 `d97545b2`
+
+- [x] `6aba230c` — Sistemde ara vatandaş işi (Operatör + diğer yetkiler, Birime Gelen dahil): başlık adı, sağda VT, alt satır telefon.
+
 ## Round 1350 — Trello Doing (4 web) `c88c84dd`
 
 - [x] `6aba3dfb` — Sistemde ara ad/telefon contains (`+90`, `0554`).

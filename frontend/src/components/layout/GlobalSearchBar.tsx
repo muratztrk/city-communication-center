@@ -32,6 +32,8 @@ interface SearchResultItem {
   /** Vatandaş Talepleri / vatandaş işi: başlığın sağında VT no (#3897 r3/r4). */
   requestNumber?: string | null
   citizenPhone?: string | null
+  /** Vatandaş işi: durum satırının sağında yeşil talep başlığı (#3901). */
+  jobTitle?: string | null
 }
 
 interface SearchData {
@@ -245,6 +247,7 @@ function pushJobResults(
     const status = searchCitizenStatusLabel(t, job)
     const citizen = isCitizenRequestJob(job)
     const phone = citizen ? formatCitizenPhoneDisplay(job.citizenPhone) : null
+    const requestTitle = job.title?.trim() || null
     results.push({
       id: `${category}-${job.jobId}`,
       category,
@@ -254,6 +257,7 @@ function pushJobResults(
       channel,
       requestNumber: citizen ? citizenJobDisplayNumber(job) : null,
       citizenPhone: phone && phone !== '—' ? phone : null,
+      jobTitle: citizen ? requestTitle : null,
     })
     added += 1
   }
@@ -425,6 +429,7 @@ function filterResults(
         ? `VT-${msg.citizenRequestNumberYear ?? new Date(msg.receivedAtUtc).getFullYear()}-${msg.citizenRequestNumber}`
         : null
       const phone = formatCitizenPhoneDisplay(msg.citizenPhone)
+      const requestTitle = job?.title?.trim() || null
       results.push({
         id: `social-${msg.socialMessageId}`,
         category: 'social',
@@ -434,6 +439,7 @@ function filterResults(
         channel: msg.channel,
         requestNumber: messageNumber,
         citizenPhone: phone && phone !== '—' ? phone : null,
+        jobTitle: requestTitle,
       })
     }
   }
@@ -711,12 +717,21 @@ export function GlobalSearchBar() {
                           {item.citizenPhone ? (
                             <span className="text-xs font-semibold tabular-nums text-slate-500">{item.citizenPhone}</span>
                           ) : null}
-                          {item.subtitle ? (
-                            <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                          {item.subtitle || item.jobTitle ? (
+                            <span className="inline-flex w-full min-w-0 items-center gap-1 text-xs text-slate-400">
                               {iconBesideChannel && item.channel ? (
                                 <ChannelIcon channel={item.channel} className="size-3.5 shrink-0" />
                               ) : null}
-                              <SearchSubtitleText text={item.subtitle} />
+                              {item.subtitle ? (
+                                <span className="min-w-0 truncate">
+                                  <SearchSubtitleText text={item.subtitle} />
+                                </span>
+                              ) : null}
+                              {item.jobTitle ? (
+                                <span className="ml-auto min-w-0 max-w-[52%] truncate text-right font-semibold text-[color:var(--color-primary)]">
+                                  {item.jobTitle}
+                                </span>
+                              ) : null}
                             </span>
                           ) : null}
                         </span>

@@ -1560,6 +1560,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tekrarlanmaz. Vatandaş işi sonuçlarında (Operatör ve diğer yetkiler, Birime Gelen dahil) başlık
   vatandaş adı, sağda VT no, alt satır telefon (#3897 r4). Vatandaş Talepleri sonuç başlığının
   **sağında** `VT-2026-155` (#3897 r3; başlığa önek yok).
+  Vatandaş işi durum satırının **sağında** talep başlığı (`job.title`) yeşil
+  (`--color-primary`) (#3901).
   Ad/telefon **contains** (telefon `+90` / `0554` / `554`; rakam eşiği 2 — #3898).
   Sistemde ara sosyal satır durumu bağlı Job’dan gelir (`getJobs(all, Citizen)`);
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;

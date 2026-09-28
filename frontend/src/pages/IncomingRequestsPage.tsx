@@ -1050,7 +1050,7 @@ export function IncomingRequestsPage() {
                   <tr key={`${row.kind}-${row.id}`}>
 
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
-                    <td className="table-number-cell font-mono text-xs text-slate-500">
+                    <td className={`table-number-cell font-mono text-xs text-slate-500${row.forwardReason ? ' table-number-cell--forwarded' : ''}`}>
                       <div className="table-number-cell__value flex w-full flex-col items-center justify-center gap-0.5 text-center">
                         <span className="inline-flex flex-wrap items-center justify-center gap-1.5">
                           {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-3.5 shrink-0" /> : null}
@@ -1058,7 +1058,7 @@ export function IncomingRequestsPage() {
                         </span>
                         {/* Yönlendirilen talepte rozet Talep No alt satırında (cards #1406/#1412/#3632). */}
                         {row.forwardReason ? (
-                          <span className="font-sans text-[12px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                          <span className="table-number-cell__forward-badge font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                         ) : null}
                       </div>
                       {shouldShowGridPrioritySubline(row.priority) ? (

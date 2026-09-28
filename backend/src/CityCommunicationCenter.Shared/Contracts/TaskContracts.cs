@@ -176,6 +176,8 @@ public sealed record TaskDetailResponse(
     // Bildirimden açılan görev detay popup'ında da gridview ile aynı ek süre işaretleri gösterilir.
     bool HasPendingExtraTimeRequest = false,
     string? LastExtraTimeRequestDecision = null,
+    // Bekleyen ek süre talebini açan kullanıcı — görev detayında "(Ek süre talebi Ad)" (card #3892).
+    string? PendingExtraTimeRequesterDisplayName = null,
     // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) — denetim kaydından (card 642).
     string? StatusActorDisplayName = null,
     // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).

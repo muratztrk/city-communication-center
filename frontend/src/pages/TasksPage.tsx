@@ -2802,7 +2802,11 @@ const pageKicker = isMyTasksView
                                 </button>
                               ) : (
                                 // Detayda yalnız bekleyen işaret; onaylandı/reddedildi ifadesi gride özeldir (card #1386).
-                                <GridExtraTimeMarkers hasPending={taskDetail.hasPendingExtraTimeRequest} inline />
+                                <GridExtraTimeMarkers
+                                  hasPending={taskDetail.hasPendingExtraTimeRequest}
+                                  pendingRequesterDisplayName={taskDetail.pendingExtraTimeRequesterDisplayName}
+                                  inline
+                                />
                               )}
                               {canChangeTaskDueDate && (
                                 <button
@@ -3440,7 +3444,7 @@ const pageKicker = isMyTasksView
                   return (
                   <tr key={task.taskId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(tasksPage - 1) * tasksPageSize + index + 1}</td>
-                    <td className="table-number-cell text-xs text-slate-500">
+                    <td className={`table-number-cell text-xs text-slate-500${task.forwardReason ? ' table-number-cell--forwarded' : ''}`}>
                       {task.jobSourceType === 'Routine'
                         ? (
                           <>
@@ -3455,7 +3459,7 @@ const pageKicker = isMyTasksView
                                 <ChannelIcon channel={getCitizenTaskChannel(task, socialByJobId)} className="size-3.5 shrink-0" />
                                 <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
                               </span>
-                              {task.forwardReason ? <span className="font-sans text-[12px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
+                              {task.forwardReason ? <span className="table-number-cell__forward-badge font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
                             </div>
                           )
                           : (
@@ -3463,7 +3467,7 @@ const pageKicker = isMyTasksView
                               <span className="inline-flex flex-wrap items-center justify-center gap-1.5">
                                 <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
                               </span>
-                              {task.forwardReason ? <span className="font-sans text-[12px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
+                              {task.forwardReason ? <span className="table-number-cell__forward-badge font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
                             </div>
                           )}
                     </td>

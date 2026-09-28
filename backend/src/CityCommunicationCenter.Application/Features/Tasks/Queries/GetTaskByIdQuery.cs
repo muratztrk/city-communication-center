@@ -196,6 +196,22 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
         var hasPendingExtraTimeRequest = approvals.Any(entity =>
             entity.SubjectType == ApprovalSubjectType.TaskRevision
             && entity.Decision == ApprovalDecision.Pending);
+        var pendingExtraTimeRequesterUserId = approvals
+            .Where(entity => entity.SubjectType == ApprovalSubjectType.TaskRevision
+                && entity.Decision == ApprovalDecision.Pending)
+            .OrderByDescending(entity => entity.StepOrder)
+            .Select(entity => entity.CreatedByUserId)
+            .FirstOrDefault();
+        string? pendingExtraTimeRequesterDisplayName = null;
+        if (pendingExtraTimeRequesterUserId is Guid requesterUserId)
+        {
+            pendingExtraTimeRequesterDisplayName = await _dbContext.Users
+                .AsNoTracking()
+                .Where(user => user.UserId == requesterUserId)
+                .Select(user => user.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         var lastExtraTimeRequestDecision = approvals
             .Where(entity => entity.SubjectType == ApprovalSubjectType.TaskRevision
                 && entity.Decision != ApprovalDecision.Pending)
@@ -324,6 +340,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             task.TaskNumberYear,
             hasPendingExtraTimeRequest,
             lastExtraTimeRequestDecision,
+            pendingExtraTimeRequesterDisplayName,
             statusActorDisplayName,
             statusChangeHistory,
             citizenMessageApproverDisplayName,

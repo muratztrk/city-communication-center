@@ -178,6 +178,8 @@ public sealed record TaskDetailResponse(
     string? LastExtraTimeRequestDecision = null,
     // Bekleyen ek süre talebini açan kullanıcı — görev detayında "(Ek süre talebi Ad)" (card #3892).
     string? PendingExtraTimeRequesterDisplayName = null,
+    // Son onaylanan ek süre talebinde onaylayan — Son Tarih başlığı yanında "(Ad)" (card #3892).
+    string? LastExtraTimeApproverDisplayName = null,
     // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) — denetim kaydından (card 642).
     string? StatusActorDisplayName = null,
     // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).

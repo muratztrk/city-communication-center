@@ -256,6 +256,7 @@ export interface TaskDetail {
   hasPendingExtraTimeRequest?: boolean;
   lastExtraTimeRequestDecision?: 'Approved' | 'Rejected' | null;
   pendingExtraTimeRequesterDisplayName?: string | null;
+  lastExtraTimeApproverDisplayName?: string | null;
   // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) (card 642).
   statusActorDisplayName?: string | null;
   // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).

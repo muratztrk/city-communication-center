@@ -2860,6 +2860,18 @@ const pageKicker = isMyTasksView
                                 overdueJobStatus={taskDetail.currentStatus}
                                 overdueCompletedAtUtc={taskDetail.completedAtUtc}
                                 overdueUpdatedAtUtc={isCancelledTimelineTask ? cancelledAtUtc : taskDetail.updatedAtUtc}
+                                dueDateLabelExtra={
+                                  isMyTasksView
+                                  && !isManagerLike
+                                  && latestExtraTimeApproval?.decision === 'Approved'
+                                  && taskDetail.lastExtraTimeApproverDisplayName?.trim()
+                                    ? (
+                                      <span className="text-xs font-semibold text-emerald-600">
+                                        ({taskDetail.lastExtraTimeApproverDisplayName.trim()})
+                                      </span>
+                                    )
+                                    : null
+                                }
                               />
                               {firstStatusChange && latestStatusChange && firstChangedStatus ? (
                                 <div className="task-process-status-change mt-1 border-t border-slate-100 pt-1">

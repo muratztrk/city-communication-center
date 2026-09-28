@@ -218,6 +218,25 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             .OrderByDescending(entity => entity.DecisionDateUtc)
             .Select(entity => (string?)entity.Decision.ToString())
             .FirstOrDefault();
+        var lastExtraTimeApprovedAudit = await _dbContext.AuditLogs
+            .AsNoTracking()
+            .Where(entry => entry.TenantId == tenantId
+                && entry.EntityType == nameof(WorkTask)
+                && entry.EntityId == request.TaskId.ToString()
+                && entry.Action == "TaskExtraTimeApproved")
+            .OrderByDescending(entry => entry.EventTimeUtc)
+            .Select(entry => new { entry.ActorUserId, entry.ActorDisplayName })
+            .FirstOrDefaultAsync(cancellationToken);
+        string? lastExtraTimeApproverDisplayName = lastExtraTimeApprovedAudit?.ActorDisplayName;
+        if (string.IsNullOrWhiteSpace(lastExtraTimeApproverDisplayName)
+            && lastExtraTimeApprovedAudit?.ActorUserId is Guid approverUserId)
+        {
+            lastExtraTimeApproverDisplayName = await _dbContext.Users
+                .AsNoTracking()
+                .Where(user => user.UserId == approverUserId)
+                .Select(user => user.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
         var assignmentHistory = await _dbContext.AssignmentHistories
             .Where(entity => entity.TenantId == tenantId && entity.TaskId == request.TaskId)
             .OrderBy(entity => entity.ActionDateUtc)
@@ -341,6 +360,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             hasPendingExtraTimeRequest,
             lastExtraTimeRequestDecision,
             pendingExtraTimeRequesterDisplayName,
+            lastExtraTimeApproverDisplayName,
             statusActorDisplayName,
             statusChangeHistory,
             citizenMessageApproverDisplayName,

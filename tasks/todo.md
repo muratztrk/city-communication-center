@@ -1,3 +1,10 @@
+## Round 1350 — Trello Doing (4 web) `c88c84dd`
+
+- [x] `6aba3dfb` — Sistemde ara ad/telefon contains (`+90`, `0554`).
+- [x] `6aba230c` r3 — VT no sonuç başlığının **sağında**.
+- [x] `6aba3f35` / #3899 — Geciken SMS: cursor atlaması kalktı; 1 dk poll + son tarih değişince hemen; Trello yorumu yazıldı.
+- [x] `6aba449a` — Kurum İçi Giden SMS grid `OverdueManager`/`OverdueStaff`.
+
 ## Round 1349 — #3896/#3897 reopen + Görev detay Son Tarih düzenleyenler (`f77f9308`)
 
 - [x] Görevlerim detay Süreç `Son Tarih` yanında `(Ad)` / `(Düzenleyenler)` — `TaskDetailResponse.DueDateChanges`, paylaşımlı `JobDueDateChangeResolver`.

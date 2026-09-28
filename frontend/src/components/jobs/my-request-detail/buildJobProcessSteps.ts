@@ -504,8 +504,8 @@ export function buildJobProcessSteps(
     })
   }
 
-  // Vatandaş talebi Mesaj Onayı "Talep Durumunu Değiştir" ile Active'e dönünce
-  // İptal/Tamamlanma tarihinden sonra standart Yapılmakta katmanı (#2099/#2108).
+  // Mesaj Onayı reopen: İptal/Tamamlanma sonrası Durum adımı (#2099/#2108).
+  // Vatandaş talebinde metin grid ile aynı (`getCitizenRequestDetailStatusLabel`), Yapılmakta sabiti değil (#3896 reopen).
   if (
     wasReopenedViaCitizenMessageApproval(detail)
     && !steps.some(step => step.id === 'status')
@@ -513,7 +513,9 @@ export function buildJobProcessSteps(
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
-      displayValue: statusDisplayValue,
+      displayValue: isCitizenRequestJob(detail)
+        ? getCitizenRequestDetailStatusLabel(t, detail)
+        : statusDisplayValue,
       dateTimeUtc: null,
     })
   }

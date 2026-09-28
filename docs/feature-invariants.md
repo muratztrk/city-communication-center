@@ -1218,8 +1218,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı reopen scope (card #2108 / #6a6aecbc):** `wasReopenedViaCitizenMessageApproval`
   yalnız vatandaş + Active + (completedAtUtc|cancelReason). Birime Gelen'de **İptal Et** gizlenir;
   **Onayla** (hedef onay / personel atama) reopen sonrası aktif kalır — pasif/disabled Onayla
-  gösterilmez. Timeline: İptal/Tamamlanma → Durum Yapılmakta; İptal Tarihi kırmızı
-  (`terminal-danger`). Hedef onay adımı tarih varsa (decidedAtUtc veya hedef görev atama)
+  gösterilmez.   Timeline: İptal/Tamamlanma → Durum adımı vatandaşta grid ile aynı etiket
+  (`getCitizenRequestDetailStatusLabel`, örn. açık görev yoksa İşleme Alındı — #3896 reopen);
+  birim içi/dışı reopen’da `Yapılmakta`. İptal Tarihi kırmızı (`terminal-danger`). Hedef onay adımı tarih varsa (decidedAtUtc veya hedef görev atama)
   gösterilir, yoksa Onay Bekleyen.
 - **Onayla toast (#3254/#3264):** Taleplerim / Birime Gelen / Birimden Giden grid ve detay
   `Onayla` (personel ata, yalnız ata, düz onay, kapatma) başarıda hemen `emitPageToast` →

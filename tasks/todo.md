@@ -1,3 +1,10 @@
+## Round 1349 — #3896/#3897 reopen + Görev detay Son Tarih düzenleyenler (`f77f9308`)
+
+- [x] Görevlerim detay Süreç `Son Tarih` yanında `(Ad)` / `(Düzenleyenler)` — `TaskDetailResponse.DueDateChanges`, paylaşımlı `JobDueDateChangeResolver`.
+- [x] `#3896` r2 / `6aba1ee8` — aktif durum tarihi `text-inherit` (koyu pill'de beyaz).
+- [x] `#3897` r2 / `6aba230c` — Sistemde ara Vatandaş Talepleri başlığında `VT-…` numarası.
+- [x] Mesaj Onayı reopen Süreç Durum vatandaş etiketi (`d92e26db`, kullanıcı isteği VT-2026-374).
+
 ## Round 1348 — Trello Doing (2 web)
 
 - [x] `#3896` / `6aba1ee8` — Grid Durum alt satır: İşleme Alındı/Yapılmakta `updatedAtUtc` (`getCitizenGridStatusDateUtc`).

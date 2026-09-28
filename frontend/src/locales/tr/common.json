@@ -1247,6 +1247,8 @@
       "citizenStatus": "Vatandaş durum",
       "afterHoursManager": "Mesai dışı yönetici",
       "afterHoursStaff": "Mesai dışı personel",
+      "overdueManager": "Geciken yönetici",
+      "overdueStaff": "Geciken personel",
       "test": "Test"
     }
   },

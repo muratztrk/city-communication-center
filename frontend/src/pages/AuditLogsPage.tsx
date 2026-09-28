@@ -167,7 +167,7 @@ function getSmsRecipientPhoneDisplay(item: SmsOutboundLogItem): string {
   return item.recipientPhoneMasked
 }
 
-const INTERNAL_SMS_KINDS = new Set(['AfterHoursManager', 'AfterHoursStaff'])
+const INTERNAL_SMS_KINDS = new Set(['AfterHoursManager', 'AfterHoursStaff', 'OverdueManager', 'OverdueStaff'])
 
 function readScope(value: string | null): AuditLogScope {
   if (value === 'job' || value === 'task' || value === 'citizen-sms' || value === 'internal-sms') {
@@ -319,6 +319,8 @@ export function AuditLogsPage() {
     if (kind === 'CitizenStatus') return t('audit.smsKinds.citizenStatus', 'Vatandaş durum')
     if (kind === 'AfterHoursManager') return t('audit.smsKinds.afterHoursManager', 'Mesai dışı yönetici')
     if (kind === 'AfterHoursStaff') return t('audit.smsKinds.afterHoursStaff', 'Mesai dışı personel')
+    if (kind === 'OverdueManager') return t('audit.smsKinds.overdueManager', 'Geciken yönetici')
+    if (kind === 'OverdueStaff') return t('audit.smsKinds.overdueStaff', 'Geciken personel')
     if (kind === 'Test') return t('audit.smsKinds.test', 'Test')
     return kind
   }, [t])

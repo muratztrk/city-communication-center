@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Jobs;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -9,11 +10,16 @@ public sealed class UpdateTaskDueDateCommandHandler : ICommandHandler<UpdateTask
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IOverdueJobSmsNotifier _overdueJobSmsNotifier;
 
-    public UpdateTaskDueDateCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public UpdateTaskDueDateCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        IOverdueJobSmsNotifier overdueJobSmsNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _overdueJobSmsNotifier = overdueJobSmsNotifier;
     }
 
     public async ValueTask<bool> Handle(UpdateTaskDueDateCommand request, CancellationToken cancellationToken)
@@ -77,6 +83,10 @@ public sealed class UpdateTaskDueDateCommandHandler : ICommandHandler<UpdateTask
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        if (JobTaskDueDateSynchronizer.DateChangedAtMinutePrecision(previousDueDateUtc, task.DueDateUtc))
+        {
+            await _overdueJobSmsNotifier.NotifyJobOverdueIfNeededAsync(job, cancellationToken);
+        }
         return true;
     }
 }

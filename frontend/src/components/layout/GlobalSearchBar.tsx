@@ -29,6 +29,8 @@ interface SearchResultItem {
   subtitle: string
   path: string
   channel?: string | null
+  /** Vatandaş Talepleri sonucu başlığın sağında VT no (#3897 r3). */
+  requestNumber?: string | null
 }
 
 interface SearchData {
@@ -134,16 +136,27 @@ function jobNumberTexts(job: Pick<JobSummary, 'jobNumber' | 'jobNumberYear' | 'c
   return parts
 }
 
-/** #3171: yalnız talep no, VT no, görev no, talep/görev başlığı, vatandaş adı, telefon. */
-function jobMatches(job: JobSummary, q: string): boolean {
+/** Telefon contains: `+90`, `0554`, `554` — saklanan `90…` içinde (#3898). */
+function phoneContains(stored: string | null | undefined, q: string): boolean {
   const qDigits = digitsOnly(q)
-  if (includesFoldedTr(job.title, q) || includesFoldedTr(job.citizenName, q)) return true
-  if (jobNumberTexts(job).some(part => includesFoldedTr(part, q))) return true
-  if (qDigits.length >= 3 && digitsOnly(job.citizenPhone).includes(qDigits)) return true
+  if (qDigits.length < 2) return false
+  const storedDigits = digitsOnly(stored)
+  if (!storedDigits) return false
+  if (storedDigits.includes(qDigits)) return true
+  const qNoLead0 = qDigits.replace(/^0+/, '')
+  if (qNoLead0.length >= 2 && storedDigits.includes(qNoLead0)) return true
+  if (qNoLead0.length >= 10 && storedDigits.includes(`90${qNoLead0}`)) return true
   return false
 }
 
-/** Vatandaş Talepleri sonucu: başlığın önünde talep numarası (`VT-2026-155 · Başlık`, #3897 r2). */
+/** #3171: yalnız talep no, VT no, görev no, talep/görev başlığı, vatandaş adı, telefon (contains). */
+function jobMatches(job: JobSummary, q: string): boolean {
+  if (includesFoldedTr(job.title, q) || includesFoldedTr(job.citizenName, q)) return true
+  if (jobNumberTexts(job).some(part => includesFoldedTr(part, q))) return true
+  if (phoneContains(job.citizenPhone, q)) return true
+  return false
+}
+
 function citizenJobDisplayNumber(job: Pick<JobSummary, 'jobNumber' | 'jobNumberYear' | 'citizenRequestNumber' | 'citizenRequestNumberYear'>): string | null {
   if (job.citizenRequestNumber != null) {
     const year = job.citizenRequestNumberYear ?? job.jobNumberYear
@@ -153,10 +166,6 @@ function citizenJobDisplayNumber(job: Pick<JobSummary, 'jobNumber' | 'jobNumberY
     return `T-${job.jobNumberYear}-${job.jobNumber}`
   }
   return null
-}
-
-function withDisplayNumber(displayNumber: string | null, text: string): string {
-  return displayNumber ? `${displayNumber} · ${text}` : text
 }
 
 function jobSubtitle(job: JobSummary): string {
@@ -184,13 +193,12 @@ function taskMatches(task: Task, q: string, parentJob?: JobSummary): boolean {
 }
 
 function socialMatches(msg: SocialMessage, q: string): boolean {
-  const qDigits = digitsOnly(q)
   if (includesFoldedTr(msg.citizenHandle, q) || includesFoldedTr(msg.citizenName, q)) return true
   if (msg.citizenRequestNumber != null) {
     const year = msg.citizenRequestNumberYear
     if (includesFoldedTr(`VT-${year}-${msg.citizenRequestNumber}`, q) || includesFoldedTr(String(msg.citizenRequestNumber), q)) return true
   }
-  if (qDigits.length >= 3 && digitsOnly(msg.citizenPhone).includes(qDigits)) return true
+  if (phoneContains(msg.citizenPhone, q)) return true
   return false
 }
 
@@ -225,7 +233,7 @@ function pushJobResults(
   socialByJobId: Map<string, string>,
   showCitizenChannel: boolean,
   t: ReturnType<typeof useTranslation>['t'],
-  titleFor: (job: JobSummary) => string = job => job.title,
+  numberFor?: (job: JobSummary) => string | null,
 ) {
   let added = 0
   for (const job of jobs) {
@@ -238,10 +246,11 @@ function pushJobResults(
     results.push({
       id: `${category}-${job.jobId}`,
       category,
-      title: titleFor(job),
+      title: job.title,
       subtitle: channelLabel ? `${channelLabel} • ${status}` : jobSubtitle(job),
       path: pathFor(job),
       channel,
+      requestNumber: numberFor?.(job) ?? null,
     })
     added += 1
   }
@@ -398,7 +407,7 @@ function filterResults(
       socialByJobId,
       showCitizenChannel,
       t,
-      job => withDisplayNumber(citizenJobDisplayNumber(job), job.title),
+      citizenJobDisplayNumber,
     )
 
     let socialAdded = 0
@@ -416,10 +425,11 @@ function filterResults(
       results.push({
         id: `social-${msg.socialMessageId}`,
         category: 'social',
-        title: withDisplayNumber(messageNumber, msg.citizenName?.trim() || msg.citizenHandle),
+        title: msg.citizenName?.trim() || msg.citizenHandle,
         subtitle: [channelLabel, status].filter(Boolean).join(' • '),
         path: msg.jobId ? `/social?jobId=${msg.jobId}` : `/social?channel=${msg.channel}`,
         channel: msg.channel,
+        requestNumber: messageNumber,
       })
     }
   }
@@ -682,12 +692,17 @@ export function GlobalSearchBar() {
                         className="flex w-full items-start gap-2 border-b border-slate-50 px-4 py-2.5 text-left last:border-0 hover:bg-slate-50"
                         onClick={() => handleSelect(item.path)}
                       >
-                        <span className="flex min-w-0 flex-col gap-0.5">
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                           <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-slate-800">
                             {iconBesideTitle && item.channel ? (
                               <ChannelIcon channel={item.channel} className="size-3.5 shrink-0" />
                             ) : null}
                             <span className="min-w-0 truncate">{item.title}</span>
+                            {item.requestNumber ? (
+                              <span className="ml-auto shrink-0 font-mono text-[0.72rem] font-bold tabular-nums text-slate-500">
+                                {item.requestNumber}
+                              </span>
+                            ) : null}
                           </span>
                           {item.subtitle ? (
                             <span className="inline-flex items-center gap-1 text-xs text-slate-400">

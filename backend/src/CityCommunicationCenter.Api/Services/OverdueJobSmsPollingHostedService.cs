@@ -4,7 +4,7 @@ namespace CityCommunicationCenter.Api.Services;
 
 public sealed class OverdueJobSmsPollingHostedService : BackgroundService
 {
-    private static readonly TimeSpan PollInterval = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan PollInterval = TimeSpan.FromMinutes(1);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<OverdueJobSmsPollingHostedService> _logger;

@@ -1557,8 +1557,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yönetici/personel metrik başlıkları `whitespace-nowrap` — «Geciken Taleplerim» kırılmaz (#6a92acaa).
   Vatandaş Talepleri sayfası yetkisiyle `getJobs(all, Citizen)` listesi de aranır; ad/telefon/VT no
   eşleşmesi `jobId` ile `/social?jobId=` açılır (#3897). Sosyal mesaj satırı aynı `jobId` için
-  tekrarlanmaz. Vatandaş Talepleri sonuç başlığı `VT-2026-155 · Başlık` (mesaj satırında
-  `VT-… · Vatandaş Adı`) — talep numarası başlıkta (#3897 r2).
+  tekrarlanmaz. Vatandaş Talepleri sonuç başlığının **sağında** `VT-2026-155` (#3897 r3; başlığa önek yok).
+  Ad/telefon **contains** (telefon `+90` / `0554` / `554`; rakam eşiği 2 — #3898).
   Sistemde ara sosyal satır durumu bağlı Job’dan gelir (`getJobs(all, Citizen)`);
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;
   kanal eşlemesi `getSocialMessages` ile (#6a92aaca).
@@ -3057,10 +3057,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Geciken talep SMS (#6aa4faf6 / #6a9bff9a / #6aa6f5c7):** Ayarlar → Otomatik Yönlendirme'de yönetici
   (`overdueManagerSms`) ve personel (`overdueStaffSms`) kutuları yan yana; her biri iki textarea + ortada
   sabit `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}` (kayıt tek string). Açık VT `dueDateUtc < now`
-  olduğunda `OverdueJobSmsPollingHostedService` (15 dk): yönetici → müdür/sorumlu/VTY (`OverdueManager`,
+  olduğunda `OverdueJobSmsPollingHostedService` (1 dk): yönetici → müdür/sorumlu/VTY (`OverdueManager`,
   talep bazlı tek gönderim); personel → açık görevli Staff atanan (`OverdueStaff`, alıcı bazlı tek gönderim).
-  Hitap yok; token'lar mesai dışı ile aynı. Özellik ilk açıldığında mevcut gecikenlere SMS gitmez
-  (`OverdueSmsCursorUtc`); yalnızca imleçten sonra geciken her talep numarasına bir kez gider.
+  Hitap yok; token'lar mesai dışı ile aynı. Mesai saati kontrolü **yok**. İmleç (`OverdueSmsCursorUtc`)
+  artık mevcut gecikenleri atlamaz — başarılı `SmsOutboundLog` yoksa hemen gider (VT-2026-157; son tarih
+  güncellemesi `NotifyJobOverdueIfNeededAsync`).
 - **WA İleten Operatör / Düzenlendi bold (#6aaccdd):** balon alt satırında `conversation-entry-meta-badge`
   + `font-bold` — İleten Operatör (turkuaz) ve Düzenlendi (turuncu) aynı kalınlık.
 - **WhatsApp hitap:** serbest metin / yanıt / medya caption aynı hitap (`WhatsAppClient` + konuşma kaydı).
@@ -3123,7 +3124,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesaj İçeriği `line-clamp-3` + `leading-[1.25]` + overflow tooltip (#3670 reopen).
   Grid Telefon No **maskelenmez** — API `recipientPhone` (tam numara) döner; eski kayıtlarda
   `recipientPhoneMasked` yedek (#3673). Kurum İçi Giden SMS gridinde Tarih sonrası **Personel Adı**
-  (`recipientDisplayName`, #3671).
+  (`recipientDisplayName`, #3671). **Geciken yönetici/personel** (`OverdueManager` / `OverdueStaff`)
+  aynı gridde görünür (#3899); Tür etiketleri `Geciken yönetici` / `Geciken personel`.
 - **İade Edilen Talepler grid (#3688/#3689):** banner'da Vatandaş Talepleri ile aynı arama +
   başlangıç/bitiş tarihi; gridde **Talep Etiketi** sütunu yok.
 - **Operatöre iade edilen VT (#3675–#3678):** Birime Gelen detayda yalnız **İşleme Alındı**

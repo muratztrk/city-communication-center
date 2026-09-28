@@ -689,6 +689,18 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
         }
     }
 
+    public async Task NotifyJobOverdueIfNeededAsync(Job job, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await SendOverdueSmsForJobIfNeededAsync(job, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Geciken talep SMS bildirimi başarısız oldu. JobId={JobId}", job.JobId);
+        }
+    }
+
     private async Task ProcessOverdueJobsCoreAsync(CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
@@ -701,29 +713,11 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
 
         foreach (var tenantId in tenantIds)
         {
-            var templates = await LoadTemplatesAsync(tenantId, cancellationToken);
-            var managerEnabled = templates.OverdueManagerSmsIsEnabled
-                && !string.IsNullOrWhiteSpace(templates.OverdueManagerSms);
-            var staffEnabled = templates.OverdueStaffSmsIsEnabled
-                && !string.IsNullOrWhiteSpace(templates.OverdueStaffSms);
-            if (!managerEnabled && !staffEnabled)
-            {
-                continue;
-            }
-
-            if (templates.OverdueSmsCursorUtc is null)
-            {
-                await PersistOverdueSmsCursorAsync(tenantId, now, cancellationToken);
-                continue;
-            }
-
-            var cursor = templates.OverdueSmsCursorUtc.Value;
             var overdueJobs = await _dbContext.Jobs
                 .IgnoreQueryFilters()
                 .AsNoTracking()
                 .Where(job => job.TenantId == tenantId
                     && job.DueDateUtc != null
-                    && job.DueDateUtc > cursor
                     && job.DueDateUtc <= now
                     && job.Status != JobStatus.Completed
                     && job.Status != JobStatus.Cancelled
@@ -732,54 +726,54 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
 
             foreach (var job in overdueJobs)
             {
-                if (!JobCitizenRequestHelper.IsCitizenRequest(job))
-                {
-                    continue;
-                }
-
-                var requestNumber = await FormatJobRequestNumberAsync(job, cancellationToken);
-
-                if (managerEnabled
-                    && !await HasSuccessfulOverdueSmsAsync(
-                        tenantId, job.JobId, requestNumber, SmsOutboundKind.OverdueManager, cancellationToken))
-                {
-                    var departmentIds = await ResolveManagerSmsDepartmentIdsAsync(job, [], cancellationToken);
-                    await SendOverdueManagerSmsAsync(job, departmentIds, templates.OverdueManagerSms!, cancellationToken);
-                }
-
-                if (staffEnabled
-                    && !await HasSuccessfulOverdueSmsAsync(
-                        tenantId, job.JobId, requestNumber, SmsOutboundKind.OverdueStaff, cancellationToken))
-                {
-                    await SendOverdueStaffSmsAsync(job, templates.OverdueStaffSms!, cancellationToken);
-                }
+                await SendOverdueSmsForJobIfNeededAsync(job, cancellationToken);
             }
         }
     }
 
-    private async Task PersistOverdueSmsCursorAsync(
-        Guid tenantId,
-        DateTimeOffset cursor,
-        CancellationToken cancellationToken)
+    private async Task SendOverdueSmsForJobIfNeededAsync(Job job, CancellationToken cancellationToken)
     {
-        var settings = await _dbContext.TenantSettings
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);
-        if (settings is null)
+        if (!JobCitizenRequestHelper.IsCitizenRequest(job))
         {
             return;
         }
 
-        var model = CitizenAutoReplyTemplateJson.ParseOrDefault(settings.CitizenAutoReplyTemplatesJson);
-        if (model.OverdueSmsCursorUtc is not null)
+        if (job.DueDateUtc is null || job.DueDateUtc > DateTimeOffset.UtcNow)
         {
             return;
         }
 
-        settings.CitizenAutoReplyTemplatesJson = CitizenAutoReplyTemplateJson.Serialize(
-            model with { OverdueSmsCursorUtc = cursor });
-        settings.UpdatedAtUtc = cursor;
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        if (job.Status is JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected)
+        {
+            return;
+        }
+
+        var templates = await LoadTemplatesAsync(job.TenantId, cancellationToken);
+        var managerEnabled = templates.OverdueManagerSmsIsEnabled
+            && !string.IsNullOrWhiteSpace(templates.OverdueManagerSms);
+        var staffEnabled = templates.OverdueStaffSmsIsEnabled
+            && !string.IsNullOrWhiteSpace(templates.OverdueStaffSms);
+        if (!managerEnabled && !staffEnabled)
+        {
+            return;
+        }
+
+        var requestNumber = await FormatJobRequestNumberAsync(job, cancellationToken);
+
+        if (managerEnabled
+            && !await HasSuccessfulOverdueSmsAsync(
+                job.TenantId, job.JobId, requestNumber, SmsOutboundKind.OverdueManager, cancellationToken))
+        {
+            var departmentIds = await ResolveManagerSmsDepartmentIdsAsync(job, [], cancellationToken);
+            await SendOverdueManagerSmsAsync(job, departmentIds, templates.OverdueManagerSms!, cancellationToken);
+        }
+
+        if (staffEnabled
+            && !await HasSuccessfulOverdueSmsAsync(
+                job.TenantId, job.JobId, requestNumber, SmsOutboundKind.OverdueStaff, cancellationToken))
+        {
+            await SendOverdueStaffSmsAsync(job, templates.OverdueStaffSms!, cancellationToken);
+        }
     }
 
     private async Task<string> FormatJobRequestNumberAsync(Job job, CancellationToken cancellationToken)

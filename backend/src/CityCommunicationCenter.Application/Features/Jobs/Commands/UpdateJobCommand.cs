@@ -43,11 +43,16 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly IOverdueJobSmsNotifier _overdueJobSmsNotifier;
 
-    public UpdateJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor)
+    public UpdateJobCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        IOverdueJobSmsNotifier overdueJobSmsNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _overdueJobSmsNotifier = overdueJobSmsNotifier;
     }
 
     public async ValueTask<bool> Handle(UpdateJobCommand request, CancellationToken cancellationToken)
@@ -298,6 +303,10 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        if (dueDateChanged)
+        {
+            await _overdueJobSmsNotifier.NotifyJobOverdueIfNeededAsync(job, cancellationToken);
+        }
         return true;
     }
 

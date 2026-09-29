@@ -1603,6 +1603,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Detay sütunu bildirim `FormatNote` ile aynı sadeleştirme: teknik `Status=/Targets=/CreatedTasks=`
   ham dump yok; varsa yalnızca lokalize durum (card #1713 Detay).
 - **Nav/UI “Birimler”:** `nav.departments` ve departments.* metinleri “Birimler/Birim”dir;
+  “Departman(lar)” kullanılmaz (card #1487). Sol menü yönetim bloğu sırası: Ayarlar → Log →
+  Kullanıcılar → Birimler (#3939; Birimler ile Log yer değiştirdi).
   “Departmanlar” geri gelmez (card #1723).
 - **Yeni birim formu LDAP birim çekebilir:** LDAP açıksa Manual|LDAP segmented; LDAP listesinde
   yalnız birim adları. Oluşturma formunda Tür/Müdür/Sorumlular yok — varsayılan tür `Birim`
@@ -1674,7 +1676,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Giden mail her SMTP denemesinde `mailoutboundlogs` satırı yazar (başarı/hata, #3930).
   Alıcının `Email` alanı boşsa SMTP denenmez; log `Success=false` + `Alıcının e-posta adresi yok.`
   (#3934 — VT-2026-161: hedef müdür telefona SMS gitti, e-posta boş olduğu için mail yoktu).
-  Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı, Mail Adresi, Mail İçeriği, **İşlem**, Detay
+  Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı (alt satırda beyaz **e-Posta** başlığı
+  + e-posta değeri; ayrı Mail Adresi kolonu yok, #3938), Mail İçeriği, **İşlem**, Detay
   (Tür yok; İşlem Başarılı/Başarısız pill, #3937). `GET /api/v1/admin/mail-outbound-logs`.
   Geciken talep/görev maili yalnız imleçten (`OverdueMailCursorUtc` / `OverdueTaskMailCursorUtc`)
   **sonra** son tarihi geçenlere gider; açılışta zaten gecikmiş geçmiş talepler gönderilmez (#3936).
@@ -3177,8 +3180,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sütunları; Detay yalnız sağlayıcı/teknik bilgi (#3670). **Telefon No** başlığı (#3672);
   Mesaj İçeriği `line-clamp-3` + `leading-[1.25]` + overflow tooltip (#3670 reopen).
   Grid Telefon No **maskelenmez** — API `recipientPhone` (tam numara) döner; eski kayıtlarda
-  `recipientPhoneMasked` yedek (#3673). Kurum İçi Giden SMS gridinde **Sıra, Talep No, Personel Adı,
-  Telefon No, Tarih** (#3932). **Geciken** / **Mesai dışı** (`OverdueManager`/`OverdueStaff`,
+  `recipientPhoneMasked` yedek (#3673). Kurum İçi Giden SMS gridinde **Sıra, Talep No, Personel Adı
+  (alt satırda beyaz Telefon No başlığı + numara; ayrı Telefon No kolonu yok, #3940), Tarih**
+  (#3932). Vatandaşa Giden SMS ayrı Telefon No kolonunu korur. **Geciken** / **Mesai dışı** (`OverdueManager`/`OverdueStaff`,
   `AfterHoursManager`/`AfterHoursStaff`) aynı gridde görünür (#3899/#3931); Tür etiketinde
   yönetici/personel ayrımı yok.
 - **İade Edilen Talepler grid (#3688/#3689):** banner'da Vatandaş Talepleri ile aynı arama +

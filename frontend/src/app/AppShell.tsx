@@ -539,9 +539,9 @@ export function AppShell() {
     { path: '/staff-tasks', label: t('nav.staffTasks', 'Personelimin Görevleri'), icon: Users, requiredRole: 'Manager' },
     { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp, newTab: true, separatorBefore: true, separatorAfter: true },
     { pageKey: 'settings' as const, path: '/settings', label: t('nav.settings'), icon: Settings2 },
-    { pageKey: 'departments' as const, path: '/departments', label: t('nav.departments'), icon: Building },
-    { pageKey: 'users' as const, path: '/users', label: t('nav.users'), icon: Users },
     { pageKey: 'audit' as const, path: '/audit', label: t('nav.audit'), icon: ScrollText },
+    { pageKey: 'users' as const, path: '/users', label: t('nav.users'), icon: Users },
+    { pageKey: 'departments' as const, path: '/departments', label: t('nav.departments'), icon: Building },
   ]
 
   const navItems = navItemConfigs.reduce<SidebarNavItem[]>((items, item) => {

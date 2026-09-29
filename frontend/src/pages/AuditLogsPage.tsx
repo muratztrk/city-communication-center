@@ -414,7 +414,7 @@ export function AuditLogsPage() {
       return matchesFilters(row, (key, item) => {
         if (key === 'createdAtUtc') return item.dateText
         if (key === 'recipientPhoneMasked') return item.recipientPhoneDisplay
-        if (key === 'recipientDisplayName') return item.recipientStaffName
+        if (key === 'recipientDisplayName') return `${item.recipientStaffName} ${item.recipientPhoneDisplay}`
         if (key === 'citizenDisplayName') return item.citizenDisplayName
         if (key === 'requestNumber') return item.requestNumber ?? ''
         if (key === 'kindLabel') return item.kindLabel
@@ -477,8 +477,7 @@ export function AuditLogsPage() {
       }
       return matchesFilters(row, (key, item) => {
         if (key === 'createdAtUtc') return item.dateText
-        if (key === 'recipientDisplayName') return item.recipientStaffName
-        if (key === 'recipientEmail') return item.recipientEmail
+        if (key === 'recipientDisplayName') return `${item.recipientStaffName} ${item.recipientEmail}`
         if (key === 'requestNumber') return item.requestNumber ?? ''
         if (key === 'bodyPreview') return item.bodyPreview
         if (key === 'success') return item.statusLabel
@@ -658,18 +657,10 @@ export function AuditLogsPage() {
                     sortDir={sortDir}
                     onSort={handleSort}
                   >
-                    {t('audit.smsStaffName', 'Personel Adı')}
-                  </FilterableTh>
-                  <FilterableTh
-                    filterKey="recipientEmail"
-                    filterValue={filters.recipientEmail ?? ''}
-                    onFilter={handleFilter}
-                    sortKey="recipientEmail"
-                    currentSortKey={sortKey}
-                    sortDir={sortDir}
-                    onSort={handleSort}
-                  >
-                    {t('audit.mailAddress', 'Mail Adresi')}
+                    <span className="flex flex-col leading-tight">
+                      <span>{t('audit.smsStaffName', 'Personel Adı')}</span>
+                      <span className="font-medium text-white">{t('users.emailGrid', 'e-Posta')}</span>
+                    </span>
                   </FilterableTh>
                   <FilterableTh
                     filterKey="bodyPreview"
@@ -712,8 +703,12 @@ export function AuditLogsPage() {
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(mailSafePage - 1) * pageSize + index + 1}</td>
                     <td>{log.requestNumber?.trim() || '—'}</td>
                     <td>{log.dateText}</td>
-                    <td>{log.recipientStaffName}</td>
-                    <td className="font-mono text-sm text-slate-700">{log.recipientEmail || '—'}</td>
+                    <td>
+                      <div className="grid gap-0.5">
+                        <span>{log.recipientStaffName}</span>
+                        <span className="font-mono text-xs text-slate-500">{log.recipientEmail || '—'}</span>
+                      </div>
+                    </td>
                     <td className="max-w-[18rem] text-left text-sm text-slate-700">
                       <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body whitespace-pre-wrap break-words" />
                     </td>
@@ -731,7 +726,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {mailRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={8} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={7} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>
@@ -773,7 +768,10 @@ export function AuditLogsPage() {
                       sortDir={sortDir}
                       onSort={handleSort}
                     >
-                      {t('audit.smsStaffName', 'Personel Adı')}
+                      <span className="flex flex-col leading-tight">
+                        <span>{t('audit.smsStaffName', 'Personel Adı')}</span>
+                        <span className="font-medium text-white">{t('audit.smsPhoneNo', 'Telefon No')}</span>
+                      </span>
                     </FilterableTh>
                   )}
                   {activeScope === 'citizenSms' ? (
@@ -789,17 +787,19 @@ export function AuditLogsPage() {
                       {t('audit.date')}
                     </FilterableTh>
                   ) : null}
-                  <FilterableTh
-                    filterKey="recipientPhoneMasked"
-                    filterValue={filters.recipientPhoneMasked ?? ''}
-                    onFilter={handleFilter}
-                    sortKey="recipientPhoneMasked"
-                    currentSortKey={sortKey}
-                    sortDir={sortDir}
-                    onSort={handleSort}
-                  >
-                    {t('audit.smsPhoneNo', 'Telefon No')}
-                  </FilterableTh>
+                  {activeScope === 'citizenSms' ? (
+                    <FilterableTh
+                      filterKey="recipientPhoneMasked"
+                      filterValue={filters.recipientPhoneMasked ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="recipientPhoneMasked"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('audit.smsPhoneNo', 'Telefon No')}
+                    </FilterableTh>
+                  ) : null}
                   {activeScope === 'internalSms' ? (
                     <FilterableTh
                       filterKey="createdAtUtc"
@@ -864,9 +864,20 @@ export function AuditLogsPage() {
                   <tr key={log.smsOutboundLogId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(smsSafePage - 1) * pageSize + index + 1}</td>
                     <td>{log.requestNumber?.trim() || '—'}</td>
-                    {activeScope === 'citizenSms' ? <td>{log.citizenDisplayName}</td> : <td>{log.recipientStaffName}</td>}
+                    {activeScope === 'citizenSms' ? (
+                      <td>{log.citizenDisplayName}</td>
+                    ) : (
+                      <td>
+                        <div className="grid gap-0.5">
+                          <span>{log.recipientStaffName}</span>
+                          <span className="font-mono text-xs text-slate-500">{log.recipientPhoneDisplay || '—'}</span>
+                        </div>
+                      </td>
+                    )}
                     {activeScope === 'citizenSms' ? <td>{log.dateText}</td> : null}
-                    <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
+                    {activeScope === 'citizenSms' ? (
+                      <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
+                    ) : null}
                     {activeScope === 'internalSms' ? <td>{log.dateText}</td> : null}
                     <td>{log.kindLabel}</td>
                     <td className="max-w-[18rem] text-left text-sm text-slate-700">
@@ -886,7 +897,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {smsRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={9} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={activeScope === 'internalSms' ? 8 : 9} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>

@@ -1,3 +1,9 @@
+## Round 1369 — #3938 / #3940 / #3939
+
+- [x] `6abbf86d` / #3938 — Mail Log: Mail Adresi kolonu kalktı; e-Posta Personel Adı altında.
+- [x] `6abbf93e` / #3940 — Kurum İçi SMS: Telefon No kolonu kalktı; numara Personel Adı altında.
+- [x] `6abbf909` / #3939 — Sol menü: Birimler ile Log yer değiştirdi (Ayarlar, Log, Kullanıcılar, Birimler).
+
 ## Round 1368 — #3935 / #3936 / #3937
 
 - [x] `6abbf5cc` / #3935 — Aynı e-posta birden çok kullanıcıya; uniqueness uyarısı kaldırıldı.

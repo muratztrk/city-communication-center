@@ -1283,6 +1283,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.taskCompleteFailed'))
   },
 
+  async updateTaskCompletionNote(taskId: string, note: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/completion-note`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ note }),
+    })
+    await ensureOk(response, i18n.t('errors.taskCompletionNoteUpdateFailed', 'Tamamlama notu güncellenemedi.'))
+  },
+
   async updateTaskDueDate(taskId: string, dueDateUtc: string | null): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/${taskId}/due-date`, {
       method: 'POST',

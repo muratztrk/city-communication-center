@@ -165,6 +165,13 @@ public sealed class TasksController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{taskId:guid}/completion-note")]
+    public async Task<IActionResult> UpdateCompletionNote(Guid taskId, [FromBody] UpdateTaskCompletionNoteRequest request, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new UpdateTaskCompletionNoteCommand(taskId, CurrentContext.UserId, request.Note), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpGet("{taskId:guid}/audit-log")]
     public async Task<ActionResult<IEnumerable<EntityAuditLogEntryResponse>>> GetTaskAuditLog(Guid taskId, CancellationToken cancellationToken)
     {

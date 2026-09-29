@@ -61,7 +61,7 @@ public sealed class CitizenMessageApprovalNoteResolverTests
                 Notes = "personel notu",
                 Details = "personel notu",
             },
-            BuildAudit(jobId, "CitizenMessageApprovalCompletionNoteEdited", "operator notu", completedAt.AddMinutes(6)));
+            BuildAudit(jobId, "CitizenMessageApprovalCompletionNoteEdited", "operator notu", completedAt.AddMinutes(6), "Test Müdür"));
         await db.SaveChangesAsync();
 
         var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
@@ -72,6 +72,12 @@ public sealed class CitizenMessageApprovalNoteResolverTests
 
         Assert.Equal("personel notu", released);
         Assert.Null(outbound);
+
+        var split = await CitizenMessageApprovalNoteResolver.ResolveCompletionNoteEditSplitAsync(
+            db, TenantId, jobId, CancellationToken.None);
+        Assert.Equal("personel notu", split.OriginalNote);
+        Assert.Equal("operator notu", split.UpdatedNote);
+        Assert.Equal("Test Müdür", split.EditorDisplayName);
     }
 
     [Fact]

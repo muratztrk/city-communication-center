@@ -196,4 +196,7 @@ public sealed record JobDetailResponse(
     string? ReturnedFromDepartmentName = null,
     string? ReturnedByDisplayName = null,
     bool HadOverdueDueDate = false,
-    IReadOnlyCollection<JobDueDateChangeResponse>? DueDateChanges = null);
+    IReadOnlyCollection<JobDueDateChangeResponse>? DueDateChanges = null,
+    string? CitizenUpdatedCompletionNote = null,
+    string? CitizenCompletionNoteEditorDisplayName = null,
+    string? CitizenOriginalCompletionNote = null);

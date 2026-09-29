@@ -51,7 +51,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
 import { printHtmlDocument } from '../utils/printDocument'
-import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, omitCourtesyClosing, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, omitCourtesyClosing, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, resolveCompletionNoteEditSplit, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -565,6 +565,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [returnUserId, setReturnUserId] = useState('')
   const [returnSaving, setReturnSaving] = useState(false)
   const [completeModal, setCompleteModal] = useState<{ taskId: string; displayNumber: string; isCitizenRequest: boolean } | null>(null)
+  const [completionNoteEditModal, setCompletionNoteEditModal] = useState<{ taskId: string; note: string } | null>(null)
+  const [completionNoteEditSaving, setCompletionNoteEditSaving] = useState(false)
   const [completeSaving, setCompleteSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
@@ -590,6 +592,20 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const scopeParam = (searchParams.get('scope') as TaskListScope | null) ?? scopes[0]
   const currentScope: TaskListScope = scopes.includes(scopeParam) ? scopeParam : scopes[0]
   const isMyTasksView = fixedScope === 'mine'
+  const canEditUnapprovedCompletionNote = !!taskDetail
+    && isMyTasksView
+    && taskDetail.assignedUserId === user?.userId
+    && (taskDetail.currentStatus === 'Completed' || taskDetail.currentStatus === 'PendingCloseApproval')
+    && (
+      taskDetail.currentStatus === 'PendingCloseApproval'
+      || (
+        isCitizenRequestJob({ requestType: taskDetail.jobRequestType, sourceType: taskDetail.jobSourceType })
+        && !(
+          taskDetail.citizenMessageApproverDisplayName
+          ?? parentJobDetail?.citizenMessageApproverDisplayName
+        )?.trim()
+      )
+    )
   const myTaskIds = useMemo(() => tasks.map(task => task.taskId), [tasks])
   useNewRecordIdsSound(isMyTasksView ? myTaskIds : [], !loading, { targetPathPrefix: '/my-tasks' })
   const isDepartmentTasksView = mode === 'departmentTasks'
@@ -1193,6 +1209,23 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setCompleteSaving(false)
+    }
+  }
+
+  const handleSaveCompletionNoteEdit = async () => {
+    if (!completionNoteEditModal || !completionNoteEditModal.note.trim()) return
+    const taskId = completionNoteEditModal.taskId
+    setCompletionNoteEditSaving(true)
+    try {
+      await api.updateTaskCompletionNote(taskId, completionNoteEditModal.note.trim())
+      setCompletionNoteEditModal(null)
+      invalidateTasks(queryClient, taskId, selectedTask?.jobId ?? taskDetail?.jobId)
+      await refreshOpenTaskDetailAfterAction(taskId)
+      showToast(t('tasks.actions.completionNoteUpdated', 'Tamamlama notu güncellendi.'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setCompletionNoteEditSaving(false)
     }
   }
 
@@ -2166,6 +2199,23 @@ const pageKicker = isMyTasksView
                         {t('tasks.actions.route', 'Görevi Yönlendir')}
                       </DisabledActionButton>
                     ))}
+                    {isMyTasksView && canEditUnapprovedCompletionNote && (
+                      <Button
+                        type="button"
+                        size="lg"
+                        className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
+                        onClick={() => {
+                          if (!taskDetail) return
+                          setCompletionNoteEditModal({
+                            taskId: taskDetail.taskId,
+                            note: richTextToPlainText(taskDetail.notes ?? '').trim(),
+                          })
+                        }}
+                      >
+                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('common.edit', 'Düzenle')}
+                      </Button>
+                    )}
                     {isMyTasksView && canCompleteTask && (
                       <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => selectedTask && handleComplete(selectedTask)}>
                         <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -2418,6 +2468,16 @@ const pageKicker = isMyTasksView
                                   || (outboundRaw && notesDiffer(outboundRaw, taskNotesPlain) ? '—' : taskNotesPlain)
                                   || '—')
                                 : ''
+                              const completionNoteEdit = resolveCompletionNoteEditSplit({
+                                originalNote: citizenParent?.citizenOriginalCompletionNote
+                                  ?? taskDetail.citizenOriginalCompletionNote
+                                  ?? citizenParent?.citizenApprovalReleasedNote
+                                  ?? taskDetail.citizenApprovalReleasedNote,
+                                updatedNote: citizenParent?.citizenUpdatedCompletionNote
+                                  ?? taskDetail.citizenUpdatedCompletionNote,
+                                editorName: citizenParent?.citizenCompletionNoteEditorDisplayName
+                                  ?? taskDetail.citizenCompletionNoteEditorDisplayName,
+                              })
                               const completionCompareSource = isCompletedTask
                                 ? (releasedPlain || taskNotesPlain)
                                 : (cancelNoteDisplay !== '—' ? cancelNoteDisplay : '')
@@ -2452,11 +2512,27 @@ const pageKicker = isMyTasksView
                                 })
                               }
                               if (isCompletedTask || (isPendingCloseApproval && isCitizenTerminalTask)) {
-                                rows.push({
-                                  label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
-                                  value: completionNoteDisplay,
-                                  tone: 'completion',
-                                })
+                                if (completionNoteEdit) {
+                                  rows.push({
+                                    label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
+                                    value: completionNoteEdit.original,
+                                  })
+                                  rows.push({
+                                    label: t('tasks.detail.updatedCompletionNote', 'Güncellenen Tamamlama Notu'),
+                                    value: completionNoteEdit.updated,
+                                    tone: 'completion',
+                                  })
+                                  rows.push({
+                                    label: t('tasks.detail.completionNoteEditor', 'Tamamlama Notu Güncelleyen'),
+                                    value: completionNoteEdit.editor || '—',
+                                  })
+                                } else {
+                                  rows.push({
+                                    label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
+                                    value: completionNoteDisplay,
+                                    tone: 'completion',
+                                  })
+                                }
                               } else if (isCancelledTask) {
                                 rows.push({
                                   label: t('tasks.detail.cancelNote', 'İptal Notu'),
@@ -3738,6 +3814,52 @@ const pageKicker = isMyTasksView
             onPageChange={setTasksPage}
           />
         </section>
+      )}
+
+      {completionNoteEditModal && createPortal(
+        <ModalBackdrop onEscapeClose={() => !completionNoteEditSaving && setCompletionNoteEditModal(null)}>
+          <div className="form-card page-stack relative w-full max-w-md">
+            <button
+              type="button"
+              onClick={() => !completionNoteEditSaving && setCompletionNoteEditModal(null)}
+              aria-label={t('common.close', 'Kapat')}
+              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+            >
+              <X className="size-4" />
+            </button>
+            <h2 className="workflow-note-dialog__title">{t('tasks.actions.editCompletionNoteTitle', 'Tamamlama Notunu Düzenle')}</h2>
+            <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
+              {t('tasks.actions.editCompletionNoteHelp', 'Yalnızca tamamlama notu düzenlenebilir.')}
+            </p>
+            <label className="job-field">
+              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_TERMINAL_NOTE_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
+              <textarea
+                className="field-textarea workflow-note-dialog__textarea"
+                rows={3}
+                maxLength={TASK_TERMINAL_NOTE_MAX_LENGTH}
+                value={completionNoteEditModal.note}
+                onChange={e => setCompletionNoteEditModal(current => current ? { ...current, note: e.target.value } : current)}
+                placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                autoFocus
+              />
+            </label>
+            <div className="mt-3 flex justify-end gap-2">
+              <Button type="button" size="sm" variant="secondary" disabled={completionNoteEditSaving} onClick={() => setCompletionNoteEditModal(null)}>
+                {t('common.cancel', 'Vazgeç')}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="success"
+                disabled={completionNoteEditSaving || !completionNoteEditModal.note.trim()}
+                onClick={() => void handleSaveCompletionNoteEdit()}
+              >
+                {completionNoteEditSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+          </div>
+        </ModalBackdrop>,
+        document.body,
       )}
 
       {completeModal && createPortal(

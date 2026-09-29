@@ -1,3 +1,8 @@
+## Round 1354 — Trello Doing (2 web)
+
+- [x] `6abb64ab` / #3907 — Görevlerim detay: onaylanmamış Tamamlama Notu için Düzenle (yalnız not).
+- [x] `6abb62ee` / #3905 — Mesaj Onayı detay: düzenlenen not → Güncellenen Tamamlama Notu + Güncelleyen.
+
 ## Round 1353 — Trello Doing (3 web)
 
 - [x] `6abb525f` / #3903 — WA Talep Oluştur: TR sabit hat (`+90 232…`) Sierra Leone sanılmasın.

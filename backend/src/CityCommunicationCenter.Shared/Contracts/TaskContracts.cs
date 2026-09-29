@@ -56,6 +56,8 @@ public sealed record UpdateTaskProgressRequest(int? CompletionPercentage, decima
 
 public sealed record UpdateTaskDueDateRequest(DateTimeOffset? DueDateUtc);
 
+public sealed record UpdateTaskCompletionNoteRequest(string Note);
+
 public sealed record TaskSummaryResponse(
     Guid TaskId,
     Guid TenantId,
@@ -193,4 +195,7 @@ public sealed record TaskDetailResponse(
     string? CitizenOutboundRelayerDisplayName = null,
     string? JobCancelReason = null,
     // Son Tarih düzenleyenleri — talep detayı ile aynı liste (bu görev + bağlı talep, #3890 r3).
-    IReadOnlyCollection<JobDueDateChangeResponse>? DueDateChanges = null);
+    IReadOnlyCollection<JobDueDateChangeResponse>? DueDateChanges = null,
+    string? CitizenUpdatedCompletionNote = null,
+    string? CitizenCompletionNoteEditorDisplayName = null,
+    string? CitizenOriginalCompletionNote = null);

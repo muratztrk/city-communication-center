@@ -103,6 +103,21 @@ export function buildCitizenOutboundEditorField(
   }
 }
 
+export function resolveCompletionNoteEditSplit(input: {
+  originalNote?: string | null
+  updatedNote?: string | null
+  editorName?: string | null
+}): { original: string; updated: string; editor: string } | null {
+  const original = notePlain(input.originalNote)
+  const updated = notePlain(input.updatedNote)
+  if (!updated || !original || !notesDiffer(updated, original)) return null
+  return {
+    original,
+    updated,
+    editor: input.editorName?.trim() || '',
+  }
+}
+
 export function resolveCitizenCancelOutboundDisplay(
   detail: {
     citizenOutboundMessage?: string | null

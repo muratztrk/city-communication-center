@@ -116,6 +116,60 @@ internal static class CitizenMessageApprovalNoteResolver
     }
 
     /// <summary>
+    /// Mesaj Onayı / Görevlerim: Talep Durumu Notu düzenlendiyse orijinal + güncel not + düzenleyen (#3905).
+    /// Serbest bırakmadan sonraki outbound düzenlemesi bu ayrımı açmaz.
+    /// </summary>
+    public static async Task<CompletionNoteEditSplit> ResolveCompletionNoteEditSplitAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken)
+    {
+        var cycle = await GetCycleBoundsAsync(dbContext, tenantId, jobId, cancellationToken);
+        var lastEdit = await QueryNoteEditsInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
+            .Where(audit => audit.Action == CompletionNoteEditedAction)
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => new { audit.Notes, audit.ActorDisplayName, audit.EventTimeUtc })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (lastEdit is null || string.IsNullOrWhiteSpace(lastEdit.Notes))
+        {
+            return default;
+        }
+
+        var firstReleased = await QueryReleasedInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
+            .OrderBy(audit => audit.EventTimeUtc)
+            .Select(audit => new { audit.Notes, audit.Details, audit.EventTimeUtc })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (firstReleased is not null && lastEdit.EventTimeUtc > firstReleased.EventTimeUtc)
+        {
+            return default;
+        }
+
+        var completedSnapshot = await ResolveTaskCompletedSnapshotAsync(
+            dbContext, tenantId, jobId, cancellationToken);
+        var firstEdit = await QueryNoteEditsInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
+            .Where(audit => audit.Action == CompletionNoteEditedAction)
+            .OrderBy(audit => audit.EventTimeUtc)
+            .Select(audit => audit.Notes)
+            .FirstOrDefaultAsync(cancellationToken);
+        var original = FirstNonEmpty([
+            firstReleased?.Notes ?? firstReleased?.Details,
+            completedSnapshot,
+            firstEdit,
+        ]);
+        var updated = lastEdit.Notes.Trim();
+        if (original is null || string.Equals(original, updated, StringComparison.Ordinal))
+        {
+            return default;
+        }
+
+        var editor = string.IsNullOrWhiteSpace(lastEdit.ActorDisplayName)
+            ? null
+            : lastEdit.ActorDisplayName.Trim();
+        return new CompletionNoteEditSplit(original, updated, editor);
+    }
+
+    /// <summary>
     /// Operatörün Sms Onayı'da gönderdiği terminal SMS — grid Mesaj Onayı Yapan (#3669).
     /// Yönetici ilk <see cref="ReleasedAction"/> notunu ezmemek için ikinci release audit yazılmaz.
     /// </summary>
@@ -856,3 +910,8 @@ internal static class CitizenMessageApprovalNoteResolver
 
     private readonly record struct CycleBounds(DateTimeOffset? ReopenedAt);
 }
+
+internal readonly record struct CompletionNoteEditSplit(
+    string? OriginalNote,
+    string? UpdatedNote,
+    string? EditorDisplayName);

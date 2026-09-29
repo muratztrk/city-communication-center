@@ -16,7 +16,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldLabel, StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
-import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, omitCourtesyClosing, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, buildCitizenOutboundEditorField, citizenOutboundOrPending, notesDiffer, omitCourtesyClosing, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, resolveCompletionNoteEditSplit, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
 
 interface MyRequestTaskDetailsSectionProps {
@@ -225,6 +225,11 @@ export function MyRequestTaskDetailsSection({
               || (outboundPlain && notesDiffer(outboundPlain, taskNotesPlain) ? '—' : taskNotesPlain)
               || '—')
             : ''
+          const completionNoteEdit = resolveCompletionNoteEditSplit({
+            originalNote: detail.citizenOriginalCompletionNote ?? citizenApprovalReleasedNote,
+            updatedNote: detail.citizenUpdatedCompletionNote,
+            editorName: detail.citizenCompletionNoteEditorDisplayName,
+          })
           const completionCompareSource = isCompletedTask
             ? (releasedPlain || taskNotesPlain)
             : notePlain(task.revisionReason) || notePlain(detail.cancelReason)
@@ -318,12 +323,28 @@ export function MyRequestTaskDetailsSection({
                         }]
                       : []),
                     ...(isCompletedTask || (isPendingCloseApproval && isCitizenTask)
-                      ? [{
-                          label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
-                          value: completionNoteDisplay,
-                          // Etiket + değer yeşil (card #1638).
-                          tone: 'completion' as const,
-                        }]
+                      ? (completionNoteEdit
+                        ? [
+                            {
+                              label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
+                              value: completionNoteEdit.original,
+                            },
+                            {
+                              label: t('tasks.detail.updatedCompletionNote', 'Güncellenen Tamamlama Notu'),
+                              value: completionNoteEdit.updated,
+                              tone: 'completion' as const,
+                            },
+                            {
+                              label: t('tasks.detail.completionNoteEditor', 'Tamamlama Notu Güncelleyen'),
+                              value: completionNoteEdit.editor || '—',
+                            },
+                          ]
+                        : [{
+                            label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
+                            value: completionNoteDisplay,
+                            // Etiket + değer yeşil (card #1638).
+                            tone: 'completion' as const,
+                          }])
                       : isCancelledTask
                         ? [
                             ...(showCitizenApprover

@@ -723,6 +723,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         string? citizenMessageApproverDisplayName = null;
         string? citizenOutboundEditorDisplayName = null;
         string? citizenOutboundRelayerDisplayName = null;
+        string? citizenUpdatedCompletionNote = null;
+        string? citizenCompletionNoteEditorDisplayName = null;
+        string? citizenOriginalCompletionNote = null;
         var hasCitizenWaPhoneLink = citizenRequest is not null
             && (citizenRequest.Channel == SocialChannel.WhatsApp
                 || citizenRequest.Channel == SocialChannel.Phone);
@@ -761,6 +764,11 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 _dbContext, tenantId, job.JobId, cancellationToken);
             citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken, job.CitizenTerminalMessageReleasedAtUtc);
+            var completionNoteEdit = await CitizenMessageApprovalNoteResolver.ResolveCompletionNoteEditSplitAsync(
+                _dbContext, tenantId, job.JobId, cancellationToken);
+            citizenOriginalCompletionNote = completionNoteEdit.OriginalNote;
+            citizenUpdatedCompletionNote = completionNoteEdit.UpdatedNote;
+            citizenCompletionNoteEditorDisplayName = completionNoteEdit.EditorDisplayName;
 
             if (shouldResolveCitizenOutbound)
             {
@@ -878,7 +886,10 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             returnedFromDepartmentName,
             returnedByDisplayName,
             job.HadOverdueDueDate,
-            dueDateChanges);
+            dueDateChanges,
+            citizenUpdatedCompletionNote,
+            citizenCompletionNoteEditorDisplayName,
+            citizenOriginalCompletionNote);
     }
 
     private static IReadOnlyCollection<string> SplitRequestTags(string? tags, string? category = null)

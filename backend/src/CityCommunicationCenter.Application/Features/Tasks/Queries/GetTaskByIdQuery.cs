@@ -36,12 +36,20 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
         string? citizenOutboundMessage = null;
         string? citizenOutboundEditorDisplayName = null;
         string? citizenOutboundRelayerDisplayName = null;
+        string? citizenUpdatedCompletionNote = null;
+        string? citizenCompletionNoteEditorDisplayName = null;
+        string? citizenOriginalCompletionNote = null;
         if (jobEntity is not null && JobCitizenRequestHelper.IsCitizenRequest(jobEntity))
         {
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, task.JobId, cancellationToken);
             citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
                 _dbContext, tenantId, task.JobId, cancellationToken, jobEntity.CitizenTerminalMessageReleasedAtUtc);
+            var completionNoteEdit = await CitizenMessageApprovalNoteResolver.ResolveCompletionNoteEditSplitAsync(
+                _dbContext, tenantId, task.JobId, cancellationToken);
+            citizenOriginalCompletionNote = completionNoteEdit.OriginalNote;
+            citizenUpdatedCompletionNote = completionNoteEdit.UpdatedNote;
+            citizenCompletionNoteEditorDisplayName = completionNoteEdit.EditorDisplayName;
 
             var citizenRequestCandidates = await _dbContext.SocialMessages.AsNoTracking()
                 .Where(m => m.TenantId == tenantId
@@ -372,7 +380,10 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             citizenOutboundEditorDisplayName,
             citizenOutboundRelayerDisplayName,
             JobCancelReason: jobEntity?.CancelReason,
-            DueDateChanges: dueDateChanges);
+            DueDateChanges: dueDateChanges,
+            CitizenUpdatedCompletionNote: citizenUpdatedCompletionNote,
+            CitizenCompletionNoteEditorDisplayName: citizenCompletionNoteEditorDisplayName,
+            CitizenOriginalCompletionNote: citizenOriginalCompletionNote);
     }
 
     private static string ResolveTaskDescription(string? taskDescription, string? jobDescription)

@@ -269,6 +269,9 @@ export interface TaskDetail {
   citizenOutboundMessage?: string | null;
   citizenOutboundEditorDisplayName?: string | null;
   citizenOutboundRelayerDisplayName?: string | null;
+  citizenUpdatedCompletionNote?: string | null;
+  citizenCompletionNoteEditorDisplayName?: string | null;
+  citizenOriginalCompletionNote?: string | null;
   jobCancelReason?: string | null;
   /** Son Tarih düzenleyenleri — Talep Detayları ile aynı (#3890 r3). */
   dueDateChanges?: JobDueDateChange[] | null;
@@ -485,6 +488,9 @@ export interface JobDetail {
   citizenOutboundEditorDisplayName?: string | null;
   /** Mesaj düzenlenmeden iletildiyse gönderen operatör. */
   citizenOutboundRelayerDisplayName?: string | null;
+  citizenUpdatedCompletionNote?: string | null;
+  citizenCompletionNoteEditorDisplayName?: string | null;
+  citizenOriginalCompletionNote?: string | null;
   returnedToOperatorAtUtc?: string | null;
   returnedToOperatorReason?: string | null;
   returnedToOperatorFromDepartmentId?: string | null;

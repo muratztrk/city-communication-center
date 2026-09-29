@@ -1678,7 +1678,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüksekliği/punto biraz küçük (#3921 reopen). 2×2 hiza: Birime Gelen Taleplerin Mail Gönderimi |
   Görevlerin Mail Gönderimi / Geciken talep | Geciken görev; **Mail Gönderimi Hariç Tutulan Kullanıcılar**
   en altta (`xl:grid-cols-2`, #3928/#3942/#3944).   Hariç tutulanlar kutusu içerik yüksekliğinde kalır; toggle açıkken dropdown yardımcı
-  metnin hemen alt satırında hizalanır, kapalıyken helper sonrası boşluk (`min-h-20`) kalır (#3945).
+  metnin hemen alt satırında hizalanır, dropdown altında çok az boşluk (`min-h-8`) bırakılır;
+  kapalıyken helper sonrası boşluk (`min-h-20`) kalır (#3945).
   Mail içeriği `{TalepNo} no'lu {TalepBaşlığı}` textarea (`min-h-28`, satır sonu korunur);
   konu tek satır `{TalepNo}` kalır (#3929/#3933). Görevlerin / Geciken görevlerin kutularında jeton
   `{GörevNo}` / `{GörevBaşlığı}` (#3946); gönderimde `{GörevNo}` = `G-{yıl}-{numara}`,

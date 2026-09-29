@@ -544,14 +544,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         citizenName: trimmedHandle,
         citizenPhone: storedPhone,
       })
-      await api.updateSocialMessage(convertMessageId, {
-        channel: createChannel,
-        citizenHandle: trimmedHandle,
-        content: description.trim(),
-        category: requestCategory,
-        latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
-        longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
-      })
       if (pendingFiles.length > 0) {
         await uploadPendingFiles(job.jobId)
       }

@@ -1,3 +1,8 @@
+## Round 1380 — #3945 dropdown pad / #3948 apply
+
+- [x] `6abc052c` / #3945 — Toggle açıkken dropdown altında çok az boşluk (`min-h-8`).
+- [x] `6abc127f` / #3948 — SMTP arka plan zaten 7822b670; convert sonrası gereksiz ikinci update kaldırıldı.
+
 ## Round 1379 — #3945 dropdown / #3948 create latency
 
 - [x] `6abc052c` / #3945 — Hariç tutulanlar: toggle açıkken dropdown helper’ın hemen altında.

@@ -5179,21 +5179,24 @@ export function SettingsPage() {
                 </div>
                 <p className="helper-copy">{t('settings.mailNotification.excludedUsersHelp', 'Mail bildirimi almak istemeyen kullanıcıları seçin. Aktifken bu kullanıcılara mail gönderilmez.')}</p>
                 {mailNotificationForm.excludedUsersEnabled ? (
-                  <MultiSelectDropdown
-                    options={(mailUsersQuery.data ?? [])
-                      .filter(item => item.isActive)
-                      .map(item => ({
-                        value: item.userId,
-                        label: item.displayName || item.username || item.email || item.userId,
-                      }))}
-                    value={mailNotificationForm.excludedUserIds ?? []}
-                    onChange={value => setMailNotificationForm(current => ({ ...current, excludedUserIds: value }))}
-                    placeholder={t('settings.mailNotification.excludedUsersPlaceholder', 'Kullanıcı seçiniz')}
-                    emptyText={t('settings.mailNotification.excludedUsersEmpty', 'Kullanıcı bulunamadı')}
-                    searchable
-                    triggerClassName="min-h-9 py-1.5 text-[0.8rem]"
-                    menuClassName="settings-mail-excluded-users-menu"
-                  />
+                  <>
+                    <MultiSelectDropdown
+                      options={(mailUsersQuery.data ?? [])
+                        .filter(item => item.isActive)
+                        .map(item => ({
+                          value: item.userId,
+                          label: item.displayName || item.username || item.email || item.userId,
+                        }))}
+                      value={mailNotificationForm.excludedUserIds ?? []}
+                      onChange={value => setMailNotificationForm(current => ({ ...current, excludedUserIds: value }))}
+                      placeholder={t('settings.mailNotification.excludedUsersPlaceholder', 'Kullanıcı seçiniz')}
+                      emptyText={t('settings.mailNotification.excludedUsersEmpty', 'Kullanıcı bulunamadı')}
+                      searchable
+                      triggerClassName="min-h-9 py-1.5 text-[0.8rem]"
+                      menuClassName="settings-mail-excluded-users-menu"
+                    />
+                    <div className="min-h-8" aria-hidden />
+                  </>
                 ) : (
                   <div className="min-h-20" aria-hidden />
                 )}

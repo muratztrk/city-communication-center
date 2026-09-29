@@ -2966,7 +2966,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
 - **Vatandaş grid Durum tarihi (#3896):** `getCitizenGridStatusDateUtc` — Tamamlandı/İptal aynı;
   İşleme Alındı `updatedAtUtc` (yoksa `createdAtUtc`); **Yapılmakta** = Hedef Birim Yöneticisi
-  Onay Tarihi (`Target.decidedAtUtc`) (#3902); yoksa `updatedAtUtc`. Aktif tarih `text-inherit` —
+  Onay Tarihi (`Target.decidedAtUtc`) (#3902/#3904 r2). Birime Gelen kendi `toExternalRow`
+  mapper'ında `targetApprovedAtUtc` taşımalı — `incomingRequestGrid.ts` yetmez. Yoksa `updatedAtUtc`. Aktif tarih `text-inherit` —
   koyu turkuaz İşleme Alındı / turuncu Geciken pill'de **beyaz**, açık mavi Yapılmakta'da pill yazı rengi
   (#3896 r2; `text-slate-600` koyu pill'de okunmuyordu).
 - **Görev grid Yapılmakta tarihi (#3904):** Görevlerim / Birimdeki Görevler / Personelimin Görevleri

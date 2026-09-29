@@ -1,3 +1,7 @@
+## Round 1355 — #3904 r2 Birime Gelen Yapılmakta tarihi
+
+- [x] `6abb55ff` / #3904 — Birime Gelen kendi `toExternalRow`'unda `targetApprovedAtUtc` yoktu; Hedef onay tarihi artık Durum altında.
+
 ## Round 1354 — Trello Doing (2 web)
 
 - [x] `6abb64ab` / #3907 — Görevlerim detay: onaylanmamış Tamamlama Notu için Düzenle (yalnız not).

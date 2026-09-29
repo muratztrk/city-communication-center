@@ -157,6 +157,8 @@ type IncomingRequestRow = {
   sourceChannel?: string | null
   isCitizenRequest?: boolean
   taskCount?: number
+  /** Hedef birim yöneticisi onay anı — Yapılmakta grid tarihi (#3904). */
+  targetApprovedAtUtc?: string | null
   // Ek süre talebi işaretleri — tarih sütunları altında görev gridindeki ile aynı (cards #1385/#1388).
   hasPendingExtraTimeRequest?: boolean
   lastExtraTimeRequestDecision?: string | null
@@ -381,6 +383,10 @@ function toExternalRow(
     createdByRoleCode: job.createdByRoleCode ?? null,
     isCitizenRequest: isCitizen,
     taskCount: job.taskCount,
+    targetApprovedAtUtc: job.departments
+      ?.filter(department => department.role === 'Target' && department.decidedAtUtc)
+      .map(department => department.decidedAtUtc as string)
+      .sort()[0] ?? activeTarget?.decidedAtUtc ?? null,
     hasPendingExtraTimeRequest: job.hasPendingExtraTimeRequest,
     lastExtraTimeRequestDecision: job.lastExtraTimeRequestDecision,
   }

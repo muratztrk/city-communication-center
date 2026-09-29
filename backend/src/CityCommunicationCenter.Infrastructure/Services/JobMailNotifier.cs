@@ -436,20 +436,24 @@ internal sealed class JobMailNotifier : IJobMailNotifier
         Guid? taskId,
         CancellationToken cancellationToken)
     {
+        var requestNumber = await FormatJobRequestNumberAsync(job, cancellationToken);
+        var subject = MailNotificationSettingsPayload.Render(subjectTemplate, requestNumber);
+        var body = MailNotificationSettingsPayload.Render(bodyTemplate, requestNumber, job.Title);
+
         if (recipientIds.Count == 0)
         {
+            _logger.LogWarning(
+                "Talep maili için alıcı bulunamadı. JobId={JobId} Kind={Kind}",
+                job.JobId,
+                kind);
             return false;
         }
 
         var recipients = await _dbContext.Users
             .AsNoTracking()
             .Where(user => user.TenantId == job.TenantId && user.IsActive && recipientIds.Contains(user.UserId))
-            .Select(user => new { user.UserId, user.Email })
+            .Select(user => new { user.UserId, user.Email, user.DisplayName })
             .ToListAsync(cancellationToken);
-
-        var requestNumber = await FormatJobRequestNumberAsync(job, cancellationToken);
-        var subject = MailNotificationSettingsPayload.Render(subjectTemplate, requestNumber);
-        var body = MailNotificationSettingsPayload.Render(bodyTemplate, requestNumber, job.Title);
 
         var sent = false;
         foreach (var recipient in recipients
@@ -457,28 +461,72 @@ internal sealed class JobMailNotifier : IJobMailNotifier
             .GroupBy(item => item.Email!.Trim(), StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First()))
         {
-            var result = await _mailNotificationSender.SendAsync(
-                job.TenantId,
-                recipient.Email!,
-                subject,
-                body,
-                new MailSendContext(kind, job.JobId, taskId, recipient.UserId, requestNumber),
-                cancellationToken);
-            if (result.Success)
+            if (await TrySendToRecipientAsync(
+                    job,
+                    recipient.UserId,
+                    recipient.Email!,
+                    subject,
+                    body,
+                    kind,
+                    taskId,
+                    requestNumber,
+                    cancellationToken))
             {
                 sent = true;
             }
-            else
-            {
-                _logger.LogWarning(
-                    "Talep maili gönderilemedi. JobId={JobId} UserId={UserId} Message={Message}",
-                    job.JobId,
-                    recipient.UserId,
-                    result.Message);
-            }
+        }
+
+        foreach (var recipient in recipients.Where(item => string.IsNullOrWhiteSpace(item.Email)))
+        {
+            _logger.LogWarning(
+                "Talep maili atlandı; kullanıcının e-posta adresi yok. JobId={JobId} UserId={UserId} DisplayName={DisplayName}",
+                job.JobId,
+                recipient.UserId,
+                recipient.DisplayName);
+            await TrySendToRecipientAsync(
+                job,
+                recipient.UserId,
+                string.Empty,
+                subject,
+                body,
+                kind,
+                taskId,
+                requestNumber,
+                cancellationToken);
         }
 
         return sent;
+    }
+
+    private async Task<bool> TrySendToRecipientAsync(
+        Job job,
+        Guid userId,
+        string recipientEmail,
+        string subject,
+        string body,
+        MailOutboundKind kind,
+        Guid? taskId,
+        string requestNumber,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mailNotificationSender.SendAsync(
+            job.TenantId,
+            recipientEmail,
+            subject,
+            body,
+            new MailSendContext(kind, job.JobId, taskId, userId, requestNumber),
+            cancellationToken);
+        if (result.Success)
+        {
+            return true;
+        }
+
+        _logger.LogWarning(
+            "Talep maili gönderilemedi. JobId={JobId} UserId={UserId} Message={Message}",
+            job.JobId,
+            userId,
+            result.Message);
+        return false;
     }
 
     private async Task<string> FormatJobRequestNumberAsync(Job job, CancellationToken cancellationToken)

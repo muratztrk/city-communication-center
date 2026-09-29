@@ -1671,6 +1671,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mail içeriği `{TalepNo} no'lu {TalepBaşlığı}` textarea (`min-h-28`, satır sonu korunur);
   konu tek satır `{TalepNo}` kalır (#3929/#3933). Gönderimde başlık `Job.Title` ile dolar.
   Giden mail her SMTP denemesinde `mailoutboundlogs` satırı yazar (başarı/hata, #3930).
+  Alıcının `Email` alanı boşsa SMTP denenmez; log `Success=false` + `Alıcının e-posta adresi yok.`
+  (#3934 — VT-2026-161: hedef müdür telefona SMS gitti, e-posta boş olduğu için mail yoktu).
   Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı, Mail Adresi, Mail İçeriği, Detay
   (Tür ve İşlem yok). `GET /api/v1/admin/mail-outbound-logs`.
   Geciken görev maili ayrı kutu (varsayılan pasif); yalnız müdür/sorumlu/VTY başkasına atadıysa

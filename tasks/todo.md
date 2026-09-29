@@ -1,3 +1,7 @@
+## Round 1367 — #3934
+
+- [x] `6abbef0f` / #3934 — Gelen talep maili: alıcı e-posta boşsa sessiz atlama yok; mail loguna hata satırı.
+
 ## Round 1366 — #3933
 
 - [x] `6abbda1e` / #3933 — Mail içeriği jetonu `{TalepNo} no'lu {TalepBaşlığı}`; gönderimde talep başlığı dolar.

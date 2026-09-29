@@ -102,7 +102,7 @@ internal sealed class MailNotificationSender : IMailNotificationSender
 
         var host = stored.SmtpHost?.Trim();
         var from = stored.DefaultReplyTo?.Trim();
-        var to = recipientEmail.Trim();
+        var to = recipientEmail?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(host))
         {
             return new MailNotificationSendResult(false, "SMTP sunucu adresi zorunludur.");
@@ -115,7 +115,9 @@ internal sealed class MailNotificationSender : IMailNotificationSender
 
         if (string.IsNullOrWhiteSpace(to))
         {
-            return new MailNotificationSendResult(false, "Alıcı e-posta zorunludur.");
+            var missing = new MailNotificationSendResult(false, "Alıcının e-posta adresi yok.");
+            await WriteLogAsync(tenantId, string.Empty, subject, body, missing, context, cancellationToken);
+            return missing;
         }
 
         if (stored.AuthenticationEnabled && string.IsNullOrWhiteSpace(stored.Password))

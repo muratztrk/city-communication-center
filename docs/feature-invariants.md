@@ -1668,7 +1668,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `{TalepNo}` şablonları. İlk kutu **Birime Gelen Taleplerin Mail Gönderimi** başlığı yanında
   Aktif/Pasif (varsayılan pasif, #3926/#3942); açıkken gelen talep maili müdür/sorumlu/VTY’ye gider.
   Sağında **Görevlerin Mail Gönderimi** (Aktif/Pasif varsayılan pasif; konu/içerik geciken görev kutusu
-  ile aynı, #3943): müdür/sorumlu/VTY başkasına atayınca görev sahibine, gelen talep kutusundan bağımsız.
+  ile aynı, #3943): başlık altında helper (#3941) «Birime gelen taleplerin görevinin oluştuğu,
+  görev sahibine gidecek mail konusu ve içeriği.»; müdür/sorumlu/VTY başkasına atayınca görev sahibine,
+  gelen talep kutusundan bağımsız.
   Görevi başkasına
   atayınca görev sahibine (SMTP + görev kutusu açıkken). Hariç tutulan kullanıcılar, geciken talep ve
   geciken görev kutularında da Kaydet var (#3927). Hariç tutulan kullanıcı listesi satır

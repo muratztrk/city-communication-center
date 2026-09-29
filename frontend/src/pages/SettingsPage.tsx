@@ -5008,6 +5008,7 @@ export function SettingsPage() {
                     {t('common.save', 'Kaydet')}
                   </Button>
                 </div>
+                <p className="helper-copy">{t('settings.mailNotification.assignmentHelp', 'Birime gelen taleplerin görevinin oluştuğu, görev sahibine gidecek mail konusu ve içeriği.')}</p>
                 {mailNotificationForm.assignmentMailEnabled ? (
                   <>
                     <label className="grid gap-2 text-sm font-semibold text-slate-700">

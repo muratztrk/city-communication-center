@@ -1504,6 +1504,7 @@
       "overdueTaskBodyBefore": "Overdue task mail body (before)",
       "overdueTaskBodyAfter": "Overdue task mail body (after)",
       "assignmentTitle": "Task mail sending",
+      "assignmentHelp": "Subject and body sent to the task owner when an incoming department request creates a task.",
       "assignmentSubjectBefore": "Task mail subject (before)",
       "assignmentSubjectAfter": "Task mail subject (after)",
       "assignmentBodyBefore": "Task mail body (before)",

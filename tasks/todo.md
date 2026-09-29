@@ -1,3 +1,7 @@
+## Round 1373 — #3941
+
+- [x] `6abbfe71` / #3941 — Görevlerin Mail Gönderimi başlığı altına helper: görev sahibine gidecek mail konusu ve içeriği.
+
 ## Round 1372 — #3940 r3 / #3938 r3 / #3942 r2
 
 - [x] `6abbf93e` / #3940 — Telefon No başlığı `0.7rem`, numara `0.95rem`.

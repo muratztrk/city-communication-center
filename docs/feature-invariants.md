@@ -90,8 +90,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`MultiSelectDropdown` menüsü de body portal + fixed** (`SingleSelectDropdown` ile aynı); tablo
   hücresinde absolute panel komşu sütunlara binmez (card #1706).
 - **Yerel (Manual) kullanıcı düzenleme:** Kullanıcı Adı / Ad Soyad / Ünvan / e-posta satır içi
-  düzenlenebilir; LDAP'da bu dört alan salt okunur. Login `Username OR Email` kullandığı için
-  kullanıcı adı ve e-posta tenant içindeki iki alanın tamamında ortak benzersiz kalır.
+  düzenlenebilir; LDAP'da bu dört alan salt okunur. Kullanıcı adı tenant içinde benzersiz kalır.
+  Aynı e-posta birden çok personele verilebilir (#3935; mail bildirimi ortak kutu). Login
+  `Username OR Email` — e-posta çakışırsa ilk eşleşme.
   Manual kullanıcının ana birimi `SingleSelectDropdown` kullanır; LDAP kullanıcısının ana birimi
   dizinden geldiği için salt metindir ve backend değişikliği reddeder. LDAP kullanıcısına yalnız
   `MultiSelectDropdown` üzerinden ek birim verilebilir. Birincil rol düzenlenebilir
@@ -1673,8 +1674,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Giden mail her SMTP denemesinde `mailoutboundlogs` satırı yazar (başarı/hata, #3930).
   Alıcının `Email` alanı boşsa SMTP denenmez; log `Success=false` + `Alıcının e-posta adresi yok.`
   (#3934 — VT-2026-161: hedef müdür telefona SMS gitti, e-posta boş olduğu için mail yoktu).
-  Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı, Mail Adresi, Mail İçeriği, Detay
-  (Tür ve İşlem yok). `GET /api/v1/admin/mail-outbound-logs`.
+  Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı, Mail Adresi, Mail İçeriği, **İşlem**, Detay
+  (Tür yok; İşlem Başarılı/Başarısız pill, #3937). `GET /api/v1/admin/mail-outbound-logs`.
+  Geciken talep/görev maili yalnız imleçten (`OverdueMailCursorUtc` / `OverdueTaskMailCursorUtc`)
+  **sonra** son tarihi geçenlere gider; açılışta zaten gecikmiş geçmiş talepler gönderilmez (#3936).
+  İmleç ilk açık kaydetmede veya ilk poll'da `now` damgalanır; kapatınca sıfırlanır.
   Geciken görev maili ayrı kutu (varsayılan pasif); yalnız müdür/sorumlu/VTY başkasına atadıysa
   görev sahibine gider, tek gönderim `WorkTask.OverdueMailSentAtUtc`. Talep ve görev gecikme
   anahtarları bağımsızdır (#3924/#3925).

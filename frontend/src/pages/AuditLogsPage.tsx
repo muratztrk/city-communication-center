@@ -444,7 +444,6 @@ export function AuditLogsPage() {
         : t('audit.smsFailure', 'Başarısız')
       const detailParts = [
         `${t('audit.smsKind', 'Tür')}: ${kindLabel}`,
-        statusLabel,
         item.errorMessage?.trim(),
         `${t('audit.smsLength', 'Uzunluk')}: ${item.textLength}`,
         item.subject?.trim() ? `${t('settings.mailNotification.mailSubject', 'Mail konusu')}: ${item.subject}` : null,
@@ -471,6 +470,7 @@ export function AuditLogsPage() {
           row.recipientStaffName,
           row.requestNumber ?? '',
           row.subject ?? '',
+          row.statusLabel,
           row.mailOutboundLogId,
         ].join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
@@ -481,6 +481,7 @@ export function AuditLogsPage() {
         if (key === 'recipientEmail') return item.recipientEmail
         if (key === 'requestNumber') return item.requestNumber ?? ''
         if (key === 'bodyPreview') return item.bodyPreview
+        if (key === 'success') return item.statusLabel
         if (key === 'detailText') return item.detailText
         return String((item as unknown as Record<string, unknown>)[key] ?? '')
       })
@@ -682,6 +683,17 @@ export function AuditLogsPage() {
                     {t('audit.mailBodyPreview', 'Mail İçeriği')}
                   </FilterableTh>
                   <FilterableTh
+                    filterKey="success"
+                    filterValue={filters.success ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="statusLabel"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.action')}
+                  </FilterableTh>
+                  <FilterableTh
                     filterKey="detailText"
                     filterValue={filters.detailText ?? ''}
                     onFilter={handleFilter}
@@ -706,6 +718,9 @@ export function AuditLogsPage() {
                       <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body whitespace-pre-wrap break-words" />
                     </td>
                     <td>
+                      <StatusPill tone={log.success ? 'success' : 'danger'}>{log.statusLabel}</StatusPill>
+                    </td>
+                    <td>
                       <div className="space-y-0.5">
                         <div className="text-sm font-semibold text-slate-600">
                           {t('audit.logId', 'Log ID')}: <span className="font-mono text-base font-bold text-slate-800" title={log.mailOutboundLogId}>{log.mailOutboundLogId.slice(0, 8)}</span>
@@ -716,7 +731,7 @@ export function AuditLogsPage() {
                   </tr>
                 ))}
                 {mailRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={7} message={t('audit.empty')} />
+                  <TableEmptyStateRows columnCount={8} message={t('audit.empty')} />
                 ) : null}
               </tbody>
             </table>

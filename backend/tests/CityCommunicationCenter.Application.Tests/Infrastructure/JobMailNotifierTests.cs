@@ -56,7 +56,47 @@ public sealed class JobMailNotifierTests
         Assert.Equal(ManagerId, sender.Sends[0].RecipientUserId);
     }
 
-    private static Job CreateJob() => new()
+    [Fact]
+    public async Task ProcessOverdueMailsAsync_skips_jobs_already_overdue_when_cursor_missing()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(
+            db,
+            managerEmail: "mudur@test.local",
+            overdueMailEnabled: true,
+            dueDateUtc: DateTimeOffset.UtcNow.AddDays(-10));
+        var sender = new RecordingMailSender();
+        var notifier = new JobMailNotifier(db, sender, NullLogger<JobMailNotifier>.Instance);
+
+        await notifier.ProcessOverdueMailsAsync(CancellationToken.None);
+
+        Assert.Empty(sender.Sends);
+        var stored = MailNotificationSettingsPayload.ParseOrEmpty(
+            db.TenantSettings.Single().MailNotificationSettingsJson);
+        Assert.NotNull(stored.OverdueMailCursorUtc);
+    }
+
+    [Fact]
+    public async Task ProcessOverdueMailsAsync_sends_when_job_became_overdue_after_cursor()
+    {
+        var cursor = DateTimeOffset.UtcNow.AddHours(-2);
+        await using var db = CreateDbContext();
+        await SeedAsync(
+            db,
+            managerEmail: "mudur@test.local",
+            overdueMailEnabled: true,
+            dueDateUtc: DateTimeOffset.UtcNow.AddMinutes(-10),
+            overdueMailCursorUtc: cursor);
+        var sender = new RecordingMailSender();
+        var notifier = new JobMailNotifier(db, sender, NullLogger<JobMailNotifier>.Instance);
+
+        await notifier.ProcessOverdueMailsAsync(CancellationToken.None);
+
+        Assert.Single(sender.Sends);
+        Assert.Equal("mudur@test.local", sender.Sends[0].Email);
+    }
+
+    private static Job CreateJob(DateTimeOffset? dueDateUtc = null) => new()
     {
         JobId = JobId,
         TenantId = TenantId,
@@ -69,9 +109,15 @@ public sealed class JobMailNotifierTests
         Priority = "Normal",
         JobNumber = 155,
         JobNumberYear = 2026,
+        DueDateUtc = dueDateUtc,
     };
 
-    private static async Task SeedAsync(CityCommunicationCenterDbContext db, string? managerEmail)
+    private static async Task SeedAsync(
+        CityCommunicationCenterDbContext db,
+        string? managerEmail,
+        bool overdueMailEnabled = false,
+        DateTimeOffset? dueDateUtc = null,
+        DateTimeOffset? overdueMailCursorUtc = null)
     {
         db.Tenants.Add(new Tenant
         {
@@ -110,7 +156,7 @@ public sealed class JobMailNotifierTests
             IsActive = true,
         });
 
-        db.Jobs.Add(CreateJob());
+        db.Jobs.Add(CreateJob(dueDateUtc));
         db.JobDepartments.Add(new JobDepartment
         {
             JobDepartmentId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
@@ -130,6 +176,8 @@ public sealed class JobMailNotifierTests
                 IsEnabled = true,
                 SmtpHost = "192.168.0.98",
                 IncomingMailEnabled = true,
+                OverdueMailEnabled = overdueMailEnabled,
+                OverdueMailCursorUtc = overdueMailCursorUtc,
                 DefaultReplyTo = "tim@tire.bel.tr",
             }),
         });

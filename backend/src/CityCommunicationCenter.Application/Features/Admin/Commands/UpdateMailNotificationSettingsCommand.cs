@@ -92,6 +92,10 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
             ExcludedUsersEnabled = request.ExcludedUsersEnabled ?? previous.ExcludedUsersEnabled,
             ExcludedUserIds = request.ExcludedUserIds?.ToArray() ?? previous.ExcludedUserIds ?? [],
             OverdueMailEnabled = request.OverdueMailEnabled ?? previous.OverdueMailEnabled,
+            OverdueMailCursorUtc = ResolveOverdueCursor(
+                request.OverdueMailEnabled ?? previous.OverdueMailEnabled,
+                previous.OverdueMailEnabled,
+                previous.OverdueMailCursorUtc),
             OverdueSubjectTemplate = request.OverdueSubjectTemplate
                 ?? previous.OverdueSubjectTemplate
                 ?? MailNotificationSettingsPayload.RequestNoToken,
@@ -99,6 +103,10 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
                 ?? previous.OverdueBodyTemplate
                 ?? MailNotificationSettingsPayload.BodyRequestToken,
             OverdueTaskMailEnabled = request.OverdueTaskMailEnabled ?? previous.OverdueTaskMailEnabled,
+            OverdueTaskMailCursorUtc = ResolveOverdueCursor(
+                request.OverdueTaskMailEnabled ?? previous.OverdueTaskMailEnabled,
+                previous.OverdueTaskMailEnabled,
+                previous.OverdueTaskMailCursorUtc),
             OverdueTaskSubjectTemplate = request.OverdueTaskSubjectTemplate
                 ?? previous.OverdueTaskSubjectTemplate
                 ?? MailNotificationSettingsPayload.RequestNoToken,
@@ -110,5 +118,23 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;
+    }
+
+    private static DateTimeOffset? ResolveOverdueCursor(
+        bool enabled,
+        bool wasEnabled,
+        DateTimeOffset? previousCursor)
+    {
+        if (!enabled)
+        {
+            return null;
+        }
+
+        if (!wasEnabled || previousCursor is null)
+        {
+            return DateTimeOffset.UtcNow;
+        }
+
+        return previousCursor;
     }
 }

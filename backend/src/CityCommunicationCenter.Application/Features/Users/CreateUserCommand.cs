@@ -229,28 +229,6 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             ]);
         }
 
-        // LDAP'ta aynı e-posta birden fazla hesapta olabilir — uniqueness yalnız Manual (card #1785).
-        if (email is not null && sourceType == UserSource.Manual)
-        {
-            var normalizedEmailUpper = email.ToUpperInvariant();
-            var emailExists = await _dbContext.Users
-                .AnyAsync(
-                    entity => entity.TenantId == tenantId
-                        && ((entity.Email != null && entity.Email.ToUpper() == normalizedEmailUpper)
-                            || (entity.Username != null && entity.Username.ToUpper() == normalizedEmailUpper)),
-                    cancellationToken);
-
-            if (emailExists)
-            {
-                throw new ValidationException(
-                [
-                    new FluentValidation.Results.ValidationFailure(
-                        nameof(CreateUserCommand.Email),
-                        _localizer["ValidationUserEmailExists"].Value),
-                ]);
-            }
-        }
-
         if (username is not null)
         {
             var normalizedUsernameUpper = username.ToUpperInvariant();

@@ -1,3 +1,9 @@
+## Round 1368 — #3935 / #3936 / #3937
+
+- [x] `6abbf5cc` / #3935 — Aynı e-posta birden çok kullanıcıya; uniqueness uyarısı kaldırıldı.
+- [x] `6abbf756` / #3936 — Geçmişte gecikmiş taleplere geciken mail gitmez (imleç).
+- [x] `6abbf7a7` / #3937 — Mail Log: Mail İçeriği sağına İşlem (Başarılı/Başarısız).
+
 ## Round 1367 — #3934
 
 - [x] `6abbef0f` / #3934 — Gelen talep maili: alıcı e-posta boşsa sessiz atlama yok; mail loguna hata satırı.

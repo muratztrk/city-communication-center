@@ -126,11 +126,17 @@ internal sealed class JobMailNotifier : IJobMailNotifier
 
                 if (settings.OverdueMailEnabled)
                 {
+                    var cursor = await EnsureOverdueCursorAsync(
+                        tenantId,
+                        settings,
+                        taskMail: false,
+                        cancellationToken);
                     var overdueJobs = await _dbContext.Jobs
                         .IgnoreQueryFilters()
                         .Where(job => job.TenantId == tenantId
                             && job.OverdueMailSentAtUtc == null
                             && job.DueDateUtc != null
+                            && job.DueDateUtc > cursor
                             && job.DueDateUtc <= now
                             && job.Status != JobStatus.Completed
                             && job.Status != JobStatus.Cancelled
@@ -145,6 +151,11 @@ internal sealed class JobMailNotifier : IJobMailNotifier
 
                 if (settings.OverdueTaskMailEnabled)
                 {
+                    var cursor = await EnsureOverdueCursorAsync(
+                        tenantId,
+                        settings,
+                        taskMail: true,
+                        cancellationToken);
                     var overdueTasks = await _dbContext.Tasks
                         .IgnoreQueryFilters()
                         .Where(task => task.TenantId == tenantId
@@ -153,6 +164,7 @@ internal sealed class JobMailNotifier : IJobMailNotifier
                             && task.AssigningManagerId != null
                             && task.AssignedUserId != task.AssigningManagerId
                             && task.DueDateUtc != null
+                            && task.DueDateUtc > cursor
                             && task.DueDateUtc <= now
                             && task.CurrentStatus != Domain.Enums.TaskStatus.Completed
                             && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
@@ -264,6 +276,45 @@ internal sealed class JobMailNotifier : IJobMailNotifier
             .Select(entity => entity.MailNotificationSettingsJson)
             .FirstOrDefaultAsync(cancellationToken);
         return MailNotificationSettingsPayload.ParseOrEmpty(json);
+    }
+
+    private async Task<DateTimeOffset> EnsureOverdueCursorAsync(
+        Guid tenantId,
+        MailNotificationSettingsPayload settings,
+        bool taskMail,
+        CancellationToken cancellationToken)
+    {
+        var existing = taskMail ? settings.OverdueTaskMailCursorUtc : settings.OverdueMailCursorUtc;
+        if (existing is DateTimeOffset cursor)
+        {
+            return cursor;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var setting = await _dbContext.TenantSettings
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);
+        if (setting is null)
+        {
+            return now;
+        }
+
+        var payload = MailNotificationSettingsPayload.ParseOrEmpty(setting.MailNotificationSettingsJson);
+        if (taskMail)
+        {
+            payload.OverdueTaskMailCursorUtc = now;
+            settings.OverdueTaskMailCursorUtc = now;
+        }
+        else
+        {
+            payload.OverdueMailCursorUtc = now;
+            settings.OverdueMailCursorUtc = now;
+        }
+
+        setting.MailNotificationSettingsJson = JsonSerializer.Serialize(payload);
+        setting.UpdatedAtUtc = now;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return now;
     }
 
     private async Task<Guid[]> ResolveTargetDepartmentIdsAsync(

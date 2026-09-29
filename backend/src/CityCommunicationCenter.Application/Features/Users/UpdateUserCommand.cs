@@ -195,22 +195,6 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
         if (user.UserSource == UserSource.Manual && request.DisplayName is not null)
         {
             var nextEmail = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
-            if (nextEmail is not null)
-            {
-                var normalizedEmailUpper = nextEmail.ToUpperInvariant();
-                var emailExists = await _dbContext.Users
-                    .AnyAsync(
-                        entity => entity.TenantId == tenantId
-                            && entity.UserId != user.UserId
-                            && ((entity.Email != null && entity.Email.ToUpper() == normalizedEmailUpper)
-                                || (entity.Username != null && entity.Username.ToUpper() == normalizedEmailUpper)),
-                        cancellationToken);
-
-                if (emailExists)
-                {
-                    throw new ValidationException(_localizer["ValidationUserEmailExists"]);
-                }
-            }
 
             user.DisplayName = request.DisplayName.Trim();
             user.Email = nextEmail;

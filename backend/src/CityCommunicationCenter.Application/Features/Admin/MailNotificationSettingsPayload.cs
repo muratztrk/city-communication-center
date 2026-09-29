@@ -29,6 +29,8 @@ public sealed class MailNotificationSettingsPayload
     public bool OverdueTaskMailEnabled { get; set; }
     public string OverdueTaskSubjectTemplate { get; set; } = RequestNoToken;
     public string OverdueTaskBodyTemplate { get; set; } = BodyRequestToken;
+    public DateTimeOffset? OverdueMailCursorUtc { get; set; }
+    public DateTimeOffset? OverdueTaskMailCursorUtc { get; set; }
 
     public static MailNotificationSettingsPayload Empty() => new();
 

@@ -25,7 +25,10 @@ public sealed record UpdateMailNotificationSettingsCommand(
     string? OverdueBodyTemplate = null,
     bool? OverdueTaskMailEnabled = null,
     string? OverdueTaskSubjectTemplate = null,
-    string? OverdueTaskBodyTemplate = null) : ICommand<Unit>;
+    string? OverdueTaskBodyTemplate = null,
+    bool? AssignmentMailEnabled = null,
+    string? AssignmentSubjectTemplate = null,
+    string? AssignmentBodyTemplate = null) : ICommand<Unit>;
 
 public sealed class UpdateMailNotificationSettingsCommandValidator : AbstractValidator<UpdateMailNotificationSettingsCommand>
 {
@@ -88,6 +91,13 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
                 ?? MailNotificationSettingsPayload.RequestNoToken,
             IncomingBodyTemplate = request.IncomingBodyTemplate
                 ?? previous.IncomingBodyTemplate
+                ?? MailNotificationSettingsPayload.BodyRequestToken,
+            AssignmentMailEnabled = request.AssignmentMailEnabled ?? previous.AssignmentMailEnabled,
+            AssignmentSubjectTemplate = request.AssignmentSubjectTemplate
+                ?? previous.AssignmentSubjectTemplate
+                ?? MailNotificationSettingsPayload.RequestNoToken,
+            AssignmentBodyTemplate = request.AssignmentBodyTemplate
+                ?? previous.AssignmentBodyTemplate
                 ?? MailNotificationSettingsPayload.BodyRequestToken,
             ExcludedUsersEnabled = request.ExcludedUsersEnabled ?? previous.ExcludedUsersEnabled,
             ExcludedUserIds = request.ExcludedUserIds?.ToArray() ?? previous.ExcludedUserIds ?? [],

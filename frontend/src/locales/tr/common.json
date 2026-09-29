@@ -1510,7 +1510,12 @@
       "overdueTaskSubjectBefore": "Geciken görev mail konusu (önce)",
       "overdueTaskSubjectAfter": "Geciken görev mail konusu (sonra)",
       "overdueTaskBodyBefore": "Geciken görev mail içeriği (önce)",
-      "overdueTaskBodyAfter": "Geciken görev mail içeriği (sonra)"
+      "overdueTaskBodyAfter": "Geciken görev mail içeriği (sonra)",
+      "assignmentTitle": "Görevlerin Mail Gönderimi",
+      "assignmentSubjectBefore": "Görev mail konusu (önce)",
+      "assignmentSubjectAfter": "Görev mail konusu (sonra)",
+      "assignmentBodyBefore": "Görev mail içeriği (önce)",
+      "assignmentBodyAfter": "Görev mail içeriği (sonra)"
     },
     "recaptcha": {
       "sectionTitle": "reCAPTCHA",

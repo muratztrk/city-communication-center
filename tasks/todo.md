@@ -1,3 +1,8 @@
+## Round 1371 — #3943 / #3944
+
+- [x] `6abbff99` / #3943 — Gelen talep kutusunun sağına Görevlerin Mail Gönderimi (atama maili, ayrı şablon).
+- [x] `6abc0070` / #3944 — Hariç tutulan kullanıcılar kutusu en alta alındı.
+
 ## Round 1370 — #3940 r2 / #3938 r2 / #3942
 
 - [x] `6abbf93e` / #3940 — Kurum içi SMS: Telefon No başlığı biraz küçük, numara biraz büyük.

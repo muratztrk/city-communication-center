@@ -21,6 +21,9 @@ public sealed class MailNotificationSettingsPayload
     public bool IncomingMailEnabled { get; set; }
     public string IncomingSubjectTemplate { get; set; } = RequestNoToken;
     public string IncomingBodyTemplate { get; set; } = BodyRequestToken;
+    public bool AssignmentMailEnabled { get; set; }
+    public string AssignmentSubjectTemplate { get; set; } = RequestNoToken;
+    public string AssignmentBodyTemplate { get; set; } = BodyRequestToken;
     public bool ExcludedUsersEnabled { get; set; }
     public Guid[] ExcludedUserIds { get; set; } = [];
     public bool OverdueMailEnabled { get; set; }

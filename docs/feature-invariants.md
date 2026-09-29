@@ -1666,11 +1666,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Test popup Gönder'de hemen kapanır (SMTP sonucu beklenmez, #3915 r3).
   Yönlendirme sekmesinin sağına **Mail Bildirimi** sekmesi: SMTP aktifken konu/içerik
   `{TalepNo}` şablonları. İlk kutu **Birime Gelen Taleplerin Mail Gönderimi** başlığı yanında
-  Aktif/Pasif (varsayılan pasif, #3926/#3942); açıkken gelen talep maili müdür/sorumlu/VTY’ye gider. Görevi başkasına
-  atayınca görev sahibine (SMTP açıkken). Hariç tutulan kullanıcılar, geciken talep ve
+  Aktif/Pasif (varsayılan pasif, #3926/#3942); açıkken gelen talep maili müdür/sorumlu/VTY’ye gider.
+  Sağında **Görevlerin Mail Gönderimi** (Aktif/Pasif varsayılan pasif; konu/içerik geciken görev kutusu
+  ile aynı, #3943): müdür/sorumlu/VTY başkasına atayınca görev sahibine, gelen talep kutusundan bağımsız.
+  Görevi başkasına
+  atayınca görev sahibine (SMTP + görev kutusu açıkken). Hariç tutulan kullanıcılar, geciken talep ve
   geciken görev kutularında da Kaydet var (#3927). Hariç tutulan kullanıcı listesi satır
-  yüksekliği/punto biraz küçük (#3921 reopen).   2×2 hiza: Birime Gelen Taleplerin Mail Gönderimi | Hariç tutulan /
-  Geciken talep | Geciken görev (`xl:grid-cols-2`, #3928/#3942).
+  yüksekliği/punto biraz küçük (#3921 reopen). 2×2 hiza: Birime Gelen Taleplerin Mail Gönderimi |
+  Görevlerin Mail Gönderimi / Geciken talep | Geciken görev; **Mail Gönderimi Hariç Tutulan Kullanıcılar**
+  en altta (`xl:grid-cols-2`, #3928/#3942/#3944).
   Mail içeriği `{TalepNo} no'lu {TalepBaşlığı}` textarea (`min-h-28`, satır sonu korunur);
   konu tek satır `{TalepNo}` kalır (#3929/#3933). Gönderimde başlık `Job.Title` ile dolar.
   Giden mail her SMTP denemesinde `mailoutboundlogs` satırı yazar (başarı/hata, #3930).

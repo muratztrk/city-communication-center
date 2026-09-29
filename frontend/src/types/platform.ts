@@ -1213,6 +1213,9 @@ export interface MailNotificationSettings {
   incomingMailEnabled: boolean
   incomingSubjectTemplate: string
   incomingBodyTemplate: string
+  assignmentMailEnabled: boolean
+  assignmentSubjectTemplate: string
+  assignmentBodyTemplate: string
   excludedUsersEnabled: boolean
   excludedUserIds: string[]
   overdueMailEnabled: boolean
@@ -1239,6 +1242,9 @@ export interface MailNotificationSettingsUpdate {
   incomingMailEnabled?: boolean
   incomingSubjectTemplate?: string
   incomingBodyTemplate?: string
+  assignmentMailEnabled?: boolean
+  assignmentSubjectTemplate?: string
+  assignmentBodyTemplate?: string
   excludedUsersEnabled?: boolean
   excludedUserIds?: string[]
   overdueMailEnabled?: boolean

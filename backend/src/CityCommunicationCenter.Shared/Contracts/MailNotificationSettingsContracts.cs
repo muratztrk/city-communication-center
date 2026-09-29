@@ -21,7 +21,10 @@ public sealed record MailNotificationSettingsResponse(
     string OverdueBodyTemplate = "{TalepNo}",
     bool OverdueTaskMailEnabled = false,
     string OverdueTaskSubjectTemplate = "{TalepNo}",
-    string OverdueTaskBodyTemplate = "{TalepNo}");
+    string OverdueTaskBodyTemplate = "{TalepNo}",
+    bool AssignmentMailEnabled = false,
+    string AssignmentSubjectTemplate = "{TalepNo}",
+    string AssignmentBodyTemplate = "{TalepNo}");
 
 public sealed record UpdateMailNotificationSettingsRequest(
     bool IsEnabled,
@@ -45,7 +48,10 @@ public sealed record UpdateMailNotificationSettingsRequest(
     string? OverdueBodyTemplate = null,
     bool? OverdueTaskMailEnabled = null,
     string? OverdueTaskSubjectTemplate = null,
-    string? OverdueTaskBodyTemplate = null);
+    string? OverdueTaskBodyTemplate = null,
+    bool? AssignmentMailEnabled = null,
+    string? AssignmentSubjectTemplate = null,
+    string? AssignmentBodyTemplate = null);
 
 public sealed record TestMailRequest(
     string? SmtpHost,

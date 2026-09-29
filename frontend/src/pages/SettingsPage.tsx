@@ -195,6 +195,9 @@ function toMailNotificationForm(settings: MailNotificationSettings, password: st
     incomingMailEnabled: settings.incomingMailEnabled ?? false,
     incomingSubjectTemplate: settings.incomingSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
     incomingBodyTemplate: settings.incomingBodyTemplate || MAIL_BODY_TOKEN,
+    assignmentMailEnabled: settings.assignmentMailEnabled ?? false,
+    assignmentSubjectTemplate: settings.assignmentSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
+    assignmentBodyTemplate: settings.assignmentBodyTemplate || MAIL_BODY_TOKEN,
     excludedUsersEnabled: settings.excludedUsersEnabled ?? false,
     excludedUserIds: settings.excludedUserIds ?? [],
     overdueMailEnabled: settings.overdueMailEnabled ?? false,
@@ -1084,6 +1087,9 @@ export function SettingsPage() {
     incomingMailEnabled: false,
     incomingSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
     incomingBodyTemplate: MAIL_BODY_TOKEN,
+    assignmentMailEnabled: false,
+    assignmentSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
+    assignmentBodyTemplate: MAIL_BODY_TOKEN,
     excludedUsersEnabled: false,
     excludedUserIds: [],
     overdueMailEnabled: false,
@@ -4988,13 +4994,13 @@ export function SettingsPage() {
               <section className="section-card page-stack">
                 <div className="page-header-row">
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                    <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.mailNotification.excludedUsersTitle', 'Mail Gönderimi Hariç Tutulan Kullanıcılar')}</h2>
+                    <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.mailNotification.assignmentTitle', 'Görevlerin Mail Gönderimi')}</h2>
                     <SettingsActiveSwitch
-                      label={mailNotificationForm.excludedUsersEnabled ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
-                      checked={Boolean(mailNotificationForm.excludedUsersEnabled)}
+                      label={mailNotificationForm.assignmentMailEnabled ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
+                      checked={Boolean(mailNotificationForm.assignmentMailEnabled)}
                       onChange={() => setMailNotificationForm(current => ({
                         ...current,
-                        excludedUsersEnabled: !current.excludedUsersEnabled,
+                        assignmentMailEnabled: !current.assignmentMailEnabled,
                       }))}
                     />
                   </div>
@@ -5002,23 +5008,29 @@ export function SettingsPage() {
                     {t('common.save', 'Kaydet')}
                   </Button>
                 </div>
-                <p className="helper-copy">{t('settings.mailNotification.excludedUsersHelp', 'Mail bildirimi almak istemeyen kullanıcıları seçin. Aktifken bu kullanıcılara mail gönderilmez.')}</p>
-                {mailNotificationForm.excludedUsersEnabled ? (
-                  <MultiSelectDropdown
-                    options={(mailUsersQuery.data ?? [])
-                      .filter(item => item.isActive)
-                      .map(item => ({
-                        value: item.userId,
-                        label: item.displayName || item.username || item.email || item.userId,
-                      }))}
-                    value={mailNotificationForm.excludedUserIds ?? []}
-                    onChange={value => setMailNotificationForm(current => ({ ...current, excludedUserIds: value }))}
-                    placeholder={t('settings.mailNotification.excludedUsersPlaceholder', 'Kullanıcı seçiniz')}
-                    emptyText={t('settings.mailNotification.excludedUsersEmpty', 'Kullanıcı bulunamadı')}
-                    searchable
-                    triggerClassName="min-h-9 py-1.5 text-[0.8rem]"
-                    menuClassName="settings-mail-excluded-users-menu"
-                  />
+                {mailNotificationForm.assignmentMailEnabled ? (
+                  <>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('settings.mailNotification.mailSubject', 'Mail konusu')}</span>
+                      <MailTokenField
+                        value={mailNotificationForm.assignmentSubjectTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        onChange={value => setMailNotificationForm(current => ({ ...current, assignmentSubjectTemplate: value }))}
+                        beforeAriaLabel={t('settings.mailNotification.assignmentSubjectBefore', 'Görev mail konusu (önce)')}
+                        afterAriaLabel={t('settings.mailNotification.assignmentSubjectAfter', 'Görev mail konusu (sonra)')}
+                      />
+                    </label>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
+                      <MailTokenField
+                        value={mailNotificationForm.assignmentBodyTemplate ?? MAIL_BODY_TOKEN}
+                        onChange={value => setMailNotificationForm(current => ({ ...current, assignmentBodyTemplate: value }))}
+                        beforeAriaLabel={t('settings.mailNotification.assignmentBodyBefore', 'Görev mail içeriği (önce)')}
+                        afterAriaLabel={t('settings.mailNotification.assignmentBodyAfter', 'Görev mail içeriği (sonra)')}
+                        multiline
+                        withTitleToken
+                      />
+                    </label>
+                  </>
                 ) : null}
               </section>
               </div>
@@ -5107,6 +5119,45 @@ export function SettingsPage() {
                       />
                     </label>
                   </>
+                ) : null}
+              </section>
+              </div>
+
+              <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
+              <section className="section-card page-stack">
+                <div className="page-header-row">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.mailNotification.excludedUsersTitle', 'Mail Gönderimi Hariç Tutulan Kullanıcılar')}</h2>
+                    <SettingsActiveSwitch
+                      label={mailNotificationForm.excludedUsersEnabled ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
+                      checked={Boolean(mailNotificationForm.excludedUsersEnabled)}
+                      onChange={() => setMailNotificationForm(current => ({
+                        ...current,
+                        excludedUsersEnabled: !current.excludedUsersEnabled,
+                      }))}
+                    />
+                  </div>
+                  <Button type="button" onClick={() => void persistMailNotificationSettings()}>
+                    {t('common.save', 'Kaydet')}
+                  </Button>
+                </div>
+                <p className="helper-copy">{t('settings.mailNotification.excludedUsersHelp', 'Mail bildirimi almak istemeyen kullanıcıları seçin. Aktifken bu kullanıcılara mail gönderilmez.')}</p>
+                {mailNotificationForm.excludedUsersEnabled ? (
+                  <MultiSelectDropdown
+                    options={(mailUsersQuery.data ?? [])
+                      .filter(item => item.isActive)
+                      .map(item => ({
+                        value: item.userId,
+                        label: item.displayName || item.username || item.email || item.userId,
+                      }))}
+                    value={mailNotificationForm.excludedUserIds ?? []}
+                    onChange={value => setMailNotificationForm(current => ({ ...current, excludedUserIds: value }))}
+                    placeholder={t('settings.mailNotification.excludedUsersPlaceholder', 'Kullanıcı seçiniz')}
+                    emptyText={t('settings.mailNotification.excludedUsersEmpty', 'Kullanıcı bulunamadı')}
+                    searchable
+                    triggerClassName="min-h-9 py-1.5 text-[0.8rem]"
+                    menuClassName="settings-mail-excluded-users-menu"
+                  />
                 ) : null}
               </section>
               </div>

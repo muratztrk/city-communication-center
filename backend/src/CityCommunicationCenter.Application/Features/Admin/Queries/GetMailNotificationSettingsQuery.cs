@@ -51,6 +51,13 @@ public sealed class GetMailNotificationSettingsQueryHandler : IQueryHandler<GetM
                 : payload.OverdueTaskSubjectTemplate,
             string.IsNullOrWhiteSpace(payload.OverdueTaskBodyTemplate)
                 ? MailNotificationSettingsPayload.BodyRequestToken
-                : payload.OverdueTaskBodyTemplate);
+                : payload.OverdueTaskBodyTemplate,
+            payload.AssignmentMailEnabled,
+            string.IsNullOrWhiteSpace(payload.AssignmentSubjectTemplate)
+                ? MailNotificationSettingsPayload.RequestNoToken
+                : payload.AssignmentSubjectTemplate,
+            string.IsNullOrWhiteSpace(payload.AssignmentBodyTemplate)
+                ? MailNotificationSettingsPayload.BodyRequestToken
+                : payload.AssignmentBodyTemplate);
     }
 }

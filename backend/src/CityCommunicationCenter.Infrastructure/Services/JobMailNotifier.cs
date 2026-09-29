@@ -72,7 +72,7 @@ internal sealed class JobMailNotifier : IJobMailNotifier
             }
 
             var settings = await LoadSettingsAsync(job.TenantId, cancellationToken);
-            if (!CanSend(settings))
+            if (!CanSend(settings) || !settings.AssignmentMailEnabled)
             {
                 return;
             }
@@ -88,8 +88,8 @@ internal sealed class JobMailNotifier : IJobMailNotifier
             await SendToUsersAsync(
                 job,
                 recipientIds,
-                settings.IncomingSubjectTemplate,
-                settings.IncomingBodyTemplate,
+                settings.AssignmentSubjectTemplate,
+                settings.AssignmentBodyTemplate,
                 MailOutboundKind.Assignment,
                 taskId: null,
                 cancellationToken);

@@ -1502,7 +1502,12 @@
       "overdueTaskSubjectBefore": "Overdue task mail subject (before)",
       "overdueTaskSubjectAfter": "Overdue task mail subject (after)",
       "overdueTaskBodyBefore": "Overdue task mail body (before)",
-      "overdueTaskBodyAfter": "Overdue task mail body (after)"
+      "overdueTaskBodyAfter": "Overdue task mail body (after)",
+      "assignmentTitle": "Task mail sending",
+      "assignmentSubjectBefore": "Task mail subject (before)",
+      "assignmentSubjectAfter": "Task mail subject (after)",
+      "assignmentBodyBefore": "Task mail body (before)",
+      "assignmentBodyAfter": "Task mail body (after)"
     },
     "recaptcha": {
       "sectionTitle": "reCAPTCHA",

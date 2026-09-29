@@ -582,7 +582,10 @@ public sealed class AdminController : ApiControllerBase
                 request.OverdueBodyTemplate,
                 request.OverdueTaskMailEnabled,
                 request.OverdueTaskSubjectTemplate,
-                request.OverdueTaskBodyTemplate),
+                request.OverdueTaskBodyTemplate,
+                request.AssignmentMailEnabled,
+                request.AssignmentSubjectTemplate,
+                request.AssignmentBodyTemplate),
             cancellationToken);
 
         return NoContent();

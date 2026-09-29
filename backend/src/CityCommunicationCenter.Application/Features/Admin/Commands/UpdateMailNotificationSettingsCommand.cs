@@ -14,7 +14,14 @@ public sealed record UpdateMailNotificationSettingsCommand(
     string? Password,
     bool ClearPassword,
     string SecurityMode,
-    string? DefaultReplyTo) : ICommand<Unit>;
+    string? DefaultReplyTo,
+    string? IncomingSubjectTemplate = null,
+    string? IncomingBodyTemplate = null,
+    bool? ExcludedUsersEnabled = null,
+    IReadOnlyList<Guid>? ExcludedUserIds = null,
+    bool? OverdueMailEnabled = null,
+    string? OverdueSubjectTemplate = null,
+    string? OverdueBodyTemplate = null) : ICommand<Unit>;
 
 public sealed class UpdateMailNotificationSettingsCommandValidator : AbstractValidator<UpdateMailNotificationSettingsCommand>
 {
@@ -54,25 +61,12 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
 
         if (setting is null) return Unit.Value;
 
-        string? existingPassword = null;
-        if (!string.IsNullOrWhiteSpace(setting.MailNotificationSettingsJson))
-        {
-            try
-            {
-                var previous = JsonSerializer.Deserialize<MailPayload>(setting.MailNotificationSettingsJson);
-                existingPassword = previous?.Password;
-            }
-            catch
-            {
-                existingPassword = null;
-            }
-        }
-
+        var previous = MailNotificationSettingsPayload.ParseOrEmpty(setting.MailNotificationSettingsJson);
         var password = request.ClearPassword
             ? null
-            : (string.IsNullOrEmpty(request.Password) ? existingPassword : request.Password);
+            : (string.IsNullOrEmpty(request.Password) ? previous.Password : request.Password);
 
-        setting.MailNotificationSettingsJson = JsonSerializer.Serialize(new MailPayload
+        setting.MailNotificationSettingsJson = JsonSerializer.Serialize(new MailNotificationSettingsPayload
         {
             IsEnabled = request.IsEnabled,
             SmtpHostSpecified = !string.IsNullOrWhiteSpace(request.SmtpHost),
@@ -84,24 +78,25 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
             Password = password,
             SecurityMode = request.SecurityMode,
             DefaultReplyTo = request.DefaultReplyTo,
+            IncomingSubjectTemplate = request.IncomingSubjectTemplate
+                ?? previous.IncomingSubjectTemplate
+                ?? MailNotificationSettingsPayload.RequestNoToken,
+            IncomingBodyTemplate = request.IncomingBodyTemplate
+                ?? previous.IncomingBodyTemplate
+                ?? MailNotificationSettingsPayload.RequestNoToken,
+            ExcludedUsersEnabled = request.ExcludedUsersEnabled ?? previous.ExcludedUsersEnabled,
+            ExcludedUserIds = request.ExcludedUserIds?.ToArray() ?? previous.ExcludedUserIds ?? [],
+            OverdueMailEnabled = request.OverdueMailEnabled ?? previous.OverdueMailEnabled,
+            OverdueSubjectTemplate = request.OverdueSubjectTemplate
+                ?? previous.OverdueSubjectTemplate
+                ?? MailNotificationSettingsPayload.RequestNoToken,
+            OverdueBodyTemplate = request.OverdueBodyTemplate
+                ?? previous.OverdueBodyTemplate
+                ?? MailNotificationSettingsPayload.RequestNoToken,
         });
         setting.UpdatedAtUtc = DateTimeOffset.UtcNow;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;
-    }
-
-    private sealed class MailPayload
-    {
-        public bool IsEnabled { get; set; }
-        public bool SmtpHostSpecified { get; set; }
-        public string? SmtpHost { get; set; }
-        public bool PortSpecified { get; set; }
-        public int Port { get; set; } = 25;
-        public bool AuthenticationEnabled { get; set; }
-        public string? Username { get; set; }
-        public string? Password { get; set; }
-        public string SecurityMode { get; set; } = "None";
-        public string? DefaultReplyTo { get; set; }
     }
 }

@@ -6,6 +6,13 @@ public interface IMailNotificationSender
         Guid tenantId,
         MailNotificationTestRequest request,
         CancellationToken cancellationToken = default);
+
+    Task<MailNotificationSendResult> SendAsync(
+        Guid tenantId,
+        string recipientEmail,
+        string subject,
+        string body,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record MailNotificationTestRequest(

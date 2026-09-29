@@ -26,6 +26,8 @@ public sealed class OverdueJobSmsPollingHostedService : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var notifier = scope.ServiceProvider.GetRequiredService<IOverdueJobSmsNotifier>();
                 await notifier.ProcessOverdueJobsAsync(stoppingToken);
+                var mailNotifier = scope.ServiceProvider.GetRequiredService<IJobMailNotifier>();
+                await mailNotifier.ProcessOverdueMailsAsync(stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {

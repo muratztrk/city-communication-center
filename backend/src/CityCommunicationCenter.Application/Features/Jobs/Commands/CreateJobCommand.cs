@@ -51,17 +51,20 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
     private readonly IAfterHoursJobSmsNotifier _afterHoursJobSmsNotifier;
+    private readonly IJobMailNotifier _jobMailNotifier;
 
     public CreateJobCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
         ISlaCalculatorService slaCalculator,
-        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier)
+        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier,
+        IJobMailNotifier jobMailNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
         _afterHoursJobSmsNotifier = afterHoursJobSmsNotifier;
+        _jobMailNotifier = jobMailNotifier;
     }
 
     public async ValueTask<JobSummaryResponse> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -372,12 +375,23 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             notifyDepartmentIds,
             request.ActorUserId,
             cancellationToken);
+        await _jobMailNotifier.NotifyIncomingAsync(
+            job,
+            notifyDepartmentIds,
+            request.ActorUserId,
+            cancellationToken);
 
         if (!requiresOwnerApproval)
         {
             foreach (var ownerUser in ownerUsers)
             {
                 await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
+                    job,
+                    ownerUser.UserId,
+                    request.OwnerDepartmentId,
+                    request.ActorUserId,
+                    cancellationToken);
+                await _jobMailNotifier.NotifyTaskAssignedAsync(
                     job,
                     ownerUser.UserId,
                     request.OwnerDepartmentId,

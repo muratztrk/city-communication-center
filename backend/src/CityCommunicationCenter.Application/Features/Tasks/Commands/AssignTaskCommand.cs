@@ -26,17 +26,20 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
     private readonly IAfterHoursJobSmsNotifier _afterHoursJobSmsNotifier;
+    private readonly IJobMailNotifier _jobMailNotifier;
 
     public AssignTaskCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
         ISlaCalculatorService slaCalculator,
-        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier)
+        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier,
+        IJobMailNotifier jobMailNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
         _afterHoursJobSmsNotifier = afterHoursJobSmsNotifier;
+        _jobMailNotifier = jobMailNotifier;
     }
 
     public async ValueTask<bool> Handle(AssignTaskCommand request, CancellationToken cancellationToken)
@@ -178,6 +181,12 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
                 request.ActorUserId,
                 cancellationToken);
             await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
+                job,
+                targetUser.UserId,
+                targetDepartment?.DepartmentId,
+                request.ActorUserId,
+                cancellationToken);
+            await _jobMailNotifier.NotifyTaskAssignedAsync(
                 job,
                 targetUser.UserId,
                 targetDepartment?.DepartmentId,

@@ -1260,6 +1260,7 @@
       "roles": "Page Permissions",
       "social": "Social Media Integration",
       "routing": "Citizen Tracking Auto Message Routing",
+      "mailNotifications": "Mail Notification",
       "templates": "Draft Messages",
       "license": "License",
       "support": "Support Requests"
@@ -1468,7 +1469,24 @@
       "testRecipientRequired": "Recipient e-mail is required.",
       "testSendConfirm": "Send",
       "save": "Save",
-      "saved": "Mail notification settings saved."
+      "saved": "Mail notification settings saved.",
+      "serverRequired": "Define and enable the mail server on the Organization tab before editing mail subject and body.",
+      "templatesHelp": "Subject and body sent to the department manager, department supervisor, and citizen request manager when a request arrives.",
+      "mailSubject": "Mail subject",
+      "mailBody": "Mail body",
+      "subjectBefore": "Mail subject (before)",
+      "subjectAfter": "Mail subject (after)",
+      "bodyBefore": "Mail body (before)",
+      "bodyAfter": "Mail body (after)",
+      "excludedUsersTitle": "Users excluded from mail sending",
+      "excludedUsersHelp": "Select users who should not receive mail notifications. When active, those users are skipped.",
+      "excludedUsersPlaceholder": "Select users",
+      "excludedUsersEmpty": "No users found",
+      "overdueTitle": "Overdue request mail sending",
+      "overdueSubjectBefore": "Overdue mail subject (before)",
+      "overdueSubjectAfter": "Overdue mail subject (after)",
+      "overdueBodyBefore": "Overdue mail body (before)",
+      "overdueBodyAfter": "Overdue mail body (after)"
     },
     "recaptcha": {
       "sectionTitle": "reCAPTCHA",

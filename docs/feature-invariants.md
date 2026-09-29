@@ -1660,6 +1660,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (başlık altı çizgi, `Şu e-postaya gönder`, Gönder/İptal — #3915).
   `POST .../mail-notification-settings/test` `recipientEmail` alır. SMTP test MailKit
   STARTTLS + kurum içi sertifika; `Failure sending mail.` yerine iç/Türkçe hata (#3915 r2).
+  Test popup Gönder'de hemen kapanır (SMTP sonucu beklenmez, #3915 r3).
+  Yönlendirme sekmesinin sağına **Mail Bildirimi** sekmesi: SMTP aktifken konu/içerik
+  `{TalepNo}` şablonları, hariç tutulan kullanıcılar (varsayılan pasif) ve geciken talep
+  mail kutusu (varsayılan pasif). Birime gelen talep → müdür/sorumlu/VTY; görevi başkasına
+  atayınca görev sahibine; geciken talep aynı yönetici kümesine (#3920/#3918/#3921/#3919/#3922/#3923).
 - **Kurum Konumu ilçe (#r512/#r514/#r521/#6a75b1ae):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` localStorage
   + `TenantSettings.Theme = ccc-district:<id>` ile talep formu mahalle dropdown’ları aynı ilçeyi

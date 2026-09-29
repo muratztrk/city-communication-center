@@ -38,18 +38,21 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
     private readonly ISlaCalculatorService _slaCalculator;
     private readonly ICitizenJobStatusNotifier? _citizenJobStatusNotifier;
     private readonly IAfterHoursJobSmsNotifier _afterHoursJobSmsNotifier;
+    private readonly IJobMailNotifier _jobMailNotifier;
 
     public CreateTaskCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
         ISlaCalculatorService slaCalculator,
         IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier,
+        IJobMailNotifier jobMailNotifier,
         ICitizenJobStatusNotifier? citizenJobStatusNotifier = null)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
         _afterHoursJobSmsNotifier = afterHoursJobSmsNotifier;
+        _jobMailNotifier = jobMailNotifier;
         _citizenJobStatusNotifier = citizenJobStatusNotifier;
     }
 
@@ -281,6 +284,12 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
                 request.ActorUserId,
                 cancellationToken);
             await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
+                job,
+                assignedUserId.Value,
+                assignedDepartmentId,
+                request.ActorUserId,
+                cancellationToken);
+            await _jobMailNotifier.NotifyTaskAssignedAsync(
                 job,
                 assignedUserId.Value,
                 assignedDepartmentId,

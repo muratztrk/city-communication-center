@@ -56,14 +56,96 @@ internal sealed class MailNotificationSender : IMailNotificationSender
             return new MailNotificationSendResult(false, "Parola zorunludur.");
         }
 
-        var port = request.Port > 0 ? request.Port : 25;
-        var socketOptions = ResolveSocketOptions(request.SecurityMode, port);
+        return await SendCoreAsync(
+            tenantId,
+            host,
+            port: request.Port > 0 ? request.Port : 25,
+            request.SecurityMode,
+            from,
+            to,
+            DefaultSubject,
+            DefaultBody,
+            request.AuthenticationEnabled,
+            request.Username,
+            password,
+            successMessage: "Deneme e-postası gönderildi.",
+            cancellationToken);
+    }
+
+    public async Task<MailNotificationSendResult> SendAsync(
+        Guid tenantId,
+        string recipientEmail,
+        string subject,
+        string body,
+        CancellationToken cancellationToken = default)
+    {
+        var stored = await ReadStoredSettingsAsync(tenantId, cancellationToken);
+        if (stored is null || !stored.IsEnabled)
+        {
+            return new MailNotificationSendResult(false, "Mail sunucusu kapalı.");
+        }
+
+        var host = stored.SmtpHost?.Trim();
+        var from = stored.DefaultReplyTo?.Trim();
+        var to = recipientEmail.Trim();
+        if (string.IsNullOrWhiteSpace(host))
+        {
+            return new MailNotificationSendResult(false, "SMTP sunucu adresi zorunludur.");
+        }
+
+        if (string.IsNullOrWhiteSpace(from))
+        {
+            return new MailNotificationSendResult(false, "Gönderen adresi zorunludur.");
+        }
+
+        if (string.IsNullOrWhiteSpace(to))
+        {
+            return new MailNotificationSendResult(false, "Alıcı e-posta zorunludur.");
+        }
+
+        if (stored.AuthenticationEnabled && string.IsNullOrWhiteSpace(stored.Password))
+        {
+            return new MailNotificationSendResult(false, "Parola zorunludur.");
+        }
+
+        return await SendCoreAsync(
+            tenantId,
+            host,
+            port: stored.Port > 0 ? stored.Port : 25,
+            stored.SecurityMode,
+            from,
+            to,
+            subject,
+            body,
+            stored.AuthenticationEnabled,
+            stored.Username,
+            stored.Password,
+            successMessage: "E-posta gönderildi.",
+            cancellationToken);
+    }
+
+    private async Task<MailNotificationSendResult> SendCoreAsync(
+        Guid tenantId,
+        string host,
+        int port,
+        string? securityMode,
+        string from,
+        string to,
+        string subject,
+        string body,
+        bool authenticationEnabled,
+        string? username,
+        string? password,
+        string successMessage,
+        CancellationToken cancellationToken)
+    {
+        var socketOptions = ResolveSocketOptions(securityMode, port);
 
         var message = new MimeMessage();
         message.From.Add(MailboxAddress.Parse(from));
         message.To.Add(MailboxAddress.Parse(to));
-        message.Subject = DefaultSubject;
-        message.Body = new TextPart("plain") { Text = DefaultBody };
+        message.Subject = subject;
+        message.Body = new TextPart("plain") { Text = body };
 
         using var client = new SmtpClient
         {
@@ -74,14 +156,14 @@ internal sealed class MailNotificationSender : IMailNotificationSender
         try
         {
             await client.ConnectAsync(host, port, socketOptions, cancellationToken);
-            if (request.AuthenticationEnabled)
+            if (authenticationEnabled)
             {
-                await client.AuthenticateAsync(request.Username?.Trim(), password, cancellationToken);
+                await client.AuthenticateAsync(username?.Trim(), password, cancellationToken);
             }
 
             await client.SendAsync(message, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
-            return new MailNotificationSendResult(true, "Deneme e-postası gönderildi.");
+            return new MailNotificationSendResult(true, successMessage);
         }
         catch (Exception ex) when (
             ex is SmtpCommandException
@@ -105,7 +187,7 @@ internal sealed class MailNotificationSender : IMailNotificationSender
                 }
             }
 
-            _logger.LogWarning(ex, "SMTP test mail failed for tenant {TenantId}", tenantId);
+            _logger.LogWarning(ex, "SMTP mail failed for tenant {TenantId}", tenantId);
             return new MailNotificationSendResult(false, FormatSmtpError(ex));
         }
     }
@@ -179,6 +261,12 @@ internal sealed class MailNotificationSender : IMailNotificationSender
 
     private async Task<string?> ReadStoredPasswordAsync(Guid tenantId, CancellationToken cancellationToken)
     {
+        var stored = await ReadStoredSettingsAsync(tenantId, cancellationToken);
+        return stored?.Password;
+    }
+
+    private async Task<StoredMailPayload?> ReadStoredSettingsAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
         var json = await _dbContext.TenantSettings
             .AsNoTracking()
             .Where(setting => setting.TenantId == tenantId)
@@ -192,8 +280,7 @@ internal sealed class MailNotificationSender : IMailNotificationSender
 
         try
         {
-            var payload = JsonSerializer.Deserialize<StoredMailPayload>(json);
-            return payload?.Password;
+            return JsonSerializer.Deserialize<StoredMailPayload>(json);
         }
         catch
         {
@@ -203,6 +290,13 @@ internal sealed class MailNotificationSender : IMailNotificationSender
 
     private sealed class StoredMailPayload
     {
+        public bool IsEnabled { get; set; }
+        public string? SmtpHost { get; set; }
+        public int Port { get; set; } = 25;
+        public bool AuthenticationEnabled { get; set; }
+        public string? Username { get; set; }
         public string? Password { get; set; }
+        public string SecurityMode { get; set; } = "None";
+        public string? DefaultReplyTo { get; set; }
     }
 }

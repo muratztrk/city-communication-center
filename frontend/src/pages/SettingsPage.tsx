@@ -23,6 +23,7 @@ import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { Toast } from '../components/ui/toast'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
@@ -75,9 +76,11 @@ import type {
   DatabaseBackupSettings,
   DatabaseBackupSettingsUpdate,
   SyslogSettingsUpdate,
+  MailNotificationSettings,
   MailNotificationSettingsUpdate,
   SlaWeekendSettingsUpdate,
   InternalMessagesSettings,
+  User,
 } from '../types/platform'
 import { SMS_PASSWORD_MASK, SMS_PROVIDER_OPTIONS, SMS_SENDABLE_PROVIDERS } from '../types/platform'
 import type { SmsProviderSelection } from '../types/platform'
@@ -85,7 +88,76 @@ import { getRoleLabel } from '../utils/localization'
 import { toTitleCaseTr } from '../utils/textNormalization'
 import { isCbsMissingDoorLabel } from '../utils/addressLimits'
 
-type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license' | 'support'
+type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'mailNotifications' | 'templates' | 'license' | 'support'
+
+const MAIL_REQUEST_NO_TOKEN = '{TalepNo}'
+
+function splitMailTokenTemplate(template: string | null | undefined): { before: string; after: string } {
+  const value = template ?? ''
+  const index = value.indexOf(MAIL_REQUEST_NO_TOKEN)
+  if (index < 0) {
+    return { before: value, after: '' }
+  }
+  return { before: value.slice(0, index), after: value.slice(index + MAIL_REQUEST_NO_TOKEN.length) }
+}
+
+function buildMailTokenTemplate(before: string, after: string) {
+  return `${before}${MAIL_REQUEST_NO_TOKEN}${after}`
+}
+
+function MailTokenField({
+  value,
+  onChange,
+  beforeAriaLabel,
+  afterAriaLabel,
+}: {
+  value: string
+  onChange: (next: string) => void
+  beforeAriaLabel: string
+  afterAriaLabel: string
+}) {
+  const { before, after } = splitMailTokenTemplate(value)
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <input
+        aria-label={beforeAriaLabel}
+        className="field-input min-w-[8rem] flex-1"
+        value={before}
+        onChange={event => onChange(buildMailTokenTemplate(event.target.value, after))}
+      />
+      <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">{MAIL_REQUEST_NO_TOKEN}</span>
+      <input
+        aria-label={afterAriaLabel}
+        className="field-input min-w-[8rem] flex-1"
+        value={after}
+        onChange={event => onChange(buildMailTokenTemplate(before, event.target.value))}
+      />
+    </div>
+  )
+}
+
+function toMailNotificationForm(settings: MailNotificationSettings, password: string | null = null): MailNotificationSettingsUpdate {
+  return {
+    isEnabled: settings.isEnabled,
+    smtpHostSpecified: settings.smtpHostSpecified,
+    smtpHost: settings.smtpHost,
+    portSpecified: settings.portSpecified,
+    port: settings.port,
+    authenticationEnabled: settings.authenticationEnabled,
+    username: settings.username,
+    password,
+    clearPassword: false,
+    securityMode: settings.securityMode,
+    defaultReplyTo: settings.defaultReplyTo,
+    incomingSubjectTemplate: settings.incomingSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
+    incomingBodyTemplate: settings.incomingBodyTemplate || MAIL_REQUEST_NO_TOKEN,
+    excludedUsersEnabled: settings.excludedUsersEnabled ?? false,
+    excludedUserIds: settings.excludedUserIds ?? [],
+    overdueMailEnabled: settings.overdueMailEnabled ?? false,
+    overdueSubjectTemplate: settings.overdueSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
+    overdueBodyTemplate: settings.overdueBodyTemplate || MAIL_REQUEST_NO_TOKEN,
+  }
+}
 type RolePermissionView = 'web' | 'mobile'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
 type ChannelForms = Record<ChannelType, Record<string, string>>
@@ -776,7 +848,7 @@ const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
 }
 
 function readTab(tab: string | null): SettingsTab {
-  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'templates' || tab === 'license' || tab === 'support' ? tab : 'tenant'
+  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'mailNotifications' || tab === 'templates' || tab === 'license' || tab === 'support' ? tab : 'tenant'
 }
 
 const SETTINGS_TAB_LABEL_KEYS: Record<SettingsTab, string> = {
@@ -785,6 +857,7 @@ const SETTINGS_TAB_LABEL_KEYS: Record<SettingsTab, string> = {
   roles: 'settings.tabs.roles',
   social: 'settings.tabs.social',
   routing: 'settings.tabs.routing',
+  mailNotifications: 'settings.tabs.mailNotifications',
   templates: 'settings.tabs.templates',
   license: 'settings.tabs.license',
   support: 'settings.tabs.support',
@@ -961,6 +1034,13 @@ export function SettingsPage() {
     clearPassword: false,
     securityMode: 'None',
     defaultReplyTo: null,
+    incomingSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
+    incomingBodyTemplate: MAIL_REQUEST_NO_TOKEN,
+    excludedUsersEnabled: false,
+    excludedUserIds: [],
+    overdueMailEnabled: false,
+    overdueSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
+    overdueBodyTemplate: MAIL_REQUEST_NO_TOKEN,
   })
   const [mailHasPassword, setMailHasPassword] = useState(false)
   const [mailTestStatus, setMailTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
@@ -1022,6 +1102,12 @@ export function SettingsPage() {
     queryKey: queryKeys.supportRequests.list(),
     queryFn: () => api.getSupportRequests(),
     enabled: activeTab === 'support',
+  })
+
+  const mailUsersQuery = useQuery({
+    queryKey: queryKeys.users.list(),
+    queryFn: () => api.getUsers().catch(() => [] as User[]),
+    enabled: activeTab === 'mailNotifications',
   })
 
   const cbsNeighborhoodsQuery = useQuery({
@@ -1245,19 +1331,7 @@ export function SettingsPage() {
           format: syslogResponse.format,
           transport: syslogResponse.transport,
         })
-        setMailNotificationForm({
-          isEnabled: mailNotificationResponse.isEnabled,
-          smtpHostSpecified: mailNotificationResponse.smtpHostSpecified,
-          smtpHost: mailNotificationResponse.smtpHost,
-          portSpecified: mailNotificationResponse.portSpecified,
-          port: mailNotificationResponse.port,
-          authenticationEnabled: mailNotificationResponse.authenticationEnabled,
-          username: mailNotificationResponse.username,
-          password: null,
-          clearPassword: false,
-          securityMode: mailNotificationResponse.securityMode,
-          defaultReplyTo: mailNotificationResponse.defaultReplyTo,
-        })
+        setMailNotificationForm(toMailNotificationForm(mailNotificationResponse))
         setMailHasPassword(mailNotificationResponse.hasPassword)
         setTemplates(templatesResponse)
         setInternalMessagesSettings(internalMessagesResponse)
@@ -2050,8 +2124,7 @@ export function SettingsPage() {
     }
   }
 
-  const saveMailNotificationSettings = async (event: FormEvent) => {
-    event.preventDefault()
+  const persistMailNotificationSettings = async () => {
     if (!user?.tenantId) return
 
     setMessage(null)
@@ -2064,24 +2137,17 @@ export function SettingsPage() {
       })
       invalidateSettings(queryClient)
       const refreshed = await api.getMailNotificationSettings(user.tenantId)
-      setMailNotificationForm({
-        isEnabled: refreshed.isEnabled,
-        smtpHostSpecified: refreshed.smtpHostSpecified,
-        smtpHost: refreshed.smtpHost,
-        portSpecified: refreshed.portSpecified,
-        port: refreshed.port,
-        authenticationEnabled: refreshed.authenticationEnabled,
-        username: refreshed.username,
-        password: null,
-        clearPassword: false,
-        securityMode: refreshed.securityMode,
-        defaultReplyTo: refreshed.defaultReplyTo,
-      })
+      setMailNotificationForm(toMailNotificationForm(refreshed))
       setMailHasPassword(refreshed.hasPassword)
       setMessage({ type: 'success', text: t('settings.mailNotification.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
+  }
+
+  const saveMailNotificationSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    await persistMailNotificationSettings()
   }
 
   const sendTestMail = async (recipientEmail: string) => {
@@ -2135,7 +2201,9 @@ export function SettingsPage() {
           />
         </label>
       ),
-      onConfirm: () => sendTestMail(mailTestRecipientRef.current),
+      onConfirm: () => {
+        void sendTestMail(mailTestRecipientRef.current)
+      },
     })
   }
 
@@ -2738,6 +2806,9 @@ export function SettingsPage() {
               {t('settings.tabs.routing')}
             </button>
             )}
+            <button className={`tab-button ${activeTab === 'mailNotifications' ? 'active' : ''}`} onClick={() => setTab('mailNotifications')} type="button">
+              {t('settings.tabs.mailNotifications', 'Mail Bildirimi')}
+            </button>
             {isCitizenModuleUsable && (
             <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
               {t('settings.tabs.templates')}
@@ -4808,6 +4879,120 @@ export function SettingsPage() {
 
         </div>
       ) : null}
+
+      {activeTab === 'mailNotifications' ? (
+        <div className="page-stack">
+          {!mailNotificationForm.isEnabled || !mailNotificationForm.smtpHost?.trim() ? (
+            <section className="section-card page-stack">
+              <h2 className="text-xl font-extrabold text-slate-950">{t('settings.mailNotification.sectionTitle', 'Mail Bildirimi')}</h2>
+              <p className="helper-copy">{t('settings.mailNotification.serverRequired', 'Mail konusu ve içeriği için önce Kurum sekmesinden mail sunucusunu tanımlayıp aktif edin.')}</p>
+            </section>
+          ) : (
+            <>
+              <section className="section-card page-stack">
+                <div className="page-header-row">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-950">{t('settings.mailNotification.sectionTitle', 'Mail Bildirimi')}</h2>
+                    <p className="helper-copy">{t('settings.mailNotification.templatesHelp', 'Birime gelen taleplerde müdür, birim sorumlusu ve vatandaş talep yöneticisine gidecek mail konusu ve içeriği.')}</p>
+                  </div>
+                  <Button type="button" onClick={() => void persistMailNotificationSettings()}>
+                    {t('common.save', 'Kaydet')}
+                  </Button>
+                </div>
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  <span>{t('settings.mailNotification.mailSubject', 'Mail konusu')}</span>
+                  <MailTokenField
+                    value={mailNotificationForm.incomingSubjectTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                    onChange={value => setMailNotificationForm(current => ({ ...current, incomingSubjectTemplate: value }))}
+                    beforeAriaLabel={t('settings.mailNotification.subjectBefore', 'Mail konusu (önce)')}
+                    afterAriaLabel={t('settings.mailNotification.subjectAfter', 'Mail konusu (sonra)')}
+                  />
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
+                  <MailTokenField
+                    value={mailNotificationForm.incomingBodyTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                    onChange={value => setMailNotificationForm(current => ({ ...current, incomingBodyTemplate: value }))}
+                    beforeAriaLabel={t('settings.mailNotification.bodyBefore', 'Mail içeriği (önce)')}
+                    afterAriaLabel={t('settings.mailNotification.bodyAfter', 'Mail içeriği (sonra)')}
+                  />
+                </label>
+              </section>
+
+              <section className="section-card page-stack">
+                <div className="page-header-row">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.mailNotification.excludedUsersTitle', 'Mail Gönderimi Hariç Tutulan Kullanıcılar')}</h2>
+                    <SettingsActiveSwitch
+                      label={mailNotificationForm.excludedUsersEnabled ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
+                      checked={Boolean(mailNotificationForm.excludedUsersEnabled)}
+                      onChange={() => setMailNotificationForm(current => ({
+                        ...current,
+                        excludedUsersEnabled: !current.excludedUsersEnabled,
+                      }))}
+                    />
+                  </div>
+                </div>
+                <p className="helper-copy">{t('settings.mailNotification.excludedUsersHelp', 'Mail bildirimi almak istemeyen kullanıcıları seçin. Aktifken bu kullanıcılara mail gönderilmez.')}</p>
+                {mailNotificationForm.excludedUsersEnabled ? (
+                  <MultiSelectDropdown
+                    options={(mailUsersQuery.data ?? [])
+                      .filter(item => item.isActive)
+                      .map(item => ({
+                        value: item.userId,
+                        label: item.displayName || item.username || item.email || item.userId,
+                      }))}
+                    value={mailNotificationForm.excludedUserIds ?? []}
+                    onChange={value => setMailNotificationForm(current => ({ ...current, excludedUserIds: value }))}
+                    placeholder={t('settings.mailNotification.excludedUsersPlaceholder', 'Kullanıcı seçiniz')}
+                    emptyText={t('settings.mailNotification.excludedUsersEmpty', 'Kullanıcı bulunamadı')}
+                    searchable
+                  />
+                ) : null}
+              </section>
+
+              <section className="section-card page-stack">
+                <div className="page-header-row">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.mailNotification.overdueTitle', 'Geciken Taleplerin Mail Gönderimi')}</h2>
+                    <SettingsActiveSwitch
+                      label={mailNotificationForm.overdueMailEnabled ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
+                      checked={Boolean(mailNotificationForm.overdueMailEnabled)}
+                      onChange={() => setMailNotificationForm(current => ({
+                        ...current,
+                        overdueMailEnabled: !current.overdueMailEnabled,
+                      }))}
+                    />
+                  </div>
+                </div>
+                {mailNotificationForm.overdueMailEnabled ? (
+                  <>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('settings.mailNotification.mailSubject', 'Mail konusu')}</span>
+                      <MailTokenField
+                        value={mailNotificationForm.overdueSubjectTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        onChange={value => setMailNotificationForm(current => ({ ...current, overdueSubjectTemplate: value }))}
+                        beforeAriaLabel={t('settings.mailNotification.overdueSubjectBefore', 'Geciken mail konusu (önce)')}
+                        afterAriaLabel={t('settings.mailNotification.overdueSubjectAfter', 'Geciken mail konusu (sonra)')}
+                      />
+                    </label>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
+                      <MailTokenField
+                        value={mailNotificationForm.overdueBodyTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        onChange={value => setMailNotificationForm(current => ({ ...current, overdueBodyTemplate: value }))}
+                        beforeAriaLabel={t('settings.mailNotification.overdueBodyBefore', 'Geciken mail içeriği (önce)')}
+                        afterAriaLabel={t('settings.mailNotification.overdueBodyAfter', 'Geciken mail içeriği (sonra)')}
+                      />
+                    </label>
+                  </>
+                ) : null}
+              </section>
+            </>
+          )}
+        </div>
+      ) : null}
+
       {activeTab === 'templates' ? (
         <div className="flex gap-4 min-h-[520px]">
           <div className="flex w-64 shrink-0 flex-col gap-2">

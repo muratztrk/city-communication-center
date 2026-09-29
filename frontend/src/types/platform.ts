@@ -1185,6 +1185,13 @@ export interface MailNotificationSettings {
   hasPassword: boolean
   securityMode: MailSecurityMode
   defaultReplyTo: string | null
+  incomingSubjectTemplate: string
+  incomingBodyTemplate: string
+  excludedUsersEnabled: boolean
+  excludedUserIds: string[]
+  overdueMailEnabled: boolean
+  overdueSubjectTemplate: string
+  overdueBodyTemplate: string
 }
 
 export interface MailNotificationSettingsUpdate {
@@ -1200,6 +1207,13 @@ export interface MailNotificationSettingsUpdate {
   securityMode: MailSecurityMode
   defaultReplyTo: string | null
   recipientEmail?: string | null
+  incomingSubjectTemplate?: string
+  incomingBodyTemplate?: string
+  excludedUsersEnabled?: boolean
+  excludedUserIds?: string[]
+  overdueMailEnabled?: boolean
+  overdueSubjectTemplate?: string
+  overdueBodyTemplate?: string
 }
 
 export interface FileStorageSettings {

@@ -1,3 +1,13 @@
+## Round 1363 — #3915 r3 / #3920 / #3918 / #3921 / #3919 / #3922 / #3923
+
+- [x] `6abb9000` / #3915 — Test e-posta Gönder popup'ı hemen kapanır.
+- [x] `6abbabf7` / #3920 — Ayarlar'da yönlendirme sağına Mail Bildirimi sekmesi + `{TalepNo}` şablonları.
+- [x] `6abba63e` / #3918 — Birime gelen talep maili müdür / sorumlu / VTY.
+- [x] `6abbadf0` / #3921 — Hariç tutulan kullanıcılar kutusu (varsayılan pasif).
+- [x] `6abbaab9` / #3919 — Müdür/sorumlu/VTY başkasına atayınca görev sahibine mail.
+- [x] `6abbaec3` / #3922 — Geciken talepler mail kutusu + şablon (varsayılan pasif).
+- [x] `6abbaf1e` / #3923 — Geciken talep maili müdür / sorumlu / VTY.
+
 ## Round 1362 — #3916 r2 / #3915 r2
 
 - [x] `6abb91a7` / #3916 — Kullanıcılar grid e-Posta başlık rengi beyaz.

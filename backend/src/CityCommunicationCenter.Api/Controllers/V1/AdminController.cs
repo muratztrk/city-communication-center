@@ -571,7 +571,14 @@ public sealed class AdminController : ApiControllerBase
                 request.Password,
                 request.ClearPassword,
                 request.SecurityMode,
-                request.DefaultReplyTo),
+                request.DefaultReplyTo,
+                request.IncomingSubjectTemplate,
+                request.IncomingBodyTemplate,
+                request.ExcludedUsersEnabled,
+                request.ExcludedUserIds,
+                request.OverdueMailEnabled,
+                request.OverdueSubjectTemplate,
+                request.OverdueBodyTemplate),
             cancellationToken);
 
         return NoContent();

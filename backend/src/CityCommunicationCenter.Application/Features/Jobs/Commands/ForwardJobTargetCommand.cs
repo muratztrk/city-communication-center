@@ -27,15 +27,18 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly IAfterHoursJobSmsNotifier _afterHoursJobSmsNotifier;
+    private readonly IJobMailNotifier _jobMailNotifier;
 
     public ForwardJobTargetCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier)
+        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier,
+        IJobMailNotifier jobMailNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _afterHoursJobSmsNotifier = afterHoursJobSmsNotifier;
+        _jobMailNotifier = jobMailNotifier;
     }
 
     public async ValueTask<bool> Handle(ForwardJobTargetCommand request, CancellationToken cancellationToken)
@@ -161,6 +164,11 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         await _afterHoursJobSmsNotifier.NotifyJobCreatedAsync(
+            job,
+            [request.TargetDepartmentId],
+            actor.UserId,
+            cancellationToken);
+        await _jobMailNotifier.NotifyIncomingAsync(
             job,
             [request.TargetDepartmentId],
             actor.UserId,

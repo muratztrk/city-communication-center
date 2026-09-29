@@ -1153,6 +1153,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("hadoverdueduedate");
 
+                    b.Property<DateTimeOffset?>("OverdueMailSentAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("overduemailsentatutc");
+
                     b.Property<bool>("IsCoordinated")
                         .HasColumnType("boolean")
                         .HasColumnName("iscoordinated");

@@ -10,7 +10,14 @@ public sealed record MailNotificationSettingsResponse(
     string? Username,
     bool HasPassword,
     string SecurityMode,
-    string? DefaultReplyTo);
+    string? DefaultReplyTo,
+    string IncomingSubjectTemplate = "{TalepNo}",
+    string IncomingBodyTemplate = "{TalepNo}",
+    bool ExcludedUsersEnabled = false,
+    IReadOnlyList<Guid>? ExcludedUserIds = null,
+    bool OverdueMailEnabled = false,
+    string OverdueSubjectTemplate = "{TalepNo}",
+    string OverdueBodyTemplate = "{TalepNo}");
 
 public sealed record UpdateMailNotificationSettingsRequest(
     bool IsEnabled,
@@ -23,7 +30,14 @@ public sealed record UpdateMailNotificationSettingsRequest(
     string? Password,
     bool ClearPassword,
     string SecurityMode,
-    string? DefaultReplyTo);
+    string? DefaultReplyTo,
+    string? IncomingSubjectTemplate = null,
+    string? IncomingBodyTemplate = null,
+    bool? ExcludedUsersEnabled = null,
+    IReadOnlyList<Guid>? ExcludedUserIds = null,
+    bool? OverdueMailEnabled = null,
+    string? OverdueSubjectTemplate = null,
+    string? OverdueBodyTemplate = null);
 
 public sealed record TestMailRequest(
     string? SmtpHost,

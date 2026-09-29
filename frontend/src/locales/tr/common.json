@@ -1268,6 +1268,7 @@
       "roles": "Sayfa Yetkileri",
       "social": "Sosyal Medya Entegrasyonu",
       "routing": "Vatandaş Takip Otomatik Mesaj Yönlendirme",
+      "mailNotifications": "Mail Bildirimi",
       "templates": "Taslak Mesajlar",
       "license": "Lisans",
       "support": "Destek Talepleri"
@@ -1476,7 +1477,24 @@
       "testRecipientRequired": "Alıcı e-posta zorunludur.",
       "testSendConfirm": "Gönder",
       "save": "Kaydet",
-      "saved": "Mail bildirimi ayarları kaydedildi."
+      "saved": "Mail bildirimi ayarları kaydedildi.",
+      "serverRequired": "Mail konusu ve içeriği için önce Kurum sekmesinden mail sunucusunu tanımlayıp aktif edin.",
+      "templatesHelp": "Birime gelen taleplerde müdür, birim sorumlusu ve vatandaş talep yöneticisine gidecek mail konusu ve içeriği.",
+      "mailSubject": "Mail konusu",
+      "mailBody": "Mail içeriği",
+      "subjectBefore": "Mail konusu (önce)",
+      "subjectAfter": "Mail konusu (sonra)",
+      "bodyBefore": "Mail içeriği (önce)",
+      "bodyAfter": "Mail içeriği (sonra)",
+      "excludedUsersTitle": "Mail Gönderimi Hariç Tutulan Kullanıcılar",
+      "excludedUsersHelp": "Mail bildirimi almak istemeyen kullanıcıları seçin. Aktifken bu kullanıcılara mail gönderilmez.",
+      "excludedUsersPlaceholder": "Kullanıcı seçiniz",
+      "excludedUsersEmpty": "Kullanıcı bulunamadı",
+      "overdueTitle": "Geciken Taleplerin Mail Gönderimi",
+      "overdueSubjectBefore": "Geciken mail konusu (önce)",
+      "overdueSubjectAfter": "Geciken mail konusu (sonra)",
+      "overdueBodyBefore": "Geciken mail içeriği (önce)",
+      "overdueBodyAfter": "Geciken mail içeriği (sonra)"
     },
     "recaptcha": {
       "sectionTitle": "reCAPTCHA",

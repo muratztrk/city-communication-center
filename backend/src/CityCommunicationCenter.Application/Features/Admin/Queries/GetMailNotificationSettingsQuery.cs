@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace CityCommunicationCenter.Application.Features.Admin;
 
 public sealed record GetMailNotificationSettingsQuery(Guid TenantId) : IQuery<MailNotificationSettingsResponse>;
@@ -19,46 +17,32 @@ public sealed class GetMailNotificationSettingsQueryHandler : IQueryHandler<GetM
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.TenantId == request.TenantId, cancellationToken);
 
-        if (setting?.MailNotificationSettingsJson is null)
-        {
-            return Empty();
-        }
-
-        try
-        {
-            var payload = JsonSerializer.Deserialize<MailNotificationPayload>(setting.MailNotificationSettingsJson);
-            return new MailNotificationSettingsResponse(
-                payload?.IsEnabled ?? false,
-                payload?.SmtpHostSpecified ?? false,
-                payload?.SmtpHost,
-                payload?.PortSpecified ?? false,
-                payload?.Port > 0 ? payload.Port : 25,
-                payload?.AuthenticationEnabled ?? false,
-                payload?.Username,
-                !string.IsNullOrEmpty(payload?.Password),
-                string.IsNullOrWhiteSpace(payload?.SecurityMode) ? "None" : payload.SecurityMode,
-                payload?.DefaultReplyTo);
-        }
-        catch
-        {
-            return Empty();
-        }
-    }
-
-    private static MailNotificationSettingsResponse Empty() =>
-        new(false, false, null, false, 25, false, null, false, "None", null);
-
-    internal sealed class MailNotificationPayload
-    {
-        public bool IsEnabled { get; set; }
-        public bool SmtpHostSpecified { get; set; }
-        public string? SmtpHost { get; set; }
-        public bool PortSpecified { get; set; }
-        public int Port { get; set; } = 25;
-        public bool AuthenticationEnabled { get; set; }
-        public string? Username { get; set; }
-        public string? Password { get; set; }
-        public string SecurityMode { get; set; } = "None";
-        public string? DefaultReplyTo { get; set; }
+        var payload = MailNotificationSettingsPayload.ParseOrEmpty(setting?.MailNotificationSettingsJson);
+        return new MailNotificationSettingsResponse(
+            payload.IsEnabled,
+            payload.SmtpHostSpecified,
+            payload.SmtpHost,
+            payload.PortSpecified,
+            payload.Port > 0 ? payload.Port : 25,
+            payload.AuthenticationEnabled,
+            payload.Username,
+            !string.IsNullOrEmpty(payload.Password),
+            string.IsNullOrWhiteSpace(payload.SecurityMode) ? "None" : payload.SecurityMode,
+            payload.DefaultReplyTo,
+            string.IsNullOrWhiteSpace(payload.IncomingSubjectTemplate)
+                ? MailNotificationSettingsPayload.RequestNoToken
+                : payload.IncomingSubjectTemplate,
+            string.IsNullOrWhiteSpace(payload.IncomingBodyTemplate)
+                ? MailNotificationSettingsPayload.RequestNoToken
+                : payload.IncomingBodyTemplate,
+            payload.ExcludedUsersEnabled,
+            payload.ExcludedUserIds,
+            payload.OverdueMailEnabled,
+            string.IsNullOrWhiteSpace(payload.OverdueSubjectTemplate)
+                ? MailNotificationSettingsPayload.RequestNoToken
+                : payload.OverdueSubjectTemplate,
+            string.IsNullOrWhiteSpace(payload.OverdueBodyTemplate)
+                ? MailNotificationSettingsPayload.RequestNoToken
+                : payload.OverdueBodyTemplate);
     }
 }

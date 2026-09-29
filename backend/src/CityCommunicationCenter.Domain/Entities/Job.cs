@@ -35,6 +35,9 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
     /// <summary>Bir kez gecikmiş açık talep; son tarih ileri alındığında (Geciken) etiketi kalır (#3885).</summary>
     public bool HadOverdueDueDate { get; set; }
 
+    /// <summary>Geciken talep mail bildirimi bir kez gönderildiğinde damga (#3922/#3923).</summary>
+    public DateTimeOffset? OverdueMailSentAtUtc { get; set; }
+
     public DateTimeOffset? CompletedAtUtc { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }

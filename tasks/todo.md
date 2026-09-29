@@ -1,3 +1,8 @@
+## Round 1363b — #3925 / #3924
+
+- [x] `6abbb040` / #3925 — Geciken Görevlerin Mail Gönderimi kutusu (varsayılan pasif) + `{TalepNo}`.
+- [x] `6abbaf54` / #3924 — Geciken görev maili: müdür/sorumlu/VTY başkasına atadıysa görev sahibine.
+
 ## Round 1363 — #3915 r3 / #3920 / #3918 / #3921 / #3919 / #3922 / #3923
 
 - [x] `6abb9000` / #3915 — Test e-posta Gönder popup'ı hemen kapanır.

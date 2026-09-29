@@ -1486,7 +1486,12 @@
       "overdueSubjectBefore": "Overdue mail subject (before)",
       "overdueSubjectAfter": "Overdue mail subject (after)",
       "overdueBodyBefore": "Overdue mail body (before)",
-      "overdueBodyAfter": "Overdue mail body (after)"
+      "overdueBodyAfter": "Overdue mail body (after)",
+      "overdueTaskTitle": "Overdue task mail sending",
+      "overdueTaskSubjectBefore": "Overdue task mail subject (before)",
+      "overdueTaskSubjectAfter": "Overdue task mail subject (after)",
+      "overdueTaskBodyBefore": "Overdue task mail body (before)",
+      "overdueTaskBodyAfter": "Overdue task mail body (after)"
     },
     "recaptcha": {
       "sectionTitle": "reCAPTCHA",

@@ -156,6 +156,9 @@ function toMailNotificationForm(settings: MailNotificationSettings, password: st
     overdueMailEnabled: settings.overdueMailEnabled ?? false,
     overdueSubjectTemplate: settings.overdueSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
     overdueBodyTemplate: settings.overdueBodyTemplate || MAIL_REQUEST_NO_TOKEN,
+    overdueTaskMailEnabled: settings.overdueTaskMailEnabled ?? false,
+    overdueTaskSubjectTemplate: settings.overdueTaskSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
+    overdueTaskBodyTemplate: settings.overdueTaskBodyTemplate || MAIL_REQUEST_NO_TOKEN,
   }
 }
 type RolePermissionView = 'web' | 'mobile'
@@ -1041,6 +1044,9 @@ export function SettingsPage() {
     overdueMailEnabled: false,
     overdueSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
     overdueBodyTemplate: MAIL_REQUEST_NO_TOKEN,
+    overdueTaskMailEnabled: false,
+    overdueTaskSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
+    overdueTaskBodyTemplate: MAIL_REQUEST_NO_TOKEN,
   })
   const [mailHasPassword, setMailHasPassword] = useState(false)
   const [mailTestStatus, setMailTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
@@ -4983,6 +4989,44 @@ export function SettingsPage() {
                         onChange={value => setMailNotificationForm(current => ({ ...current, overdueBodyTemplate: value }))}
                         beforeAriaLabel={t('settings.mailNotification.overdueBodyBefore', 'Geciken mail içeriği (önce)')}
                         afterAriaLabel={t('settings.mailNotification.overdueBodyAfter', 'Geciken mail içeriği (sonra)')}
+                      />
+                    </label>
+                  </>
+                ) : null}
+              </section>
+
+              <section className="section-card page-stack">
+                <div className="page-header-row">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.mailNotification.overdueTaskTitle', 'Geciken Görevlerin Mail Gönderimi')}</h2>
+                    <SettingsActiveSwitch
+                      label={mailNotificationForm.overdueTaskMailEnabled ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
+                      checked={Boolean(mailNotificationForm.overdueTaskMailEnabled)}
+                      onChange={() => setMailNotificationForm(current => ({
+                        ...current,
+                        overdueTaskMailEnabled: !current.overdueTaskMailEnabled,
+                      }))}
+                    />
+                  </div>
+                </div>
+                {mailNotificationForm.overdueTaskMailEnabled ? (
+                  <>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('settings.mailNotification.mailSubject', 'Mail konusu')}</span>
+                      <MailTokenField
+                        value={mailNotificationForm.overdueTaskSubjectTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        onChange={value => setMailNotificationForm(current => ({ ...current, overdueTaskSubjectTemplate: value }))}
+                        beforeAriaLabel={t('settings.mailNotification.overdueTaskSubjectBefore', 'Geciken görev mail konusu (önce)')}
+                        afterAriaLabel={t('settings.mailNotification.overdueTaskSubjectAfter', 'Geciken görev mail konusu (sonra)')}
+                      />
+                    </label>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
+                      <MailTokenField
+                        value={mailNotificationForm.overdueTaskBodyTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        onChange={value => setMailNotificationForm(current => ({ ...current, overdueTaskBodyTemplate: value }))}
+                        beforeAriaLabel={t('settings.mailNotification.overdueTaskBodyBefore', 'Geciken görev mail içeriği (önce)')}
+                        afterAriaLabel={t('settings.mailNotification.overdueTaskBodyAfter', 'Geciken görev mail içeriği (sonra)')}
                       />
                     </label>
                   </>

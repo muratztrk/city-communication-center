@@ -21,6 +21,9 @@ public sealed class WorkTask : AuditableTenantEntity, IHasDatabaseIndexDefinitio
 
     public Guid? AssigningManagerId { get; set; }
 
+    /// <summary>Geciken görev mail bildirimi bir kez gönderildiğinde damga (#3924/#3925).</summary>
+    public DateTimeOffset? OverdueMailSentAtUtc { get; set; }
+
     public CityCommunicationCenter.Domain.Enums.TaskStatus CurrentStatus { get; set; } =
         CityCommunicationCenter.Domain.Enums.TaskStatus.Waiting;
 

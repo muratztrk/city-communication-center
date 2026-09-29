@@ -115,25 +115,50 @@ internal sealed class JobMailNotifier : IJobMailNotifier
             foreach (var tenantId in tenantIds)
             {
                 var settings = await LoadSettingsAsync(tenantId, cancellationToken);
-                if (!CanSend(settings) || !settings.OverdueMailEnabled)
+                if (!CanSend(settings) || (!settings.OverdueMailEnabled && !settings.OverdueTaskMailEnabled))
                 {
                     continue;
                 }
 
-                var overdueJobs = await _dbContext.Jobs
-                    .IgnoreQueryFilters()
-                    .Where(job => job.TenantId == tenantId
-                        && job.OverdueMailSentAtUtc == null
-                        && job.DueDateUtc != null
-                        && job.DueDateUtc <= now
-                        && job.Status != JobStatus.Completed
-                        && job.Status != JobStatus.Cancelled
-                        && job.Status != JobStatus.Rejected)
-                    .ToListAsync(cancellationToken);
-
-                foreach (var job in overdueJobs)
+                if (settings.OverdueMailEnabled)
                 {
-                    await SendOverdueMailForJobAsync(job, settings, cancellationToken);
+                    var overdueJobs = await _dbContext.Jobs
+                        .IgnoreQueryFilters()
+                        .Where(job => job.TenantId == tenantId
+                            && job.OverdueMailSentAtUtc == null
+                            && job.DueDateUtc != null
+                            && job.DueDateUtc <= now
+                            && job.Status != JobStatus.Completed
+                            && job.Status != JobStatus.Cancelled
+                            && job.Status != JobStatus.Rejected)
+                        .ToListAsync(cancellationToken);
+
+                    foreach (var job in overdueJobs)
+                    {
+                        await SendOverdueMailForJobAsync(job, settings, cancellationToken);
+                    }
+                }
+
+                if (settings.OverdueTaskMailEnabled)
+                {
+                    var overdueTasks = await _dbContext.Tasks
+                        .IgnoreQueryFilters()
+                        .Where(task => task.TenantId == tenantId
+                            && task.OverdueMailSentAtUtc == null
+                            && task.AssignedUserId != null
+                            && task.AssigningManagerId != null
+                            && task.AssignedUserId != task.AssigningManagerId
+                            && task.DueDateUtc != null
+                            && task.DueDateUtc <= now
+                            && task.CurrentStatus != Domain.Enums.TaskStatus.Completed
+                            && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
+                            && task.CurrentStatus != Domain.Enums.TaskStatus.Rejected)
+                        .ToListAsync(cancellationToken);
+
+                    foreach (var task in overdueTasks)
+                    {
+                        await SendOverdueMailForTaskAsync(task, settings, cancellationToken);
+                    }
                 }
             }
         }
@@ -168,6 +193,54 @@ internal sealed class JobMailNotifier : IJobMailNotifier
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Geciken talep mail bildirimi başarısız oldu. JobId={JobId}", job.JobId);
+        }
+    }
+
+    private async Task SendOverdueMailForTaskAsync(
+        WorkTask task,
+        MailNotificationSettingsPayload settings,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (task.AssignedUserId is not Guid assigneeId || task.AssigningManagerId is not Guid actorId)
+            {
+                return;
+            }
+
+            var job = await _dbContext.Jobs
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(
+                    entity => entity.TenantId == task.TenantId && entity.JobId == task.JobId,
+                    cancellationToken);
+            if (job is null)
+            {
+                return;
+            }
+
+            var departmentId = task.AssignedDepartmentId ?? job.OwnerDepartmentId;
+            if (!await IsDepartmentLeaderAsync(job, actorId, departmentId, cancellationToken))
+            {
+                return;
+            }
+
+            var recipientIds = new HashSet<Guid> { assigneeId };
+            ApplyExclusions(settings, recipientIds, actorId);
+            var sent = await SendToUsersAsync(
+                job,
+                recipientIds,
+                settings.OverdueTaskSubjectTemplate,
+                settings.OverdueTaskBodyTemplate,
+                cancellationToken);
+            if (sent)
+            {
+                task.OverdueMailSentAtUtc = DateTimeOffset.UtcNow;
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Geciken görev mail bildirimi başarısız oldu. TaskId={TaskId}", task.TaskId);
         }
     }
 

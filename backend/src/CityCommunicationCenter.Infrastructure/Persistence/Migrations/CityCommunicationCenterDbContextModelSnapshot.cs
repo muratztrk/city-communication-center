@@ -2508,6 +2508,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("assigningmanagerid");
 
+                    b.Property<DateTimeOffset?>("OverdueMailSentAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("overduemailsentatutc");
+
                     b.Property<DateTimeOffset?>("CompletedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completedatutc");

@@ -1192,6 +1192,9 @@ export interface MailNotificationSettings {
   overdueMailEnabled: boolean
   overdueSubjectTemplate: string
   overdueBodyTemplate: string
+  overdueTaskMailEnabled: boolean
+  overdueTaskSubjectTemplate: string
+  overdueTaskBodyTemplate: string
 }
 
 export interface MailNotificationSettingsUpdate {
@@ -1214,6 +1217,9 @@ export interface MailNotificationSettingsUpdate {
   overdueMailEnabled?: boolean
   overdueSubjectTemplate?: string
   overdueBodyTemplate?: string
+  overdueTaskMailEnabled?: boolean
+  overdueTaskSubjectTemplate?: string
+  overdueTaskBodyTemplate?: string
 }
 
 export interface FileStorageSettings {

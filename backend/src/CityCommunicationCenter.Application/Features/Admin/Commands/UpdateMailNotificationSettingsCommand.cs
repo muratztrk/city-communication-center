@@ -21,7 +21,10 @@ public sealed record UpdateMailNotificationSettingsCommand(
     IReadOnlyList<Guid>? ExcludedUserIds = null,
     bool? OverdueMailEnabled = null,
     string? OverdueSubjectTemplate = null,
-    string? OverdueBodyTemplate = null) : ICommand<Unit>;
+    string? OverdueBodyTemplate = null,
+    bool? OverdueTaskMailEnabled = null,
+    string? OverdueTaskSubjectTemplate = null,
+    string? OverdueTaskBodyTemplate = null) : ICommand<Unit>;
 
 public sealed class UpdateMailNotificationSettingsCommandValidator : AbstractValidator<UpdateMailNotificationSettingsCommand>
 {
@@ -92,6 +95,13 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
                 ?? MailNotificationSettingsPayload.RequestNoToken,
             OverdueBodyTemplate = request.OverdueBodyTemplate
                 ?? previous.OverdueBodyTemplate
+                ?? MailNotificationSettingsPayload.RequestNoToken,
+            OverdueTaskMailEnabled = request.OverdueTaskMailEnabled ?? previous.OverdueTaskMailEnabled,
+            OverdueTaskSubjectTemplate = request.OverdueTaskSubjectTemplate
+                ?? previous.OverdueTaskSubjectTemplate
+                ?? MailNotificationSettingsPayload.RequestNoToken,
+            OverdueTaskBodyTemplate = request.OverdueTaskBodyTemplate
+                ?? previous.OverdueTaskBodyTemplate
                 ?? MailNotificationSettingsPayload.RequestNoToken,
         });
         setting.UpdatedAtUtc = DateTimeOffset.UtcNow;

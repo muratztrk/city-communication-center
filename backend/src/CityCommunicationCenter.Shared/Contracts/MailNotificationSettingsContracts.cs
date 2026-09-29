@@ -17,7 +17,10 @@ public sealed record MailNotificationSettingsResponse(
     IReadOnlyList<Guid>? ExcludedUserIds = null,
     bool OverdueMailEnabled = false,
     string OverdueSubjectTemplate = "{TalepNo}",
-    string OverdueBodyTemplate = "{TalepNo}");
+    string OverdueBodyTemplate = "{TalepNo}",
+    bool OverdueTaskMailEnabled = false,
+    string OverdueTaskSubjectTemplate = "{TalepNo}",
+    string OverdueTaskBodyTemplate = "{TalepNo}");
 
 public sealed record UpdateMailNotificationSettingsRequest(
     bool IsEnabled,
@@ -37,7 +40,10 @@ public sealed record UpdateMailNotificationSettingsRequest(
     IReadOnlyList<Guid>? ExcludedUserIds = null,
     bool? OverdueMailEnabled = null,
     string? OverdueSubjectTemplate = null,
-    string? OverdueBodyTemplate = null);
+    string? OverdueBodyTemplate = null,
+    bool? OverdueTaskMailEnabled = null,
+    string? OverdueTaskSubjectTemplate = null,
+    string? OverdueTaskBodyTemplate = null);
 
 public sealed record TestMailRequest(
     string? SmtpHost,

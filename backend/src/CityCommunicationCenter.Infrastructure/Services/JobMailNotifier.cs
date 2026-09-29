@@ -449,7 +449,7 @@ internal sealed class JobMailNotifier : IJobMailNotifier
 
         var requestNumber = await FormatJobRequestNumberAsync(job, cancellationToken);
         var subject = MailNotificationSettingsPayload.Render(subjectTemplate, requestNumber);
-        var body = MailNotificationSettingsPayload.Render(bodyTemplate, requestNumber);
+        var body = MailNotificationSettingsPayload.Render(bodyTemplate, requestNumber, job.Title);
 
         var sent = false;
         foreach (var recipient in recipients

@@ -12,6 +12,26 @@ public sealed class MailNotificationSettingsPayloadTests
     }
 
     [Fact]
+    public void Render_replaces_request_no_and_title_tokens()
+    {
+        var rendered = MailNotificationSettingsPayload.Render(
+            "Merhaba {TalepNo} no'lu {TalepBaşlığı} geldi.",
+            "VT-2026-9",
+            "Park bakımı");
+        Assert.Equal("Merhaba VT-2026-9 no'lu Park bakımı geldi.", rendered);
+    }
+
+    [Fact]
+    public void SplitBody_prefers_title_token()
+    {
+        var combined = MailNotificationSettingsPayload.CombineBody("Ön ", " sonra");
+        var (before, after) = MailNotificationSettingsPayload.SplitBody(combined);
+        Assert.Equal("Ön ", before);
+        Assert.Equal(" sonra", after);
+        Assert.Equal(combined, MailNotificationSettingsPayload.CombineBody(before, after));
+    }
+
+    [Fact]
     public void Split_and_combine_roundtrip()
     {
         var combined = MailNotificationSettingsPayload.Combine("Ön ", " sonra");

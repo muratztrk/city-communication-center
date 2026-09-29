@@ -88,7 +88,7 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
                 ?? MailNotificationSettingsPayload.RequestNoToken,
             IncomingBodyTemplate = request.IncomingBodyTemplate
                 ?? previous.IncomingBodyTemplate
-                ?? MailNotificationSettingsPayload.RequestNoToken,
+                ?? MailNotificationSettingsPayload.BodyRequestToken,
             ExcludedUsersEnabled = request.ExcludedUsersEnabled ?? previous.ExcludedUsersEnabled,
             ExcludedUserIds = request.ExcludedUserIds?.ToArray() ?? previous.ExcludedUserIds ?? [],
             OverdueMailEnabled = request.OverdueMailEnabled ?? previous.OverdueMailEnabled,
@@ -97,14 +97,14 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
                 ?? MailNotificationSettingsPayload.RequestNoToken,
             OverdueBodyTemplate = request.OverdueBodyTemplate
                 ?? previous.OverdueBodyTemplate
-                ?? MailNotificationSettingsPayload.RequestNoToken,
+                ?? MailNotificationSettingsPayload.BodyRequestToken,
             OverdueTaskMailEnabled = request.OverdueTaskMailEnabled ?? previous.OverdueTaskMailEnabled,
             OverdueTaskSubjectTemplate = request.OverdueTaskSubjectTemplate
                 ?? previous.OverdueTaskSubjectTemplate
                 ?? MailNotificationSettingsPayload.RequestNoToken,
             OverdueTaskBodyTemplate = request.OverdueTaskBodyTemplate
                 ?? previous.OverdueTaskBodyTemplate
-                ?? MailNotificationSettingsPayload.RequestNoToken,
+                ?? MailNotificationSettingsPayload.BodyRequestToken,
         });
         setting.UpdatedAtUtc = DateTimeOffset.UtcNow;
 

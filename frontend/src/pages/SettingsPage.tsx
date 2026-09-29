@@ -91,9 +91,17 @@ import { isCbsMissingDoorLabel } from '../utils/addressLimits'
 type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'mailNotifications' | 'templates' | 'license' | 'support'
 
 const MAIL_REQUEST_NO_TOKEN = '{TalepNo}'
+const MAIL_REQUEST_TITLE_TOKEN = '{TalepBaşlığı}'
+const MAIL_BODY_TOKEN = `${MAIL_REQUEST_NO_TOKEN} no'lu ${MAIL_REQUEST_TITLE_TOKEN}`
 
-function splitMailTokenTemplate(template: string | null | undefined): { before: string; after: string } {
+function splitMailTokenTemplate(template: string | null | undefined, withTitleToken = false): { before: string; after: string } {
   const value = template ?? ''
+  if (withTitleToken) {
+    const bodyIndex = value.indexOf(MAIL_BODY_TOKEN)
+    if (bodyIndex >= 0) {
+      return { before: value.slice(0, bodyIndex), after: value.slice(bodyIndex + MAIL_BODY_TOKEN.length) }
+    }
+  }
   const index = value.indexOf(MAIL_REQUEST_NO_TOKEN)
   if (index < 0) {
     return { before: value, after: '' }
@@ -101,8 +109,8 @@ function splitMailTokenTemplate(template: string | null | undefined): { before: 
   return { before: value.slice(0, index), after: value.slice(index + MAIL_REQUEST_NO_TOKEN.length) }
 }
 
-function buildMailTokenTemplate(before: string, after: string) {
-  return `${before}${MAIL_REQUEST_NO_TOKEN}${after}`
+function buildMailTokenTemplate(before: string, after: string, withTitleToken = false) {
+  return `${before}${withTitleToken ? MAIL_BODY_TOKEN : MAIL_REQUEST_NO_TOKEN}${after}`
 }
 
 function MailTokenField({
@@ -111,14 +119,16 @@ function MailTokenField({
   beforeAriaLabel,
   afterAriaLabel,
   multiline = false,
+  withTitleToken = false,
 }: {
   value: string
   onChange: (next: string) => void
   beforeAriaLabel: string
   afterAriaLabel: string
   multiline?: boolean
+  withTitleToken?: boolean
 }) {
-  const { before, after } = splitMailTokenTemplate(value)
+  const { before, after } = splitMailTokenTemplate(value, withTitleToken)
   const fieldClassName = multiline
     ? 'field-input min-h-28 min-w-[8rem] flex-1 resize-y whitespace-pre-wrap'
     : 'field-input min-w-[8rem] flex-1'
@@ -130,31 +140,39 @@ function MailTokenField({
           className={fieldClassName}
           rows={4}
           value={before}
-          onChange={event => onChange(buildMailTokenTemplate(event.target.value, after))}
+          onChange={event => onChange(buildMailTokenTemplate(event.target.value, after, withTitleToken))}
         />
       ) : (
         <input
           aria-label={beforeAriaLabel}
           className={fieldClassName}
           value={before}
-          onChange={event => onChange(buildMailTokenTemplate(event.target.value, after))}
+          onChange={event => onChange(buildMailTokenTemplate(event.target.value, after, withTitleToken))}
         />
       )}
-      <span className={`rounded-md border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 ${multiline ? 'mt-2' : ''}`}>{MAIL_REQUEST_NO_TOKEN}</span>
+      <span className={`flex flex-wrap items-center gap-1.5 ${multiline ? 'mt-2' : ''}`}>
+        <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">{MAIL_REQUEST_NO_TOKEN}</span>
+        {withTitleToken ? (
+          <>
+            <span className="text-xs font-semibold text-slate-500">no'lu</span>
+            <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">{MAIL_REQUEST_TITLE_TOKEN}</span>
+          </>
+        ) : null}
+      </span>
       {multiline ? (
         <textarea
           aria-label={afterAriaLabel}
           className={fieldClassName}
           rows={4}
           value={after}
-          onChange={event => onChange(buildMailTokenTemplate(before, event.target.value))}
+          onChange={event => onChange(buildMailTokenTemplate(before, event.target.value, withTitleToken))}
         />
       ) : (
         <input
           aria-label={afterAriaLabel}
           className={fieldClassName}
           value={after}
-          onChange={event => onChange(buildMailTokenTemplate(before, event.target.value))}
+          onChange={event => onChange(buildMailTokenTemplate(before, event.target.value, withTitleToken))}
         />
       )}
     </div>
@@ -176,15 +194,15 @@ function toMailNotificationForm(settings: MailNotificationSettings, password: st
     defaultReplyTo: settings.defaultReplyTo,
     incomingMailEnabled: settings.incomingMailEnabled ?? false,
     incomingSubjectTemplate: settings.incomingSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
-    incomingBodyTemplate: settings.incomingBodyTemplate || MAIL_REQUEST_NO_TOKEN,
+    incomingBodyTemplate: settings.incomingBodyTemplate || MAIL_BODY_TOKEN,
     excludedUsersEnabled: settings.excludedUsersEnabled ?? false,
     excludedUserIds: settings.excludedUserIds ?? [],
     overdueMailEnabled: settings.overdueMailEnabled ?? false,
     overdueSubjectTemplate: settings.overdueSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
-    overdueBodyTemplate: settings.overdueBodyTemplate || MAIL_REQUEST_NO_TOKEN,
+    overdueBodyTemplate: settings.overdueBodyTemplate || MAIL_BODY_TOKEN,
     overdueTaskMailEnabled: settings.overdueTaskMailEnabled ?? false,
     overdueTaskSubjectTemplate: settings.overdueTaskSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
-    overdueTaskBodyTemplate: settings.overdueTaskBodyTemplate || MAIL_REQUEST_NO_TOKEN,
+    overdueTaskBodyTemplate: settings.overdueTaskBodyTemplate || MAIL_BODY_TOKEN,
   }
 }
 type RolePermissionView = 'web' | 'mobile'
@@ -1065,15 +1083,15 @@ export function SettingsPage() {
     defaultReplyTo: null,
     incomingMailEnabled: false,
     incomingSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
-    incomingBodyTemplate: MAIL_REQUEST_NO_TOKEN,
+    incomingBodyTemplate: MAIL_BODY_TOKEN,
     excludedUsersEnabled: false,
     excludedUserIds: [],
     overdueMailEnabled: false,
     overdueSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
-    overdueBodyTemplate: MAIL_REQUEST_NO_TOKEN,
+    overdueBodyTemplate: MAIL_BODY_TOKEN,
     overdueTaskMailEnabled: false,
     overdueTaskSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
-    overdueTaskBodyTemplate: MAIL_REQUEST_NO_TOKEN,
+    overdueTaskBodyTemplate: MAIL_BODY_TOKEN,
   })
   const [mailHasPassword, setMailHasPassword] = useState(false)
   const [mailTestStatus, setMailTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
@@ -4955,11 +4973,12 @@ export function SettingsPage() {
                     <label className="grid gap-2 text-sm font-semibold text-slate-700">
                       <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
                       <MailTokenField
-                        value={mailNotificationForm.incomingBodyTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        value={mailNotificationForm.incomingBodyTemplate ?? MAIL_BODY_TOKEN}
                         onChange={value => setMailNotificationForm(current => ({ ...current, incomingBodyTemplate: value }))}
                         beforeAriaLabel={t('settings.mailNotification.bodyBefore', 'Mail içeriği (önce)')}
                         afterAriaLabel={t('settings.mailNotification.bodyAfter', 'Mail içeriği (sonra)')}
                         multiline
+                        withTitleToken
                       />
                     </label>
                   </>
@@ -5036,11 +5055,12 @@ export function SettingsPage() {
                     <label className="grid gap-2 text-sm font-semibold text-slate-700">
                       <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
                       <MailTokenField
-                        value={mailNotificationForm.overdueBodyTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        value={mailNotificationForm.overdueBodyTemplate ?? MAIL_BODY_TOKEN}
                         onChange={value => setMailNotificationForm(current => ({ ...current, overdueBodyTemplate: value }))}
                         beforeAriaLabel={t('settings.mailNotification.overdueBodyBefore', 'Geciken mail içeriği (önce)')}
                         afterAriaLabel={t('settings.mailNotification.overdueBodyAfter', 'Geciken mail içeriği (sonra)')}
                         multiline
+                        withTitleToken
                       />
                     </label>
                   </>
@@ -5078,11 +5098,12 @@ export function SettingsPage() {
                     <label className="grid gap-2 text-sm font-semibold text-slate-700">
                       <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
                       <MailTokenField
-                        value={mailNotificationForm.overdueTaskBodyTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        value={mailNotificationForm.overdueTaskBodyTemplate ?? MAIL_BODY_TOKEN}
                         onChange={value => setMailNotificationForm(current => ({ ...current, overdueTaskBodyTemplate: value }))}
                         beforeAriaLabel={t('settings.mailNotification.overdueTaskBodyBefore', 'Geciken görev mail içeriği (önce)')}
                         afterAriaLabel={t('settings.mailNotification.overdueTaskBodyAfter', 'Geciken görev mail içeriği (sonra)')}
                         multiline
+                        withTitleToken
                       />
                     </label>
                   </>

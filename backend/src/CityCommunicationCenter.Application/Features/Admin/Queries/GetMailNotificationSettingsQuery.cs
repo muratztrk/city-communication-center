@@ -34,7 +34,7 @@ public sealed class GetMailNotificationSettingsQueryHandler : IQueryHandler<GetM
                 ? MailNotificationSettingsPayload.RequestNoToken
                 : payload.IncomingSubjectTemplate,
             string.IsNullOrWhiteSpace(payload.IncomingBodyTemplate)
-                ? MailNotificationSettingsPayload.RequestNoToken
+                ? MailNotificationSettingsPayload.BodyRequestToken
                 : payload.IncomingBodyTemplate,
             payload.ExcludedUsersEnabled,
             payload.ExcludedUserIds,
@@ -43,14 +43,14 @@ public sealed class GetMailNotificationSettingsQueryHandler : IQueryHandler<GetM
                 ? MailNotificationSettingsPayload.RequestNoToken
                 : payload.OverdueSubjectTemplate,
             string.IsNullOrWhiteSpace(payload.OverdueBodyTemplate)
-                ? MailNotificationSettingsPayload.RequestNoToken
+                ? MailNotificationSettingsPayload.BodyRequestToken
                 : payload.OverdueBodyTemplate,
             payload.OverdueTaskMailEnabled,
             string.IsNullOrWhiteSpace(payload.OverdueTaskSubjectTemplate)
                 ? MailNotificationSettingsPayload.RequestNoToken
                 : payload.OverdueTaskSubjectTemplate,
             string.IsNullOrWhiteSpace(payload.OverdueTaskBodyTemplate)
-                ? MailNotificationSettingsPayload.RequestNoToken
+                ? MailNotificationSettingsPayload.BodyRequestToken
                 : payload.OverdueTaskBodyTemplate);
     }
 }

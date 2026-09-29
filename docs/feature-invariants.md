@@ -1668,7 +1668,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geciken görev kutularında da Kaydet var (#3927). Hariç tutulan kullanıcı listesi satır
   yüksekliği/punto biraz küçük (#3921 reopen).   2×2 hiza: Mail Bildirimi | Hariç tutulan /
   Geciken talep | Geciken görev (`xl:grid-cols-2`, #3928).
-  Mail içeriği `{TalepNo}` alanları textarea (`min-h-28`, satır sonu korunur); konu tek satır kalır (#3929).
+  Mail içeriği `{TalepNo} no'lu {TalepBaşlığı}` textarea (`min-h-28`, satır sonu korunur);
+  konu tek satır `{TalepNo}` kalır (#3929/#3933). Gönderimde başlık `Job.Title` ile dolar.
   Giden mail her SMTP denemesinde `mailoutboundlogs` satırı yazar (başarı/hata, #3930).
   Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı, Mail Adresi, Mail İçeriği, Detay
   (Tür ve İşlem yok). `GET /api/v1/admin/mail-outbound-logs`.

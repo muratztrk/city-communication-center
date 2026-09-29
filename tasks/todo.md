@@ -1,3 +1,7 @@
+## Round 1366 — #3933
+
+- [x] `6abbda1e` / #3933 — Mail içeriği jetonu `{TalepNo} no'lu {TalepBaşlığı}`; gönderimde talep başlığı dolar.
+
 ## Round 1365 — #3929 / #3930 / #3931 / #3932
 
 - [x] `6abbbd12` / #3929 — Mail içeriği textarea yüksekliği + satır sonu.

@@ -2273,9 +2273,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesaj** Tamamlama Notu'nun **alt satırında**. Release öncesi Notu Düzenle / Görevlerim
   Tamamlama Notu düzenlemesi (`CitizenMessageApprovalCompletionNoteEdited`) detayda
   **Tamamlama Notu** (orijinal, yeşil değil) + **Güncellenen Tamamlama Notu** (yeşil) +
-  **Tamamlama Notu Güncelleyen** gösterir (#3905). Görevlerim'de not onaylanmamışken
-  (PendingCloseApproval veya vatandaş + Mesajı Onayla yok) **Düzenle** yalnız Tamamlama
-  Notu'nu açar (#3907). `GetJobById` bu iki alanı rol kapısı olmadan
+  **Tamamlama Notu Güncelleyen** (başlık + değer yeşil, #3905 r2) gösterir.
+  Görevlerim'de not onaylanmamışken (PendingCloseApproval veya vatandaş + Mesajı Onayla yok)
+  **Düzenle** yalnız Tamamlama Notu'nu açar; arka plan koyu turkuaz `#007985` / hover `#006570`
+  (#3907 r2; turuncu değil). `GetJobById` bu iki alanı rol kapısı olmadan
   doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
   verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
   harita). **Vatandaşa Giden Mesaj** Detaylar popup'ta terminal VT'de başlık her zaman durur

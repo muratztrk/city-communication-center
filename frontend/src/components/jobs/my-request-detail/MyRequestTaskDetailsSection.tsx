@@ -337,6 +337,7 @@ export function MyRequestTaskDetailsSection({
                             {
                               label: t('tasks.detail.completionNoteEditor', 'Tamamlama Notu Güncelleyen'),
                               value: completionNoteEdit.editor || '—',
+                              tone: 'completion' as const,
                             },
                           ]
                         : [{

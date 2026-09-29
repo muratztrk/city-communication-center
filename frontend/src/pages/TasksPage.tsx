@@ -2203,7 +2203,7 @@ const pageKicker = isMyTasksView
                       <Button
                         type="button"
                         size="lg"
-                        className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
+                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
                         onClick={() => {
                           if (!taskDetail) return
                           setCompletionNoteEditModal({
@@ -2525,6 +2525,7 @@ const pageKicker = isMyTasksView
                                   rows.push({
                                     label: t('tasks.detail.completionNoteEditor', 'Tamamlama Notu Güncelleyen'),
                                     value: completionNoteEdit.editor || '—',
+                                    tone: 'completion',
                                   })
                                 } else {
                                   rows.push({

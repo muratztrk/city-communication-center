@@ -5178,7 +5178,6 @@ export function SettingsPage() {
                   </Button>
                 </div>
                 <p className="helper-copy">{t('settings.mailNotification.excludedUsersHelp', 'Mail bildirimi almak istemeyen kullanıcıları seçin. Aktifken bu kullanıcılara mail gönderilmez.')}</p>
-                <div className="min-h-20" aria-hidden />
                 {mailNotificationForm.excludedUsersEnabled ? (
                   <MultiSelectDropdown
                     options={(mailUsersQuery.data ?? [])
@@ -5195,7 +5194,9 @@ export function SettingsPage() {
                     triggerClassName="min-h-9 py-1.5 text-[0.8rem]"
                     menuClassName="settings-mail-excluded-users-menu"
                   />
-                ) : null}
+                ) : (
+                  <div className="min-h-20" aria-hidden />
+                )}
               </section>
               </div>
             </>

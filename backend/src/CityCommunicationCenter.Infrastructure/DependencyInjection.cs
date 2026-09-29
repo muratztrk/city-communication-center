@@ -74,12 +74,14 @@ public static class DependencyInjection
         services.AddScoped<ISmsProviderSender, TeknomartSmsSender>();
         services.AddScoped<ISmsGateway, SmsGateway>();
         services.AddScoped<IMailNotificationSender, MailNotificationSender>();
-        services.AddScoped<IJobMailNotifier, JobMailNotifier>();
+        services.AddScoped<JobMailNotifier>();
+        services.AddScoped<IJobMailNotifier, DispatchingJobMailNotifier>();
         services.AddScoped<ISmsOutboundLogWriter, SmsOutboundLogWriter>();
         services.AddScoped<IMailOutboundLogWriter, MailOutboundLogWriter>();
-        services.AddScoped<ICitizenJobStatusNotifier, CitizenJobStatusNotifier>();
+        services.AddScoped<CitizenJobStatusNotifier>();
+        services.AddScoped<ICitizenJobStatusNotifier, DispatchingCitizenJobStatusNotifier>();
         services.AddScoped<AfterHoursJobSmsNotifier>();
-        services.AddScoped<IAfterHoursJobSmsNotifier>(provider => provider.GetRequiredService<AfterHoursJobSmsNotifier>());
+        services.AddScoped<IAfterHoursJobSmsNotifier, DispatchingAfterHoursJobSmsNotifier>();
         services.AddScoped<IOverdueJobSmsNotifier>(provider => provider.GetRequiredService<AfterHoursJobSmsNotifier>());
         services.AddScoped<ITenantFileStorageSettingsService, TenantFileStorageSettingsService>();
         services.AddScoped<INasConnectivityTester, SmbNasConnectivityTester>();

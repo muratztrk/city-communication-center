@@ -1,3 +1,8 @@
+## Round 1379 — #3945 dropdown / #3948 create latency
+
+- [x] `6abc052c` / #3945 — Hariç tutulanlar: toggle açıkken dropdown helper’ın hemen altında.
+- [x] `6abc127f` / #3948 — WA talep oluştur: SMTP/SMS/Graph HTTP’yi bekletmez.
+
 ## Round 1378 — #3945 spacer / #3946 task tokens
 
 - [x] `6abc052c` / #3945 — Hariç tutulanlar: yardımcı metinden sonra boşluk (`min-h-20`).

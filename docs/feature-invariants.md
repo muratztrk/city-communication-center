@@ -1677,14 +1677,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geciken görev kutularında da Kaydet var (#3927). Hariç tutulan kullanıcı listesi satır
   yüksekliği/punto biraz küçük (#3921 reopen). 2×2 hiza: Birime Gelen Taleplerin Mail Gönderimi |
   Görevlerin Mail Gönderimi / Geciken talep | Geciken görev; **Mail Gönderimi Hariç Tutulan Kullanıcılar**
-  en altta (`xl:grid-cols-2`, #3928/#3942/#3944).   Hariç tutulanlar kutusu içerik yüksekliğinde kalır ama yardımcı metinden sonra
-  boşluk (`min-h-20`) bırakılır (#3945).
+  en altta (`xl:grid-cols-2`, #3928/#3942/#3944).   Hariç tutulanlar kutusu içerik yüksekliğinde kalır; toggle açıkken dropdown yardımcı
+  metnin hemen alt satırında hizalanır, kapalıyken helper sonrası boşluk (`min-h-20`) kalır (#3945).
   Mail içeriği `{TalepNo} no'lu {TalepBaşlığı}` textarea (`min-h-28`, satır sonu korunur);
   konu tek satır `{TalepNo}` kalır (#3929/#3933). Görevlerin / Geciken görevlerin kutularında jeton
   `{GörevNo}` / `{GörevBaşlığı}` (#3946); gönderimde `{GörevNo}` = `G-{yıl}-{numara}`,
   `{GörevBaşlığı}` = `WorkTask.Title`; `{TalepNo}` / `{TalepBaşlığı}` talep no + `Job.Title`
   kalır. Görev numarası yoksa `G-{yıl}-Onay Bekleyen`. Eski `{TalepNo}` şablonları da çalışır.
   Giden mail her SMTP denemesinde `mailoutboundlogs` satırı yazar (başarı/hata, #3930).
+  Gelen/atama maili, mesai dışı SMS ve WA talep-oluştur vatandaş bildirimi HTTP yanıtını
+  bekletmez — SMTP/SMS/Graph arka planda gider (#3948). Geciken tarama ve terminal
+  serbest bırakma senkron kalır.
   Alıcının `Email` alanı boşsa SMTP denenmez; log `Success=false` + `Alıcının e-posta adresi yok.`
   (#3934 — VT-2026-161: hedef müdür telefona SMS gitti, e-posta boş olduğu için mail yoktu).
   Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı (alt satırda beyaz **e-Posta** başlığı

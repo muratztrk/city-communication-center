@@ -1681,7 +1681,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Alıcının `Email` alanı boşsa SMTP denenmez; log `Success=false` + `Alıcının e-posta adresi yok.`
   (#3934 — VT-2026-161: hedef müdür telefona SMS gitti, e-posta boş olduğu için mail yoktu).
   Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı (alt satırda beyaz **e-Posta** başlığı
-  `0.82rem` + e-posta değeri `0.85rem`; ayrı Mail Adresi kolonu yok, #3938), Mail İçeriği, **İşlem**, Detay
+  `0.7rem` + e-posta değeri `0.95rem`; ayrı Mail Adresi kolonu yok, #3938), Mail İçeriği, **İşlem**, Detay
   (Tür yok; İşlem Başarılı/Başarısız pill, #3937). `GET /api/v1/admin/mail-outbound-logs`.
   Geciken talep/görev maili yalnız imleçten (`OverdueMailCursorUtc` / `OverdueTaskMailCursorUtc`)
   **sonra** son tarihi geçenlere gider; açılışta zaten gecikmiş geçmiş talepler gönderilmez (#3936).
@@ -3185,7 +3185,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesaj İçeriği `line-clamp-3` + `leading-[1.25]` + overflow tooltip (#3670 reopen).
   Grid Telefon No **maskelenmez** — API `recipientPhone` (tam numara) döner; eski kayıtlarda
   `recipientPhoneMasked` yedek (#3673). Kurum İçi Giden SMS gridinde **Sıra, Talep No, Personel Adı
-  (alt satırda beyaz Telefon No başlığı `0.82rem` + numara `0.85rem`; ayrı Telefon No kolonu yok, #3940), Tarih**
+  (alt satırda beyaz Telefon No başlığı `0.7rem` + numara `0.95rem`; ayrı Telefon No kolonu yok, #3940), Tarih**
   (#3932). Vatandaşa Giden SMS ayrı Telefon No kolonunu korur. **Geciken** / **Mesai dışı** (`OverdueManager`/`OverdueStaff`,
   `AfterHoursManager`/`AfterHoursStaff`) aynı gridde görünür (#3899/#3931); Tür etiketinde
   yönetici/personel ayrımı yok.

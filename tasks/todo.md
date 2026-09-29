@@ -1,3 +1,9 @@
+## Round 1372 — #3940 r3 / #3938 r3 / #3942 r2
+
+- [x] `6abbf93e` / #3940 — Telefon No başlığı `0.7rem`, numara `0.95rem`.
+- [x] `6abbf86d` / #3938 — e-Posta başlığı `0.7rem`, değer `0.95rem`.
+- [x] `6abbfef5` / #3942 — Gelen talep kutu başlığı `text-lg` (diğer kutularla aynı).
+
 ## Round 1371 — #3943 / #3944
 
 - [x] `6abbff99` / #3943 — Gelen talep kutusunun sağına Görevlerin Mail Gönderimi (atama maili, ayrı şablon).

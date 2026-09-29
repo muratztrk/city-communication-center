@@ -27,6 +27,7 @@ function decodeOriginalFileNameHeader(header: string | null): string | null {
 import type {
   AuditLog,
   SmsOutboundLogsResponse,
+  MailOutboundLogsResponse,
   WhatsAppMessageApprovalLogItem,
   SupportRequest,
   Attachment,
@@ -2010,6 +2011,20 @@ export const api = {
     )
     await ensureOk(response, i18n.t('errors.auditLoadFailed'))
     return response.json() as Promise<SmsOutboundLogsResponse>
+  },
+
+  async getMailOutboundLogs(params?: { fromUtc?: string; toUtc?: string; kind?: string }): Promise<MailOutboundLogsResponse> {
+    const search = new URLSearchParams()
+    if (params?.fromUtc) search.set('fromUtc', params.fromUtc)
+    if (params?.toUtc) search.set('toUtc', params.toUtc)
+    if (params?.kind) search.set('kind', params.kind)
+    const query = search.toString()
+    const response = await fetchWithCredentials(
+      `${API_BASE}/admin/mail-outbound-logs${query ? `?${query}` : ''}`,
+      { headers: await getAuthHeaders() },
+    )
+    await ensureOk(response, i18n.t('errors.auditLoadFailed'))
+    return response.json() as Promise<MailOutboundLogsResponse>
   },
 
   async getSocialSettingsStatus(): Promise<SocialSettingsStatus> {

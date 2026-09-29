@@ -56,6 +56,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<InternalMessage> InternalMessages => Set<InternalMessage>();
     public DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches => Set<IzmirCbsCatalogCache>();
     public DbSet<SmsOutboundLog> SmsOutboundLogs => Set<SmsOutboundLog>();
+    public DbSet<MailOutboundLog> MailOutboundLogs => Set<MailOutboundLog>();
     public DbSet<SupportRequest> SupportRequests => Set<SupportRequest>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -128,6 +129,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureInternalMessage(modelBuilder.Entity<InternalMessage>());
         ConfigureIzmirCbsCatalogCache(modelBuilder.Entity<IzmirCbsCatalogCache>());
         ConfigureSmsOutboundLog(modelBuilder.Entity<SmsOutboundLog>());
+        ConfigureMailOutboundLog(modelBuilder.Entity<MailOutboundLog>());
         ConfigureSupportRequest(modelBuilder.Entity<SupportRequest>());
 
         modelBuilder.ApplyAutomaticIndexes();
@@ -161,6 +163,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<InternalConversation>());
         ApplyTenantFilter(modelBuilder.Entity<InternalMessage>());
         ApplyTenantFilter(modelBuilder.Entity<SmsOutboundLog>());
+        ApplyTenantFilter(modelBuilder.Entity<MailOutboundLog>());
         ApplyTenantFilter(modelBuilder.Entity<SupportRequest>());
 
         ApplyInstallSeedData(modelBuilder);
@@ -498,6 +501,19 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.Provider).HasMaxLength(32);
         builder.Property(entity => entity.ProviderCode).HasMaxLength(64);
         builder.Property(entity => entity.ProviderMessage).HasMaxLength(500);
+        builder.Property(entity => entity.BodyPreview).HasMaxLength(500);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureMailOutboundLog(EntityTypeBuilder<MailOutboundLog> builder)
+    {
+        builder.ToTable("mailoutboundlogs");
+        builder.HasKey(entity => entity.MailOutboundLogId);
+        builder.Property(entity => entity.Kind).HasConversion<string>().HasMaxLength(32);
+        builder.Property(entity => entity.RecipientEmail).HasMaxLength(256);
+        builder.Property(entity => entity.RequestNumber).HasMaxLength(64);
+        builder.Property(entity => entity.Subject).HasMaxLength(200);
+        builder.Property(entity => entity.ErrorMessage).HasMaxLength(500);
         builder.Property(entity => entity.BodyPreview).HasMaxLength(500);
         ApplyLowerCaseColumnNames(builder);
     }

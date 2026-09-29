@@ -13,7 +13,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TruncatedText } from '../components/ui/TruncatedText'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
-import type { AuditLog, SmsOutboundLogItem } from '../types/platform'
+import type { AuditLog, MailOutboundLogItem, SmsOutboundLogItem } from '../types/platform'
 import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getRoleLabel } from '../utils/localization'
 import { looksLikePhone } from '../utils/phoneDisplay'
@@ -139,7 +139,7 @@ function buildDetailText(t: TFunction, log: AuditLog): string {
   return parts.length > 0 ? parts.join(' — ') : '—'
 }
 
-type AuditLogScope = 'system' | 'job' | 'task' | 'citizenSms' | 'internalSms'
+type AuditLogScope = 'system' | 'job' | 'task' | 'citizenSms' | 'internalSms' | 'mailLog'
 
 type AuditLogRow = AuditLog & {
   actionLabel: string
@@ -159,6 +159,15 @@ type SmsOutboundLogRow = SmsOutboundLogItem & {
   citizenDisplayName: string
 }
 
+type MailOutboundLogRow = MailOutboundLogItem & {
+  dateText: string
+  kindLabel: string
+  bodyPreview: string
+  statusLabel: string
+  detailText: string
+  recipientStaffName: string
+}
+
 function getSmsRecipientPhoneDisplay(item: SmsOutboundLogItem): string {
   const raw = item.recipientPhone?.trim()
   if (raw) {
@@ -170,8 +179,11 @@ function getSmsRecipientPhoneDisplay(item: SmsOutboundLogItem): string {
 const INTERNAL_SMS_KINDS = new Set(['AfterHoursManager', 'AfterHoursStaff', 'OverdueManager', 'OverdueStaff'])
 
 function readScope(value: string | null): AuditLogScope {
-  if (value === 'job' || value === 'task' || value === 'citizen-sms' || value === 'internal-sms') {
-    return value === 'citizen-sms' ? 'citizenSms' : value === 'internal-sms' ? 'internalSms' : value
+  if (value === 'job' || value === 'task' || value === 'citizen-sms' || value === 'internal-sms' || value === 'mail-log') {
+    if (value === 'citizen-sms') return 'citizenSms'
+    if (value === 'internal-sms') return 'internalSms'
+    if (value === 'mail-log') return 'mailLog'
+    return value
   }
   return 'system'
 }
@@ -180,10 +192,15 @@ function isSmsScope(scope: AuditLogScope): boolean {
   return scope === 'citizenSms' || scope === 'internalSms'
 }
 
+function isMailScope(scope: AuditLogScope): boolean {
+  return scope === 'mailLog'
+}
+
 function scopeToSearchParam(scope: AuditLogScope): string | null {
   if (scope === 'job' || scope === 'task') return scope
   if (scope === 'citizenSms') return 'citizen-sms'
   if (scope === 'internalSms') return 'internal-sms'
+  if (scope === 'mailLog') return 'mail-log'
   return null
 }
 
@@ -230,7 +247,7 @@ export function AuditLogsPage() {
   const auditLogsQuery = useQuery({
     queryKey: queryKeys.auditLogs.list(),
     queryFn: () => api.getAuditLogs(),
-    enabled: !isSmsScope(activeScope),
+    enabled: !isSmsScope(activeScope) && !isMailScope(activeScope),
   })
 
   const smsOutboundLogsQuery = useQuery({
@@ -239,7 +256,24 @@ export function AuditLogsPage() {
     enabled: isSmsScope(activeScope),
   })
 
-  const activeQuery = isSmsScope(activeScope) ? smsOutboundLogsQuery : auditLogsQuery
+  const mailQueryParams = useMemo(() => {
+    const params: { fromUtc?: string; toUtc?: string } = {}
+    if (filterFrom) params.fromUtc = new Date(`${filterFrom}T00:00:00`).toISOString()
+    if (filterTo) params.toUtc = new Date(`${filterTo}T23:59:59.999`).toISOString()
+    return params
+  }, [filterFrom, filterTo])
+
+  const mailOutboundLogsQuery = useQuery({
+    queryKey: queryKeys.mailOutboundLogs.list(mailQueryParams),
+    queryFn: () => api.getMailOutboundLogs(mailQueryParams),
+    enabled: isMailScope(activeScope),
+  })
+
+  const activeQuery = isMailScope(activeScope)
+    ? mailOutboundLogsQuery
+    : isSmsScope(activeScope)
+      ? smsOutboundLogsQuery
+      : auditLogsQuery
   const error = activeQuery.error
     ? activeQuery.error instanceof Error ? activeQuery.error.message : t('common.error')
     : ''
@@ -307,7 +341,9 @@ export function AuditLogsPage() {
         ? t('audit.scopes.citizenSms', 'Vatandaşa Giden SMS')
         : activeScope === 'internalSms'
           ? t('audit.scopes.internalSms', 'Kurum İçi Giden SMS')
-          : t('audit.scopes.system')
+          : activeScope === 'mailLog'
+            ? t('audit.scopes.mailLog', 'Mail Log')
+            : t('audit.scopes.system')
 
   const setScope = (scope: AuditLogScope) => {
     const param = scopeToSearchParam(scope)
@@ -317,11 +353,20 @@ export function AuditLogsPage() {
 
   const getSmsKindLabel = useCallback((kind: string) => {
     if (kind === 'CitizenStatus') return t('audit.smsKinds.citizenStatus', 'Vatandaş durum')
-    if (kind === 'AfterHoursManager') return t('audit.smsKinds.afterHoursManager', 'Mesai dışı yönetici')
-    if (kind === 'AfterHoursStaff') return t('audit.smsKinds.afterHoursStaff', 'Mesai dışı personel')
-    if (kind === 'OverdueManager') return t('audit.smsKinds.overdueManager', 'Geciken yönetici')
-    if (kind === 'OverdueStaff') return t('audit.smsKinds.overdueStaff', 'Geciken personel')
+    if (kind === 'AfterHoursManager') return t('audit.smsKinds.afterHoursManager', 'Mesai dışı')
+    if (kind === 'AfterHoursStaff') return t('audit.smsKinds.afterHoursStaff', 'Mesai dışı')
+    if (kind === 'OverdueManager') return t('audit.smsKinds.overdueManager', 'Geciken')
+    if (kind === 'OverdueStaff') return t('audit.smsKinds.overdueStaff', 'Geciken')
     if (kind === 'Test') return t('audit.smsKinds.test', 'Test')
+    return kind
+  }, [t])
+
+  const getMailKindLabel = useCallback((kind: string) => {
+    if (kind === 'Incoming') return t('audit.mailKinds.incoming', 'Gelen talep')
+    if (kind === 'Assignment') return t('audit.mailKinds.assignment', 'Görev atama')
+    if (kind === 'OverdueJob') return t('audit.mailKinds.overdueJob', 'Geciken talep')
+    if (kind === 'OverdueTask') return t('audit.mailKinds.overdueTask', 'Geciken görev')
+    if (kind === 'Test') return t('audit.mailKinds.test', 'Test')
     return kind
   }, [t])
 
@@ -388,6 +433,67 @@ export function AuditLogsPage() {
   const smsTotalCount = smsRows.length
   const smsSafePage = Math.min(currentPage, Math.max(1, Math.ceil(smsTotalCount / pageSize) || 1))
   const pagedSmsRows = smsRows.slice((smsSafePage - 1) * pageSize, smsSafePage * pageSize)
+
+  const mailRows = useMemo(() => {
+    const items = mailOutboundLogsQuery.data?.items ?? []
+    const rows: MailOutboundLogRow[] = items.map(item => {
+      const bodyPreview = item.bodyPreview?.trim() || '—'
+      const kindLabel = getMailKindLabel(item.kind)
+      const statusLabel = item.success
+        ? t('audit.smsSuccess', 'Başarılı')
+        : t('audit.smsFailure', 'Başarısız')
+      const detailParts = [
+        `${t('audit.smsKind', 'Tür')}: ${kindLabel}`,
+        statusLabel,
+        item.errorMessage?.trim(),
+        `${t('audit.smsLength', 'Uzunluk')}: ${item.textLength}`,
+        item.subject?.trim() ? `${t('settings.mailNotification.mailSubject', 'Mail konusu')}: ${item.subject}` : null,
+      ].filter((part): part is string => Boolean(part?.trim()))
+      return {
+        ...item,
+        dateText: new Date(item.createdAtUtc).toLocaleString(locale),
+        kindLabel,
+        bodyPreview,
+        recipientStaffName: item.recipientDisplayName?.trim() || '—',
+        statusLabel,
+        detailText: detailParts.join(' — '),
+      }
+    })
+    const searchNormalized = searchText.trim().toLocaleLowerCase('tr')
+    const filtered = rows.filter(row => {
+      if (searchNormalized) {
+        const haystack = [
+          row.detailText,
+          row.statusLabel,
+          row.kindLabel,
+          row.bodyPreview,
+          row.recipientEmail,
+          row.recipientStaffName,
+          row.requestNumber ?? '',
+          row.subject ?? '',
+          row.mailOutboundLogId,
+        ].join(' ').toLocaleLowerCase('tr')
+        if (!haystack.includes(searchNormalized)) return false
+      }
+      return matchesFilters(row, (key, item) => {
+        if (key === 'createdAtUtc') return item.dateText
+        if (key === 'recipientDisplayName') return item.recipientStaffName
+        if (key === 'recipientEmail') return item.recipientEmail
+        if (key === 'requestNumber') return item.requestNumber ?? ''
+        if (key === 'bodyPreview') return item.bodyPreview
+        if (key === 'detailText') return item.detailText
+        return String((item as unknown as Record<string, unknown>)[key] ?? '')
+      })
+    })
+    if (!sortKey) {
+      return [...filtered].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc))
+    }
+    return sortItems(filtered)
+  }, [getMailKindLabel, locale, mailOutboundLogsQuery.data?.items, matchesFilters, searchText, sortItems, sortKey, t])
+
+  const mailTotalCount = mailRows.length
+  const mailSafePage = Math.min(currentPage, Math.max(1, Math.ceil(mailTotalCount / pageSize) || 1))
+  const pagedMailRows = mailRows.slice((mailSafePage - 1) * pageSize, mailSafePage * pageSize)
 
   const handleFilter = (key: string, value: string) => {
     setFilter(key, value)
@@ -498,6 +604,15 @@ export function AuditLogsPage() {
             >
               {t('audit.scopes.internalSms', 'Kurum İçi Giden SMS')}
             </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeScope === 'mailLog'}
+              className={`tab-button ${activeScope === 'mailLog' ? 'active' : ''}`}
+              onClick={() => setScope('mailLog')}
+            >
+              {t('audit.scopes.mailLog', 'Mail Log')}
+            </button>
           </div>
         </div>
       </section>
@@ -506,24 +621,121 @@ export function AuditLogsPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          {isSmsScope(activeScope) ? (
+          {isMailScope(activeScope) ? (
             <table className="data-table audit-logs-table">
               <thead>
                 <tr>
                   <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
-                  {activeScope === 'citizenSms' ? (
-                    <FilterableTh
-                      filterKey="requestNumber"
-                      filterValue={filters.requestNumber ?? ''}
-                      onFilter={handleFilter}
-                      sortKey="requestNumber"
-                      currentSortKey={sortKey}
-                      sortDir={sortDir}
-                      onSort={handleSort}
-                    >
-                      {t('audit.jobNumberPrefix', 'Talep No')}
-                    </FilterableTh>
-                  ) : null}
+                  <FilterableTh
+                    filterKey="requestNumber"
+                    filterValue={filters.requestNumber ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="requestNumber"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.jobNumberPrefix', 'Talep No')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="createdAtUtc"
+                    filterValue={filters.createdAtUtc ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="createdAtUtc"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.date')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="recipientDisplayName"
+                    filterValue={filters.recipientDisplayName ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="recipientDisplayName"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.smsStaffName', 'Personel Adı')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="recipientEmail"
+                    filterValue={filters.recipientEmail ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="recipientEmail"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.mailAddress', 'Mail Adresi')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="bodyPreview"
+                    filterValue={filters.bodyPreview ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="bodyPreview"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.mailBodyPreview', 'Mail İçeriği')}
+                  </FilterableTh>
+                  <FilterableTh
+                    filterKey="detailText"
+                    filterValue={filters.detailText ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="detailText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.detail')}
+                  </FilterableTh>
+                </tr>
+              </thead>
+              <tbody>
+                {pagedMailRows.map((log, index) => (
+                  <tr key={log.mailOutboundLogId}>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(mailSafePage - 1) * pageSize + index + 1}</td>
+                    <td>{log.requestNumber?.trim() || '—'}</td>
+                    <td>{log.dateText}</td>
+                    <td>{log.recipientStaffName}</td>
+                    <td className="font-mono text-sm text-slate-700">{log.recipientEmail || '—'}</td>
+                    <td className="max-w-[18rem] text-left text-sm text-slate-700">
+                      <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body whitespace-pre-wrap break-words" />
+                    </td>
+                    <td>
+                      <div className="space-y-0.5">
+                        <div className="text-sm font-semibold text-slate-600">
+                          {t('audit.logId', 'Log ID')}: <span className="font-mono text-base font-bold text-slate-800" title={log.mailOutboundLogId}>{log.mailOutboundLogId.slice(0, 8)}</span>
+                        </div>
+                        <div>{log.detailText || '—'}</div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {mailRows.length === 0 ? (
+                  <TableEmptyStateRows columnCount={7} message={t('audit.empty')} />
+                ) : null}
+              </tbody>
+            </table>
+          ) : isSmsScope(activeScope) ? (
+            <table className="data-table audit-logs-table">
+              <thead>
+                <tr>
+                  <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
+                  <FilterableTh
+                    filterKey="requestNumber"
+                    filterValue={filters.requestNumber ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="requestNumber"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('audit.jobNumberPrefix', 'Talep No')}
+                  </FilterableTh>
                   {activeScope === 'citizenSms' ? (
                     <FilterableTh
                       filterKey="citizenDisplayName"
@@ -536,19 +748,7 @@ export function AuditLogsPage() {
                     >
                       {t('audit.citizenName', 'Vatandaş Adı')}
                     </FilterableTh>
-                  ) : null}
-                  <FilterableTh
-                    filterKey="createdAtUtc"
-                    filterValue={filters.createdAtUtc ?? ''}
-                    onFilter={handleFilter}
-                    sortKey="createdAtUtc"
-                    currentSortKey={sortKey}
-                    sortDir={sortDir}
-                    onSort={handleSort}
-                  >
-                    {t('audit.date')}
-                  </FilterableTh>
-                  {activeScope === 'internalSms' ? (
+                  ) : (
                     <FilterableTh
                       filterKey="recipientDisplayName"
                       filterValue={filters.recipientDisplayName ?? ''}
@@ -559,6 +759,19 @@ export function AuditLogsPage() {
                       onSort={handleSort}
                     >
                       {t('audit.smsStaffName', 'Personel Adı')}
+                    </FilterableTh>
+                  )}
+                  {activeScope === 'citizenSms' ? (
+                    <FilterableTh
+                      filterKey="createdAtUtc"
+                      filterValue={filters.createdAtUtc ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="createdAtUtc"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('audit.date')}
                     </FilterableTh>
                   ) : null}
                   <FilterableTh
@@ -572,17 +785,17 @@ export function AuditLogsPage() {
                   >
                     {t('audit.smsPhoneNo', 'Telefon No')}
                   </FilterableTh>
-                  {activeScope !== 'citizenSms' ? (
+                  {activeScope === 'internalSms' ? (
                     <FilterableTh
-                      filterKey="requestNumber"
-                      filterValue={filters.requestNumber ?? ''}
+                      filterKey="createdAtUtc"
+                      filterValue={filters.createdAtUtc ?? ''}
                       onFilter={handleFilter}
-                      sortKey="requestNumber"
+                      sortKey="createdAtUtc"
                       currentSortKey={sortKey}
                       sortDir={sortDir}
                       onSort={handleSort}
                     >
-                      {t('audit.jobNumberPrefix', 'Talep No')}
+                      {t('audit.date')}
                     </FilterableTh>
                   ) : null}
                   <FilterableTh
@@ -635,12 +848,11 @@ export function AuditLogsPage() {
                 {pagedSmsRows.map((log, index) => (
                   <tr key={log.smsOutboundLogId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(smsSafePage - 1) * pageSize + index + 1}</td>
-                    {activeScope === 'citizenSms' ? <td>{log.requestNumber?.trim() || '—'}</td> : null}
-                    {activeScope === 'citizenSms' ? <td>{log.citizenDisplayName}</td> : null}
-                    <td>{log.dateText}</td>
-                    {activeScope === 'internalSms' ? <td>{log.recipientStaffName}</td> : null}
+                    <td>{log.requestNumber?.trim() || '—'}</td>
+                    {activeScope === 'citizenSms' ? <td>{log.citizenDisplayName}</td> : <td>{log.recipientStaffName}</td>}
+                    {activeScope === 'citizenSms' ? <td>{log.dateText}</td> : null}
                     <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
-                    {activeScope !== 'citizenSms' ? <td>{log.requestNumber?.trim() || '—'}</td> : null}
+                    {activeScope === 'internalSms' ? <td>{log.dateText}</td> : null}
                     <td>{log.kindLabel}</td>
                     <td className="max-w-[18rem] text-left text-sm text-slate-700">
                       <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body break-words" />
@@ -763,9 +975,9 @@ export function AuditLogsPage() {
           )}
         </div>
         <TablePagination
-          totalCount={isSmsScope(activeScope) ? smsTotalCount : totalCount}
+          totalCount={isMailScope(activeScope) ? mailTotalCount : isSmsScope(activeScope) ? smsTotalCount : totalCount}
           pageSize={pageSize}
-          currentPage={isSmsScope(activeScope) ? smsSafePage : safePage}
+          currentPage={isMailScope(activeScope) ? mailSafePage : isSmsScope(activeScope) ? smsSafePage : safePage}
           onPageSizeChange={handlePageSizeChange}
           onPageChange={setCurrentPage}
         />

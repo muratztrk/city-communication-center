@@ -33,6 +33,7 @@ public interface IApplicationDbContext
     DbSet<InternalMessage> InternalMessages { get; }
     DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches { get; }
     DbSet<SmsOutboundLog> SmsOutboundLogs { get; }
+    DbSet<MailOutboundLog> MailOutboundLogs { get; }
     DbSet<SupportRequest> SupportRequests { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

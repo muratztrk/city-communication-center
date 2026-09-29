@@ -28,6 +28,11 @@ export const queryKeys = {
     list: (params: { fromUtc?: string; toUtc?: string; kind?: string }) =>
       ['ccc', 'sms-outbound-logs', 'list', normalize(params)] as const,
   },
+  mailOutboundLogs: {
+    all: ['ccc', 'mail-outbound-logs'] as const,
+    list: (params: { fromUtc?: string; toUtc?: string; kind?: string }) =>
+      ['ccc', 'mail-outbound-logs', 'list', normalize(params)] as const,
+  },
   supportRequests: {
     all: ['ccc', 'support-requests'] as const,
     list: () => ['ccc', 'support-requests', 'list'] as const,

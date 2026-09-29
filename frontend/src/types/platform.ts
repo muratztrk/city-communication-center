@@ -818,6 +818,31 @@ export interface SmsOutboundLogsResponse {
   items: SmsOutboundLogItem[];
 }
 
+export interface MailOutboundLogItem {
+  mailOutboundLogId: string;
+  tenantId: string;
+  kind: string;
+  recipientEmail: string;
+  recipientDisplayName?: string | null;
+  recipientUserId?: string | null;
+  jobId?: string | null;
+  taskId?: string | null;
+  requestNumber?: string | null;
+  subject?: string | null;
+  success: boolean;
+  errorMessage?: string | null;
+  textLength: number;
+  bodyPreview?: string | null;
+  createdAtUtc: string;
+}
+
+export interface MailOutboundLogsResponse {
+  totalMatching: number;
+  successCount: number;
+  failureCount: number;
+  items: MailOutboundLogItem[];
+}
+
 export interface SupportRequest {
   supportRequestId: string;
   subject: string;

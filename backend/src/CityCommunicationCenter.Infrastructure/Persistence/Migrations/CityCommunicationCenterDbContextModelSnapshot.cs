@@ -1374,6 +1374,96 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.ToTable("jobdepartments", (string)null);
                 });
 
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.MailOutboundLog", b =>
+                {
+                    b.Property<Guid>("MailOutboundLogId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("mailoutboundlogid");
+
+                    b.Property<string>("BodyPreview")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("bodypreview");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("errormessage");
+
+                    b.Property<Guid?>("JobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("jobid");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("RecipientEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("recipientemail");
+
+                    b.Property<Guid?>("RecipientUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recipientuserid");
+
+                    b.Property<string>("RequestNumber")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("requestnumber");
+
+                    b.Property<string>("Subject")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("subject");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("boolean")
+                        .HasColumnName("success");
+
+                    b.Property<Guid?>("TaskId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("taskid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<int>("TextLength")
+                        .HasColumnType("integer")
+                        .HasColumnName("textlength");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.HasKey("MailOutboundLogId");
+
+                    b.HasIndex("TenantId", "CreatedAtUtc");
+
+                    b.HasIndex("TenantId", "JobId");
+
+                    b.HasIndex("TenantId", "Kind", "CreatedAtUtc");
+
+                    b.ToTable("mailoutboundlogs", (string)null);
+                });
+
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Notification", b =>
                 {
                     b.Property<Guid>("NotificationId")

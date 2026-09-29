@@ -14,11 +14,16 @@ internal sealed class MailNotificationSender : IMailNotificationSender
         "Bu ileti, Ayarlar > Mail Bildirimi ekranındaki deneme e-postasıdır. SMTP sunucusu çalışıyor.";
 
     private readonly IApplicationDbContext _dbContext;
+    private readonly IMailOutboundLogWriter _outboundLogWriter;
     private readonly ILogger<MailNotificationSender> _logger;
 
-    public MailNotificationSender(IApplicationDbContext dbContext, ILogger<MailNotificationSender> logger)
+    public MailNotificationSender(
+        IApplicationDbContext dbContext,
+        IMailOutboundLogWriter outboundLogWriter,
+        ILogger<MailNotificationSender> logger)
     {
         _dbContext = dbContext;
+        _outboundLogWriter = outboundLogWriter;
         _logger = logger;
     }
 
@@ -56,7 +61,7 @@ internal sealed class MailNotificationSender : IMailNotificationSender
             return new MailNotificationSendResult(false, "Parola zorunludur.");
         }
 
-        return await SendCoreAsync(
+        var result = await SendCoreAsync(
             tenantId,
             host,
             port: request.Port > 0 ? request.Port : 25,
@@ -70,6 +75,15 @@ internal sealed class MailNotificationSender : IMailNotificationSender
             password,
             successMessage: "Deneme e-postası gönderildi.",
             cancellationToken);
+        await WriteLogAsync(
+            tenantId,
+            to,
+            DefaultSubject,
+            DefaultBody,
+            result,
+            new MailSendContext(MailOutboundKind.Test),
+            cancellationToken);
+        return result;
     }
 
     public async Task<MailNotificationSendResult> SendAsync(
@@ -77,6 +91,7 @@ internal sealed class MailNotificationSender : IMailNotificationSender
         string recipientEmail,
         string subject,
         string body,
+        MailSendContext? context = null,
         CancellationToken cancellationToken = default)
     {
         var stored = await ReadStoredSettingsAsync(tenantId, cancellationToken);
@@ -108,7 +123,7 @@ internal sealed class MailNotificationSender : IMailNotificationSender
             return new MailNotificationSendResult(false, "Parola zorunludur.");
         }
 
-        return await SendCoreAsync(
+        var result = await SendCoreAsync(
             tenantId,
             host,
             port: stored.Port > 0 ? stored.Port : 25,
@@ -122,6 +137,8 @@ internal sealed class MailNotificationSender : IMailNotificationSender
             stored.Password,
             successMessage: "E-posta gönderildi.",
             cancellationToken);
+        await WriteLogAsync(tenantId, to, subject, body, result, context, cancellationToken);
+        return result;
     }
 
     private async Task<MailNotificationSendResult> SendCoreAsync(
@@ -190,6 +207,27 @@ internal sealed class MailNotificationSender : IMailNotificationSender
             _logger.LogWarning(ex, "SMTP mail failed for tenant {TenantId}", tenantId);
             return new MailNotificationSendResult(false, FormatSmtpError(ex));
         }
+    }
+
+    private async Task WriteLogAsync(
+        Guid tenantId,
+        string recipientEmail,
+        string subject,
+        string body,
+        MailNotificationSendResult result,
+        MailSendContext? context,
+        CancellationToken cancellationToken)
+    {
+        await _outboundLogWriter.WriteAsync(
+            new MailOutboundLogEntry(
+                tenantId,
+                context ?? new MailSendContext(MailOutboundKind.Unknown),
+                recipientEmail,
+                subject,
+                body,
+                result.Success,
+                result.Success ? null : result.Message),
+            cancellationToken);
     }
 
     private static SecureSocketOptions ResolveSocketOptions(string? securityMode, int port)

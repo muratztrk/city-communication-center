@@ -47,6 +47,8 @@ internal sealed class JobMailNotifier : IJobMailNotifier
                 recipientIds,
                 settings.IncomingSubjectTemplate,
                 settings.IncomingBodyTemplate,
+                MailOutboundKind.Incoming,
+                taskId: null,
                 cancellationToken);
         }
         catch (Exception ex)
@@ -88,6 +90,8 @@ internal sealed class JobMailNotifier : IJobMailNotifier
                 recipientIds,
                 settings.IncomingSubjectTemplate,
                 settings.IncomingBodyTemplate,
+                MailOutboundKind.Assignment,
+                taskId: null,
                 cancellationToken);
         }
         catch (Exception ex)
@@ -183,6 +187,8 @@ internal sealed class JobMailNotifier : IJobMailNotifier
                 recipientIds,
                 settings.OverdueSubjectTemplate,
                 settings.OverdueBodyTemplate,
+                MailOutboundKind.OverdueJob,
+                taskId: null,
                 cancellationToken);
             if (sent)
             {
@@ -231,6 +237,8 @@ internal sealed class JobMailNotifier : IJobMailNotifier
                 recipientIds,
                 settings.OverdueTaskSubjectTemplate,
                 settings.OverdueTaskBodyTemplate,
+                MailOutboundKind.OverdueTask,
+                task.TaskId,
                 cancellationToken);
             if (sent)
             {
@@ -424,6 +432,8 @@ internal sealed class JobMailNotifier : IJobMailNotifier
         IReadOnlyCollection<Guid> recipientIds,
         string? subjectTemplate,
         string? bodyTemplate,
+        MailOutboundKind kind,
+        Guid? taskId,
         CancellationToken cancellationToken)
     {
         if (recipientIds.Count == 0)
@@ -452,6 +462,7 @@ internal sealed class JobMailNotifier : IJobMailNotifier
                 recipient.Email!,
                 subject,
                 body,
+                new MailSendContext(kind, job.JobId, taskId, recipient.UserId, requestNumber),
                 cancellationToken);
             if (result.Success)
             {

@@ -1,3 +1,10 @@
+## Round 1365 — #3929 / #3930 / #3931 / #3932
+
+- [x] `6abbbd12` / #3929 — Mail içeriği textarea yüksekliği + satır sonu.
+- [x] `6abbc3f5` / #3930 — Log'da Mail Log sekmesi (`mailoutboundlogs`).
+- [x] `6abbc54f` / #3931 — Kurum içi SMS Tür: Geciken / Mesai dışı (yönetici/personel yok).
+- [x] `6abbc62a` / #3932 — Kurum içi SMS: Talep No, Personel Adı, Telefon No, Tarih.
+
 ## Round 1364 — #3921 reopen / #3926 / #3927 / #3928
 
 - [x] `6abbadf0` / #3921 — Hariç tutulan kullanıcı dropdown satır yüksekliği ve punto küçültüldü.

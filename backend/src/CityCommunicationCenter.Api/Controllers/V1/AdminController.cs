@@ -679,4 +679,17 @@ public sealed class AdminController : ApiControllerBase
             cancellationToken);
         return Ok(response);
     }
+
+    [HttpGet("mail-outbound-logs")]
+    public async Task<ActionResult<MailOutboundLogsResponse>> GetMailOutboundLogs(
+        [FromQuery] DateTimeOffset? fromUtc,
+        [FromQuery] DateTimeOffset? toUtc,
+        [FromQuery] MailOutboundKind? kind,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetMailOutboundLogsQuery(RequiredTenantId, fromUtc, toUtc, kind),
+            cancellationToken);
+        return Ok(response);
+    }
 }

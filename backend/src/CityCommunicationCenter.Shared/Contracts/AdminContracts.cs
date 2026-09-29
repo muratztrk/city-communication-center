@@ -250,3 +250,26 @@ public sealed record SmsOutboundLogsResponse(
     int SuccessCount,
     int FailureCount,
     IReadOnlyList<SmsOutboundLogItemResponse> Items);
+
+public sealed record MailOutboundLogItemResponse(
+    Guid MailOutboundLogId,
+    Guid TenantId,
+    string Kind,
+    string RecipientEmail,
+    Guid? RecipientUserId,
+    Guid? JobId,
+    Guid? TaskId,
+    string? RequestNumber,
+    string? Subject,
+    bool Success,
+    string? ErrorMessage,
+    int TextLength,
+    string? BodyPreview,
+    DateTimeOffset CreatedAtUtc,
+    string? RecipientDisplayName = null);
+
+public sealed record MailOutboundLogsResponse(
+    int TotalMatching,
+    int SuccessCount,
+    int FailureCount,
+    IReadOnlyList<MailOutboundLogItemResponse> Items);

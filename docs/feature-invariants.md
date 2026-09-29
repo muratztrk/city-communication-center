@@ -1666,8 +1666,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   pasif, #3926); açıkken gelen talep maili müdür/sorumlu/VTY’ye gider. Görevi başkasına
   atayınca görev sahibine (SMTP açıkken). Hariç tutulan kullanıcılar, geciken talep ve
   geciken görev kutularında da Kaydet var (#3927). Hariç tutulan kullanıcı listesi satır
-  yüksekliği/punto biraz küçük (#3921 reopen). 2×2 hiza: Mail Bildirimi | Hariç tutulan /
+  yüksekliği/punto biraz küçük (#3921 reopen).   2×2 hiza: Mail Bildirimi | Hariç tutulan /
   Geciken talep | Geciken görev (`xl:grid-cols-2`, #3928).
+  Mail içeriği `{TalepNo}` alanları textarea (`min-h-28`, satır sonu korunur); konu tek satır kalır (#3929).
+  Giden mail her SMTP denemesinde `mailoutboundlogs` satırı yazar (başarı/hata, #3930).
+  Log `scope=mail-log`: Sıra, Talep No, Tarih, Personel Adı, Mail Adresi, Mail İçeriği, Detay
+  (Tür ve İşlem yok). `GET /api/v1/admin/mail-outbound-logs`.
   Geciken görev maili ayrı kutu (varsayılan pasif); yalnız müdür/sorumlu/VTY başkasına atadıysa
   görev sahibine gider, tek gönderim `WorkTask.OverdueMailSentAtUtc`. Talep ve görev gecikme
   anahtarları bağımsızdır (#3924/#3925).
@@ -3166,9 +3170,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sütunları; Detay yalnız sağlayıcı/teknik bilgi (#3670). **Telefon No** başlığı (#3672);
   Mesaj İçeriği `line-clamp-3` + `leading-[1.25]` + overflow tooltip (#3670 reopen).
   Grid Telefon No **maskelenmez** — API `recipientPhone` (tam numara) döner; eski kayıtlarda
-  `recipientPhoneMasked` yedek (#3673). Kurum İçi Giden SMS gridinde Tarih sonrası **Personel Adı**
-  (`recipientDisplayName`, #3671). **Geciken yönetici/personel** (`OverdueManager` / `OverdueStaff`)
-  aynı gridde görünür (#3899); Tür etiketleri `Geciken yönetici` / `Geciken personel`.
+  `recipientPhoneMasked` yedek (#3673). Kurum İçi Giden SMS gridinde **Sıra, Talep No, Personel Adı,
+  Telefon No, Tarih** (#3932). **Geciken** / **Mesai dışı** (`OverdueManager`/`OverdueStaff`,
+  `AfterHoursManager`/`AfterHoursStaff`) aynı gridde görünür (#3899/#3931); Tür etiketinde
+  yönetici/personel ayrımı yok.
 - **İade Edilen Talepler grid (#3688/#3689):** banner'da Vatandaş Talepleri ile aynı arama +
   başlangıç/bitiş tarihi; gridde **Talep Etiketi** sütunu yok.
 - **Operatöre iade edilen VT (#3675–#3678):** Birime Gelen detayda yalnız **İşleme Alındı**

@@ -1238,11 +1238,14 @@
       "job": "Talep Log",
       "task": "Görev Log",
       "citizenSms": "Vatandaşa Giden SMS",
-      "internalSms": "Kurum İçi Giden SMS"
+      "internalSms": "Kurum İçi Giden SMS",
+      "mailLog": "Mail Log"
     },
     "smsRecipient": "Alıcı",
     "smsPhoneNo": "Telefon No",
     "smsStaffName": "Personel Adı",
+    "mailAddress": "Mail Adresi",
+    "mailBodyPreview": "Mail İçeriği",
     "smsSuccess": "Başarılı",
     "smsFailure": "Başarısız",
     "smsProvider": "Sağlayıcı",
@@ -1252,10 +1255,17 @@
     "smsLength": "Uzunluk",
     "smsKinds": {
       "citizenStatus": "Vatandaş durum",
-      "afterHoursManager": "Mesai dışı yönetici",
-      "afterHoursStaff": "Mesai dışı personel",
-      "overdueManager": "Geciken yönetici",
-      "overdueStaff": "Geciken personel",
+      "afterHoursManager": "Mesai dışı",
+      "afterHoursStaff": "Mesai dışı",
+      "overdueManager": "Geciken",
+      "overdueStaff": "Geciken",
+      "test": "Test"
+    },
+    "mailKinds": {
+      "incoming": "Gelen talep",
+      "assignment": "Görev atama",
+      "overdueJob": "Geciken talep",
+      "overdueTask": "Geciken görev",
       "test": "Test"
     }
   },

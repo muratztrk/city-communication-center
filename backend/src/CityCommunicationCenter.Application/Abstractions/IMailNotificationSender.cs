@@ -12,6 +12,7 @@ public interface IMailNotificationSender
         string recipientEmail,
         string subject,
         string body,
+        MailSendContext? context = null,
         CancellationToken cancellationToken = default);
 }
 

@@ -76,6 +76,7 @@ public static class DependencyInjection
         services.AddScoped<IMailNotificationSender, MailNotificationSender>();
         services.AddScoped<IJobMailNotifier, JobMailNotifier>();
         services.AddScoped<ISmsOutboundLogWriter, SmsOutboundLogWriter>();
+        services.AddScoped<IMailOutboundLogWriter, MailOutboundLogWriter>();
         services.AddScoped<ICitizenJobStatusNotifier, CitizenJobStatusNotifier>();
         services.AddScoped<AfterHoursJobSmsNotifier>();
         services.AddScoped<IAfterHoursJobSmsNotifier>(provider => provider.GetRequiredService<AfterHoursJobSmsNotifier>());

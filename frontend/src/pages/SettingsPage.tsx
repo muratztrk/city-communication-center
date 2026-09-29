@@ -110,28 +110,53 @@ function MailTokenField({
   onChange,
   beforeAriaLabel,
   afterAriaLabel,
+  multiline = false,
 }: {
   value: string
   onChange: (next: string) => void
   beforeAriaLabel: string
   afterAriaLabel: string
+  multiline?: boolean
 }) {
   const { before, after } = splitMailTokenTemplate(value)
+  const fieldClassName = multiline
+    ? 'field-input min-h-28 min-w-[8rem] flex-1 resize-y whitespace-pre-wrap'
+    : 'field-input min-w-[8rem] flex-1'
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <input
-        aria-label={beforeAriaLabel}
-        className="field-input min-w-[8rem] flex-1"
-        value={before}
-        onChange={event => onChange(buildMailTokenTemplate(event.target.value, after))}
-      />
-      <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">{MAIL_REQUEST_NO_TOKEN}</span>
-      <input
-        aria-label={afterAriaLabel}
-        className="field-input min-w-[8rem] flex-1"
-        value={after}
-        onChange={event => onChange(buildMailTokenTemplate(before, event.target.value))}
-      />
+    <div className={`flex flex-wrap gap-2 ${multiline ? 'items-start' : 'items-center'}`}>
+      {multiline ? (
+        <textarea
+          aria-label={beforeAriaLabel}
+          className={fieldClassName}
+          rows={4}
+          value={before}
+          onChange={event => onChange(buildMailTokenTemplate(event.target.value, after))}
+        />
+      ) : (
+        <input
+          aria-label={beforeAriaLabel}
+          className={fieldClassName}
+          value={before}
+          onChange={event => onChange(buildMailTokenTemplate(event.target.value, after))}
+        />
+      )}
+      <span className={`rounded-md border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 ${multiline ? 'mt-2' : ''}`}>{MAIL_REQUEST_NO_TOKEN}</span>
+      {multiline ? (
+        <textarea
+          aria-label={afterAriaLabel}
+          className={fieldClassName}
+          rows={4}
+          value={after}
+          onChange={event => onChange(buildMailTokenTemplate(before, event.target.value))}
+        />
+      ) : (
+        <input
+          aria-label={afterAriaLabel}
+          className={fieldClassName}
+          value={after}
+          onChange={event => onChange(buildMailTokenTemplate(before, event.target.value))}
+        />
+      )}
     </div>
   )
 }
@@ -4934,6 +4959,7 @@ export function SettingsPage() {
                         onChange={value => setMailNotificationForm(current => ({ ...current, incomingBodyTemplate: value }))}
                         beforeAriaLabel={t('settings.mailNotification.bodyBefore', 'Mail içeriği (önce)')}
                         afterAriaLabel={t('settings.mailNotification.bodyAfter', 'Mail içeriği (sonra)')}
+                        multiline
                       />
                     </label>
                   </>
@@ -5014,6 +5040,7 @@ export function SettingsPage() {
                         onChange={value => setMailNotificationForm(current => ({ ...current, overdueBodyTemplate: value }))}
                         beforeAriaLabel={t('settings.mailNotification.overdueBodyBefore', 'Geciken mail içeriği (önce)')}
                         afterAriaLabel={t('settings.mailNotification.overdueBodyAfter', 'Geciken mail içeriği (sonra)')}
+                        multiline
                       />
                     </label>
                   </>
@@ -5055,6 +5082,7 @@ export function SettingsPage() {
                         onChange={value => setMailNotificationForm(current => ({ ...current, overdueTaskBodyTemplate: value }))}
                         beforeAriaLabel={t('settings.mailNotification.overdueTaskBodyBefore', 'Geciken görev mail içeriği (önce)')}
                         afterAriaLabel={t('settings.mailNotification.overdueTaskBodyAfter', 'Geciken görev mail içeriği (sonra)')}
+                        multiline
                       />
                     </label>
                   </>

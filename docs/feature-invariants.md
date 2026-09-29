@@ -3315,8 +3315,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri mobil (`max-width: 1023px`):** Yönetici Onayı Bekleyen etiketi sola, tam satır.
   Mobil Uygulama çipi üst satırdaki e-Devlet/Çağrı ile aynı boy. Tüm Talep Durumları kendi hücresini doldurur.
   Gecikti mi? ve Yönetici Onayı Bekleyen mi? satırının üstünde biraz boşluk.
-- **Liste Gecikti Mi (#3908):** Birime Gelen / Görevlerim / Birimdeki / Personelimin chip satırında
-  son durum chip'inden sonra `Gecikti Mi` checkbox; açık ve gecikmiş satırları mevcut görünüme süzer.
+- **Liste Gecikti mi? (#3908):** Birime Gelen / Görevlerim / Birimdeki / Personelimin chip satırında
+  son durum chip'inden sonra `Gecikti mi?` checkbox; açık ve gecikmiş satırları mevcut görünüme süzer.
 - **Dashboard Gecikti mi? (#3467/#3465/#3866):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox. Durum pie'larında dilim
   yalnız `dashboard.chart.overdue`. Mahalle, birim, etiket ve kanal pie'ları aynı Geciken kümesinden

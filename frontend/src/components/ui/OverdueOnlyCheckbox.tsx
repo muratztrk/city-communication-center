@@ -16,7 +16,7 @@ export function OverdueOnlyCheckbox({
         checked={checked}
         onChange={event => onChange(event.target.checked)}
       />
-      {t('jobs.detail.wasOverdue', 'Gecikti Mi')}
+      {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
     </label>
   )
 }

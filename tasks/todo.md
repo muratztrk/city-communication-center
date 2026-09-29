@@ -1,3 +1,7 @@
+## Round 1358 — #3908 r2 Gecikti mi?
+
+- [x] `6abb6d8b` / #3908 — Liste checkbox etiketi `Gecikti Mi` → `Gecikti mi?`
+
 ## Round 1357 — #3911 / #3909 / #3910 / #3908
 
 - [x] `6abb73a4` / #3911 — Tamamlama Notunu Düzenle başlığı küçük punto.

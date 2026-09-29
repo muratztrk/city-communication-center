@@ -1185,6 +1185,7 @@ export interface MailNotificationSettings {
   hasPassword: boolean
   securityMode: MailSecurityMode
   defaultReplyTo: string | null
+  incomingMailEnabled: boolean
   incomingSubjectTemplate: string
   incomingBodyTemplate: string
   excludedUsersEnabled: boolean
@@ -1210,6 +1211,7 @@ export interface MailNotificationSettingsUpdate {
   securityMode: MailSecurityMode
   defaultReplyTo: string | null
   recipientEmail?: string | null
+  incomingMailEnabled?: boolean
   incomingSubjectTemplate?: string
   incomingBodyTemplate?: string
   excludedUsersEnabled?: boolean

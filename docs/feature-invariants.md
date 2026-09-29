@@ -1662,9 +1662,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   STARTTLS + kurum içi sertifika; `Failure sending mail.` yerine iç/Türkçe hata (#3915 r2).
   Test popup Gönder'de hemen kapanır (SMTP sonucu beklenmez, #3915 r3).
   Yönlendirme sekmesinin sağına **Mail Bildirimi** sekmesi: SMTP aktifken konu/içerik
-  `{TalepNo}` şablonları, hariç tutulan kullanıcılar (varsayılan pasif) ve geciken talep
-  mail kutusu (varsayılan pasif). Birime gelen talep → müdür/sorumlu/VTY; görevi başkasına
-  atayınca görev sahibine; geciken talep aynı yönetici kümesine (#3920/#3918/#3921/#3919/#3922/#3923).
+  `{TalepNo}` şablonları. İlk kutu **Mail Bildirimi** başlığı yanında Aktif/Pasif (varsayılan
+  pasif, #3926); açıkken gelen talep maili müdür/sorumlu/VTY’ye gider. Görevi başkasına
+  atayınca görev sahibine (SMTP açıkken). Hariç tutulan kullanıcılar, geciken talep ve
+  geciken görev kutularında da Kaydet var (#3927). Hariç tutulan kullanıcı listesi satır
+  yüksekliği/punto biraz küçük (#3921 reopen).
   Geciken görev maili ayrı kutu (varsayılan pasif); yalnız müdür/sorumlu/VTY başkasına atadıysa
   görev sahibine gider, tek gönderim `WorkTask.OverdueMailSentAtUtc`. Talep ve görev gecikme
   anahtarları bağımsızdır (#3924/#3925).

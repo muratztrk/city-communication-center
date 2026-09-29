@@ -29,6 +29,7 @@ public sealed class GetMailNotificationSettingsQueryHandler : IQueryHandler<GetM
             !string.IsNullOrEmpty(payload.Password),
             string.IsNullOrWhiteSpace(payload.SecurityMode) ? "None" : payload.SecurityMode,
             payload.DefaultReplyTo,
+            payload.IncomingMailEnabled,
             string.IsNullOrWhiteSpace(payload.IncomingSubjectTemplate)
                 ? MailNotificationSettingsPayload.RequestNoToken
                 : payload.IncomingSubjectTemplate,

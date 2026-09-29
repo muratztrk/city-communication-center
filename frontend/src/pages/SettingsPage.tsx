@@ -149,6 +149,7 @@ function toMailNotificationForm(settings: MailNotificationSettings, password: st
     clearPassword: false,
     securityMode: settings.securityMode,
     defaultReplyTo: settings.defaultReplyTo,
+    incomingMailEnabled: settings.incomingMailEnabled ?? false,
     incomingSubjectTemplate: settings.incomingSubjectTemplate || MAIL_REQUEST_NO_TOKEN,
     incomingBodyTemplate: settings.incomingBodyTemplate || MAIL_REQUEST_NO_TOKEN,
     excludedUsersEnabled: settings.excludedUsersEnabled ?? false,
@@ -1037,6 +1038,7 @@ export function SettingsPage() {
     clearPassword: false,
     securityMode: 'None',
     defaultReplyTo: null,
+    incomingMailEnabled: false,
     incomingSubjectTemplate: MAIL_REQUEST_NO_TOKEN,
     incomingBodyTemplate: MAIL_REQUEST_NO_TOKEN,
     excludedUsersEnabled: false,
@@ -4897,32 +4899,44 @@ export function SettingsPage() {
             <>
               <section className="section-card page-stack">
                 <div className="page-header-row">
-                  <div>
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                     <h2 className="text-xl font-extrabold text-slate-950">{t('settings.mailNotification.sectionTitle', 'Mail Bildirimi')}</h2>
-                    <p className="helper-copy">{t('settings.mailNotification.templatesHelp', 'Birime gelen taleplerde müdür, birim sorumlusu ve vatandaş talep yöneticisine gidecek mail konusu ve içeriği.')}</p>
+                    <SettingsActiveSwitch
+                      label={mailNotificationForm.incomingMailEnabled ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
+                      checked={Boolean(mailNotificationForm.incomingMailEnabled)}
+                      onChange={() => setMailNotificationForm(current => ({
+                        ...current,
+                        incomingMailEnabled: !current.incomingMailEnabled,
+                      }))}
+                    />
                   </div>
                   <Button type="button" onClick={() => void persistMailNotificationSettings()}>
                     {t('common.save', 'Kaydet')}
                   </Button>
                 </div>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.mailNotification.mailSubject', 'Mail konusu')}</span>
-                  <MailTokenField
-                    value={mailNotificationForm.incomingSubjectTemplate ?? MAIL_REQUEST_NO_TOKEN}
-                    onChange={value => setMailNotificationForm(current => ({ ...current, incomingSubjectTemplate: value }))}
-                    beforeAriaLabel={t('settings.mailNotification.subjectBefore', 'Mail konusu (önce)')}
-                    afterAriaLabel={t('settings.mailNotification.subjectAfter', 'Mail konusu (sonra)')}
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
-                  <MailTokenField
-                    value={mailNotificationForm.incomingBodyTemplate ?? MAIL_REQUEST_NO_TOKEN}
-                    onChange={value => setMailNotificationForm(current => ({ ...current, incomingBodyTemplate: value }))}
-                    beforeAriaLabel={t('settings.mailNotification.bodyBefore', 'Mail içeriği (önce)')}
-                    afterAriaLabel={t('settings.mailNotification.bodyAfter', 'Mail içeriği (sonra)')}
-                  />
-                </label>
+                <p className="helper-copy">{t('settings.mailNotification.templatesHelp', 'Birime gelen taleplerde müdür, birim sorumlusu ve vatandaş talep yöneticisine gidecek mail konusu ve içeriği.')}</p>
+                {mailNotificationForm.incomingMailEnabled ? (
+                  <>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('settings.mailNotification.mailSubject', 'Mail konusu')}</span>
+                      <MailTokenField
+                        value={mailNotificationForm.incomingSubjectTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        onChange={value => setMailNotificationForm(current => ({ ...current, incomingSubjectTemplate: value }))}
+                        beforeAriaLabel={t('settings.mailNotification.subjectBefore', 'Mail konusu (önce)')}
+                        afterAriaLabel={t('settings.mailNotification.subjectAfter', 'Mail konusu (sonra)')}
+                      />
+                    </label>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                      <span>{t('settings.mailNotification.mailBody', 'Mail içeriği')}</span>
+                      <MailTokenField
+                        value={mailNotificationForm.incomingBodyTemplate ?? MAIL_REQUEST_NO_TOKEN}
+                        onChange={value => setMailNotificationForm(current => ({ ...current, incomingBodyTemplate: value }))}
+                        beforeAriaLabel={t('settings.mailNotification.bodyBefore', 'Mail içeriği (önce)')}
+                        afterAriaLabel={t('settings.mailNotification.bodyAfter', 'Mail içeriği (sonra)')}
+                      />
+                    </label>
+                  </>
+                ) : null}
               </section>
 
               <section className="section-card page-stack">
@@ -4938,6 +4952,9 @@ export function SettingsPage() {
                       }))}
                     />
                   </div>
+                  <Button type="button" onClick={() => void persistMailNotificationSettings()}>
+                    {t('common.save', 'Kaydet')}
+                  </Button>
                 </div>
                 <p className="helper-copy">{t('settings.mailNotification.excludedUsersHelp', 'Mail bildirimi almak istemeyen kullanıcıları seçin. Aktifken bu kullanıcılara mail gönderilmez.')}</p>
                 {mailNotificationForm.excludedUsersEnabled ? (
@@ -4953,6 +4970,8 @@ export function SettingsPage() {
                     placeholder={t('settings.mailNotification.excludedUsersPlaceholder', 'Kullanıcı seçiniz')}
                     emptyText={t('settings.mailNotification.excludedUsersEmpty', 'Kullanıcı bulunamadı')}
                     searchable
+                    triggerClassName="min-h-9 py-1.5 text-[0.8rem]"
+                    menuClassName="settings-mail-excluded-users-menu"
                   />
                 ) : null}
               </section>
@@ -4970,6 +4989,9 @@ export function SettingsPage() {
                       }))}
                     />
                   </div>
+                  <Button type="button" onClick={() => void persistMailNotificationSettings()}>
+                    {t('common.save', 'Kaydet')}
+                  </Button>
                 </div>
                 {mailNotificationForm.overdueMailEnabled ? (
                   <>
@@ -5008,6 +5030,9 @@ export function SettingsPage() {
                       }))}
                     />
                   </div>
+                  <Button type="button" onClick={() => void persistMailNotificationSettings()}>
+                    {t('common.save', 'Kaydet')}
+                  </Button>
                 </div>
                 {mailNotificationForm.overdueTaskMailEnabled ? (
                   <>

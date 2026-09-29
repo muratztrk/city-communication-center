@@ -4708,6 +4708,13 @@
     font-size: 0.95rem;
   }
 
+  /* Mail Bildirimi > hariç tutulan kullanıcılar (#3921 reopen). */
+  .admin-surface-menu.settings-mail-excluded-users-menu .dropdown-menu-item {
+    min-height: 2.05rem;
+    padding: 0.32rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
   /* Taslak Mesajlar > Şablon Türü açık liste (card #2912). */
   .admin-surface-menu.settings-template-channel-menu .dropdown-menu-item {
     min-height: 1.85rem;

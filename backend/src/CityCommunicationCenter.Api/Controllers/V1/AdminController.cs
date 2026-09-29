@@ -572,6 +572,7 @@ public sealed class AdminController : ApiControllerBase
                 request.ClearPassword,
                 request.SecurityMode,
                 request.DefaultReplyTo,
+                request.IncomingMailEnabled,
                 request.IncomingSubjectTemplate,
                 request.IncomingBodyTemplate,
                 request.ExcludedUsersEnabled,

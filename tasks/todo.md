@@ -1,3 +1,9 @@
+## Round 1364 — #3921 reopen / #3926 / #3927
+
+- [x] `6abbadf0` / #3921 — Hariç tutulan kullanıcı dropdown satır yüksekliği ve punto küçültüldü.
+- [x] `6abbb863` / #3926 — Mail Bildirimi başlığı sağında Aktif/Pasif (varsayılan pasif).
+- [x] `6abbb8c1` / #3927 — Hariç tutulan / geciken talep / geciken görev kutularına Kaydet.
+
 ## Round 1363b — #3925 / #3924
 
 - [x] `6abbb040` / #3925 — Geciken Görevlerin Mail Gönderimi kutusu (varsayılan pasif) + `{TalepNo}`.

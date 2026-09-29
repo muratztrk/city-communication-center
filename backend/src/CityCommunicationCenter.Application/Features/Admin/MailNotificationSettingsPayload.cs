@@ -16,6 +16,7 @@ public sealed class MailNotificationSettingsPayload
     public string? Password { get; set; }
     public string SecurityMode { get; set; } = "None";
     public string? DefaultReplyTo { get; set; }
+    public bool IncomingMailEnabled { get; set; }
     public string IncomingSubjectTemplate { get; set; } = RequestNoToken;
     public string IncomingBodyTemplate { get; set; } = RequestNoToken;
     public bool ExcludedUsersEnabled { get; set; }

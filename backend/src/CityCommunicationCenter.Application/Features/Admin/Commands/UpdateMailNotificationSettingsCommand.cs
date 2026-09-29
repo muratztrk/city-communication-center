@@ -15,6 +15,7 @@ public sealed record UpdateMailNotificationSettingsCommand(
     bool ClearPassword,
     string SecurityMode,
     string? DefaultReplyTo,
+    bool? IncomingMailEnabled = null,
     string? IncomingSubjectTemplate = null,
     string? IncomingBodyTemplate = null,
     bool? ExcludedUsersEnabled = null,
@@ -81,6 +82,7 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
             Password = password,
             SecurityMode = request.SecurityMode,
             DefaultReplyTo = request.DefaultReplyTo,
+            IncomingMailEnabled = request.IncomingMailEnabled ?? previous.IncomingMailEnabled,
             IncomingSubjectTemplate = request.IncomingSubjectTemplate
                 ?? previous.IncomingSubjectTemplate
                 ?? MailNotificationSettingsPayload.RequestNoToken,

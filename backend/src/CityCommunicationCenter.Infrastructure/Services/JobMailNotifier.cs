@@ -34,7 +34,7 @@ internal sealed class JobMailNotifier : IJobMailNotifier
         try
         {
             var settings = await LoadSettingsAsync(job.TenantId, cancellationToken);
-            if (!CanSend(settings))
+            if (!CanSend(settings) || !settings.IncomingMailEnabled)
             {
                 return;
             }

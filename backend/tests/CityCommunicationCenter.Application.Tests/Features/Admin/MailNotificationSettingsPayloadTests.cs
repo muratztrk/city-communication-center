@@ -27,8 +27,32 @@ public sealed class MailNotificationSettingsPayloadTests
         var rendered = MailNotificationSettingsPayload.Render(
             "Merhaba {GörevNo} no'lu {GörevBaşlığı} geldi.",
             "VT-2026-9",
+            "Park bakımı",
+            "G-2026-12",
+            "Park görevi");
+        Assert.Equal("Merhaba G-2026-12 no'lu Park görevi geldi.", rendered);
+    }
+
+    [Fact]
+    public void Render_task_tokens_fall_back_to_request_when_task_omitted()
+    {
+        var rendered = MailNotificationSettingsPayload.Render(
+            "Merhaba {GörevNo} no'lu {GörevBaşlığı} geldi.",
+            "VT-2026-9",
             "Park bakımı");
         Assert.Equal("Merhaba VT-2026-9 no'lu Park bakımı geldi.", rendered);
+    }
+
+    [Fact]
+    public void Render_does_not_append_request_number_when_task_number_present()
+    {
+        var rendered = MailNotificationSettingsPayload.Render(
+            "{GörevNo}",
+            "VT-2026-9",
+            "Park bakımı",
+            "G-2026-12",
+            "Park görevi");
+        Assert.Equal("G-2026-12", rendered);
     }
 
     [Fact]

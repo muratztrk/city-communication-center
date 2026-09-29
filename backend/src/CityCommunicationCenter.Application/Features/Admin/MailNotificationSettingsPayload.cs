@@ -97,16 +97,25 @@ public sealed class MailNotificationSettingsPayload
             .Replace(RequestTitleToken, TaskTitleToken, StringComparison.Ordinal);
     }
 
-    public static string Render(string? template, string requestNumber, string? jobTitle = null)
+    public static string Render(
+        string? template,
+        string requestNumber,
+        string? jobTitle = null,
+        string? taskNumber = null,
+        string? taskTitle = null)
     {
         var value = string.IsNullOrWhiteSpace(template) ? RequestNoToken : template;
         var title = jobTitle?.Trim() ?? string.Empty;
+        var resolvedTaskNumber = string.IsNullOrWhiteSpace(taskNumber) ? requestNumber : taskNumber.Trim();
+        var resolvedTaskTitle = string.IsNullOrWhiteSpace(taskTitle) ? title : taskTitle.Trim();
         var rendered = value
             .Replace(RequestNoToken, requestNumber, StringComparison.Ordinal)
-            .Replace(TaskNoToken, requestNumber, StringComparison.Ordinal)
+            .Replace(TaskNoToken, resolvedTaskNumber, StringComparison.Ordinal)
             .Replace(RequestTitleToken, title, StringComparison.Ordinal)
-            .Replace(TaskTitleToken, title, StringComparison.Ordinal);
-        if (!rendered.Contains(requestNumber, StringComparison.Ordinal))
+            .Replace(TaskTitleToken, resolvedTaskTitle, StringComparison.Ordinal);
+        var hasIdentity = rendered.Contains(requestNumber, StringComparison.Ordinal)
+            || rendered.Contains(resolvedTaskNumber, StringComparison.Ordinal);
+        if (!hasIdentity)
         {
             rendered = $"{rendered.TrimEnd()} {requestNumber}";
         }

@@ -1,3 +1,8 @@
+## Round 1378 — #3945 spacer / #3946 task tokens
+
+- [x] `6abc052c` / #3945 — Hariç tutulanlar: yardımcı metinden sonra boşluk (`min-h-20`).
+- [x] `6abc05ff` / #3946 — Görev mailinde `{GörevNo}`/`{GörevBaşlığı}` görev no + görev başlığı dolar.
+
 ## Round 1377 — #3945 revert / #3947
 
 - [x] `6abc052c` / #3945 — Hariç tutulanlar kutu yüksekliği eşitlemesi geri alındı.

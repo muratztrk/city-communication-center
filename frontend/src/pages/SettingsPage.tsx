@@ -5178,6 +5178,7 @@ export function SettingsPage() {
                   </Button>
                 </div>
                 <p className="helper-copy">{t('settings.mailNotification.excludedUsersHelp', 'Mail bildirimi almak istemeyen kullanıcıları seçin. Aktifken bu kullanıcılara mail gönderilmez.')}</p>
+                <div className="min-h-20" aria-hidden />
                 {mailNotificationForm.excludedUsersEnabled ? (
                   <MultiSelectDropdown
                     options={(mailUsersQuery.data ?? [])

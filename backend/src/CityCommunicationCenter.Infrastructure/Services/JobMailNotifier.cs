@@ -85,13 +85,14 @@ internal sealed class JobMailNotifier : IJobMailNotifier
 
             var recipientIds = new HashSet<Guid> { assigneeUserId };
             ApplyExclusions(settings, recipientIds, actorUserId);
+            var assignedTaskId = await ResolveAssignedTaskIdAsync(job, assigneeUserId, cancellationToken);
             await SendToUsersAsync(
                 job,
                 recipientIds,
                 settings.AssignmentSubjectTemplate,
                 settings.AssignmentBodyTemplate,
                 MailOutboundKind.Assignment,
-                taskId: null,
+                assignedTaskId,
                 cancellationToken);
         }
         catch (Exception ex)
@@ -488,8 +489,19 @@ internal sealed class JobMailNotifier : IJobMailNotifier
         CancellationToken cancellationToken)
     {
         var requestNumber = await FormatJobRequestNumberAsync(job, cancellationToken);
-        var subject = MailNotificationSettingsPayload.Render(subjectTemplate, requestNumber);
-        var body = MailNotificationSettingsPayload.Render(bodyTemplate, requestNumber, job.Title);
+        var (taskNumber, taskTitle) = await ResolveTaskMailTokensAsync(job, taskId, cancellationToken);
+        var subject = MailNotificationSettingsPayload.Render(
+            subjectTemplate,
+            requestNumber,
+            job.Title,
+            taskNumber,
+            taskTitle);
+        var body = MailNotificationSettingsPayload.Render(
+            bodyTemplate,
+            requestNumber,
+            job.Title,
+            taskNumber,
+            taskTitle);
 
         if (recipientIds.Count == 0)
         {
@@ -617,6 +629,57 @@ internal sealed class JobMailNotifier : IJobMailNotifier
             citizenRequestNumber,
             citizenRequestNumberYear,
             job.CreatedAtUtc);
+    }
+
+    private async Task<Guid?> ResolveAssignedTaskIdAsync(
+        Job job,
+        Guid assigneeUserId,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(task => task.TenantId == job.TenantId
+                && task.JobId == job.JobId
+                && task.AssignedUserId == assigneeUserId)
+            .OrderByDescending(task => task.AssignedAtUtc)
+            .ThenByDescending(task => task.CreatedAtUtc)
+            .Select(task => (Guid?)task.TaskId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    private async Task<(string? TaskNumber, string? TaskTitle)> ResolveTaskMailTokensAsync(
+        Job job,
+        Guid? taskId,
+        CancellationToken cancellationToken)
+    {
+        if (taskId is not Guid resolvedTaskId)
+        {
+            return (null, null);
+        }
+
+        var taskInfo = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(task => task.TenantId == job.TenantId && task.TaskId == resolvedTaskId)
+            .Select(task => new { task.Title, task.TaskNumber, task.TaskNumberYear })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (taskInfo is null)
+        {
+            return (null, null);
+        }
+
+        var title = string.IsNullOrWhiteSpace(taskInfo.Title) ? null : taskInfo.Title.Trim();
+        return (FormatTaskDisplayNumber(taskInfo.TaskNumber, taskInfo.TaskNumberYear), title);
+    }
+
+    private static string FormatTaskDisplayNumber(int? taskNumber, int? taskNumberYear)
+    {
+        if (taskNumber.HasValue && taskNumberYear.HasValue)
+        {
+            return $"G-{taskNumberYear.Value}-{taskNumber.Value}";
+        }
+
+        var year = taskNumberYear ?? DateTime.UtcNow.Year;
+        return $"G-{year}-Onay Bekleyen";
     }
 
     private static Guid[] DistinctDepartmentIds(IEnumerable<Guid> departmentIds) =>

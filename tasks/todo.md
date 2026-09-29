@@ -1,3 +1,7 @@
+## Round 1375 — #3945
+
+- [x] `6abc052c` / #3945 — Hariç tutulan kullanıcılar kutusu, geciken talep kutusuyla aynı yükseklik.
+
 ## Round 1374 — #3940 r4 / #3938 r4
 
 - [x] `6abbf93e` / #3940 — Telefon No değeri `0.88rem` (çok az küçültüldü).

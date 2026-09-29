@@ -23,10 +23,10 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'departmentRequestMap', path: '/department-request-map', labelKey: 'nav.departmentRequestMap' },
   { key: 'citizenDirectory', path: '/citizen-directory', labelKey: 'nav.citizenDirectory' },
   { key: 'display', path: '/display', labelKey: 'nav.display' },
-  { key: 'departments', path: '/departments', labelKey: 'nav.departments' },
-  { key: 'users', path: '/users', labelKey: 'nav.users' },
   { key: 'settings', path: '/settings', labelKey: 'nav.settings' },
   { key: 'audit', path: '/audit', labelKey: 'nav.audit' },
+  { key: 'users', path: '/users', labelKey: 'nav.users' },
+  { key: 'departments', path: '/departments', labelKey: 'nav.departments' },
   { key: 'edevletActivityPlan', path: '/edevlet/activity-plan', labelKey: 'nav.edevletActivityPlan' },
   { key: 'edevletActivityPlansList', path: '/edevlet/activity-plans', labelKey: 'nav.edevletActivityPlansList' },
 ] as const

@@ -1604,7 +1604,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ham dump yok; varsa yalnızca lokalize durum (card #1713 Detay).
 - **Nav/UI “Birimler”:** `nav.departments` ve departments.* metinleri “Birimler/Birim”dir;
   “Departman(lar)” kullanılmaz (card #1487). Sol menü yönetim bloğu sırası: Ayarlar → Log →
-  Kullanıcılar → Birimler (#3939; Birimler ile Log yer değiştirdi).
+  Kullanıcılar → Birimler (#3939; Birimler ile Log yer değiştirdi). Sayfa Yetkileri yönetim satırları
+  aynı sıra: Ayarlar → Log → Kullanıcılar → Birimler (#3947).
   “Departmanlar” geri gelmez (card #1723).
 - **Yeni birim formu LDAP birim çekebilir:** LDAP açıksa Manual|LDAP segmented; LDAP listesinde
   yalnız birim adları. Oluşturma formunda Tür/Müdür/Sorumlular yok — varsayılan tür `Birim`
@@ -1676,8 +1677,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geciken görev kutularında da Kaydet var (#3927). Hariç tutulan kullanıcı listesi satır
   yüksekliği/punto biraz küçük (#3921 reopen). 2×2 hiza: Birime Gelen Taleplerin Mail Gönderimi |
   Görevlerin Mail Gönderimi / Geciken talep | Geciken görev; **Mail Gönderimi Hariç Tutulan Kullanıcılar**
-  en altta (`xl:grid-cols-2`, #3928/#3942/#3944). Hariç tutulanlar kutusu, geciken talep kutusu açıkken
-  aynı yükseklik (`xl:min-h-[18.75rem]`, #3945).
+  en altta (`xl:grid-cols-2`, #3928/#3942/#3944). Hariç tutulanlar kutusu içerik yüksekliğinde kalır
+  (#3945 geri alındı).
   Mail içeriği `{TalepNo} no'lu {TalepBaşlığı}` textarea (`min-h-28`, satır sonu korunur);
   konu tek satır `{TalepNo}` kalır (#3929/#3933). Görevlerin / Geciken görevlerin kutularında jeton
   `{GörevNo}` / `{GörevBaşlığı}` (#3946); gönderimde aynı talep no ve `Job.Title` dolar, eski `{TalepNo}`

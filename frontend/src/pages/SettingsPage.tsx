@@ -5160,7 +5160,7 @@ export function SettingsPage() {
               </div>
 
               <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
-              <section className={`section-card page-stack${mailNotificationForm.overdueMailEnabled ? ' xl:min-h-[18.75rem]' : ''}`}>
+              <section className="section-card page-stack">
                 <div className="page-header-row">
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                     <h2 className="text-lg font-extrabold leading-snug text-slate-950">{t('settings.mailNotification.excludedUsersTitle', 'Mail Gönderimi Hariç Tutulan Kullanıcılar')}</h2>

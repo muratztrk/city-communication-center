@@ -1,3 +1,8 @@
+## Round 1377 — #3945 revert / #3947
+
+- [x] `6abc052c` / #3945 — Hariç tutulanlar kutu yüksekliği eşitlemesi geri alındı.
+- [x] `6abc08cf` / #3947 — Sayfa Yetkileri: Ayarlar, Log, Kullanıcılar, Birimler (sol menü sırası).
+
 ## Round 1376 — #3946
 
 - [x] `6abc05ff` / #3946 — Görev ve geciken görev mail kutularında jeton {GörevNo}/{GörevBaşlığı}.

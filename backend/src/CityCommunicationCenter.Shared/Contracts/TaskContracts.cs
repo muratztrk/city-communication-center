@@ -110,7 +110,8 @@ public sealed record TaskSummaryResponse(
     string? RevisionReason = null,
     // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi — talep detayı "Görev
     // Bilgileri" kartında Görevlerim ile aynı gösterim için (card #1541).
-    IReadOnlyCollection<TaskStatusChangeHistoryResponse>? StatusChangeHistory = null);
+    IReadOnlyCollection<TaskStatusChangeHistoryResponse>? StatusChangeHistory = null,
+    DateTimeOffset? JobTargetApprovedAtUtc = null);
 
 public sealed record ApprovalStepResponse(
     Guid ApprovalId,

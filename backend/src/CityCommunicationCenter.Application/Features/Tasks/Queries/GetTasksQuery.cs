@@ -221,6 +221,17 @@ public sealed class GetTasksQueryHandler : IQueryHandler<GetTasksQuery, IReadOnl
                         && department.Notes != null
                         && department.Notes != "")
                     .Select(department => department.Notes)
+                    .FirstOrDefault(),
+                null,
+                null,
+                null,
+                _dbContext.JobDepartments
+                    .AsNoTracking()
+                    .Where(department => department.JobId == task.JobId
+                        && department.Role == JobDepartmentRole.Target
+                        && department.DecidedAtUtc != null)
+                    .OrderBy(department => department.DecidedAtUtc)
+                    .Select(department => department.DecidedAtUtc)
                     .FirstOrDefault()))
             .ToListAsync(cancellationToken);
     }

@@ -3580,8 +3580,10 @@ const pageKicker = isMyTasksView
                     {showStatusColumn && (() => {
                       // Tamamlanan→tamamlanma, İptal→iptal tarihi; tarih durum pill'inin İÇİNDE
                       // alt satırda gösterilir (card #714, #711'in rafine hali).
+                      const isYapilmaktaStatus = task.currentStatus === 'InProgress' || task.currentStatus === 'Assigned'
                       const statusDate = task.currentStatus === 'Completed' ? task.completedAtUtc
                         : task.currentStatus === 'Cancelled' ? task.updatedAtUtc
+                        : isYapilmaktaStatus ? task.jobTargetApprovedAtUtc
                         : null
                       return (
                         <td>
@@ -3594,7 +3596,7 @@ const pageKicker = isMyTasksView
                                 : null}
                               hideInProgressOverdueSubline={currentMyTaskView === 'overdue'}
                               footer={statusDate
-                                ? <span className={`text-[0.68rem] font-bold ${task.currentStatus === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
+                                ? <span className={`text-[0.68rem] font-bold ${task.currentStatus === 'Completed' ? 'text-emerald-700' : task.currentStatus === 'Cancelled' ? 'text-red-700' : 'text-inherit'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}
                             />
                           </StatusPill>

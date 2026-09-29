@@ -53,7 +53,15 @@ internal static class TaskSummaryResponseFactory
             ownerDepartmentName,
             task.CompletedAtUtc,
             task.UpdatedAtUtc,
-            AssignedAtUtc: task.AssignedAtUtc);
+            AssignedAtUtc: task.AssignedAtUtc,
+            JobTargetApprovedAtUtc: await dbContext.JobDepartments
+                .AsNoTracking()
+                .Where(department => department.JobId == task.JobId
+                    && department.Role == JobDepartmentRole.Target
+                    && department.DecidedAtUtc != null)
+                .OrderBy(department => department.DecidedAtUtc)
+                .Select(department => department.DecidedAtUtc)
+                .FirstOrDefaultAsync(cancellationToken));
     }
 
     private static Task<string?> GetDepartmentNameAsync(

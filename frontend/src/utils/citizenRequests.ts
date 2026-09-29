@@ -56,6 +56,21 @@ type CitizenRequestStatusSource = {
   updatedAtUtc?: string | null
   taskCount?: number
   tasks?: { currentStatus?: string }[]
+  targetApprovedAtUtc?: string | null
+  departments?: { role: string; decidedAtUtc?: string | null }[] | null
+}
+
+/** Hedef birim yöneticisi onay anı — Yapılmakta grid tarihi (#3902/#3904). */
+export function resolveTargetManagerApprovedAtUtc(job: {
+  targetApprovedAtUtc?: string | null
+  departments?: { role: string; decidedAtUtc?: string | null }[] | null
+}): string | null {
+  if (job.targetApprovedAtUtc) return job.targetApprovedAtUtc
+  const dates = (job.departments ?? [])
+    .filter(department => department.role === 'Target' && department.decidedAtUtc)
+    .map(department => department.decidedAtUtc as string)
+    .sort()
+  return dates[0] ?? null
 }
 
 /** Vatandaş talebi Yapılmakta (açık görev var; gecikmiş dahil, #2872). */
@@ -138,7 +153,11 @@ export function getCitizenGridStatusDateUtc(job: CitizenRequestStatusSource & {
     return job.updatedAtUtc ?? null
   }
 
-  if (isCitizenProcessingReceivedState(job) || isCitizenInProgressState(job)) {
+  if (isCitizenInProgressState(job)) {
+    return resolveTargetManagerApprovedAtUtc(job) ?? job.updatedAtUtc ?? job.createdAtUtc ?? null
+  }
+
+  if (isCitizenProcessingReceivedState(job)) {
     return job.updatedAtUtc ?? job.createdAtUtc ?? null
   }
 

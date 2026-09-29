@@ -2960,9 +2960,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Overflow tooltip (#r545/#2065/#2072/#2078):** hücre ortası; max-width ~18rem; 2. satır `text-align: center`.
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
 - **Vatandaş grid Durum tarihi (#3896):** `getCitizenGridStatusDateUtc` — Tamamlandı/İptal aynı;
-  İşleme Alındı ve Yapılmakta `updatedAtUtc` (yoksa `createdAtUtc`); aktif tarih `text-inherit` —
+  İşleme Alındı `updatedAtUtc` (yoksa `createdAtUtc`); **Yapılmakta** = Hedef Birim Yöneticisi
+  Onay Tarihi (`Target.decidedAtUtc`) (#3902); yoksa `updatedAtUtc`. Aktif tarih `text-inherit` —
   koyu turkuaz İşleme Alındı / turuncu Geciken pill'de **beyaz**, açık mavi Yapılmakta'da pill yazı rengi
   (#3896 r2; `text-slate-600` koyu pill'de okunmuyordu).
+- **Görev grid Yapılmakta tarihi (#3904):** Görevlerim / Birimdeki Görevler / Personelimin Görevleri
+  Durum `Yapılmakta` (`Assigned`/`InProgress`) alt satırı bağlı talebin `JobTargetApprovedAtUtc`.
 - **Görev detay Son Tarih düzenleyenleri (#3890 r3):** Görevlerim/Birimdeki Görevler detay Süreç
   `Son Tarih` başlığı yanında Talep Detayları ile aynı `DueDateEditorsHint` (`(Ad)` / `(Düzenleyenler)`);
   kaynak `TaskDetailResponse.DueDateChanges` = `JobDueDateChangeResolver` (bu görev TaskDueDateUpdated +
@@ -3667,10 +3670,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp OG görseli (#3566):** `frontend/index.html` `og:image` / `twitter:image` giriş
   logosu `/tire-belediyesi-logo.png` (mühür `favicon.png` değil); crawler JS çalıştırmaz.
 - **Telefon görüntüsü (#3567/#3573):** grid + detay + WA profil/Talep Oluştur kilitli numara
-  `+ülke kodu` + ulusal gruplama (`formatDirectoryPhone`; TR `+90 5XX XXX XX XX`). WA profil
+  `+ülke kodu` + ulusal gruplama (`formatDirectoryPhone`; TR `+90 5XX XXX XX XX` veya sabit
+  `+90 232 293 15 72`). WA profil
   etiketi `Telefon No` (#3568). Yabancı numaralar çağrı formu + düzenlenebilir Talep Oluştur
   modalında ülke kodu + ITU hane doğrulamasıyla kaydedilir; WA kilitli numara tam uluslararası
-  hane ile doğrulanır (TR-only 10/5 kısıtı yok).
+  hane ile doğrulanır (TR-only 10/5 kısıtı yok). TR 10 hane `2/3/4` (sabit) veya `5` (cep);
+  `232…` Sierra Leone değil Türkiye alan kodu (#3903).
 - **Çağrı formu ülke kodu (#3569–#3572/#3575–#3581):** `(Başında 0 olmadan ekleyin)` yok; solda
   tüm ülkeler. Liste: bayrak görseli (`flagcdn`) solunda, ad + `+kod`; sıra Türkiye, Almanya,
   sonra alfabetik. Kapalı tetikleyicide bayrak + `+kod` (#3578); tetikleyici biraz geniş,

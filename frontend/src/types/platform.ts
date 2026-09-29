@@ -216,6 +216,8 @@ export interface Task {
   forwardReason?: string | null;
   // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #1541).
   statusChangeHistory?: TaskStatusChangeHistory[] | null;
+  /** Bağlı talebin hedef birim yöneticisi onay anı — Yapılmakta tarihi (#3904). */
+  jobTargetApprovedAtUtc?: string | null;
 }
 
 export interface TaskDetail {

@@ -29,6 +29,7 @@ export type IncomingRequestRow = {
   createdByRoleCode: string | null
   isCitizenRequest?: boolean
   taskCount?: number
+  targetApprovedAtUtc?: string | null
 }
 
 function formatJobDisplayNumber(job: JobSummary): string {
@@ -229,6 +230,10 @@ function toExternalRow(
     createdByRoleCode: job.createdByRoleCode ?? null,
     isCitizenRequest: isCitizen,
     taskCount: job.taskCount,
+    targetApprovedAtUtc: job.departments
+      ?.filter(department => department.role === 'Target' && department.decidedAtUtc)
+      .map(department => department.decidedAtUtc as string)
+      .sort()[0] ?? activeTarget?.decidedAtUtc ?? null,
   }
 }
 

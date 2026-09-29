@@ -261,11 +261,14 @@ function digitsOnly(value: string | null | undefined): string {
   return (value ?? '').replace(/\D/g, '')
 }
 
-function looksLikeTurkishMobile(digits: string): boolean {
-  if (digits.length === 10 && digits.startsWith('5')) return true
-  if (digits.length === 11 && digits.startsWith('05')) return true
-  if (digits.length === 12 && digits.startsWith('905')) return true
-  return false
+function turkishNationalFromDigits(digits: string): string | null {
+  const national = digits.length === 12 && digits.startsWith('90') ? digits.slice(2)
+    : digits.length === 11 && digits.startsWith('0') ? digits.slice(1)
+    : digits
+  if (national.length !== 10) return null
+  // Cep 5xx; sabit hat alan kodu 2xx / 3xx / 4xx (#3903 — 232 Sierra Leone sanılmasın).
+  if (!/^[2345]/.test(national)) return null
+  return national
 }
 
 export function splitCitizenPhone(value: string | null | undefined): { iso: string; national: string; dial: string } {
@@ -274,11 +277,9 @@ export function splitCitizenPhone(value: string | null | undefined): { iso: stri
     const tr = getCountryCallingCode('TR')
     return { iso: tr.iso, national: '', dial: tr.dial }
   }
-  if (looksLikeTurkishMobile(digits)) {
-    const national = digits.startsWith('90') ? digits.slice(2)
-      : digits.startsWith('0') ? digits.slice(1)
-      : digits
-    return { iso: 'TR', national, dial: '90' }
+  const turkishNational = turkishNationalFromDigits(digits)
+  if (turkishNational) {
+    return { iso: 'TR', national: turkishNational, dial: '90' }
   }
   const ranked = [...COUNTRY_CALLING_CODES].sort((a, b) => b.dial.length - a.dial.length || a.iso.localeCompare(b.iso))
   for (const country of ranked) {
@@ -335,7 +336,7 @@ export function validateCitizenPhoneInput(
         },
       }
     }
-    if (!nationalPhone.startsWith('5')) {
+    if (!/^[2345]/.test(nationalPhone)) {
       return {
         ok: false,
         error: {
@@ -374,13 +375,13 @@ export function tryParsePastedCitizenPhone(
 ): { iso: string; national: string } | null {
   const allDigits = digitsOnly(rawInput)
   if (!allDigits || iso !== 'TR') return null
-  if (allDigits.length <= 10 && allDigits.startsWith('5')) return null
-  if (allDigits.length === 11 && allDigits.startsWith('0') && allDigits[1] === '5') {
+  if (allDigits.length <= 10 && /^[2345]/.test(allDigits)) return null
+  if (allDigits.length === 11 && allDigits.startsWith('0') && /^[2345]/.test(allDigits.slice(1))) {
     return { iso: 'TR', national: allDigits.slice(1) }
   }
   const parsed = splitCitizenPhone(allDigits)
   if (parsed.iso === 'TR') {
-    return parsed.national.length === 10 && parsed.national.startsWith('5') ? parsed : null
+    return parsed.national.length === 10 && /^[2345]/.test(parsed.national) ? parsed : null
   }
   return { iso: parsed.iso, national: parsed.national }
 }

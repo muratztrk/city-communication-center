@@ -5195,7 +5195,7 @@ export function SettingsPage() {
                       triggerClassName="min-h-9 py-1.5 text-[0.8rem]"
                       menuClassName="settings-mail-excluded-users-menu"
                     />
-                    <div className="min-h-8" aria-hidden />
+                    <div className="min-h-16" aria-hidden />
                   </>
                 ) : (
                   <div className="min-h-20" aria-hidden />

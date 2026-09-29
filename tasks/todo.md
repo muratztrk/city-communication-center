@@ -1,3 +1,7 @@
+## Round 1381 — #3945 more pad
+
+- [x] `6abc052c` / #3945 — Toggle açıkken dropdown altında boşluk `min-h-8` → `min-h-16`.
+
 ## Round 1380 — #3945 dropdown pad / #3948 apply
 
 - [x] `6abc052c` / #3945 — Toggle açıkken dropdown altında çok az boşluk (`min-h-8`).

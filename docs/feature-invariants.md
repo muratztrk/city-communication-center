@@ -1651,7 +1651,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Hafta Sonu SLA — SMS kutucuğu `isCitizenModuleUsable` ile gizlenir.
   (`xl:grid-cols-2`, `items-stretch` + `h-full`; dış/`grid` `gap-6` eşit düşey boşluk;
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
-  Syslog | Veritabanı Yedeği / Kurum İçi Mesajlar | reCAPTCHA (#2952).
+  Syslog | Mail Bildirimi (#3909) | Veritabanı Yedeği / Kurum İçi Mesajlar | reCAPTCHA (#2952).
 - **Kurum Konumu ilçe (#r512/#r514/#r521/#6a75b1ae):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` localStorage
   + `TenantSettings.Theme = ccc-district:<id>` ile talep formu mahalle dropdown’ları aynı ilçeyi
@@ -2274,6 +2274,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Tamamlama Notu düzenlemesi (`CitizenMessageApprovalCompletionNoteEdited`) detayda
   **Tamamlama Notu** (orijinal, yeşil değil) + **Güncellenen Tamamlama Notu** (yeşil) +
   **Tamamlama Notu Güncelleyen** (başlık + değer yeşil, #3905 r2) gösterir.
+  Görevlerim'de onaysız not Düzenle sonrası **Güncellenen / Güncelleyen satırları yok**;
+  Tamamlama Notu değeri güncellenir ve yeşil kalır (#3910). Tamamlama Notunu Düzenle
+  başlığı `workflow-note-dialog__title--sm` (#3911).
   Görevlerim'de not onaylanmamışken (PendingCloseApproval veya vatandaş + Mesajı Onayla yok)
   **Düzenle** yalnız Tamamlama Notu'nu açar; arka plan koyu turkuaz `#007985` / hover `#006570`
   (#3907 r2; turuncu değil). `GetJobById` bu iki alanı rol kapısı olmadan
@@ -3312,6 +3315,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri mobil (`max-width: 1023px`):** Yönetici Onayı Bekleyen etiketi sola, tam satır.
   Mobil Uygulama çipi üst satırdaki e-Devlet/Çağrı ile aynı boy. Tüm Talep Durumları kendi hücresini doldurur.
   Gecikti mi? ve Yönetici Onayı Bekleyen mi? satırının üstünde biraz boşluk.
+- **Liste Gecikti Mi (#3908):** Birime Gelen / Görevlerim / Birimdeki / Personelimin chip satırında
+  son durum chip'inden sonra `Gecikti Mi` checkbox; açık ve gecikmiş satırları mevcut görünüme süzer.
 - **Dashboard Gecikti mi? (#3467/#3465/#3866):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox. Durum pie'larında dilim
   yalnız `dashboard.chart.overdue`. Mahalle, birim, etiket ve kanal pie'ları aynı Geciken kümesinden

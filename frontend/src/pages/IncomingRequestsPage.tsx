@@ -5,6 +5,7 @@ import { DateCell } from '../components/ui/date-cell'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { ScopeChipButton } from '../components/ui/ScopeChipButton'
+import { OverdueOnlyCheckbox } from '../components/ui/OverdueOnlyCheckbox'
 
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
@@ -469,6 +470,7 @@ export function IncomingRequestsPage() {
   const [filterFrom, setFilterFrom] = useState(() => toDateTimePickerValue(searchParams.get('from') ?? '') || (searchParams.get('from') ?? ''))
   const [filterTo, setFilterTo] = useState(() => toDateTimePickerValue(searchParams.get('to') ?? '') || (searchParams.get('to') ?? ''))
   const [searchText, setSearchText] = useState('')
+  const [overdueOnly, setOverdueOnly] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [cancelModal, setCancelModal] = useState<{ row: IncomingRequestRow; reason: string; saving: boolean } | null>(null)
   const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
@@ -778,9 +780,12 @@ export function IncomingRequestsPage() {
         SEARCH_COLUMN_KEYS.map(key => getColumnValue(key, row)),
       ))
     }
+    if (overdueOnly) {
+      result = result.filter(row => matchesStatusFilter(row, 'overdue'))
+    }
     return result
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentKindFilter, currentStatusFilter, isCitizenRequestManager, citizenOnly, channelFilter, rows, filterFrom, filterTo, searchText, getColumnValue])
+  }, [currentKindFilter, currentStatusFilter, isCitizenRequestManager, citizenOnly, channelFilter, overdueOnly, rows, filterFrom, filterTo, searchText, getColumnValue])
 
   const incomingOverdueCount = useMemo(() => {
     let result = rows
@@ -795,7 +800,7 @@ export function IncomingRequestsPage() {
     return result.length
   }, [rows, isCitizenRequestManager, citizenOnly, channelFilter, currentKindFilter])
 
-  useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
+  useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText, overdueOnly])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
   const { filters: incomingFilters, setFilter: setIncomingFilter, clearFilters: clearIncomingFilters, matchesFilters: incomingMatchesFilters, hasActiveFilters: hasActiveIncomingColumnFilters } = useColumnFilters()
@@ -969,6 +974,7 @@ export function IncomingRequestsPage() {
             {t(filter.labelKey, filter.fallback)}
           </ScopeChipButton>
         ))}
+        <OverdueOnlyCheckbox checked={overdueOnly} onChange={setOverdueOnly} />
         {showKindFilters ? (
           <>
             <span className="scope-chip-divider" aria-hidden="true">|</span>

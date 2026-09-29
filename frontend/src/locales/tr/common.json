@@ -209,6 +209,8 @@
     "smsSettingsSaveFailed": "SMS API ayarları kaydedilemedi.",
     "syslogSettingsLoadFailed": "Syslog ayarları alınamadı.",
     "syslogSettingsSaveFailed": "Syslog ayarları kaydedilemedi.",
+    "mailNotificationSettingsLoadFailed": "Mail bildirimi ayarları alınamadı.",
+    "mailNotificationSettingsSaveFailed": "Mail bildirimi ayarları kaydedilemedi.",
     "fileStorageSettingsLoadFailed": "Dosya sunucusu ayarları alınamadı.",
     "fileStorageSettingsSaveFailed": "Dosya sunucusu ayarları kaydedilemedi.",
     "databaseBackupSettingsLoadFailed": "Veritabanı yedeği sunucu ayarları alınamadı.",
@@ -1448,6 +1450,24 @@
       },
       "save": "Kaydet",
       "saved": "Syslog ayarları kaydedildi."
+    },
+    "mailNotification": {
+      "sectionTitle": "Mail Bildirimi",
+      "sectionDescription": "Talep ve Görevleri bildirimi yapabilmek için mail sunucusu tanımlayınız.",
+      "isEnabled": "Mail sunucu kullan",
+      "smtpServer": "SMTP Server",
+      "default": "Default",
+      "specify": "Specify",
+      "port": "Port",
+      "useDefaultPort": "Use default (25)",
+      "authentication": "Authentication",
+      "authenticationToggle": " ",
+      "username": "Username",
+      "password": "Password",
+      "securityMode": "Security Mode",
+      "defaultReplyTo": "Default Reply To",
+      "save": "Kaydet",
+      "saved": "Mail bildirimi ayarları kaydedildi."
     },
     "recaptcha": {
       "sectionTitle": "reCAPTCHA",

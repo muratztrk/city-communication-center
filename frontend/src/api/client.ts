@@ -78,6 +78,8 @@ import type {
   DatabaseBackupSettingsUpdate,
   SyslogSettings,
   SyslogSettingsUpdate,
+  MailNotificationSettings,
+  MailNotificationSettingsUpdate,
   SlaWeekendSettings,
   SlaWeekendSettingsUpdate,
   DueDateConstraints,
@@ -1063,6 +1065,21 @@ export const api = {
       body: JSON.stringify(data),
     })
     await ensureOk(response, i18n.t('errors.syslogSettingsSaveFailed'))
+  },
+
+  async getMailNotificationSettings(tenantId: string): Promise<MailNotificationSettings> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/mail-notification-settings`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.mailNotificationSettingsLoadFailed'))
+    return response.json() as Promise<MailNotificationSettings>
+  },
+
+  async updateMailNotificationSettings(tenantId: string, data: MailNotificationSettingsUpdate): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/mail-notification-settings`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.mailNotificationSettingsSaveFailed'))
   },
 
   async getSlaWeekendSettings(tenantId: string): Promise<SlaWeekendSettings> {

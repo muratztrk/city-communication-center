@@ -2388,6 +2388,10 @@
     color: #020617;
   }
 
+  .workflow-note-dialog__title--sm {
+    font-size: 1.0625rem; /* Tamamlama Notunu Düzenle başlığı (#3911) */
+  }
+
   .workflow-note-dialog__help {
     margin-top: 0.5rem;
     font-size: 0.875rem; /* text-base→sm (#6a75d625 reopen) */

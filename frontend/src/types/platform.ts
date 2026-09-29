@@ -1167,6 +1167,35 @@ export interface SyslogSettingsUpdate {
   transport: SyslogTransport
 }
 
+export type MailSecurityMode = 'None' | 'SMTPS' | 'STARTTLS'
+
+export interface MailNotificationSettings {
+  isEnabled: boolean
+  smtpHostSpecified: boolean
+  smtpHost: string | null
+  portSpecified: boolean
+  port: number
+  authenticationEnabled: boolean
+  username: string | null
+  hasPassword: boolean
+  securityMode: MailSecurityMode
+  defaultReplyTo: string | null
+}
+
+export interface MailNotificationSettingsUpdate {
+  isEnabled: boolean
+  smtpHostSpecified: boolean
+  smtpHost: string | null
+  portSpecified: boolean
+  port: number
+  authenticationEnabled: boolean
+  username: string | null
+  password: string | null
+  clearPassword: boolean
+  securityMode: MailSecurityMode
+  defaultReplyTo: string | null
+}
+
 export interface FileStorageSettings {
   nasHost: string | null;
   nasShareName: string | null;

@@ -1,3 +1,10 @@
+## Round 1357 — #3911 / #3909 / #3910 / #3908
+
+- [x] `6abb73a4` / #3911 — Tamamlama Notunu Düzenle başlığı küçük punto.
+- [x] `6abb6ed4` / #3909 — Ayarlar Kurum: Syslog sağında Mail Bildirimi kutusu + SMTP formu.
+- [x] `6abb7344` / #3910 — Görevlerim onaysız düzenlemede split satır yok; Tamamlama Notu yeşil güncellenir.
+- [x] `6abb6d8b` / #3908 — Birime Gelen / Görevlerim / Birimdeki / Personelimin chip'lerden sonra Gecikti Mi.
+
 ## Round 1356 — #3905 r2 / #3907 r2
 
 - [x] `6abb62ee` / #3905 — Tamamlama Notu Güncelleyen başlık + değer yeşil (`tone: completion`).

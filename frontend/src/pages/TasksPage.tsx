@@ -7,6 +7,7 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { ScopeChipButton } from '../components/ui/ScopeChipButton'
+import { OverdueOnlyCheckbox } from '../components/ui/OverdueOnlyCheckbox'
 import { createPortal, flushSync } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -488,6 +489,12 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
   return tasks.filter(task => !isClosedStatus(task.currentStatus) && !isOverdue(task))
 }
 
+function isOpenOverdueTask(task: Task): boolean {
+  if (!task.dueDateUtc) return false
+  const closed = ['Completed', 'Cancelled', 'Rejected', 'PendingCloseApproval'].includes(task.currentStatus)
+  return !closed && task.dueDateUtc < new Date().toISOString()
+}
+
 export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, detailOnly = false, onNotificationDetailClose }: TasksPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
@@ -584,6 +591,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [filterFrom, setFilterFrom] = useState(() => toDateTimePickerValue(searchParams.get('from') ?? '') || (searchParams.get('from') ?? ''))
   const [filterTo, setFilterTo] = useState(() => toDateTimePickerValue(searchParams.get('to') ?? '') || (searchParams.get('to') ?? ''))
   const [searchText, setSearchText] = useState('')
+  const [overdueOnly, setOverdueOnly] = useState(false)
   const dismissedAutoOpenTaskIdRef = useRef<string | null>(null)
   const autoOpenInFlightRef = useRef<string | null>(null)
   const canCompleteTask = !!taskDetail && isActionableTaskStatus(taskDetail.currentStatus) && taskDetail.assignedUserId === user?.userId
@@ -860,8 +868,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       })
     }
 
+    if (overdueOnly) {
+      result = result.filter(isOpenOverdueTask)
+    }
+
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, getTaskColumnValue, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchParams, searchText, showRequestFlowFilters, staffUserIds, tasks])
+  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, getTaskColumnValue, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, overdueOnly, searchParams, searchText, showRequestFlowFilters, staffUserIds, tasks])
 
   const myTasksOverdueCount = useMemo(() => {
     if (!isMyTasksView) return 0
@@ -911,7 +923,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setTasksPage(1)
   }
 
-  useEffect(() => { setTasksPage(1) }, [taskFilters])
+  useEffect(() => { setTasksPage(1) }, [taskFilters, overdueOnly])
 
   useEffect(() => {
     setFilterFrom(toDateTimePickerValue(searchParams.get('from') ?? '') || (searchParams.get('from') ?? ''))
@@ -2054,6 +2066,7 @@ const pageKicker = isMyTasksView
             </>
           ) : null}
           <ClearPieFilterLink hasColumnFilters={hasActiveTaskColumnFilters} onClearColumnFilters={clearTaskFilters} />
+          <OverdueOnlyCheckbox checked={overdueOnly} onChange={setOverdueOnly} />
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>
@@ -2084,6 +2097,7 @@ const pageKicker = isMyTasksView
             </>
           ) : null}
           <ClearPieFilterLink hasColumnFilters={hasActiveTaskColumnFilters} onClearColumnFilters={clearTaskFilters} />
+          <OverdueOnlyCheckbox checked={overdueOnly} onChange={setOverdueOnly} />
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips scope-chips--wrap">
@@ -2120,6 +2134,7 @@ const pageKicker = isMyTasksView
             </>
           ) : null}
           <ClearPieFilterLink hasColumnFilters={hasActiveTaskColumnFilters} onClearColumnFilters={clearTaskFilters} />
+          <OverdueOnlyCheckbox checked={overdueOnly} onChange={setOverdueOnly} />
         </nav>
       ) : (
         <nav className="scope-chips">
@@ -2512,7 +2527,13 @@ const pageKicker = isMyTasksView
                                 })
                               }
                               if (isCompletedTask || (isPendingCloseApproval && isCitizenTerminalTask)) {
-                                if (completionNoteEdit) {
+                                if (completionNoteEdit && isMyTasksView) {
+                                  rows.push({
+                                    label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
+                                    value: completionNoteEdit.updated,
+                                    tone: 'completion',
+                                  })
+                                } else if (completionNoteEdit) {
                                   rows.push({
                                     label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                                     value: completionNoteEdit.original,
@@ -3828,7 +3849,7 @@ const pageKicker = isMyTasksView
             >
               <X className="size-4" />
             </button>
-            <h2 className="workflow-note-dialog__title">{t('tasks.actions.editCompletionNoteTitle', 'Tamamlama Notunu Düzenle')}</h2>
+            <h2 className="workflow-note-dialog__title workflow-note-dialog__title--sm">{t('tasks.actions.editCompletionNoteTitle', 'Tamamlama Notunu Düzenle')}</h2>
             <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
               {t('tasks.actions.editCompletionNoteHelp', 'Yalnızca tamamlama notu düzenlenebilir.')}
             </p>

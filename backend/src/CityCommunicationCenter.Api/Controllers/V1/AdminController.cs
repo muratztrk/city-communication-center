@@ -545,6 +545,38 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpGet("tenants/{tenantId:guid}/mail-notification-settings")]
+    public async Task<ActionResult<MailNotificationSettingsResponse>> GetMailNotificationSettings(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetMailNotificationSettingsQuery(tenantId), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/mail-notification-settings")]
+    public async Task<IActionResult> UpdateMailNotificationSettings(
+        Guid tenantId,
+        [FromBody] UpdateMailNotificationSettingsRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateMailNotificationSettingsCommand(
+                tenantId,
+                request.IsEnabled,
+                request.SmtpHostSpecified,
+                request.SmtpHost,
+                request.PortSpecified,
+                request.Port,
+                request.AuthenticationEnabled,
+                request.Username,
+                request.Password,
+                request.ClearPassword,
+                request.SecurityMode,
+                request.DefaultReplyTo),
+            cancellationToken);
+
+        return NoContent();
+    }
+
     [HttpGet("tenants/{tenantId:guid}/sla-weekend-settings")]
     public async Task<ActionResult<SlaWeekendSettingsResponse>> GetSlaWeekendSettings(Guid tenantId, CancellationToken cancellationToken)
     {

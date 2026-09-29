@@ -28,6 +28,9 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? SyslogSettingsJson { get; set; }
 
+    /// <summary>Talep/görev e-posta bildirimi SMTP ayarları (#3909).</summary>
+    public string? MailNotificationSettingsJson { get; set; }
+
     public string? FileStorageSettingsJson { get; set; }
 
     /// <summary>Veritabanı yedeğinin kopyalanacağı ayrı NAS/dosya sunucusu (ek sunucusundan bağımsız, #2913).</summary>

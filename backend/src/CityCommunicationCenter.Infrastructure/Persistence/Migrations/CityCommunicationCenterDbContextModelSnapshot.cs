@@ -2202,6 +2202,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("syslogsettingsjson");
 
+                    b.Property<string>("MailNotificationSettingsJson")
+                        .HasColumnType("text")
+                        .HasColumnName("mailnotificationsettingsjson");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenantid");

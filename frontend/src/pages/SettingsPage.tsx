@@ -75,6 +75,7 @@ import type {
   DatabaseBackupSettings,
   DatabaseBackupSettingsUpdate,
   SyslogSettingsUpdate,
+  MailNotificationSettingsUpdate,
   SlaWeekendSettingsUpdate,
   InternalMessagesSettings,
 } from '../types/platform'
@@ -948,6 +949,20 @@ export function SettingsPage() {
   const [syslogForm, setSyslogForm] = useState<SyslogSettingsUpdate>({
     isEnabled: false, host: null, port: 514, format: 'Syslog', transport: 'UDP',
   })
+  const [mailNotificationForm, setMailNotificationForm] = useState<MailNotificationSettingsUpdate>({
+    isEnabled: false,
+    smtpHostSpecified: false,
+    smtpHost: null,
+    portSpecified: false,
+    port: 25,
+    authenticationEnabled: false,
+    username: null,
+    password: null,
+    clearPassword: false,
+    securityMode: 'None',
+    defaultReplyTo: null,
+  })
+  const [mailHasPassword, setMailHasPassword] = useState(false)
   const [internalMessagesSettings, setInternalMessagesSettings] = useState<InternalMessagesSettings>({
     showUserTitleInMessages: false,
   })
@@ -1097,12 +1112,13 @@ export function SettingsPage() {
       api.getSmsSettings(user.tenantId),
       api.getFileStorageSettings(user.tenantId),
       api.getSyslogSettings(user.tenantId),
+      api.getMailNotificationSettings(user.tenantId),
       api.getSlaWeekendSettings(user.tenantId),
       api.getWhatsAppTemplates(),
       api.getInternalMessagesSettings(user.tenantId),
       api.getDatabaseBackupSettings(user.tenantId),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse, internalMessagesResponse, databaseBackupResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, mailNotificationResponse, slaWeekendResponse, templatesResponse, internalMessagesResponse, databaseBackupResponse]) => {
         if (!isActive) {
           return
         }
@@ -1227,6 +1243,20 @@ export function SettingsPage() {
           format: syslogResponse.format,
           transport: syslogResponse.transport,
         })
+        setMailNotificationForm({
+          isEnabled: mailNotificationResponse.isEnabled,
+          smtpHostSpecified: mailNotificationResponse.smtpHostSpecified,
+          smtpHost: mailNotificationResponse.smtpHost,
+          portSpecified: mailNotificationResponse.portSpecified,
+          port: mailNotificationResponse.port,
+          authenticationEnabled: mailNotificationResponse.authenticationEnabled,
+          username: mailNotificationResponse.username,
+          password: null,
+          clearPassword: false,
+          securityMode: mailNotificationResponse.securityMode,
+          defaultReplyTo: mailNotificationResponse.defaultReplyTo,
+        })
+        setMailHasPassword(mailNotificationResponse.hasPassword)
         setTemplates(templatesResponse)
         setInternalMessagesSettings(internalMessagesResponse)
         setDatabaseBackupSettings(databaseBackupResponse)
@@ -2013,6 +2043,35 @@ export function SettingsPage() {
       const refreshed = await api.getSyslogSettings(user.tenantId)
       setSyslogForm({ isEnabled: refreshed.isEnabled, host: refreshed.host, port: refreshed.port, format: refreshed.format, transport: refreshed.transport })
       setMessage({ type: 'success', text: t('settings.syslog.saved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const saveMailNotificationSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) return
+
+    setMessage(null)
+    try {
+      await api.updateMailNotificationSettings(user.tenantId, mailNotificationForm)
+      invalidateSettings(queryClient)
+      const refreshed = await api.getMailNotificationSettings(user.tenantId)
+      setMailNotificationForm({
+        isEnabled: refreshed.isEnabled,
+        smtpHostSpecified: refreshed.smtpHostSpecified,
+        smtpHost: refreshed.smtpHost,
+        portSpecified: refreshed.portSpecified,
+        port: refreshed.port,
+        authenticationEnabled: refreshed.authenticationEnabled,
+        username: refreshed.username,
+        password: null,
+        clearPassword: false,
+        securityMode: refreshed.securityMode,
+        defaultReplyTo: refreshed.defaultReplyTo,
+      })
+      setMailHasPassword(refreshed.hasPassword)
+      setMessage({ type: 'success', text: t('settings.mailNotification.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
@@ -3451,6 +3510,155 @@ export function SettingsPage() {
             )}
             <div className="inline-actions">
               <Button type="submit">{t('settings.syslog.save')}</Button>
+            </div>
+          </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveMailNotificationSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.mailNotification.sectionTitle', 'Mail Bildirimi')}</h2>
+                <p className="helper-copy">{t('settings.mailNotification.sectionDescription', 'Talep ve Görevleri bildirimi yapabilmek için mail sunucusu tanımlayınız.')}</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+              <input
+                className="field-checkbox"
+                type="checkbox"
+                checked={mailNotificationForm.isEnabled}
+                onChange={event => setMailNotificationForm(current => ({ ...current, isEnabled: event.target.checked }))}
+              />
+              {t('settings.mailNotification.isEnabled', 'Mail sunucu kullan')}
+            </label>
+            {mailNotificationForm.isEnabled && (
+              <>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.mailNotification.smtpServer', 'SMTP Server')}</label>
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                    <div className="inline-flex overflow-hidden rounded-md border border-slate-200">
+                      <button
+                        type="button"
+                        className={`px-3 py-1 text-xs font-bold ${!mailNotificationForm.smtpHostSpecified ? 'bg-emerald-600 text-white' : 'bg-white text-slate-700'}`}
+                        onClick={() => setMailNotificationForm(current => ({ ...current, smtpHostSpecified: false }))}
+                      >
+                        {t('settings.mailNotification.default', 'Default')}
+                      </button>
+                      <button
+                        type="button"
+                        className={`px-3 py-1 text-xs font-bold ${mailNotificationForm.smtpHostSpecified ? 'bg-emerald-600 text-white' : 'bg-white text-slate-700'}`}
+                        onClick={() => setMailNotificationForm(current => ({ ...current, smtpHostSpecified: true }))}
+                      >
+                        {t('settings.mailNotification.specify', 'Specify')}
+                      </button>
+                    </div>
+                    {mailNotificationForm.smtpHostSpecified ? (
+                      <input
+                        className="field-input min-w-0 flex-1"
+                        type="text"
+                        placeholder="192.168.0.98"
+                        value={mailNotificationForm.smtpHost ?? ''}
+                        onChange={event => setMailNotificationForm(current => ({ ...current, smtpHost: event.target.value || null }))}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.mailNotification.port', 'Port')}</label>
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                    <div className="inline-flex overflow-hidden rounded-md border border-slate-200">
+                      <button
+                        type="button"
+                        className={`px-3 py-1 text-xs font-bold ${!mailNotificationForm.portSpecified ? 'bg-emerald-600 text-white' : 'bg-white text-slate-700'}`}
+                        onClick={() => setMailNotificationForm(current => ({ ...current, portSpecified: false, port: 25 }))}
+                      >
+                        {t('settings.mailNotification.useDefaultPort', 'Use default (25)')}
+                      </button>
+                      <button
+                        type="button"
+                        className={`px-3 py-1 text-xs font-bold ${mailNotificationForm.portSpecified ? 'bg-emerald-600 text-white' : 'bg-white text-slate-700'}`}
+                        onClick={() => setMailNotificationForm(current => ({ ...current, portSpecified: true }))}
+                      >
+                        {t('settings.mailNotification.specify', 'Specify')}
+                      </button>
+                    </div>
+                    {mailNotificationForm.portSpecified ? (
+                      <input
+                        className="field-input w-24"
+                        type="number"
+                        min={1}
+                        max={65535}
+                        value={mailNotificationForm.port}
+                        onChange={event => setMailNotificationForm(current => ({ ...current, port: parseInt(event.target.value, 10) || 25 }))}
+                      />
+                    ) : null}
+                  </div>
+                </div>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.mailNotification.authentication', 'Authentication')}</label>
+                  <SettingsActiveSwitch
+                    label={t('settings.mailNotification.authenticationToggle', ' ')}
+                    checked={mailNotificationForm.authenticationEnabled}
+                    onChange={() => setMailNotificationForm(current => ({ ...current, authenticationEnabled: !current.authenticationEnabled }))}
+                  />
+                </div>
+                {mailNotificationForm.authenticationEnabled ? (
+                  <>
+                    <div className="field-row">
+                      <label className="field-label">{t('settings.mailNotification.username', 'Username')}</label>
+                      <input
+                        className="field-input"
+                        type="text"
+                        value={mailNotificationForm.username ?? ''}
+                        onChange={event => setMailNotificationForm(current => ({ ...current, username: event.target.value || null }))}
+                      />
+                    </div>
+                    <div className="field-row">
+                      <label className="field-label">{t('settings.mailNotification.password', 'Password')}</label>
+                      <input
+                        className="field-input"
+                        type="password"
+                        autoComplete="new-password"
+                        placeholder={mailHasPassword ? t('settings.fileStorage.passwordPlaceholder') : undefined}
+                        value={mailNotificationForm.password ?? (mailHasPassword ? SMS_PASSWORD_MASK : '')}
+                        onChange={event => {
+                          const next = event.target.value
+                          setMailNotificationForm(current => ({
+                            ...current,
+                            password: next === SMS_PASSWORD_MASK ? null : next,
+                            clearPassword: next === '',
+                          }))
+                        }}
+                      />
+                    </div>
+                  </>
+                ) : null}
+                <div className="field-row">
+                  <label className="field-label">{t('settings.mailNotification.securityMode', 'Security Mode')}</label>
+                  <div className="inline-flex overflow-hidden rounded-md border border-slate-200">
+                    {(['None', 'SMTPS', 'STARTTLS'] as const).map(mode => (
+                      <button
+                        key={mode}
+                        type="button"
+                        className={`px-3 py-1 text-xs font-bold ${mailNotificationForm.securityMode === mode ? 'bg-emerald-600 text-white' : 'bg-white text-slate-700'}`}
+                        onClick={() => setMailNotificationForm(current => ({ ...current, securityMode: mode }))}
+                      >
+                        {mode}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="field-row">
+                  <label className="field-label">{t('settings.mailNotification.defaultReplyTo', 'Default Reply To')}</label>
+                  <input
+                    className="field-input"
+                    type="email"
+                    value={mailNotificationForm.defaultReplyTo ?? ''}
+                    onChange={event => setMailNotificationForm(current => ({ ...current, defaultReplyTo: event.target.value || null }))}
+                  />
+                </div>
+              </>
+            )}
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.mailNotification.save', 'Kaydet')}</Button>
             </div>
           </form>
 

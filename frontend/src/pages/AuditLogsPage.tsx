@@ -706,7 +706,7 @@ export function AuditLogsPage() {
                     <td>
                       <div className="grid gap-0.5">
                         <span>{log.recipientStaffName}</span>
-                        <span className="font-mono text-[0.95rem] text-slate-500">{log.recipientEmail || '—'}</span>
+                        <span className="font-mono text-[0.88rem] text-slate-500">{log.recipientEmail || '—'}</span>
                       </div>
                     </td>
                     <td className="max-w-[18rem] text-left text-sm text-slate-700">
@@ -870,7 +870,7 @@ export function AuditLogsPage() {
                       <td>
                         <div className="grid gap-0.5">
                           <span>{log.recipientStaffName}</span>
-                          <span className="font-mono text-[0.95rem] text-slate-500">{log.recipientPhoneDisplay || '—'}</span>
+                          <span className="font-mono text-[0.88rem] text-slate-500">{log.recipientPhoneDisplay || '—'}</span>
                         </div>
                       </td>
                     )}

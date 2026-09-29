@@ -1,3 +1,8 @@
+## Round 1374 — #3940 r4 / #3938 r4
+
+- [x] `6abbf93e` / #3940 — Telefon No değeri `0.88rem` (çok az küçültüldü).
+- [x] `6abbf86d` / #3938 — e-Posta değeri `0.88rem` (çok az küçültüldü).
+
 ## Round 1373 — #3941
 
 - [x] `6abbfe71` / #3941 — Görevlerin Mail Gönderimi başlığı altına helper: görev sahibine gidecek mail konusu ve içeriği.

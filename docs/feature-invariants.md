@@ -1666,7 +1666,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   pasif, #3926); açıkken gelen talep maili müdür/sorumlu/VTY’ye gider. Görevi başkasına
   atayınca görev sahibine (SMTP açıkken). Hariç tutulan kullanıcılar, geciken talep ve
   geciken görev kutularında da Kaydet var (#3927). Hariç tutulan kullanıcı listesi satır
-  yüksekliği/punto biraz küçük (#3921 reopen).
+  yüksekliği/punto biraz küçük (#3921 reopen). 2×2 hiza: Mail Bildirimi | Hariç tutulan /
+  Geciken talep | Geciken görev (`xl:grid-cols-2`, #3928).
   Geciken görev maili ayrı kutu (varsayılan pasif); yalnız müdür/sorumlu/VTY başkasına atadıysa
   görev sahibine gider, tek gönderim `WorkTask.OverdueMailSentAtUtc`. Talep ve görev gecikme
   anahtarları bağımsızdır (#3924/#3925).

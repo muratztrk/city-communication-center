@@ -1,3 +1,8 @@
+## Round 1362 — #3916 r2 / #3915 r2
+
+- [x] `6abb91a7` / #3916 — Kullanıcılar grid e-Posta başlık rengi beyaz.
+- [x] `6abb9000` / #3915 — SMTP test `Failure sending mail.` → MailKit STARTTLS + Türkçe hata.
+
 ## Round 1361 — #3913 / #3916 / #3915 / #3914 / #3912
 
 - [x] `6abb8ce8` / #3913 — Vatandaş Paneli + Ayarlar sağ alt FAB biraz yukarı.

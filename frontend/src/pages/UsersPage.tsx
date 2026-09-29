@@ -1798,7 +1798,7 @@ export function UsersPage() {
                 <FilterableTh filterKey="mobilePhone" filterValue={userFilters['mobilePhone'] ?? ''} onFilter={handleUserFilter} sortKey="mobilePhone" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>
                   <span className="flex flex-col leading-tight">
                     <span>{t('users.mobilePhone')}</span>
-                    <span className="font-medium opacity-80">{t('users.emailGrid', 'e-Posta')}</span>
+                    <span className="font-medium text-white">{t('users.emailGrid', 'e-Posta')}</span>
                   </span>
                 </FilterableTh>
                 <FilterableTh filterKey="departmentId" filterValue={userFilters['departmentId'] ?? ''} onFilter={handleUserFilter}>{t('users.department')}</FilterableTh>

@@ -24,9 +24,11 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
     <PackageReference Include="System.DirectoryServices.Protocols" Version="10.0.7" />
     <!-- Lisans servisinin Ed25519/EdDSA imza doğrulaması için (System.Security.Cryptography'de yok). -->
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.1" />
     <!-- NAS bağlantı testinde gerçek SMB/CIFS kimlik doğrulama + klasör oluşturma için (.NET'te native SMB istemcisi yok). -->
     <PackageReference Include="SMBLibrary" Version="1.5.7.1" />
+    <!-- SMTP test STARTTLS / kurum içi sertifika (#3915). -->
+    <PackageReference Include="MailKit" Version="4.14.1" />
   </ItemGroup>
 
   <PropertyGroup>

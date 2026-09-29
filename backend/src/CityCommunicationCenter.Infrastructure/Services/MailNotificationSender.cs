@@ -1,7 +1,9 @@
-using System.Net;
-using System.Net.Mail;
+using System.Net.Sockets;
 using System.Text.Json;
 using CityCommunicationCenter.Application.Abstractions;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
 
@@ -55,38 +57,124 @@ internal sealed class MailNotificationSender : IMailNotificationSender
         }
 
         var port = request.Port > 0 ? request.Port : 25;
-        var enableSsl = !string.Equals(request.SecurityMode, "None", StringComparison.OrdinalIgnoreCase);
+        var socketOptions = ResolveSocketOptions(request.SecurityMode, port);
 
-        using var client = new SmtpClient(host, port)
+        var message = new MimeMessage();
+        message.From.Add(MailboxAddress.Parse(from));
+        message.To.Add(MailboxAddress.Parse(to));
+        message.Subject = DefaultSubject;
+        message.Body = new TextPart("plain") { Text = DefaultBody };
+
+        using var client = new SmtpClient
         {
-            EnableSsl = enableSsl,
             Timeout = 20_000,
-            DeliveryMethod = SmtpDeliveryMethod.Network,
-            UseDefaultCredentials = false,
-        };
-
-        if (request.AuthenticationEnabled)
-        {
-            client.Credentials = new NetworkCredential(request.Username?.Trim(), password);
-        }
-
-        using var message = new MailMessage(from, to)
-        {
-            Subject = DefaultSubject,
-            Body = DefaultBody,
+            ServerCertificateValidationCallback = (_, _, _, _) => true,
         };
 
         try
         {
-            await client.SendMailAsync(message, cancellationToken);
+            await client.ConnectAsync(host, port, socketOptions, cancellationToken);
+            if (request.AuthenticationEnabled)
+            {
+                await client.AuthenticateAsync(request.Username?.Trim(), password, cancellationToken);
+            }
+
+            await client.SendAsync(message, cancellationToken);
+            await client.DisconnectAsync(true, cancellationToken);
             return new MailNotificationSendResult(true, "Deneme e-postası gönderildi.");
         }
-        catch (Exception ex) when (ex is SmtpException or InvalidOperationException or IOException or FormatException)
+        catch (Exception ex) when (
+            ex is SmtpCommandException
+            or SmtpProtocolException
+            or AuthenticationException
+            or SslHandshakeException
+            or SocketException
+            or IOException
+            or FormatException
+            or InvalidOperationException)
         {
+            if (client.IsConnected)
+            {
+                try
+                {
+                    await client.DisconnectAsync(true, CancellationToken.None);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+
             _logger.LogWarning(ex, "SMTP test mail failed for tenant {TenantId}", tenantId);
-            var detail = string.IsNullOrWhiteSpace(ex.Message) ? "E-posta gönderilemedi." : ex.Message;
-            return new MailNotificationSendResult(false, detail);
+            return new MailNotificationSendResult(false, FormatSmtpError(ex));
         }
+    }
+
+    private static SecureSocketOptions ResolveSocketOptions(string? securityMode, int port)
+    {
+        if (string.Equals(securityMode, "SMTPS", StringComparison.OrdinalIgnoreCase))
+        {
+            return SecureSocketOptions.SslOnConnect;
+        }
+
+        if (string.Equals(securityMode, "STARTTLS", StringComparison.OrdinalIgnoreCase))
+        {
+            return SecureSocketOptions.StartTls;
+        }
+
+        return port is 587 or 465 ? SecureSocketOptions.StartTlsWhenAvailable : SecureSocketOptions.None;
+    }
+
+    private static string FormatSmtpError(Exception ex)
+    {
+        var detail = Flatten(ex);
+        if (ex is AuthenticationException)
+        {
+            return string.IsNullOrWhiteSpace(detail)
+                ? "SMTP kimlik doğrulaması başarısız. Kullanıcı adı veya parolayı kontrol edin."
+                : $"SMTP kimlik doğrulaması başarısız: {detail}";
+        }
+
+        if (ex is SslHandshakeException)
+        {
+            return string.IsNullOrWhiteSpace(detail)
+                ? "SMTP TLS bağlantısı kurulamadı. Güvenlik kipi ve portu kontrol edin."
+                : $"SMTP TLS bağlantısı kurulamadı: {detail}";
+        }
+
+        if (ex is SocketException)
+        {
+            return string.IsNullOrWhiteSpace(detail)
+                ? "SMTP sunucusuna bağlanılamadı."
+                : $"SMTP sunucusuna bağlanılamadı: {detail}";
+        }
+
+        if (string.Equals(detail, "Failure sending mail.", StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(detail))
+        {
+            return "E-posta gönderilemedi. SMTP sunucu, port, güvenlik kipi ve parolayı kontrol edin.";
+        }
+
+        return detail;
+    }
+
+    private static string Flatten(Exception ex)
+    {
+        var parts = new List<string>();
+        for (var current = ex; current is not null; current = current.InnerException)
+        {
+            var text = current.Message?.Trim();
+            if (string.IsNullOrWhiteSpace(text)
+                || string.Equals(text, "Failure sending mail.", StringComparison.OrdinalIgnoreCase)
+                || parts.Contains(text, StringComparer.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            parts.Add(text);
+        }
+
+        return string.Join(" — ", parts);
     }
 
     private async Task<string?> ReadStoredPasswordAsync(Guid tenantId, CancellationToken cancellationToken)

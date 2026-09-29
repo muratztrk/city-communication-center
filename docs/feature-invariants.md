@@ -1658,7 +1658,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Etiketler: Kullanıcı Adı, Parola, Gönderen adresi. Gönderen adresinden sonra
   `SMTP sunucusunu test et` + `Test e-postası gönder`. Test butonu alıcı e-posta popup'ı açar
   (başlık altı çizgi, `Şu e-postaya gönder`, Gönder/İptal — #3915).
-  `POST .../mail-notification-settings/test` `recipientEmail` alır.
+  `POST .../mail-notification-settings/test` `recipientEmail` alır. SMTP test MailKit
+  STARTTLS + kurum içi sertifika; `Failure sending mail.` yerine iç/Türkçe hata (#3915 r2).
 - **Kurum Konumu ilçe (#r512/#r514/#r521/#6a75b1ae):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` localStorage
   + `TenantSettings.Theme = ccc-district:<id>` ile talep formu mahalle dropdown’ları aynı ilçeyi
@@ -1771,7 +1772,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız Ek görev birimleri + Ek roller düzenlenir; Oluştur ek birim veya ek rol seçilince
   aktif olur (#3428). LDAP Title=`description`,   Phone=`telephoneNumber`, MobilePhone=`mobile`/`mobileTelephoneNumber`/`otherMobile`
   (card #1773/#2902/#2908). Kullanıcılar grid Cep Telefonu No sütununda alt satırda e-Posta
-  gösterir (#3916). LDAP satırında e-posta salt okunur; Manual satırında düzenlenir.
+  gösterir (#3916). Başlık `e-Posta` satırı beyaz (#3916 r2). LDAP satırında e-posta
+  salt okunur; Manual satırında düzenlenir.
   Yeni / Düzenle / grid Cep Telefonu No gösterimi `5XX XXX XX XX` (`formatTrNationalGrouped`, #3606).
   LDAP senkronunda birim değişince eski birim adı (sistemdeki önceki ad) gösterilir; `—` değil (#2909).
   Personel Dahili No sonuç paneli `left-0` ile sağa açılır (card #1786).

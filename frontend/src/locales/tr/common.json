@@ -1466,6 +1466,7 @@
     },
     "mailNotification": {
       "sectionTitle": "Mail Bildirimi",
+      "incomingTitle": "Birime Gelen Taleplerin Mail Gönderimi",
       "sectionDescription": "Talep ve Görevleri bildirimi yapabilmek için mail sunucusu tanımlayınız.",
       "isEnabled": "Mail sunucu kullan",
       "smtpServer": "SMTP Server",

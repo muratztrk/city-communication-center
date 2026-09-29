@@ -1,3 +1,9 @@
+## Round 1370 — #3940 r2 / #3938 r2 / #3942
+
+- [x] `6abbf93e` / #3940 — Kurum içi SMS: Telefon No başlığı biraz küçük, numara biraz büyük.
+- [x] `6abbf86d` / #3938 — Mail Log: e-Posta başlığı biraz küçük, e-posta değeri biraz büyük.
+- [x] `6abbfef5` / #3942 — Mail Bildirimi ilk kutu başlığı: Birime Gelen Taleplerin Mail Gönderimi.
+
 ## Round 1369 — #3938 / #3940 / #3939
 
 - [x] `6abbf86d` / #3938 — Mail Log: Mail Adresi kolonu kalktı; e-Posta Personel Adı altında.

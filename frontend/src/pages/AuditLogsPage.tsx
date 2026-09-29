@@ -659,7 +659,7 @@ export function AuditLogsPage() {
                   >
                     <span className="flex flex-col leading-tight">
                       <span>{t('audit.smsStaffName', 'Personel Adı')}</span>
-                      <span className="font-medium text-white">{t('users.emailGrid', 'e-Posta')}</span>
+                      <span className="text-[0.82rem] font-medium leading-tight text-white">{t('users.emailGrid', 'e-Posta')}</span>
                     </span>
                   </FilterableTh>
                   <FilterableTh
@@ -706,7 +706,7 @@ export function AuditLogsPage() {
                     <td>
                       <div className="grid gap-0.5">
                         <span>{log.recipientStaffName}</span>
-                        <span className="font-mono text-xs text-slate-500">{log.recipientEmail || '—'}</span>
+                        <span className="font-mono text-[0.85rem] text-slate-500">{log.recipientEmail || '—'}</span>
                       </div>
                     </td>
                     <td className="max-w-[18rem] text-left text-sm text-slate-700">
@@ -770,7 +770,7 @@ export function AuditLogsPage() {
                     >
                       <span className="flex flex-col leading-tight">
                         <span>{t('audit.smsStaffName', 'Personel Adı')}</span>
-                        <span className="font-medium text-white">{t('audit.smsPhoneNo', 'Telefon No')}</span>
+                        <span className="text-[0.82rem] font-medium leading-tight text-white">{t('audit.smsPhoneNo', 'Telefon No')}</span>
                       </span>
                     </FilterableTh>
                   )}
@@ -870,7 +870,7 @@ export function AuditLogsPage() {
                       <td>
                         <div className="grid gap-0.5">
                           <span>{log.recipientStaffName}</span>
-                          <span className="font-mono text-xs text-slate-500">{log.recipientPhoneDisplay || '—'}</span>
+                          <span className="font-mono text-[0.85rem] text-slate-500">{log.recipientPhoneDisplay || '—'}</span>
                         </div>
                       </td>
                     )}

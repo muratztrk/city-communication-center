@@ -1458,6 +1458,7 @@
     },
     "mailNotification": {
       "sectionTitle": "Mail Notification",
+      "incomingTitle": "Incoming department request mail sending",
       "sectionDescription": "Define a mail server to notify about requests and tasks.",
       "isEnabled": "Use mail server",
       "smtpServer": "SMTP Server",

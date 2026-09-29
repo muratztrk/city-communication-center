@@ -4944,7 +4944,7 @@ export function SettingsPage() {
               <section className="section-card page-stack">
                 <div className="page-header-row">
                   <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                    <h2 className="text-xl font-extrabold text-slate-950">{t('settings.mailNotification.sectionTitle', 'Mail Bildirimi')}</h2>
+                    <h2 className="text-xl font-extrabold text-slate-950">{t('settings.mailNotification.incomingTitle', 'Birime Gelen Taleplerin Mail Gönderimi')}</h2>
                     <SettingsActiveSwitch
                       label={mailNotificationForm.incomingMailEnabled ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
                       checked={Boolean(mailNotificationForm.incomingMailEnabled)}

@@ -20,11 +20,11 @@ public sealed record MailNotificationSettingsResponse(
     string OverdueSubjectTemplate = "{TalepNo}",
     string OverdueBodyTemplate = "{TalepNo}",
     bool OverdueTaskMailEnabled = false,
-    string OverdueTaskSubjectTemplate = "{TalepNo}",
-    string OverdueTaskBodyTemplate = "{TalepNo}",
+    string OverdueTaskSubjectTemplate = "{GörevNo}",
+    string OverdueTaskBodyTemplate = "{GörevNo} no'lu {GörevBaşlığı}",
     bool AssignmentMailEnabled = false,
-    string AssignmentSubjectTemplate = "{TalepNo}",
-    string AssignmentBodyTemplate = "{TalepNo}");
+    string AssignmentSubjectTemplate = "{GörevNo}",
+    string AssignmentBodyTemplate = "{GörevNo} no'lu {GörevBaşlığı}");
 
 public sealed record UpdateMailNotificationSettingsRequest(
     bool IsEnabled,

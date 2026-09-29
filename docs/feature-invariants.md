@@ -1679,7 +1679,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   en altta (`xl:grid-cols-2`, #3928/#3942/#3944). Hariç tutulanlar kutusu, geciken talep kutusu açıkken
   aynı yükseklik (`xl:min-h-[18.75rem]`, #3945).
   Mail içeriği `{TalepNo} no'lu {TalepBaşlığı}` textarea (`min-h-28`, satır sonu korunur);
-  konu tek satır `{TalepNo}` kalır (#3929/#3933). Gönderimde başlık `Job.Title` ile dolar.
+  konu tek satır `{TalepNo}` kalır (#3929/#3933). Görevlerin / Geciken görevlerin kutularında jeton
+  `{GörevNo}` / `{GörevBaşlığı}` (#3946); gönderimde aynı talep no ve `Job.Title` dolar, eski `{TalepNo}`
+  şablonları da çalışır.
   Giden mail her SMTP denemesinde `mailoutboundlogs` satırı yazar (başarı/hata, #3930).
   Alıcının `Email` alanı boşsa SMTP denenmez; log `Success=false` + `Alıcının e-posta adresi yok.`
   (#3934 — VT-2026-161: hedef müdür telefona SMS gitti, e-posta boş olduğu için mail yoktu).

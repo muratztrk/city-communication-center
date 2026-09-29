@@ -7,6 +7,9 @@ public sealed class MailNotificationSettingsPayload
     public const string RequestNoToken = "{TalepNo}";
     public const string RequestTitleToken = "{TalepBaşlığı}";
     public const string BodyRequestToken = "{TalepNo} no'lu {TalepBaşlığı}";
+    public const string TaskNoToken = "{GörevNo}";
+    public const string TaskTitleToken = "{GörevBaşlığı}";
+    public const string BodyTaskToken = "{GörevNo} no'lu {GörevBaşlığı}";
 
     public bool IsEnabled { get; set; }
     public bool SmtpHostSpecified { get; set; }
@@ -22,16 +25,16 @@ public sealed class MailNotificationSettingsPayload
     public string IncomingSubjectTemplate { get; set; } = RequestNoToken;
     public string IncomingBodyTemplate { get; set; } = BodyRequestToken;
     public bool AssignmentMailEnabled { get; set; }
-    public string AssignmentSubjectTemplate { get; set; } = RequestNoToken;
-    public string AssignmentBodyTemplate { get; set; } = BodyRequestToken;
+    public string AssignmentSubjectTemplate { get; set; } = TaskNoToken;
+    public string AssignmentBodyTemplate { get; set; } = BodyTaskToken;
     public bool ExcludedUsersEnabled { get; set; }
     public Guid[] ExcludedUserIds { get; set; } = [];
     public bool OverdueMailEnabled { get; set; }
     public string OverdueSubjectTemplate { get; set; } = RequestNoToken;
     public string OverdueBodyTemplate { get; set; } = BodyRequestToken;
     public bool OverdueTaskMailEnabled { get; set; }
-    public string OverdueTaskSubjectTemplate { get; set; } = RequestNoToken;
-    public string OverdueTaskBodyTemplate { get; set; } = BodyRequestToken;
+    public string OverdueTaskSubjectTemplate { get; set; } = TaskNoToken;
+    public string OverdueTaskBodyTemplate { get; set; } = BodyTaskToken;
     public DateTimeOffset? OverdueMailCursorUtc { get; set; }
     public DateTimeOffset? OverdueTaskMailCursorUtc { get; set; }
 
@@ -84,13 +87,25 @@ public sealed class MailNotificationSettingsPayload
         return Split(value);
     }
 
+    public static string ToTaskTemplate(string? template, bool withTitleToken = false)
+    {
+        var value = string.IsNullOrWhiteSpace(template)
+            ? (withTitleToken ? BodyTaskToken : TaskNoToken)
+            : template;
+        return value
+            .Replace(RequestNoToken, TaskNoToken, StringComparison.Ordinal)
+            .Replace(RequestTitleToken, TaskTitleToken, StringComparison.Ordinal);
+    }
+
     public static string Render(string? template, string requestNumber, string? jobTitle = null)
     {
         var value = string.IsNullOrWhiteSpace(template) ? RequestNoToken : template;
         var title = jobTitle?.Trim() ?? string.Empty;
         var rendered = value
             .Replace(RequestNoToken, requestNumber, StringComparison.Ordinal)
-            .Replace(RequestTitleToken, title, StringComparison.Ordinal);
+            .Replace(TaskNoToken, requestNumber, StringComparison.Ordinal)
+            .Replace(RequestTitleToken, title, StringComparison.Ordinal)
+            .Replace(TaskTitleToken, title, StringComparison.Ordinal);
         if (!rendered.Contains(requestNumber, StringComparison.Ordinal))
         {
             rendered = $"{rendered.TrimEnd()} {requestNumber}";

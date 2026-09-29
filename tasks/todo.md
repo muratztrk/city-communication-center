@@ -1,3 +1,7 @@
+## Round 1376 — #3946
+
+- [x] `6abc05ff` / #3946 — Görev ve geciken görev mail kutularında jeton {GörevNo}/{GörevBaşlığı}.
+
 ## Round 1375 — #3945
 
 - [x] `6abc052c` / #3945 — Hariç tutulan kullanıcılar kutusu, geciken talep kutusuyla aynı yükseklik.

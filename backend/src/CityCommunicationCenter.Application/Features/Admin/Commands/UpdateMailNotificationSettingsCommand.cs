@@ -26,7 +26,7 @@ public sealed class UpdateMailNotificationSettingsCommandValidator : AbstractVal
         RuleFor(c => c.SecurityMode).Must(mode => ValidSecurityModes.Contains(mode)).WithMessage("Geçersiz güvenlik kipi.");
         RuleFor(c => c.Port).InclusiveBetween(1, 65535).WithMessage("Port 1-65535 arasında olmalıdır.");
 
-        When(c => c.IsEnabled && c.SmtpHostSpecified, () =>
+        When(c => c.IsEnabled, () =>
         {
             RuleFor(c => c.SmtpHost).NotEmpty().WithMessage("SMTP sunucu adresi zorunludur.");
         });
@@ -75,7 +75,7 @@ public sealed class UpdateMailNotificationSettingsCommandHandler : ICommandHandl
         setting.MailNotificationSettingsJson = JsonSerializer.Serialize(new MailPayload
         {
             IsEnabled = request.IsEnabled,
-            SmtpHostSpecified = request.SmtpHostSpecified,
+            SmtpHostSpecified = !string.IsNullOrWhiteSpace(request.SmtpHost),
             SmtpHost = request.SmtpHost,
             PortSpecified = request.PortSpecified,
             Port = request.Port > 0 ? request.Port : 25,

@@ -1147,6 +1147,11 @@ export interface TestSmsResult {
   message: string;
 }
 
+export interface TestMailResult {
+  success: boolean
+  message: string
+}
+
 
 export type SyslogFormat = 'Syslog' | 'CEF'
 export type SyslogTransport = 'UDP' | 'TCP'

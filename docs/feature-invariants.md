@@ -1651,7 +1651,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Hafta Sonu SLA — SMS kutucuğu `isCitizenModuleUsable` ile gizlenir.
   (`xl:grid-cols-2`, `items-stretch` + `h-full`; dış/`grid` `gap-6` eşit düşey boşluk;
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
-  Syslog | Mail Bildirimi (#3909) | Veritabanı Yedeği / Kurum İçi Mesajlar | reCAPTCHA (#2952).
+  Syslog | Mail Bildirimi (#3909/#3906) | Veritabanı Yedeği / Kurum İçi Mesajlar | reCAPTCHA (#2952).
+  SMTP sunucu Default/Specify yok — düz textbox, placeholder `Mail sunucu ip'si giriniz...`.
+  Etiketler: Kullanıcı Adı, Parola, Gönderen adresi. Gönderen adresinden sonra
+  `SMTP sunucusunu test et` + `Test e-postası gönder` (`POST .../mail-notification-settings/test`).
 - **Kurum Konumu ilçe (#r512/#r514/#r521/#6a75b1ae):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` localStorage
   + `TenantSettings.Theme = ccc-district:<id>` ile talep formu mahalle dropdown’ları aynı ilçeyi
@@ -2630,6 +2633,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği
   için yalnızca Meta onaylı şablon mesaj gönderilebilir.` `Failed` re-engagement balonu Beklemede
   ve Mesajı Gönder göstermez; İletilemedi altında bu cümle durur. Yeniden gönderilmez.
+- **Otomatik WA 24s (#3912):** talep oluşturma / non-terminal durum (İşleme Alındı, Yapılmakta)
+  serbest metin, son inbound ≥24s ise gönderilmez ve Failed balon yazılmaz; yalnız Meta şablon.
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472/#r531):** personel adı `text-sm font-semibold` (#2006).

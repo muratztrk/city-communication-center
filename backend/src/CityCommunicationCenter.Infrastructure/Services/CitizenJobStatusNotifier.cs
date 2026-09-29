@@ -583,6 +583,21 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         if (!requireApproval)
         {
+            var lastInboundAt = await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(
+                _dbContext,
+                tenantId,
+                message,
+                cancellationToken);
+            if (!WhatsAppServiceWindow.IsWindowOpen(lastInboundAt, utcNow))
+            {
+                // Serbest metin Meta 24s penceresi dışında reddedilir; Failed balon yazma (#3912).
+                _logger.LogInformation(
+                    "Skipping automatic WhatsApp status for SocialMessage {SocialMessageId} ({StatusLabel}): 24h window closed",
+                    message.SocialMessageId,
+                    statusLabel);
+                return;
+            }
+
             var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
                 _dbContext,
                 message,

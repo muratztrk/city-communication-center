@@ -1,3 +1,9 @@
+## Round 1359 — #3909 r2 / #3906 / #3912
+
+- [x] `6abb6ed4` / #3909 — Mail SMTP Default/Specify yok; Kullanıcı Adı / Parola / Gönderen adresi.
+- [x] `6abb64a2` / #3906 — Gönderen adresinden sonra SMTP test satırı + deneme e-postası API.
+- [x] `6abb7d4c` / #3912 — 24s penceresi kapalıyken otomatik talep WA'sı gönderilmez (Failed balon yok).
+
 ## Round 1358 — #3908 r2 Gecikti mi?
 
 - [x] `6abb6d8b` / #3908 — Liste checkbox etiketi `Gecikti Mi` → `Gecikti mi?`

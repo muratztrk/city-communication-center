@@ -72,6 +72,7 @@ import type {
   SmsSettings,
   SmsSettingsUpdate,
   TestSmsResult,
+  TestMailResult,
   FileStorageSettings,
   FileStorageSettingsUpdate,
   DatabaseBackupSettings,
@@ -1080,6 +1081,24 @@ export const api = {
       body: JSON.stringify(data),
     })
     await ensureOk(response, i18n.t('errors.mailNotificationSettingsSaveFailed'))
+  },
+
+  async sendTestMail(tenantId: string, data: MailNotificationSettingsUpdate): Promise<TestMailResult> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/mail-notification-settings/test`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        smtpHost: data.smtpHost,
+        port: data.portSpecified ? data.port : 25,
+        authenticationEnabled: data.authenticationEnabled,
+        username: data.username,
+        password: data.password,
+        securityMode: data.securityMode,
+        defaultReplyTo: data.defaultReplyTo,
+      }),
+    })
+    await ensureOk(response, i18n.t('errors.mailNotificationSettingsTestFailed'))
+    return response.json() as Promise<TestMailResult>
   },
 
   async getSlaWeekendSettings(tenantId: string): Promise<SlaWeekendSettings> {

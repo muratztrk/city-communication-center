@@ -963,6 +963,7 @@ export function SettingsPage() {
     defaultReplyTo: null,
   })
   const [mailHasPassword, setMailHasPassword] = useState(false)
+  const [mailTestStatus, setMailTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [internalMessagesSettings, setInternalMessagesSettings] = useState<InternalMessagesSettings>({
     showUserTitleInMessages: false,
   })
@@ -2054,7 +2055,12 @@ export function SettingsPage() {
 
     setMessage(null)
     try {
-      await api.updateMailNotificationSettings(user.tenantId, mailNotificationForm)
+      const host = mailNotificationForm.smtpHost?.trim() || null
+      await api.updateMailNotificationSettings(user.tenantId, {
+        ...mailNotificationForm,
+        smtpHost: host,
+        smtpHostSpecified: Boolean(host),
+      })
       invalidateSettings(queryClient)
       const refreshed = await api.getMailNotificationSettings(user.tenantId)
       setMailNotificationForm({
@@ -2074,6 +2080,28 @@ export function SettingsPage() {
       setMessage({ type: 'success', text: t('settings.mailNotification.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const sendTestMail = async () => {
+    if (!user?.tenantId) return
+    setMailTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
+    try {
+      const password = mailNotificationForm.password && mailNotificationForm.password !== SMS_PASSWORD_MASK
+        ? mailNotificationForm.password
+        : null
+      const result = await api.sendTestMail(user.tenantId, {
+        ...mailNotificationForm,
+        smtpHost: mailNotificationForm.smtpHost?.trim() || null,
+        smtpHostSpecified: Boolean(mailNotificationForm.smtpHost?.trim()),
+        password,
+      })
+      setMailTestStatus({ type: result.success ? 'success' : 'error', message: result.message })
+    } catch (testError) {
+      setMailTestStatus({
+        type: 'error',
+        message: testError instanceof Error ? testError.message : t('errors.mailNotificationSettingsTestFailed'),
+      })
     }
   }
 
@@ -3533,33 +3561,17 @@ export function SettingsPage() {
               <>
                 <div className="field-row">
                   <label className="field-label">{t('settings.mailNotification.smtpServer', 'SMTP Server')}</label>
-                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                    <div className="inline-flex overflow-hidden rounded-md border border-slate-200">
-                      <button
-                        type="button"
-                        className={`px-3 py-1 text-xs font-bold ${!mailNotificationForm.smtpHostSpecified ? 'bg-emerald-600 text-white' : 'bg-white text-slate-700'}`}
-                        onClick={() => setMailNotificationForm(current => ({ ...current, smtpHostSpecified: false }))}
-                      >
-                        {t('settings.mailNotification.default', 'Default')}
-                      </button>
-                      <button
-                        type="button"
-                        className={`px-3 py-1 text-xs font-bold ${mailNotificationForm.smtpHostSpecified ? 'bg-emerald-600 text-white' : 'bg-white text-slate-700'}`}
-                        onClick={() => setMailNotificationForm(current => ({ ...current, smtpHostSpecified: true }))}
-                      >
-                        {t('settings.mailNotification.specify', 'Specify')}
-                      </button>
-                    </div>
-                    {mailNotificationForm.smtpHostSpecified ? (
-                      <input
-                        className="field-input min-w-0 flex-1"
-                        type="text"
-                        placeholder="192.168.0.98"
-                        value={mailNotificationForm.smtpHost ?? ''}
-                        onChange={event => setMailNotificationForm(current => ({ ...current, smtpHost: event.target.value || null }))}
-                      />
-                    ) : null}
-                  </div>
+                  <input
+                    className="field-input"
+                    type="text"
+                    placeholder={t('settings.mailNotification.smtpHostPlaceholder', "Mail sunucu ip'si giriniz...")}
+                    value={mailNotificationForm.smtpHost ?? ''}
+                    onChange={event => setMailNotificationForm(current => ({
+                      ...current,
+                      smtpHost: event.target.value || null,
+                      smtpHostSpecified: Boolean(event.target.value.trim()),
+                    }))}
+                  />
                 </div>
                 <div className="field-row">
                   <label className="field-label">{t('settings.mailNotification.port', 'Port')}</label>
@@ -3603,7 +3615,7 @@ export function SettingsPage() {
                 {mailNotificationForm.authenticationEnabled ? (
                   <>
                     <div className="field-row">
-                      <label className="field-label">{t('settings.mailNotification.username', 'Username')}</label>
+                      <label className="field-label">{t('settings.mailNotification.username', 'Kullanıcı Adı')}</label>
                       <input
                         className="field-input"
                         type="text"
@@ -3612,7 +3624,7 @@ export function SettingsPage() {
                       />
                     </div>
                     <div className="field-row">
-                      <label className="field-label">{t('settings.mailNotification.password', 'Password')}</label>
+                      <label className="field-label">{t('settings.mailNotification.password', 'Parola')}</label>
                       <input
                         className="field-input"
                         type="password"
@@ -3647,7 +3659,7 @@ export function SettingsPage() {
                   </div>
                 </div>
                 <div className="field-row">
-                  <label className="field-label">{t('settings.mailNotification.defaultReplyTo', 'Default Reply To')}</label>
+                  <label className="field-label">{t('settings.mailNotification.defaultReplyTo', 'Gönderen adresi')}</label>
                   <input
                     className="field-input"
                     type="email"
@@ -3655,6 +3667,26 @@ export function SettingsPage() {
                     onChange={event => setMailNotificationForm(current => ({ ...current, defaultReplyTo: event.target.value || null }))}
                   />
                 </div>
+                <div className="flex flex-wrap items-start justify-between gap-4 border-t border-slate-200 pt-4">
+                  <div className="min-w-0">
+                    <div className="text-sm font-extrabold text-slate-900">{t('settings.mailNotification.testTitle')}</div>
+                    <p className="helper-copy mb-0">{t('settings.mailNotification.testHelp')}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-60"
+                    disabled={mailTestStatus.type === 'testing'}
+                    onClick={() => void sendTestMail()}
+                  >
+                    {mailTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.mailNotification.testSend')}
+                  </button>
+                </div>
+                {mailTestStatus.type !== 'idle' ? (
+                  <div className={`text-sm font-medium ${mailTestStatus.type === 'success' ? 'text-emerald-700' : mailTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                    {mailTestStatus.type === 'success' ? '✅ ' : mailTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                    {mailTestStatus.message}
+                  </div>
+                ) : null}
               </>
             )}
             <div className="inline-actions">

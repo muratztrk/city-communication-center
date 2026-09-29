@@ -3,7 +3,7 @@ using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
-internal static class WhatsAppServiceWindow
+public static class WhatsAppServiceWindow
 {
     public static bool IsWindowOpen(DateTimeOffset? lastInboundAt, DateTimeOffset now) =>
         lastInboundAt.HasValue && (now - lastInboundAt.Value) < TimeSpan.FromHours(24);

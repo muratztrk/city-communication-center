@@ -577,6 +577,28 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("tenants/{tenantId:guid}/mail-notification-settings/test")]
+    public async Task<ActionResult<TestMailResponse>> SendTestMail(
+        Guid tenantId,
+        [FromBody] TestMailRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new SendTestMailCommand(
+                tenantId,
+                request.SmtpHost,
+                request.Port,
+                request.AuthenticationEnabled,
+                request.Username,
+                request.Password,
+                string.IsNullOrEmpty(request.Password),
+                request.SecurityMode,
+                request.DefaultReplyTo),
+            cancellationToken);
+
+        return Ok(new TestMailResponse(result.Success, result.Message));
+    }
+
     [HttpGet("tenants/{tenantId:guid}/sla-weekend-settings")]
     public async Task<ActionResult<SlaWeekendSettingsResponse>> GetSlaWeekendSettings(Guid tenantId, CancellationToken cancellationToken)
     {

@@ -289,8 +289,8 @@ export function ConversationEntryBubble({
 
   const messageApproverButton = (
     <DelayedHoverTooltip
-      label={t('whatsapp.messageApproverButton', 'Onaylayan Yönetici')}
-      tooltip={messageApproverName ?? ''}
+      label={t('whatsapp.messageApproverButton', 'Onaylayan Personel')}
+      tooltip={messageApproverName ?? '—'}
       className={`${approverChipClassName} cursor-default`}
       icon={<User className={actionIconClass} strokeWidth={1.75} aria-hidden="true" />}
     />
@@ -526,7 +526,7 @@ export function ConversationEntryBubble({
               <PenLine className={actionIconClass} strokeWidth={1.75} aria-hidden="true" />
               {t('common.edit', 'Düzenle')}
             </button>
-            {showMessageApprover ? messageApproverButton : null}
+            {showMessageApprover || isPending ? messageApproverButton : null}
             <button
               type="button"
               onClick={() => onSendPending?.(entry.entryId)}

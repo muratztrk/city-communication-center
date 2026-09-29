@@ -28,6 +28,11 @@ public static class ConversationEntryOperatorVisibility
             return false;
         }
 
+        if (!ConversationEntrySenderLabelHelper.IsTerminalCitizenStatusOutboundContent(content))
+        {
+            return false;
+        }
+
         return !jobTerminalMessageReleasedAtUtc.HasValue;
     }
 
@@ -82,7 +87,13 @@ public static class ConversationEntryOperatorVisibility
             return true;
         }
 
-        return jobTerminalMessageReleasedAtUtc.HasValue;
+        if (jobTerminalMessageReleasedAtUtc.HasValue)
+        {
+            return true;
+        }
+
+        // 24s kapalıyken kuyruğa alınan İşleme Alındı/Yapılmakta — operatör göndersin (#3912).
+        return !ConversationEntrySenderLabelHelper.IsTerminalCitizenStatusOutboundContent(content);
     }
 
     public static async Task<Dictionary<Guid, DateTimeOffset?>> ResolveReleasedAtByMessageIdAsync(

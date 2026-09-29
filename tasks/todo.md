@@ -1,3 +1,7 @@
+## Round 1360 — #3912 r2 24s Pending butonları
+
+- [x] `6abb7d4c` / #3912 — 24s kapalı talep WA'sı Beklemede: Düzenle, Onaylayan Personel, Mesajı Gönder.
+
 ## Round 1359 — #3909 r2 / #3906 / #3912
 
 - [x] `6abb6ed4` / #3909 — Mail SMTP Default/Specify yok; Kullanıcı Adı / Parola / Gönderen adresi.

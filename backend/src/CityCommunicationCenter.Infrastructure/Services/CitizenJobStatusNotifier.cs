@@ -581,23 +581,25 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             messageContent,
             await ResolveGreetingAsync(tenantId, statusLabel, SocialChannel.WhatsApp, cancellationToken));
 
-        if (!requireApproval)
+        var lastInboundAt = await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(
+            _dbContext,
+            tenantId,
+            message,
+            cancellationToken);
+        var windowOpen = WhatsAppServiceWindow.IsWindowOpen(lastInboundAt, utcNow);
+        // 24s kapalı: serbest metin Meta'dan reddedilir. Failed balon yerine Beklemede kuyruk
+        // — operatör Düzenle / Mesajı Gönder (#3912 r2).
+        var queueForOperator = !requireApproval && !windowOpen;
+        if (queueForOperator)
         {
-            var lastInboundAt = await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(
-                _dbContext,
-                tenantId,
-                message,
-                cancellationToken);
-            if (!WhatsAppServiceWindow.IsWindowOpen(lastInboundAt, utcNow))
-            {
-                // Serbest metin Meta 24s penceresi dışında reddedilir; Failed balon yazma (#3912).
-                _logger.LogInformation(
-                    "Skipping automatic WhatsApp status for SocialMessage {SocialMessageId} ({StatusLabel}): 24h window closed",
-                    message.SocialMessageId,
-                    statusLabel);
-                return;
-            }
+            _logger.LogInformation(
+                "Queueing automatic WhatsApp status for SocialMessage {SocialMessageId} ({StatusLabel}): 24h window closed",
+                message.SocialMessageId,
+                statusLabel);
+        }
 
+        if (!requireApproval && !queueForOperator)
+        {
             var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
                 _dbContext,
                 message,
@@ -641,16 +643,16 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             SenderLabel = ConversationEntrySenderLabelHelper.FormatAutomaticOutboundSenderLabel(
                 tenantName,
                 headerDepartmentNames),
-            DeliveryStatus = requireApproval
+            DeliveryStatus = requireApproval || queueForOperator
                 ? ConversationDeliveryStatus.Pending
                 : sendResult is { Success: true }
                     ? ConversationDeliveryStatus.Sent
                     : ConversationDeliveryStatus.Failed,
-            DeliveryError = requireApproval || sendResult is { Success: true } ? null : sendResult?.Error,
+            DeliveryError = requireApproval || queueForOperator || sendResult is { Success: true } ? null : sendResult?.Error,
             DeliveryStatusUpdatedAtUtc = utcNow,
         });
 
-        if (!requireApproval && sendResult is { Success: true })
+        if (!requireApproval && !queueForOperator && sendResult is { Success: true })
         {
             message.ResponseContent = messageContent;
             message.RespondedAtUtc = utcNow;
@@ -659,7 +661,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 message.Status = SocialMessageStatus.Responded;
             }
         }
-        else if (!requireApproval && sendResult is { Success: false })
+        else if (!requireApproval && !queueForOperator && sendResult is { Success: false })
         {
             _logger.LogWarning(
                 "Automatic WhatsApp status message failed for SocialMessage {SocialMessageId}: {Error}",
@@ -694,7 +696,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                     conversation.LastMessageAt = utcNow;
                 }
 
-                var isAutomaticOutbound = !requireApproval && sendResult is { Success: true };
+                var isAutomaticOutbound = !requireApproval && !queueForOperator && sendResult is { Success: true };
                 if (!isAutomaticOutbound)
                 {
                     conversation.UnreadCount += 1;

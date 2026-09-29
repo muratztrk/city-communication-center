@@ -2634,7 +2634,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   için yalnızca Meta onaylı şablon mesaj gönderilebilir.` `Failed` re-engagement balonu Beklemede
   ve Mesajı Gönder göstermez; İletilemedi altında bu cümle durur. Yeniden gönderilmez.
 - **Otomatik WA 24s (#3912):** talep oluşturma / non-terminal durum (İşleme Alındı, Yapılmakta)
-  serbest metin, son inbound ≥24s ise gönderilmez ve Failed balon yazılmaz; yalnız Meta şablon.
+  serbest metin, son inbound ≥24s ise WhatsApp'a gitmez. Failed balon yazılmaz; `Pending` kuyruk
+  (Düzenle / Onaylayan Personel / Mesajı Gönder). Terminal Pending gizleme yalnız Tamamlandı/İptal.
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472/#r531):** personel adı `text-sm font-semibold` (#2006).

@@ -1,3 +1,9 @@
+## Round 1353 — Trello Doing (3 web)
+
+- [x] `6abb525f` / #3903 — WA Talep Oluştur: TR sabit hat (`+90 232…`) Sierra Leone sanılmasın.
+- [x] `6abb4e9c` / #3902 — Birime Gelen + Vatandaş Talepleri Yapılmakta tarihi = hedef yönetici onayı.
+- [x] `6abb55ff` / #3904 — Görevlerim / Birimdeki / Personelimin Yapılmakta tarihi = aynı onay.
+
 ## Round 1352 — #3901 Sistemde ara talep başlığı
 
 - [x] `6aba5e9c` — Vatandaş işi arama sonucunda talep başlığı (`job.title`) durum satırının sağında yeşil (`--color-primary`).

@@ -593,7 +593,8 @@ public sealed class AdminController : ApiControllerBase
                 request.Password,
                 string.IsNullOrEmpty(request.Password),
                 request.SecurityMode,
-                request.DefaultReplyTo),
+                request.DefaultReplyTo,
+                request.RecipientEmail),
             cancellationToken);
 
         return Ok(new TestMailResponse(result.Success, result.Message));

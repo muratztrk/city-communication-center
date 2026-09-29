@@ -32,6 +32,7 @@ public sealed record TestMailRequest(
     string? Username,
     string? Password,
     string SecurityMode,
-    string? DefaultReplyTo);
+    string? DefaultReplyTo,
+    string? RecipientEmail);
 
 public sealed record TestMailResponse(bool Success, string Message);

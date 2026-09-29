@@ -1177,6 +1177,9 @@ export function UsersPage() {
         if (key === 'userSource') {
           return getUserSourceLabel(t, item.userSource)
         }
+        if (key === 'mobilePhone') {
+          return [item.mobilePhone, item.email].filter(Boolean).join(' ')
+        }
         return String((item as unknown as Record<string, unknown>)[key] ?? '')
       })
     })
@@ -1792,7 +1795,12 @@ export function UsersPage() {
                 <FilterableTh filterKey="username" filterValue={userFilters['username'] ?? ''} onFilter={handleUserFilter} sortKey="username" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.username')}</FilterableTh>
                 <FilterableTh filterKey="displayName" filterValue={userFilters['displayName'] ?? ''} onFilter={handleUserFilter} sortKey="displayName" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.displayName')}</FilterableTh>
                 <FilterableTh filterKey="title" filterValue={userFilters['title'] ?? ''} onFilter={handleUserFilter} sortKey="title" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.jobTitle')}</FilterableTh>
-                <FilterableTh filterKey="mobilePhone" filterValue={userFilters['mobilePhone'] ?? ''} onFilter={handleUserFilter} sortKey="mobilePhone" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.mobilePhone')}</FilterableTh>
+                <FilterableTh filterKey="mobilePhone" filterValue={userFilters['mobilePhone'] ?? ''} onFilter={handleUserFilter} sortKey="mobilePhone" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>
+                  <span className="flex flex-col leading-tight">
+                    <span>{t('users.mobilePhone')}</span>
+                    <span className="font-medium opacity-80">{t('users.emailGrid', 'e-Posta')}</span>
+                  </span>
+                </FilterableTh>
                 <FilterableTh filterKey="departmentId" filterValue={userFilters['departmentId'] ?? ''} onFilter={handleUserFilter}>{t('users.department')}</FilterableTh>
                 <FilterableTh filterKey="roleCode" filterValue={userFilters['roleCode'] ?? ''} onFilter={handleUserFilter} sortKey="roleCode" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.role')}</FilterableTh>
                 <FilterableTh filterKey="userSource" filterValue={userFilters['userSource'] ?? ''} onFilter={handleUserFilter} sortKey="userSource" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.source')}</FilterableTh>
@@ -1844,22 +1852,35 @@ export function UsersPage() {
                     </td>
                     <td>
                       {user.userSource === 'Manual' ? (
-                        <input
-                          className="field-input min-w-[12rem] text-sm"
-                          type="text"
-                          inputMode="numeric"
-                          pattern="[0-9 ]*"
-                          maxLength={13}
-                          placeholder={t('users.mobilePhonePlaceholder')}
-                          value={formatTrNationalGrouped(editForm.mobilePhone)}
-                          onChange={e => setEditForm(c => ({
-                            ...c,
-                            mobilePhone: sanitizeMobilePhoneInput(e.target.value, c.mobilePhone),
-                          }))}
-                          aria-label={t('users.mobilePhone')}
-                        />
+                        <div className="grid min-w-[12rem] gap-1.5">
+                          <input
+                            className="field-input text-sm"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9 ]*"
+                            maxLength={13}
+                            placeholder={t('users.mobilePhonePlaceholder')}
+                            value={formatTrNationalGrouped(editForm.mobilePhone)}
+                            onChange={e => setEditForm(c => ({
+                              ...c,
+                              mobilePhone: sanitizeMobilePhoneInput(e.target.value, c.mobilePhone),
+                            }))}
+                            aria-label={t('users.mobilePhone')}
+                          />
+                          <input
+                            className="field-input text-sm"
+                            type="email"
+                            placeholder={t('users.emailPlaceholder')}
+                            value={editForm.email}
+                            onChange={e => setEditForm(c => ({ ...c, email: e.target.value }))}
+                            aria-label={t('users.emailGrid', 'e-Posta')}
+                          />
+                        </div>
                       ) : (
-                        <span>{formatUserMobileGridDisplay(user.mobilePhone) || t('common.none')}</span>
+                        <div className="grid gap-0.5">
+                          <span>{formatUserMobileGridDisplay(user.mobilePhone) || t('common.none')}</span>
+                          <span className="text-xs text-slate-500">{user.email?.trim() || t('common.none')}</span>
+                        </div>
                       )}
                     </td>
                     <td className="users-edit-dept-cell w-[7.5rem] max-w-[7.5rem]">
@@ -1971,7 +1992,12 @@ export function UsersPage() {
                     <td>{user.username || t('common.none')}</td>
                     <td className="font-semibold">{user.displayName}</td>
                     <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
-                    <td>{formatUserMobileGridDisplay(user.mobilePhone) || t('common.none')}</td>
+                    <td>
+                      <div className="grid gap-0.5">
+                        <span>{formatUserMobileGridDisplay(user.mobilePhone) || t('common.none')}</span>
+                        <span className="text-xs text-slate-500">{user.email?.trim() || t('common.none')}</span>
+                      </div>
+                    </td>
                     <td>
                       <div className="grid gap-1">
                         <span>{getDepartmentName(user.departmentId)}</span>

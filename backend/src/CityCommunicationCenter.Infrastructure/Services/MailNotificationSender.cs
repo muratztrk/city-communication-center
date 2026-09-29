@@ -27,6 +27,7 @@ internal sealed class MailNotificationSender : IMailNotificationSender
     {
         var host = request.SmtpHost?.Trim();
         var from = request.DefaultReplyTo?.Trim();
+        var to = request.RecipientEmail?.Trim();
         if (string.IsNullOrWhiteSpace(host))
         {
             return new MailNotificationSendResult(false, "SMTP sunucu adresi zorunludur.");
@@ -35,6 +36,11 @@ internal sealed class MailNotificationSender : IMailNotificationSender
         if (string.IsNullOrWhiteSpace(from))
         {
             return new MailNotificationSendResult(false, "Gönderen adresi zorunludur.");
+        }
+
+        if (string.IsNullOrWhiteSpace(to))
+        {
+            return new MailNotificationSendResult(false, "Alıcı e-posta zorunludur.");
         }
 
         var password = request.Password;
@@ -64,7 +70,7 @@ internal sealed class MailNotificationSender : IMailNotificationSender
             client.Credentials = new NetworkCredential(request.Username?.Trim(), password);
         }
 
-        using var message = new MailMessage(from, from)
+        using var message = new MailMessage(from, to)
         {
             Subject = DefaultSubject,
             Body = DefaultBody,

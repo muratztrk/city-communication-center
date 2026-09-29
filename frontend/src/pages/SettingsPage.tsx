@@ -964,6 +964,7 @@ export function SettingsPage() {
   })
   const [mailHasPassword, setMailHasPassword] = useState(false)
   const [mailTestStatus, setMailTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
+  const mailTestRecipientRef = useRef('')
   const [internalMessagesSettings, setInternalMessagesSettings] = useState<InternalMessagesSettings>({
     showUserTitleInMessages: false,
   })
@@ -2083,8 +2084,13 @@ export function SettingsPage() {
     }
   }
 
-  const sendTestMail = async () => {
+  const sendTestMail = async (recipientEmail: string) => {
     if (!user?.tenantId) return
+    const recipient = recipientEmail.trim()
+    if (!recipient) {
+      setMailTestStatus({ type: 'error', message: t('settings.mailNotification.testRecipientRequired', 'Alıcı e-posta zorunludur.') })
+      return
+    }
     setMailTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
     try {
       const password = mailNotificationForm.password && mailNotificationForm.password !== SMS_PASSWORD_MASK
@@ -2095,6 +2101,7 @@ export function SettingsPage() {
         smtpHost: mailNotificationForm.smtpHost?.trim() || null,
         smtpHostSpecified: Boolean(mailNotificationForm.smtpHost?.trim()),
         password,
+        recipientEmail: recipient,
       })
       setMailTestStatus({ type: result.success ? 'success' : 'error', message: result.message })
     } catch (testError) {
@@ -2103,6 +2110,33 @@ export function SettingsPage() {
         message: testError instanceof Error ? testError.message : t('errors.mailNotificationSettingsTestFailed'),
       })
     }
+  }
+
+  const openTestMailDialog = () => {
+    const initial = mailNotificationForm.defaultReplyTo?.trim() || user?.email?.trim() || ''
+    mailTestRecipientRef.current = initial
+    setConfirmDialog({
+      title: t('settings.mailNotification.testSend'),
+      titleDivider: true,
+      variant: 'primary',
+      confirmLabel: t('settings.mailNotification.testSendConfirm', 'Gönder'),
+      cancelLabel: t('common.cancel', 'İptal'),
+      message: (
+        <label className="grid gap-2 text-sm font-medium text-slate-700">
+          <span>{t('settings.mailNotification.testRecipient', 'Şu e-postaya gönder')}</span>
+          <input
+            className="field-input font-normal"
+            type="email"
+            defaultValue={initial}
+            autoComplete="email"
+            onChange={event => {
+              mailTestRecipientRef.current = event.target.value
+            }}
+          />
+        </label>
+      ),
+      onConfirm: () => sendTestMail(mailTestRecipientRef.current),
+    })
   }
 
   const saveFileStorageSettings = async (event: FormEvent) => {
@@ -2670,7 +2704,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="page-stack desktop-page-shell admin-surface-page shrink-0 !gap-1.5">
+    <div className="page-stack desktop-page-shell settings-page-shell admin-surface-page shrink-0 !gap-1.5">
       <section className="section-card p-0">
         <div
           className="grid gap-3 border-b border-white/10 px-4 py-3.5 text-white sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto] rounded-t-[var(--radius-xl)] lg:rounded-t-[0.85rem]"
@@ -3676,7 +3710,7 @@ export function SettingsPage() {
                     type="button"
                     className="shrink-0 rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-60"
                     disabled={mailTestStatus.type === 'testing'}
-                    onClick={() => void sendTestMail()}
+                    onClick={openTestMailDialog}
                   >
                     {mailTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.mailNotification.testSend')}
                   </button>
@@ -3897,6 +3931,7 @@ export function SettingsPage() {
               <Button type="submit">{t('common.save')}</Button>
             </div>
           </form>
+          {isInternalModuleUsable ? (
           <form className="section-card page-stack" onSubmit={event => void saveInternalMessagesSettings(event)}>
             <div className="page-header-row">
               <div>
@@ -3920,6 +3955,7 @@ export function SettingsPage() {
               <Button type="submit">{t('settings.internalMessages.save')}</Button>
             </div>
           </form>
+          ) : null}
 
           <form className="section-card page-stack" onSubmit={event => void saveRecaptchaSettings(event)}>
             <div className="page-header-row">

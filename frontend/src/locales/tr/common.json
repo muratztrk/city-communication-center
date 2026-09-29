@@ -695,6 +695,7 @@
     "jobTitleRowPlaceholder": "Ünvan giriniz...",
     "displayNamePlaceholder": "Kullanıcı adı soyadı",
     "email": "E-posta",
+    "emailGrid": "e-Posta",
     "emailPlaceholder": "ornek@belediye.bel.tr",
     "internalPhone": "Dahili No",
     "internalPhonePlaceholder": "Dahili no",
@@ -1471,6 +1472,9 @@
       "testTitle": "SMTP sunucusunu test et",
       "testHelp": "Belirtilen SMTP sunucusu üzerinden bir deneme e-postası gönderilecek.",
       "testSend": "Test e-postası gönder",
+      "testRecipient": "Şu e-postaya gönder",
+      "testRecipientRequired": "Alıcı e-posta zorunludur.",
+      "testSendConfirm": "Gönder",
       "save": "Kaydet",
       "saved": "Mail bildirimi ayarları kaydedildi."
     },

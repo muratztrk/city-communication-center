@@ -9658,6 +9658,12 @@ body:has(.whatsapp-page-shell) .fixed-fab-stack:has(.scroll-fab-button) {
   align-self: end;
 }
 
+/* Vatandaş Paneli / Ayarlar: sağ alt FAB yığınını footer üstüne biraz çek (#3913). */
+body:has(.dashboard-page-shell--citizen) .fixed-fab-stack,
+body:has(.settings-page-shell) .fixed-fab-stack {
+  bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) + 0.25rem);
+}
+
 /* Vatandaş Paneli FAB: WA bildirim düğmesi + paneli scroll düğmesine yaklaştır (#3634 reopen). */
 body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) {
   gap: 0.35rem !important;

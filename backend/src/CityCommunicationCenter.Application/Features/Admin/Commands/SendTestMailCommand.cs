@@ -15,7 +15,8 @@ public sealed record SendTestMailCommand(
     string? Password,
     bool UseStoredPassword,
     string SecurityMode,
-    string? DefaultReplyTo) : ICommand<SendTestMailResult>;
+    string? DefaultReplyTo,
+    string? RecipientEmail) : ICommand<SendTestMailResult>;
 
 public sealed record SendTestMailResult(bool Success, string Message);
 
@@ -36,6 +37,11 @@ public sealed class SendTestMailCommandValidator : AbstractValidator<SendTestMai
             .WithMessage("Gönderen adresi zorunludur.")
             .EmailAddress()
             .WithMessage("Gönderen adresi geçerli bir e-posta olmalıdır.");
+        RuleFor(command => command.RecipientEmail)
+            .NotEmpty()
+            .WithMessage("Alıcı e-posta zorunludur.")
+            .EmailAddress()
+            .WithMessage("Alıcı e-posta geçerli olmalıdır.");
         When(command => command.AuthenticationEnabled, () =>
         {
             RuleFor(command => command.Username).NotEmpty().WithMessage("Kullanıcı adı zorunludur.");
@@ -64,7 +70,8 @@ public sealed class SendTestMailCommandHandler : ICommandHandler<SendTestMailCom
                 request.Password,
                 request.UseStoredPassword,
                 request.SecurityMode,
-                request.DefaultReplyTo),
+                request.DefaultReplyTo,
+                request.RecipientEmail),
             cancellationToken);
 
         return new SendTestMailResult(result.Success, result.Message);

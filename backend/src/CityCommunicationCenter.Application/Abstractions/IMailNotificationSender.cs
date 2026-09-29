@@ -16,6 +16,7 @@ public sealed record MailNotificationTestRequest(
     string? Password,
     bool UseStoredPassword,
     string SecurityMode,
-    string? DefaultReplyTo);
+    string? DefaultReplyTo,
+    string? RecipientEmail);
 
 public sealed record MailNotificationSendResult(bool Success, string Message);

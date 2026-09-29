@@ -990,6 +990,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`largeText` → `text-sm`) kalır.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
+  Vatandaş Paneli ve Ayarlar’da yığın footer’dan biraz yukarıdadır (`+0.25rem`, #3913).
 - **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, 24px ve belirgin dolu konuşma
   balonu görünür; ikinci/öndeki balon ve üç nokta gösterilmez (card #1583 reopen).
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
@@ -1652,9 +1653,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`xl:grid-cols-2`, `items-stretch` + `h-full`; dış/`grid` `gap-6` eşit düşey boşluk;
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
   Syslog | Mail Bildirimi (#3909/#3906) | Veritabanı Yedeği / Kurum İçi Mesajlar | reCAPTCHA (#2952).
+  Kurum İçi Mesajlar kutusu yalnız `isModuleUsable('internal')` iken görünür (#3914).
   SMTP sunucu Default/Specify yok — düz textbox, placeholder `Mail sunucu ip'si giriniz...`.
   Etiketler: Kullanıcı Adı, Parola, Gönderen adresi. Gönderen adresinden sonra
-  `SMTP sunucusunu test et` + `Test e-postası gönder` (`POST .../mail-notification-settings/test`).
+  `SMTP sunucusunu test et` + `Test e-postası gönder`. Test butonu alıcı e-posta popup'ı açar
+  (başlık altı çizgi, `Şu e-postaya gönder`, Gönder/İptal — #3915).
+  `POST .../mail-notification-settings/test` `recipientEmail` alır.
 - **Kurum Konumu ilçe (#r512/#r514/#r521/#6a75b1ae):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` localStorage
   + `TenantSettings.Theme = ccc-district:<id>` ile talep formu mahalle dropdown’ları aynı ilçeyi
@@ -1766,7 +1770,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1771/#2902). LDAP oluşturmada arama sonucu tıklanınca alt alanlar pasif (disabled);
   yalnız Ek görev birimleri + Ek roller düzenlenir; Oluştur ek birim veya ek rol seçilince
   aktif olur (#3428). LDAP Title=`description`,   Phone=`telephoneNumber`, MobilePhone=`mobile`/`mobileTelephoneNumber`/`otherMobile`
-  (card #1773/#2902/#2908). Kullanıcılar grid e-Posta yerine Cep Telefonu No gösterir.
+  (card #1773/#2902/#2908). Kullanıcılar grid Cep Telefonu No sütununda alt satırda e-Posta
+  gösterir (#3916). LDAP satırında e-posta salt okunur; Manual satırında düzenlenir.
   Yeni / Düzenle / grid Cep Telefonu No gösterimi `5XX XXX XX XX` (`formatTrNationalGrouped`, #3606).
   LDAP senkronunda birim değişince eski birim adı (sistemdeki önceki ad) gösterilir; `—` değil (#2909).
   Personel Dahili No sonuç paneli `left-0` ile sağa açılır (card #1786).
@@ -2631,8 +2636,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
   `onMessageUpdated` ile category seçili kalır.
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği
-  için yalnızca Meta onaylı şablon mesaj gönderilebilir.` `Failed` re-engagement balonu Beklemede
-  ve Mesajı Gönder göstermez; İletilemedi altında bu cümle durur. Yeniden gönderilmez.
+  için yalnızca Meta onaylı şablon mesaj gönderilebilir.` Personel serbest metin `Failed`
+  re-engagement balonu Beklemede/Mesajı Gönder göstermez. Otomatik durum şablonu
+  (`talebinizin durumu`) Failed olsa da Beklemede + Düzenle / Onaylayan Personel / Mesajı Gönder
+  gösterir (#3912).
 - **Otomatik WA 24s (#3912):** talep oluşturma / non-terminal durum (İşleme Alındı, Yapılmakta)
   serbest metin, son inbound ≥24s ise WhatsApp'a gitmez. Failed balon yazılmaz; `Pending` kuyruk
   (Düzenle / Onaylayan Personel / Mesajı Gönder). Terminal Pending gizleme yalnız Tamamlandı/İptal.
@@ -3203,8 +3210,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`StringComparison` overload 500 üretir).
 - **WA Beklemede kalır (#3691):** 24s penceresi kapalıyken serbest metin WhatsApp'a gitmez;
   satır `Pending`/`Beklemede` kalır ve API aynı 24s cümlesini döner. Şablon mesajlar gider.
-  WhatsApp'ın sonradan `Failed` + re-engagement yazdığı balon Beklemede sayılmaz; İletilemedi
-  ve 24s cümlesi gösterilir, Mesajı Gönder yoktur.
+  WhatsApp'ın sonradan `Failed` + re-engagement yazdığı personel serbest metin balonu
+  Beklemede sayılmaz. Otomatik durum şablonu Failed olsa da Beklemede + aksiyon butonları
+  gösterilir (#3912).
 - **WA Yanıt Bekleyen (#3674):** Konuşma listesinde son mesaj yönü `ConversationEntryTimelineTime
   .ResolveSortKey` ile belirlenir; son outbound operatör mesajıysa **Yanıt Bekleyen** olmaz.
 - **Görevsiz iptal outbound Onay Bekleyen (#3664 reopen):** pending değerde başlık ve metin

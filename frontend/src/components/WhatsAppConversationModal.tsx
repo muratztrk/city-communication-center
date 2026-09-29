@@ -45,7 +45,7 @@ export function WhatsAppConversationModal({
           headerMode="phone"
           onClose={onClose}
           canReply={allowManagerReply}
-          canSendPending={false}
+          canSendPending={user?.role === 'Operator' || user?.role === 'SystemAdmin'}
           enableWhatsAppFileAttachment={allowManagerReply}
           // Yazışmaya Git popup: balon + metin küçült (#2083 / #1711 kalıbı).
           compactBubbles

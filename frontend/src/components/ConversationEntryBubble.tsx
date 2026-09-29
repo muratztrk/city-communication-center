@@ -152,8 +152,8 @@ export function ConversationEntryBubble({
   onSendPending,
   sendingPending = false,
   onEditPending,
-  onReEngagementBlocked,
-  conversationOutside24hWindow = false,
+  onReEngagementBlocked: _onReEngagementBlocked,
+  conversationOutside24hWindow: _conversationOutside24hWindow = false,
   onShowTerminalNote: _onShowTerminalNote,
   inboundSenderLabel,
   compact = false,
@@ -174,6 +174,8 @@ export function ConversationEntryBubble({
     && entry.deliveryStatus === 'Failed'
     && isWhatsAppReEngagementError(entry.deliveryError)
   const isPending = !isInbound && entry.deliveryStatus === 'Pending'
+  const isCitizenStatusTemplate = (entry.content ?? '').toLocaleLowerCase('tr').includes('talebinizin durumu')
+  const isQueuedForOperator = isPending || (isReEngagementFailure && isCitizenStatusTemplate)
   const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
   const editedByName = entry.editedByDisplayName?.trim() || null
   const relayedByName = entry.relayedByDisplayName?.trim() || null
@@ -236,9 +238,8 @@ export function ConversationEntryBubble({
       })
     : undefined
   const showPendingActions = !suppressPendingUi
-    && isPending
+    && isQueuedForOperator
     && canSendPending
-    && !entry.isAutomaticMessage
 
   const syncTextareaHeight = () => {
     const textarea = textareaRef.current
@@ -254,10 +255,6 @@ export function ConversationEntryBubble({
   }, [isEditing, draft])
 
   const beginEdit = () => {
-    if ((isReEngagementFailure && conversationOutside24hWindow) || (conversationOutside24hWindow && isPending)) {
-      onReEngagementBlocked?.()
-      return
-    }
     if (bubbleRef.current) {
       const rect = bubbleRef.current.getBoundingClientRect()
       setLockedBubbleSize({ width: rect.width, height: rect.height })
@@ -460,7 +457,7 @@ export function ConversationEntryBubble({
                 <span className={`${conversationEntryMetaBadgeClass} text-orange-400`}>{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
               )
             ) : null}
-            {isPending ? (
+            {isQueuedForOperator ? (
               <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
             ) : !isInbound && entry.deliveryStatus ? (
               <WhatsAppDeliveryStatusIndicator
@@ -472,7 +469,7 @@ export function ConversationEntryBubble({
             {!isInbound && entry.deliveryStatus ? <span data-meta-sep aria-hidden="true">·</span> : null}
             <span title={queuedTimeTitle}>{sentTime}</span>
           </p>
-          {!isInbound && entry.deliveryStatus === 'Failed' && deliveryErrorMessage ? (
+          {!isInbound && !isQueuedForOperator && entry.deliveryStatus === 'Failed' && deliveryErrorMessage ? (
             <p className={`mt-1 text-[10px] leading-snug ${theme === 'light' ? 'text-red-100' : 'text-red-200'}`}>
               {deliveryErrorMessage}
             </p>

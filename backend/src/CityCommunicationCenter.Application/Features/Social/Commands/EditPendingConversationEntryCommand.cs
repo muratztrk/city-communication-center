@@ -56,16 +56,10 @@ public sealed class EditPendingConversationEntryCommandHandler
                 await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(_dbContext, tenantId, message, cancellationToken),
                 utcNow);
 
-        if (WhatsAppServiceWindow.IsReEngagementFailure(entry))
-        {
-            throw new ValidationException([
-                new FluentValidation.Results.ValidationFailure(
-                    nameof(request.EntryId),
-                    WhatsAppServiceWindow.ReEngagementOperatorMessage)
-            ]);
-        }
-
-        if (!WhatsAppServiceWindow.IsRetryableOutboundEntry(entry, windowOpen))
+        var canEditQueued = entry.Direction == ConversationEntryDirection.Outbound
+            && (entry.DeliveryStatus == ConversationDeliveryStatus.Pending
+                || WhatsAppServiceWindow.IsReEngagementFailure(entry));
+        if (!canEditQueued && !WhatsAppServiceWindow.IsRetryableOutboundEntry(entry, windowOpen))
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.EntryId), "Bu mesaj düzenlenebilir durumda değil.")
@@ -75,6 +69,12 @@ public sealed class EditPendingConversationEntryCommandHandler
         entry.Content = request.Content.Trim();
         entry.EditedAtUtc = DateTimeOffset.UtcNow;
         entry.EditedByDisplayName = actor.DisplayName.Trim();
+        if (WhatsAppServiceWindow.IsReEngagementFailure(entry))
+        {
+            entry.DeliveryStatus = ConversationDeliveryStatus.Pending;
+            entry.DeliveryError = null;
+            entry.DeliveryStatusUpdatedAtUtc = DateTimeOffset.UtcNow;
+        }
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

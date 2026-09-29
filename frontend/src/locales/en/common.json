@@ -691,6 +691,7 @@
     "jobTitleRowPlaceholder": "Enter job title...",
     "displayNamePlaceholder": "User full name",
     "email": "Email",
+    "emailGrid": "E-mail",
     "emailPlaceholder": "example@municipality.bel.tr",
     "internalPhone": "Extension",
     "internalPhonePlaceholder": "Extension number",
@@ -1463,6 +1464,9 @@
       "testTitle": "Test SMTP server",
       "testHelp": "A test e-mail will be sent through the specified SMTP server.",
       "testSend": "Send test e-mail",
+      "testRecipient": "Send to this e-mail",
+      "testRecipientRequired": "Recipient e-mail is required.",
+      "testSendConfirm": "Send",
       "save": "Save",
       "saved": "Mail notification settings saved."
     },

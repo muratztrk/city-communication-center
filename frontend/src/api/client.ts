@@ -1095,6 +1095,7 @@ export const api = {
         password: data.password,
         securityMode: data.securityMode,
         defaultReplyTo: data.defaultReplyTo,
+        recipientEmail: data.recipientEmail,
       }),
     })
     await ensureOk(response, i18n.t('errors.mailNotificationSettingsTestFailed'))

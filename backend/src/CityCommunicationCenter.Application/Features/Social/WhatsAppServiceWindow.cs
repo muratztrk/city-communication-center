@@ -28,9 +28,9 @@ public static class WhatsAppServiceWindow
     public static bool IsRetryableOutboundEntry(SocialConversationEntry entry, bool windowOpen) =>
         entry.Direction == ConversationEntryDirection.Outbound
         && (entry.DeliveryStatus == ConversationDeliveryStatus.Pending
-            || (windowOpen
-                && entry.DeliveryStatus == ConversationDeliveryStatus.Failed
-                && IsReEngagementError(entry.DeliveryError)));
+            || (entry.DeliveryStatus == ConversationDeliveryStatus.Failed
+                && IsReEngagementError(entry.DeliveryError)
+                && windowOpen));
 
     public static async Task<DateTimeOffset?> GetLastInboundAtUtcAsync(
         IApplicationDbContext dbContext,

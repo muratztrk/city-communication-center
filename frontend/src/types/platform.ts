@@ -1199,6 +1199,7 @@ export interface MailNotificationSettingsUpdate {
   clearPassword: boolean
   securityMode: MailSecurityMode
   defaultReplyTo: string | null
+  recipientEmail?: string | null
 }
 
 export interface FileStorageSettings {

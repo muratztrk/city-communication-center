@@ -1,3 +1,11 @@
+## Round 1361 — #3913 / #3916 / #3915 / #3914 / #3912
+
+- [x] `6abb8ce8` / #3913 — Vatandaş Paneli + Ayarlar sağ alt FAB biraz yukarı.
+- [x] `6abb91a7` / #3916 — Kullanıcılar grid: Cep Telefonu No altında e-Posta; LDAP salt okunur.
+- [x] `6abb9000` / #3915 — Test e-postası gönder: alıcı popup + başlık altı çizgi.
+- [x] `6abb8d79` / #3914 — Kurum İçi Mesajlar kutusu yalnız internal lisans açıkken.
+- [x] `6abb7d4c` / #3912 — 24s kapalı otomatik durum: Beklemede + Düzenle / Onaylayan Personel / Mesajı Gönder.
+
 ## Round 1360 — #3912 r2 24s Pending butonları
 
 - [x] `6abb7d4c` / #3912 — 24s kapalı talep WA'sı Beklemede: Düzenle, Onaylayan Personel, Mesajı Gönder.

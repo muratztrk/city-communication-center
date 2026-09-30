@@ -1282,8 +1282,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   arşivlenmez ama akış bozulmaz; (3) arşiv hatası yalnız `LogWarning` — webhook 200 dönmeye devam
   eder, yinelenen teslimde `RetryMissingMediaArchivesAsync` tekrar dener; uzak hata olursa yerel
   kopya düşüş olarak kalır; (4) `SocialMessagesController.GetMedia` uzak etkinse önce NAS/FTP
-  okur (yerel artığı siler), yoksa yerel, yoksa Graph; Graph cache-on-read uzak etkinse yükleyip
-  yereli siler, değilse yerel yazar.
+  okur (yerel artığı siler), yoksa yerel; **Graph'a düşmez** (NAS'tan silinen dosya Meta'dan
+  geri gelmesin). NAS/FTP boşsa yerel-önce + Graph + cache-on-read.
 - **Mobil Uygulama Yetki matrisi gridde görünmeyen çifti kaydetmez (#6aaf7d54):** matris
   `TenantSetting.MobileRolePageAccessJson`'da durur ve mobil uygulama `/auth/profile`
   yanıtından okur. Vatandaş Takip bölümü yalnız `SystemAdmin`+`Reporter`, Kurum İçi yalnız
@@ -1899,7 +1899,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `{kanal}/{vatandaşNo}/{dosya}` yoluna arka planda taşır (`IConversationMediaRemoteArchive`);
   başarılı yüklemeden sonra uygulama sunucusundaki `conversation-media` kopyası silinir. Uzak
   hata webhook'u bozmaz ve yerel düşüşü bırakır. NAS/FTP boşsa davranış #6aac5ca5 yerel arşivdir.
-  `GetMedia` uzak etkinse NAS/FTP'den okur. Talep/görev eki NAS yolu (`{talepNo}/{dosya}`) değişmez.
+  `GetMedia` uzak etkinse NAS/FTP veya yerel evreden okur, Graph'a düşmez. Talep/görev eki NAS yolu (`{talepNo}/{dosya}`) değişmez.
 - **NAS kök klasör (testtim, card #3384):** Ayarlar'da opsiyonel `Kök Klasör` (`NasRootFolder`) paylaşım
   altındaki hedef dizini belirler (ör. `testtim` → `\\host\share\testtim\VT-…`). Prod boş;
   testtim ortamında prod NAS kimlik bilgileri + `testtim` kök klasörü kullanılır.

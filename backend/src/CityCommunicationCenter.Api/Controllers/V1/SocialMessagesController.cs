@@ -360,6 +360,14 @@ public sealed class SocialMessagesController : ApiControllerBase
             return PhysicalFile(localPath, contentType, fileDownloadName: localName);
         }
 
+        // NAS/FTP doluysa Meta Graph yedek kaynak değildir: yerelde ve uzak paylaşımda yoksa
+        // 404. Aksi halde NAS'tan silinen dosya ~1 hafta Graph'tan geri gelir ve cache-on-read
+        // paylaşımı yeniden doldurur (#3953).
+        if (remoteEnabled)
+        {
+            return NotFound();
+        }
+
         var settings = _settingsProvider.GetSettings(tenantId)?.WhatsApp;
         if (string.IsNullOrWhiteSpace(settings?.AccessToken))
             return NotFound();

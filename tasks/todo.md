@@ -1,3 +1,7 @@
+## Round 1384 — #3953 Graph fallback
+
+- [x] `6abca3c1` / #3953 — WA görseli NAS+yerel yokken Meta Graph'tan geliyordu; uzak depo varken Graph kapandı.
+
 ## Round 1383 — #3953 remote-only WA media
 
 - [x] `6abca3c1` / #3953 reopen — NAS/FTP doluysa WA gelen medya yalnız uzak sunucuda; başarılı yüklemeden sonra yerel silinir; GetMedia NAS/FTP okur.

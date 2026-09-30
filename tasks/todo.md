@@ -1,3 +1,7 @@
+## Round 1385 — #3956 returned cancelled
+
+- [x] `6abd087a` / #3956 — İade Bekleyen'den iptal düşer; Tümü detayında yönlendir/düzenle ve vatandaş mesaj satırları yok.
+
 ## Round 1384 — #3953 Graph fallback
 
 - [x] `6abca3c1` / #3953 — WA görseli NAS+yerel yokken Meta Graph'tan geliyordu; uzak depo varken Graph kapandı.

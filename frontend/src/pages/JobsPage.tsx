@@ -919,7 +919,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   )
   const jobTargetDepartment = detail?.departments?.find(department => department.role === 'Target')
   const returnedTargetDepartment = jobTargetDepartment
+  const isReturnedCancelledDetail = isReturnedRequestDetail
+    && (detail?.status === 'Cancelled' || detail?.status === 'Rejected')
   const canForwardReturnedDetail = isReturnedRequestDetail
+    && !isReturnedCancelledDetail
     && (user?.role === 'Operator' || isCitizenRequestManager)
     && detail != null
     && Boolean(detail.returnedToOperatorAtUtc)

@@ -396,7 +396,7 @@ export function MyRequestDetailMainCard({
                 ),
               }]
             : []),
-          ...(isCitizenRequestJob(detail) && (showCancelledWithoutTaskNotes || showCancelledWithTaskNotes)
+          ...(!returnedRequestDetail && isCitizenRequestJob(detail) && (showCancelledWithoutTaskNotes || showCancelledWithTaskNotes)
             ? [{
                 label: cancelledOutboundField.pending
                   ? t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')
@@ -410,7 +410,7 @@ export function MyRequestDetailMainCard({
                 ),
               }]
             : []),
-          ...(cancelledEditorField
+          ...(!returnedRequestDetail && cancelledEditorField
             ? [{
                 label: cancelledEditorField.label,
                 value: <span className="text-slate-900">{cancelledEditorField.value}</span>,

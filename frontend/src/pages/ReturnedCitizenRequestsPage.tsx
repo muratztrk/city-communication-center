@@ -113,12 +113,13 @@ export function ReturnedCitizenRequestsPage() {
     queryKey: queryKeys.jobs.returnedCitizenRequests(scope),
     queryFn: async () => {
       if (scope === 'all') {
-        const [pending, forwarded] = await Promise.all([
+        const [pending, forwarded, cancelled] = await Promise.all([
           api.getJobs('returned-to-operator'),
           api.getJobs('returned-forwarded-by-operator'),
+          api.getJobs('returned-cancelled'),
         ])
         const byId = new Map<string, JobSummary>()
-        for (const job of [...pending, ...forwarded]) {
+        for (const job of [...pending, ...forwarded, ...cancelled]) {
           byId.set(job.jobId, job)
         }
         return [...byId.values()]

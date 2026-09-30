@@ -328,7 +328,8 @@ export type JobListScope =
   | 'outgoing-department'
   | 'rejected'
   | 'returned-to-operator'
-  | 'returned-forwarded-by-operator';
+  | 'returned-forwarded-by-operator'
+  | 'returned-cancelled';
 
 export interface UpdateJobRequest {
   title: string;

@@ -326,6 +326,8 @@ export function MyRequestDetailModal({
           locale={locale}
           onDownloadTaskAttachment={onDownloadTaskAttachment}
           hidePlainDescription={hideTaskPlainDescription || (isStandardUser && !isEditing)}
+          hideCitizenOutboundFields={returnedRequestDetail
+            && (detail.status === 'Cancelled' || detail.status === 'Rejected')}
           citizenOutboundMessage={outboundMessage}
           citizenApprovalReleasedNote={releasedNote}
           citizenMessageApproverDisplayName={detail.citizenMessageApproverDisplayName}

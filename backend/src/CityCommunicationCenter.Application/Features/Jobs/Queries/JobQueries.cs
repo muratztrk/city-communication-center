@@ -116,6 +116,24 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         else if (scope == "returned-to-operator")
         {
             q = q.Where(j => j.ReturnedToOperatorAtUtc != null
+                && j.Status != JobStatus.Cancelled
+                && j.Status != JobStatus.Rejected
+                && (j.RequestType == JobRequestType.Citizen
+                    || j.SourceType == JobSourceType.SocialMessage
+                    || j.SourceType == JobSourceType.CitizenRequest
+                    || j.SourceType == JobSourceType.EDevlet));
+            if (actor is null
+                || (actor.RoleCode != RoleCode.Operator
+                    && actor.RoleCode != RoleCode.SystemAdmin
+                    && !UserRoleAccess.IsCitizenRequestManager(actor)))
+            {
+                q = q.Where(_ => false);
+            }
+        }
+        else if (scope == "returned-cancelled")
+        {
+            q = q.Where(j => j.ReturnedToOperatorReason != null
+                && (j.Status == JobStatus.Cancelled || j.Status == JobStatus.Rejected)
                 && (j.RequestType == JobRequestType.Citizen
                     || j.SourceType == JobSourceType.SocialMessage
                     || j.SourceType == JobSourceType.CitizenRequest

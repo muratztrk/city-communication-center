@@ -34,6 +34,8 @@ interface MyRequestTaskDetailsSectionProps {
   citizenOutboundRelayerDisplayName?: string | null
   /** Mesaj Onayı Bekleyen detay popup — onaylayan/outbound satırları gizle (#3519). */
   hideMessageApprovalPendingFields?: boolean
+  /** İade edilen iptal detayında vatandaş mesaj satırları yok (#3956). */
+  hideCitizenOutboundFields?: boolean
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
   // olarak buraya taşınır; Süreç, Açıklama'nın yerine kayar (card #1549).
   addressColumnContent?: ReactNode
@@ -160,6 +162,7 @@ export function MyRequestTaskDetailsSection({
   citizenOutboundEditorDisplayName,
   citizenOutboundRelayerDisplayName,
   hideMessageApprovalPendingFields = false,
+  hideCitizenOutboundFields = false,
   addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
@@ -362,6 +365,7 @@ export function MyRequestTaskDetailsSection({
                           ]
                         : []),
                     ...(isCitizenRequestJob(detail)
+                      && !hideCitizenOutboundFields
                       && showPostCompleteCitizenFields
                       && (
                         (isCompletedTask || isCancelledTask) && task.taskId === primaryTerminalTaskId

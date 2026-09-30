@@ -3238,6 +3238,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yönlendirme sonrası güncel Target birimi gösterilmez.
 - **İade Bekleyen liste (#3727):** detaydan `forward-returned` sonrası `returned-citizen-requests`
   sorgusu invalidate edilir; satır Bekleyen'den düşer.
+- **İade iptal (#3956):** `returned-to-operator` (Bekleyen + sol menü rozeti) `Cancelled`/`Rejected`
+  kayıtları içermez. Tümü `returned-cancelled` ile iptalleri gösterir. İptal detayında Talebi
+  Yönlendir, Düzenle, Vatandaşa Giden Mesaj ve Vatandaşa Giden Mesajı Düzenleyen yoktur.
 - **WA mesaj sarma (#3728):** konuşma balonu `max-w-full overflow-hidden break-words`; pane
   `overflow-x-hidden`.
 - **Grid Kaydet toast (#3729):** Kullanıcılar/Birimler inline düzenleme `emitPageToast`.

@@ -404,9 +404,9 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
     }
 
     /// <summary>
-    /// Meta media ID'leri yaklaşık bir hafta sonra 404 döndüğü için içerik webhook anında yerel diske
-    /// kopyalanır; `MediaId` korunur, yerel dosya entry kimliğiyle bulunur (#6aac5ca5). İndirme
-    /// başarısızsa webhook akışı bozulmaz — yalnızca uyarı loglanır.
+    /// Meta media ID'leri yaklaşık bir hafta sonra 404 döndüğü için içerik webhook anında arşivlenir;
+    /// `MediaId` korunur (#6aac5ca5). NAS/FTP doluysa yerel yazım yalnız geçici evredir; başarılı
+    /// uzak yüklemeden sonra silinir (#3953). İndirme/uzak hata webhook'u bozmaz.
     /// </summary>
     private async Task ArchiveMediaAsync(
         Guid tenantId,
@@ -423,26 +423,33 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             return;
         }
 
+        var remoteEnabled = await _mediaRemoteArchive.IsEnabledAsync(tenantId, cancellationToken);
+
         foreach (var archive in archives)
         {
             try
             {
+                var fileName = ConversationLocalMediaStore.ResolveRemoteFileName(
+                    archive.FileName,
+                    archive.EntryId,
+                    archive.MimeType);
                 var existingLocalPath = ConversationLocalMediaStore.ResolveEntryFullPath(
                     _uploadRootPath,
                     tenantId,
                     archive.EntryId);
                 if (existingLocalPath is not null)
                 {
-                    var existingFileName = string.IsNullOrWhiteSpace(archive.FileName)
-                        ? Path.GetFileName(existingLocalPath)
-                        : archive.FileName;
-                    await _mediaRemoteArchive.EnqueueAsync(
-                        tenantId,
-                        SocialChannel.WhatsApp.ToString(),
-                        archive.CitizenHandle,
-                        existingLocalPath,
-                        existingFileName ?? archive.EntryId.ToString("D"),
-                        cancellationToken);
+                    if (remoteEnabled)
+                    {
+                        await _mediaRemoteArchive.EnqueueAsync(
+                            tenantId,
+                            SocialChannel.WhatsApp.ToString(),
+                            archive.CitizenHandle,
+                            existingLocalPath,
+                            fileName,
+                            cancellationToken);
+                    }
+
                     continue;
                 }
 
@@ -466,22 +473,22 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     localMediaId,
                     download.Content,
                     cancellationToken);
-                var fileName = string.IsNullOrWhiteSpace(archive.FileName)
-                    ? $"{archive.EntryId:D}{ConversationLocalMediaStore.ExtensionFromMimeType(archive.MimeType ?? download.ContentType)}"
-                    : archive.FileName;
-                await _mediaRemoteArchive.EnqueueAsync(
-                    tenantId,
-                    SocialChannel.WhatsApp.ToString(),
-                    archive.CitizenHandle,
-                    localPath,
-                    fileName,
-                    cancellationToken);
+                if (remoteEnabled)
+                {
+                    await _mediaRemoteArchive.EnqueueAsync(
+                        tenantId,
+                        SocialChannel.WhatsApp.ToString(),
+                        archive.CitizenHandle,
+                        localPath,
+                        fileName,
+                        cancellationToken);
+                }
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
                 _logger.LogWarning(
                     exception,
-                    "WhatsApp medya yerel kopyası oluşturulamadı. EntryId: {EntryId}, MediaId: {MediaId}",
+                    "WhatsApp medya arşivi oluşturulamadı. EntryId: {EntryId}, MediaId: {MediaId}",
                     archive.EntryId,
                     archive.MediaId);
             }

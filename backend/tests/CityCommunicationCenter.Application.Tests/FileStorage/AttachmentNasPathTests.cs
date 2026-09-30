@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Features.Attachments;
+using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Enums;
 using CityCommunicationCenter.Shared.FileStorage;
 
@@ -68,6 +69,29 @@ public sealed class AttachmentNasPathTests
 
         Assert.Equal("testtim/VT-2026-42/belge.pdf", path);
         Assert.Equal(@"testtim\VT-2026-42\belge.pdf", AttachmentNasPath.ToSmbPath(path));
+    }
+}
+
+public sealed class ConversationLocalMediaStoreRemoteNameTests
+{
+    [Fact]
+    public void ResolveRemoteFileName_PrefersAttachmentLabel()
+    {
+        var entryId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        var name = ConversationLocalMediaStore.ResolveRemoteFileName("ses.ogg", entryId, "audio/ogg");
+
+        Assert.Equal("ses.ogg", name);
+    }
+
+    [Fact]
+    public void BuildRemoteFileNameCandidates_AddsEntryIdFallback()
+    {
+        var entryId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+        var names = ConversationLocalMediaStore.BuildRemoteFileNameCandidates("ses.ogg", entryId, "audio/ogg");
+
+        Assert.Equal(["ses.ogg", "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.ogg"], names);
     }
 }
 

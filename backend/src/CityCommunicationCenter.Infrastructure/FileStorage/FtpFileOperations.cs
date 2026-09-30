@@ -36,6 +36,29 @@ internal static class FtpFileOperations
         }
     }
 
+    public static async Task<byte[]> DownloadFileAsync(
+        FtpAttachmentStorageCredentials credentials,
+        string relativePath,
+        CancellationToken cancellationToken)
+    {
+        var targetUri = BuildUri(credentials, relativePath);
+        var request = CreateRequest(credentials, targetUri, WebRequestMethods.Ftp.DownloadFile);
+        using var response = (FtpWebResponse)await request.GetResponseAsync();
+        if (response.StatusCode is not FtpStatusCode.OpeningData
+            and not FtpStatusCode.DataAlreadyOpen
+            and not FtpStatusCode.ClosingData
+            and not FtpStatusCode.FileActionOK)
+        {
+            throw new InvalidOperationException($"FTP indirme başarısız ({response.StatusCode}).");
+        }
+
+        await using var responseStream = response.GetResponseStream()
+            ?? throw new InvalidOperationException("FTP yanıt akışı boş.");
+        using var buffer = new MemoryStream();
+        await responseStream.CopyToAsync(buffer, cancellationToken);
+        return buffer.ToArray();
+    }
+
     private static async Task EnsureDirectoriesAsync(
         FtpAttachmentStorageCredentials credentials,
         string directoryPath,

@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Application.Features;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
@@ -14,6 +15,7 @@ public sealed class SocialMessagesController : ApiControllerBase
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IWebHostEnvironment _env;
+    private readonly IConversationMediaRemoteArchive _mediaRemoteArchive;
     private readonly ILogger<SocialMessagesController> _logger;
 
     public SocialMessagesController(
@@ -21,12 +23,14 @@ public sealed class SocialMessagesController : ApiControllerBase
         ISocialMediaSettingsProvider settingsProvider,
         IHttpClientFactory httpClientFactory,
         IWebHostEnvironment env,
+        IConversationMediaRemoteArchive mediaRemoteArchive,
         ILogger<SocialMessagesController> logger)
     {
         _sender = sender;
         _settingsProvider = settingsProvider;
         _httpClientFactory = httpClientFactory;
         _env = env;
+        _mediaRemoteArchive = mediaRemoteArchive;
         _logger = logger;
     }
 
@@ -311,12 +315,43 @@ public sealed class SocialMessagesController : ApiControllerBase
             return NotFound();
 
         var originalFileName = TryParseOutboundAttachmentFileName(target.Content);
+        var sourceMessageId = target.SocialMessageId ?? messageId;
+        var sourceMessage = await _sender.Send(new GetSocialMessageByIdQuery(sourceMessageId), cancellationToken);
+        var remoteChannel = sourceMessage?.Channel ?? SocialChannel.WhatsApp.ToString();
+        var citizenPhone = sourceMessage?.CitizenHandle;
+        var remoteFileNames = ConversationLocalMediaStore.BuildRemoteFileNameCandidates(
+            originalFileName,
+            entryId,
+            target.MediaMimeType);
+        var remoteFileName = ConversationLocalMediaStore.ResolveRemoteFileName(
+            originalFileName,
+            entryId,
+            target.MediaMimeType);
+        var remoteEnabled = await _mediaRemoteArchive.IsEnabledAsync(tenantId, cancellationToken);
 
         // Yerel kopya varsa Graph'a gitmeden servis et (Pending / süresi dolmuş WA medya — R421).
         // Gelen medyada `MediaId` Meta kimliği olarak kalır; yerel dosya entry kimliğinden bulunur (#6aac5ca5).
         var uploadRoot = Path.Combine(_env.ContentRootPath, "uploads");
         var localPath = ConversationLocalMediaStore.ResolveFullPath(uploadRoot, target.MediaId)
             ?? ConversationLocalMediaStore.ResolveEntryFullPath(uploadRoot, tenantId, entryId);
+
+        if (remoteEnabled && !string.IsNullOrWhiteSpace(citizenPhone))
+        {
+            var remoteBytes = await _mediaRemoteArchive.TryReadAsync(
+                tenantId,
+                remoteChannel,
+                citizenPhone,
+                remoteFileNames,
+                cancellationToken);
+            if (remoteBytes is { Length: > 0 })
+            {
+                ConversationLocalMediaStore.TryDelete(localPath);
+                var remoteContentType = target.MediaMimeType ?? "application/octet-stream";
+                SetOriginalFileNameHeader(Response, originalFileName ?? remoteFileName);
+                return File(remoteBytes, remoteContentType, fileDownloadName: originalFileName ?? remoteFileName);
+            }
+        }
+
         if (localPath is not null)
         {
             var contentType = target.MediaMimeType ?? "application/octet-stream";
@@ -369,6 +404,10 @@ public sealed class SocialMessagesController : ApiControllerBase
                 entryId,
                 target.MediaMimeType ?? graphContentType,
                 content,
+                remoteEnabled,
+                remoteChannel,
+                citizenPhone,
+                remoteFileName,
                 cancellationToken);
 
             return File(content, graphContentType, fileDownloadName: downloadName);
@@ -386,6 +425,10 @@ public sealed class SocialMessagesController : ApiControllerBase
         Guid entryId,
         string? mimeType,
         byte[] content,
+        bool remoteEnabled,
+        string channel,
+        string? citizenPhone,
+        string fileName,
         CancellationToken cancellationToken)
     {
         try
@@ -397,13 +440,27 @@ public sealed class SocialMessagesController : ApiControllerBase
                 entryId,
                 mimeType);
 
-            await ConversationLocalMediaStore.SaveAsync(uploadRoot, localMediaId, content, cancellationToken);
+            var localPath = await ConversationLocalMediaStore.SaveAsync(
+                uploadRoot,
+                localMediaId,
+                content,
+                cancellationToken);
+            if (remoteEnabled && !string.IsNullOrWhiteSpace(citizenPhone))
+            {
+                await _mediaRemoteArchive.EnqueueAsync(
+                    tenantId,
+                    channel,
+                    citizenPhone,
+                    localPath,
+                    fileName,
+                    cancellationToken);
+            }
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             _logger.LogWarning(
                 exception,
-                "WhatsApp medya yerel kopyası oluşturulamadı. EntryId: {EntryId}",
+                "WhatsApp medya kopyası oluşturulamadı. EntryId: {EntryId}",
                 entryId);
         }
     }

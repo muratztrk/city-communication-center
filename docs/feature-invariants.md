@@ -1270,17 +1270,20 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `-` karakteridir ve değer font ağırlığı düşük kalır (card #1260 reopen).
 - **RichText `&nbsp;` çift-kodlama tuzağı:** `RichTextContent.normalizeNbsp` ile çözüldü;
   rich-text (`dangerouslySetInnerHTML`) ve plain-text dalları ayrı işlenir (card 551).
-- **Gelen WA medyası webhook anında diske arşivlenir (#6aac5ca5):** Meta media ID'leri ~7-8 gün
+- **Gelen WA medyası webhook anında arşivlenir (#6aac5ca5 / #3953):** Meta media ID'leri ~7-8 gün
   sonra Graph'ta 404 döner, o yüzden `ReceiveWhatsAppWebhookCommand` inbound + echo entry'lerin
-  medyasını `ConversationLocalMediaStore` ile `uploads/` altına kopyalar; `MediaId` alanı
-  **silinmez** (dedupe ve Graph fallback ona bağlı), yerel dosya `entryId` ile bulunur.
-  Kurallar: (1) dosya uzantısı **yalnız** MIME beyaz listesinden gelir — `uploads/` kimlik
-  doğrulamasız statik servis edildiği için Meta'nın `Content-Disposition` adına güvenilmez,
-  `.html`/`.svg` aynı origin'de XSS olurdu; (2) indirme webhook thread'inde çalıştığı için
-  20 s timeout + 25 MB tavan zorunlu, aşan içerik arşivlenmez ama akış bozulmaz; (3) arşiv
-  hatası yalnız `LogWarning` — webhook 200 dönmeye devam eder, yinelenen teslimde
-  `RetryMissingMediaArchivesAsync` tekrar dener; (4) `SocialMessagesController.GetMedia`
-  **yerel-önce** okur, Graph'tan gelen içeriği ilk erişimde diske yazar (cache-on-read).
+  medyasını indirir; `MediaId` alanı **silinmez** (dedupe ve Graph fallback ona bağlı).
+  NAS/FTP boşsa yerel kopya `uploads/{tenant}/conversation-media/{entryId}{ext}` altında kalır.
+  NAS veya FTP doluysa yerel yazım yalnız geçici evredir; başarılı uzak yüklemeden sonra silinir
+  — kalıcı kopya yalnız `{kanal}/{vatandaşNo}/{dosya}` yolundadır. Kurallar: (1) dosya uzantısı
+  **yalnız** MIME beyaz listesinden gelir — `uploads/` kimlik doğrulamasız statik servis edildiği
+  için Meta'nın `Content-Disposition` adına güvenilmez, `.html`/`.svg` aynı origin'de XSS olurdu;
+  (2) indirme webhook thread'inde çalıştığı için 20 s timeout + 25 MB tavan zorunlu, aşan içerik
+  arşivlenmez ama akış bozulmaz; (3) arşiv hatası yalnız `LogWarning` — webhook 200 dönmeye devam
+  eder, yinelenen teslimde `RetryMissingMediaArchivesAsync` tekrar dener; uzak hata olursa yerel
+  kopya düşüş olarak kalır; (4) `SocialMessagesController.GetMedia` uzak etkinse önce NAS/FTP
+  okur (yerel artığı siler), yoksa yerel, yoksa Graph; Graph cache-on-read uzak etkinse yükleyip
+  yereli siler, değilse yerel yazar.
 - **Mobil Uygulama Yetki matrisi gridde görünmeyen çifti kaydetmez (#6aaf7d54):** matris
   `TenantSetting.MobileRolePageAccessJson`'da durur ve mobil uygulama `/auth/profile`
   yanıtından okur. Vatandaş Takip bölümü yalnız `SystemAdmin`+`Reporter`, Kurum İçi yalnız
@@ -1892,9 +1895,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Türkçe validation hatası döner (DB'ye kayıt yok). Kurum içi mesaj ekleri NAS'a gitmez. NAS
   başarılı yüklemeden sonra yerel staging dosyası silinir; indirme/okuma `IAttachmentContentProvider`
   ile önce NAS (`NasRelativePath`), gerekirse legacy yerel yola düşer (#3383). Ortak SMB oturumu: `SmbNasSessionSupport` + `SmbNasAttachmentStorage`.
-- **WhatsApp gelen medya uzak kopya (#3953):** NAS veya FTP doluysa webhook yerel kopyadan sonra
-  `{kanal}/{vatandaşNo}/{dosya}` yoluna arka planda kopyalar (`IConversationMediaRemoteArchive`);
-  yerel konuşma kopyası silinmez; uzak hata webhook'u bozmaz. Talep/görev eki NAS yolu (`{talepNo}/{dosya}`) değişmez.
+- **WhatsApp gelen medya uzak arşiv (#3953):** NAS veya FTP doluysa webhook Meta indirmesini
+  `{kanal}/{vatandaşNo}/{dosya}` yoluna arka planda taşır (`IConversationMediaRemoteArchive`);
+  başarılı yüklemeden sonra uygulama sunucusundaki `conversation-media` kopyası silinir. Uzak
+  hata webhook'u bozmaz ve yerel düşüşü bırakır. NAS/FTP boşsa davranış #6aac5ca5 yerel arşivdir.
+  `GetMedia` uzak etkinse NAS/FTP'den okur. Talep/görev eki NAS yolu (`{talepNo}/{dosya}`) değişmez.
 - **NAS kök klasör (testtim, card #3384):** Ayarlar'da opsiyonel `Kök Klasör` (`NasRootFolder`) paylaşım
   altındaki hedef dizini belirler (ör. `testtim` → `\\host\share\testtim\VT-…`). Prod boş;
   testtim ortamında prod NAS kimlik bilgileri + `testtim` kök klasörü kullanılır.

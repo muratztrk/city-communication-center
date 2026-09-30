@@ -158,4 +158,62 @@ public static class ConversationLocalMediaStore
         var fullPath = Path.Combine(uploadRootPath, relativePath.Replace('/', Path.DirectorySeparatorChar));
         return File.Exists(fullPath) ? fullPath : null;
     }
+
+    /// <summary>
+    /// NAS/FTP yolu için dosya adı: içerikteki <c>[Dosya eki: …]</c> varsa o, yoksa <c>{entryId}{ext}</c>.
+    /// </summary>
+    public static string ResolveRemoteFileName(string? preferredFileName, Guid entryId, string? mimeType)
+    {
+        if (!string.IsNullOrWhiteSpace(preferredFileName))
+        {
+            var name = Path.GetFileName(preferredFileName.Trim());
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                return name;
+            }
+        }
+
+        return $"{entryId:D}{ExtensionFromMimeType(mimeType)}";
+    }
+
+    public static IReadOnlyList<string> BuildRemoteFileNameCandidates(
+        string? preferredFileName,
+        Guid entryId,
+        string? mimeType)
+    {
+        var names = new List<string>();
+        if (!string.IsNullOrWhiteSpace(preferredFileName))
+        {
+            var name = Path.GetFileName(preferredFileName.Trim());
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                names.Add(name);
+            }
+        }
+
+        var fallback = $"{entryId:D}{ExtensionFromMimeType(mimeType)}";
+        if (!names.Exists(candidate => string.Equals(candidate, fallback, StringComparison.OrdinalIgnoreCase)))
+        {
+            names.Add(fallback);
+        }
+
+        return names;
+    }
+
+    public static void TryDelete(string? fullPath)
+    {
+        if (string.IsNullOrWhiteSpace(fullPath) || !File.Exists(fullPath))
+        {
+            return;
+        }
+
+        try
+        {
+            File.Delete(fullPath);
+        }
+        catch (IOException)
+        {
+            // Servis edilen dosya kilitli olabilir.
+        }
+    }
 }

@@ -1,3 +1,7 @@
+## Round 1383 — #3953 remote-only WA media
+
+- [x] `6abca3c1` / #3953 reopen — NAS/FTP doluysa WA gelen medya yalnız uzak sunucuda; başarılı yüklemeden sonra yerel silinir; GetMedia NAS/FTP okur.
+
 ## Round 1382 — SMS chips / NAS title / WA media / LDAP mail
 
 - [x] `6abc1d0d` / #3949 — Mesai dışı yönetici SMS: ilk kutu + `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}` + ikinci kutu.

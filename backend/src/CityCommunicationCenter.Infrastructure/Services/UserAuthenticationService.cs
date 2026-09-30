@@ -259,9 +259,9 @@ public sealed class UserAuthenticationService : IUserAuthenticationService, IAut
         user.ExternalIdentityId = ldapUser.ExternalIdentityId;
         user.UpdatedAtUtc = DateTimeOffset.UtcNow;
 
-        if (!string.IsNullOrWhiteSpace(ldapUser.Email))
+        if (!string.IsNullOrWhiteSpace(ldapUser.Email) && ldapUser.Email.Trim() != "-")
         {
-            user.Email = ldapUser.Email;
+            user.Email = ldapUser.Email.Trim();
         }
 
         if (!string.IsNullOrWhiteSpace(ldapUser.DisplayName))

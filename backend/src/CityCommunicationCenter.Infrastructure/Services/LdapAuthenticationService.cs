@@ -327,7 +327,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 ?? GetAttribute(entry, "sAMAccountName")
                 ?? GetAttribute(entry, "userPrincipalName")
                 ?? string.Empty,
-            // E-posta yalnız LDAP mail attribute; UPN fallback yok (card #1734).
+            // E-posta yalnız LDAP mail attribute; boşsa "-" — UPN yok (#1734/#3954).
             NormalizeDirectoryMail(GetAttribute(entry, "mail")),
             ResolveDepartment(entry),
             // Ünvan = LDAP description; Dahili = telephoneNumber; Cep = mobile (card #1773/#2902).
@@ -340,7 +340,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
     private static string? NormalizeDirectoryMail(string? mail)
     {
         var trimmed = mail?.Trim();
-        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
+        return string.IsNullOrWhiteSpace(trimmed) ? "-" : trimmed;
     }
 
     private LdapDirectoryUser? FindUserByExternalIdentityInternal(TenantLdapRuntimeSettings settings, string externalIdentityId)
@@ -517,7 +517,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? GetAttribute(entry, "mail")
                     ?? username,
                 GetAttribute(entry, "displayName") ?? username,
-                GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName") ?? NormalizeEmail(username),
+                NormalizeDirectoryMail(GetAttribute(entry, "mail")),
                 // Ünvan = description; Dahili No = telephoneNumber (card #1773).
                 GetAttribute(entry, "description"),
                 GetAttribute(entry, "telephoneNumber"));

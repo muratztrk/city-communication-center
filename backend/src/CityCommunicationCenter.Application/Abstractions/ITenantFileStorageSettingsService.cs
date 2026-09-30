@@ -13,6 +13,10 @@ public interface ITenantFileStorageSettingsService
         Guid tenantId,
         CancellationToken cancellationToken = default);
 
+    Task<FtpAttachmentStorageCredentials?> GetFtpAttachmentCredentialsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
+
     Task SaveSettingsAsync(
         Guid tenantId,
         TenantFileStorageSettingsUpdate settings,

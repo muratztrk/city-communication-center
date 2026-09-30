@@ -390,6 +390,40 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
         return exclusions;
     }
 
+    private async Task<(string? TaskNumber, string? TaskTitle)> ResolveTaskSmsTokensAsync(
+        Job job,
+        Guid assigneeUserId,
+        CancellationToken cancellationToken)
+    {
+        var taskInfo = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(task => task.TenantId == job.TenantId
+                && task.JobId == job.JobId
+                && task.AssignedUserId == assigneeUserId)
+            .OrderByDescending(task => task.AssignedAtUtc)
+            .ThenByDescending(task => task.CreatedAtUtc)
+            .Select(task => new { task.Title, task.TaskNumber, task.TaskNumberYear })
+            .FirstOrDefaultAsync(cancellationToken);
+        if (taskInfo is null)
+        {
+            return (null, null);
+        }
+
+        var title = string.IsNullOrWhiteSpace(taskInfo.Title) ? null : taskInfo.Title.Trim();
+        return (FormatTaskDisplayNumber(taskInfo.TaskNumber, taskInfo.TaskNumberYear), title);
+    }
+
+    private static string FormatTaskDisplayNumber(int? taskNumber, int? taskNumberYear)
+    {
+        if (taskNumber.HasValue && taskNumberYear.HasValue)
+        {
+            return $"G-{taskNumberYear.Value}-{taskNumber.Value}";
+        }
+
+        var year = taskNumberYear ?? DateTime.UtcNow.Year;
+        return $"G-{year}-Onay Bekleyen";
+    }
+
     private Task<bool> IsUserAssignedToJobTaskAsync(
         Job job,
         Guid userId,
@@ -550,7 +584,7 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
             citizenNumbers?.CitizenRequestNumberYear,
             job.CreatedAtUtc);
 
-        var outboundText = AfterHoursSmsTemplateRenderer.Render(template, requestNumber, job.Title);
+        var useTaskTokens = kind is SmsOutboundKind.AfterHoursStaff or SmsOutboundKind.OverdueStaff;
 
         var distinctRecipients = recipients
             .Where(recipient => !string.IsNullOrWhiteSpace(recipient.MobilePhone))
@@ -565,6 +599,19 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier, IOve
 
         foreach (var recipient in distinctRecipients)
         {
+            string? taskNumber = null;
+            string? taskTitle = null;
+            if (useTaskTokens)
+            {
+                (taskNumber, taskTitle) = await ResolveTaskSmsTokensAsync(job, recipient.UserId, cancellationToken);
+            }
+
+            var outboundText = AfterHoursSmsTemplateRenderer.Render(
+                template,
+                requestNumber,
+                job.Title,
+                taskNumber,
+                taskTitle);
             var sendContext = context with { RecipientUserId = recipient.UserId };
             var result = await _smsGateway.SendAsync(
                 job.TenantId,

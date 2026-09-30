@@ -859,7 +859,7 @@ export function UsersPage() {
       ...current,
       username: selected.username ?? '',
       displayName: selected.displayName ?? '',
-      email: selected.email?.trim() ?? '',
+      email: selected.email?.trim() || '-',
       password: '',
       passwordConfirm: '',
       title: selected.title?.trim() ?? '',
@@ -948,7 +948,7 @@ export function UsersPage() {
         skipManagerQuota: newUser.roleCode === SORUMLU_ROLE_OPTION,
         username: newUser.username.trim() || undefined,
         displayName: newUser.displayName.trim(),
-        email: newUser.email.trim() || null,
+        email: newUser.email.trim() === '-' ? null : (newUser.email.trim() || null),
         title: newUser.title.trim() || null,
         phone: newUser.phone.trim() || null,
         mobilePhone: newUser.mobilePhone.trim() || null,
@@ -963,7 +963,7 @@ export function UsersPage() {
         await api.createUser({
           username: createMode === 'ldap' ? newUser.username || null : newUser.username.trim() || null,
           displayName: newUser.displayName,
-          email: newUser.email || null,
+          email: !newUser.email.trim() || newUser.email.trim() === '-' ? null : newUser.email.trim(),
           password: createMode === 'manual' ? newUser.password : null,
           departmentId: newUser.departmentId || null,
           additionalDepartmentIds: newUser.additionalDepartmentIds.filter(id => id !== newUser.departmentId),
@@ -1543,7 +1543,7 @@ export function UsersPage() {
                 aria-label={t('users.email')}
                 {...ldapProfileFieldProps}
                 placeholder={t('users.emailPlaceholder')}
-                type="email"
+                type={createMode === 'ldap' ? 'text' : 'email'}
                 value={newUser.email}
                 onChange={event => setNewUser(current => ({ ...current, email: event.target.value }))}
               />

@@ -15,6 +15,14 @@ public sealed class AttachmentNasPathTests
     }
 
     [Fact]
+    public void BuildSocialMediaRelativePath_UsesChannelAndPhoneFolders()
+    {
+        var path = AttachmentNasPath.BuildSocialMediaRelativePath("WhatsApp", "905551112233", "ses.ogg");
+
+        Assert.Equal("WhatsApp/905551112233/ses.ogg", path);
+    }
+
+    [Fact]
     public void BuildRelativePath_SanitizesInvalidCharacters()
     {
         var path = AttachmentNasPath.BuildRelativePath("T-2026-7", "rapor:1.pdf");

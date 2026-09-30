@@ -280,28 +280,45 @@ const CANCEL_NOTE_TOKEN = '{İptal Notu}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
 const OVERDUE_MANAGER_SMS_MIDDLE = `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN}`
+const TASK_SMS_MIDDLE = `${MAIL_TASK_NO_TOKEN} no'lu ${MAIL_TASK_TITLE_TOKEN}`
 
-function splitOverdueManagerSmsTemplate(template: string): { before: string; after: string } {
-  const idx = template.indexOf(OVERDUE_MANAGER_SMS_MIDDLE)
+function splitSmsChipTemplate(template: string, middle: string): { before: string; after: string } {
+  const idx = template.indexOf(middle)
   if (idx < 0) {
     return { before: template, after: '' }
   }
 
   return {
     before: template.slice(0, idx),
-    after: template.slice(idx + OVERDUE_MANAGER_SMS_MIDDLE.length),
+    after: template.slice(idx + middle.length),
   }
 }
 
-function buildOverdueManagerSmsTemplate(before: string, after: string): string {
-  return `${before}${OVERDUE_MANAGER_SMS_MIDDLE}${after}`
+function buildSmsChipTemplate(before: string, after: string, middle: string): string {
+  return `${before}${middle}${after}`
+}
+
+function migrateStaffSmsTemplate(template: string): string {
+  if (template.includes(TASK_SMS_MIDDLE)) {
+    return template
+  }
+
+  const legacyIndex = template.indexOf(OVERDUE_MANAGER_SMS_MIDDLE)
+  if (legacyIndex < 0) {
+    return template
+  }
+
+  return `${template.slice(0, legacyIndex)}${TASK_SMS_MIDDLE}${template.slice(legacyIndex + OVERDUE_MANAGER_SMS_MIDDLE.length)}`
 }
 
 type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'overdueManagerSms' | 'overdueStaffSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled' | 'overdueManagerSmsEnabled' | 'overdueStaffSmsEnabled' | 'smsProcessingReceived' | 'smsProcessingReceivedEnabled' | 'inProgressEnabled'>
 
-function OverdueSmsTemplateEditor({
+function SmsChipTemplateEditor({
   value,
   onChange,
+  middle,
+  noToken,
+  titleToken,
   beforeAriaLabel,
   afterAriaLabel,
   placeholder,
@@ -309,12 +326,15 @@ function OverdueSmsTemplateEditor({
 }: {
   value: string
   onChange: (next: string) => void
+  middle: string
+  noToken: string
+  titleToken: string
   beforeAriaLabel: string
   afterAriaLabel: string
   placeholder: string
   afterPlaceholder: string
 }) {
-  const { before, after } = splitOverdueManagerSmsTemplate(value)
+  const { before, after } = splitSmsChipTemplate(value, middle)
 
   return (
     <>
@@ -323,19 +343,19 @@ function OverdueSmsTemplateEditor({
         className="field-input settings-after-hours-sms min-h-32 whitespace-pre-wrap"
         placeholder={placeholder}
         value={before}
-        onChange={event => onChange(buildOverdueManagerSmsTemplate(event.target.value, after))}
+        onChange={event => onChange(buildSmsChipTemplate(event.target.value, after, middle))}
       />
       <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
-        <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_NO_TOKEN}</span>
+        <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{noToken}</span>
         <span>no&apos;lu</span>
-        <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_TITLE_TOKEN}</span>
+        <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{titleToken}</span>
       </div>
       <textarea
         aria-label={afterAriaLabel}
         className="field-input settings-after-hours-sms min-h-32 whitespace-pre-wrap"
         placeholder={afterPlaceholder}
         value={after}
-        onChange={event => onChange(buildOverdueManagerSmsTemplate(before, event.target.value))}
+        onChange={event => onChange(buildSmsChipTemplate(before, event.target.value, middle))}
       />
     </>
   )
@@ -1370,7 +1390,7 @@ export function SettingsPage() {
           afterHoursStaffSmsEnabled: autoReplyResponse.afterHoursStaffSmsEnabled ?? false,
           overdueManagerSms: autoReplyResponse.overdueManagerSms ?? '',
           overdueManagerSmsEnabled: autoReplyResponse.overdueManagerSmsEnabled ?? true,
-          overdueStaffSms: autoReplyResponse.overdueStaffSms ?? '',
+          overdueStaffSms: migrateStaffSmsTemplate(autoReplyResponse.overdueStaffSms ?? ''),
           overdueStaffSmsEnabled: autoReplyResponse.overdueStaffSmsEnabled ?? false,
         }
         setCitizenAutoReplyTemplates(loadedTemplates)
@@ -4855,19 +4875,20 @@ export function SettingsPage() {
                 {t('common.save', 'Kaydet')}
               </Button>
             </div>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+            <div className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('settings.routing.afterHoursManagerSmsLabel')}</span>
-              <textarea
-                aria-label={t('settings.routing.afterHoursManagerSmsLabel')}
-                className="field-input settings-after-hours-sms settings-after-hours-sms-compact min-h-48 whitespace-pre-wrap"
-                placeholder={t('settings.routing.afterHoursManagerSmsPlaceholder')}
+              <SmsChipTemplateEditor
                 value={citizenAutoReplyTemplates.afterHoursManagerSms ?? ''}
-                onChange={event => setCitizenAutoReplyTemplates(current => ({
-                  ...current,
-                  afterHoursManagerSms: event.target.value,
-                }))}
+                onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, afterHoursManagerSms: value }))}
+                middle={OVERDUE_MANAGER_SMS_MIDDLE}
+                noToken={CITIZEN_REQUEST_NO_TOKEN}
+                titleToken={CITIZEN_REQUEST_TITLE_TOKEN}
+                beforeAriaLabel={t('settings.routing.afterHoursManagerSmsBeforeLabel', 'Bildirim mesajı (üst)')}
+                afterAriaLabel={t('settings.routing.afterHoursManagerSmsAfterLabel', 'Bildirim mesajı (alt)')}
+                placeholder={t('settings.routing.afterHoursManagerSmsPlaceholder')}
+                afterPlaceholder={t('settings.routing.afterHoursManagerSmsAfterPlaceholder', 'Talep bilgisinden sonra gelecek metin')}
               />
-            </label>
+            </div>
           </section>
 
           <section className="section-card page-stack">
@@ -4887,19 +4908,20 @@ export function SettingsPage() {
                 {t('common.save', 'Kaydet')}
               </Button>
             </div>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+            <div className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('settings.routing.afterHoursStaffSmsLabel')}</span>
-              <textarea
-                aria-label={t('settings.routing.afterHoursStaffSmsLabel')}
-                className="field-input settings-after-hours-sms settings-after-hours-sms-compact min-h-48 whitespace-pre-wrap"
-                placeholder={t('settings.routing.afterHoursStaffSmsPlaceholder')}
+              <SmsChipTemplateEditor
                 value={citizenAutoReplyTemplates.afterHoursStaffSms ?? ''}
-                onChange={event => setCitizenAutoReplyTemplates(current => ({
-                  ...current,
-                  afterHoursStaffSms: event.target.value,
-                }))}
+                onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, afterHoursStaffSms: value }))}
+                middle={TASK_SMS_MIDDLE}
+                noToken={MAIL_TASK_NO_TOKEN}
+                titleToken={MAIL_TASK_TITLE_TOKEN}
+                beforeAriaLabel={t('settings.routing.afterHoursStaffSmsBeforeLabel', 'Bildirim mesajı (üst)')}
+                afterAriaLabel={t('settings.routing.afterHoursStaffSmsAfterLabel', 'Bildirim mesajı (alt)')}
+                placeholder={t('settings.routing.afterHoursStaffSmsPlaceholder')}
+                afterPlaceholder={t('settings.routing.afterHoursStaffSmsAfterPlaceholder', 'Görev bilgisinden sonra gelecek metin')}
               />
-            </label>
+            </div>
           </section>
           </div>
 
@@ -4923,9 +4945,12 @@ export function SettingsPage() {
             </div>
             <div className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('settings.routing.overdueManagerSmsLabel')}</span>
-              <OverdueSmsTemplateEditor
+              <SmsChipTemplateEditor
                 value={citizenAutoReplyTemplates.overdueManagerSms ?? ''}
                 onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, overdueManagerSms: value }))}
+                middle={OVERDUE_MANAGER_SMS_MIDDLE}
+                noToken={CITIZEN_REQUEST_NO_TOKEN}
+                titleToken={CITIZEN_REQUEST_TITLE_TOKEN}
                 beforeAriaLabel={t('settings.routing.overdueManagerSmsBeforeLabel', 'Bildirim mesajı (üst)')}
                 afterAriaLabel={t('settings.routing.overdueManagerSmsAfterLabel', 'Bildirim mesajı (alt)')}
                 placeholder={t('settings.routing.overdueManagerSmsPlaceholder')}
@@ -4953,13 +4978,16 @@ export function SettingsPage() {
             </div>
             <div className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('settings.routing.overdueStaffSmsLabel')}</span>
-              <OverdueSmsTemplateEditor
+              <SmsChipTemplateEditor
                 value={citizenAutoReplyTemplates.overdueStaffSms ?? ''}
                 onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, overdueStaffSms: value }))}
+                middle={TASK_SMS_MIDDLE}
+                noToken={MAIL_TASK_NO_TOKEN}
+                titleToken={MAIL_TASK_TITLE_TOKEN}
                 beforeAriaLabel={t('settings.routing.overdueStaffSmsBeforeLabel', 'Bildirim mesajı (üst)')}
                 afterAriaLabel={t('settings.routing.overdueStaffSmsAfterLabel', 'Bildirim mesajı (alt)')}
                 placeholder={t('settings.routing.overdueStaffSmsPlaceholder')}
-                afterPlaceholder={t('settings.routing.overdueStaffSmsAfterPlaceholder', 'Talep bilgisinden sonra gelecek metin')}
+                afterPlaceholder={t('settings.routing.overdueStaffSmsAfterPlaceholder', 'Görev bilgisinden sonra gelecek metin')}
               />
             </div>
           </section>

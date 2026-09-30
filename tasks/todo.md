@@ -1,3 +1,12 @@
+## Round 1382 — SMS chips / NAS title / WA media / LDAP mail
+
+- [x] `6abc1d0d` / #3949 — Mesai dışı yönetici SMS: ilk kutu + `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}` + ikinci kutu.
+- [x] `6abc1d5f` / #3950 — Mesai dışı personel SMS: ilk kutu + `{GörevNo} no'lu {GörevBaşlığı}` + ikinci kutu; gönderimde görev verisi.
+- [x] `6abc1dfa` / #3951 — Geciken personel SMS orta jetonları `{GörevNo} no'lu {GörevBaşlığı}`.
+- [x] `6abca245` / #3952 — Dosya sunucusu başlığı sosyal medya eklerini kapsayacak şekilde güncellendi.
+- [x] `6abca3c1` / #3953 — WA gelen medya NAS/FTP'de `{kanal}/{numara}/{dosya}`; webhook'u bekletmez.
+- [x] `6abcb0e7` / #3954 — LDAP `mail` boşsa e-posta `"-"`, UPN kullanılmaz.
+
 ## Round 1381 — #3945 more pad
 
 - [x] `6abc052c` / #3945 — Toggle açıkken dropdown altında boşluk `min-h-8` → `min-h-16`.

@@ -1138,10 +1138,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yazınca hepsi güncellenir (#3085 geri alındı). Durum gövde/ek metin kutuları ayrı kalır.
   Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Müdürü/Sorumluları/Vatandaş Talep
   Yöneticileri'ne** + alt satır **Mesai Dışı Giden SMS Bildirimleri** vardır (#2907/#3582);
-  Bildirim Mesajı textarea `min-h-48` / CSS `12rem` (#2910). Bu bölümün Kaydet toast’ı
-  `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
-  içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
-  (#2906). Mesai dışı talep oluşturulunca yönetici şablonu birim müdürü, sorumlu
+  Bildirim Mesajı iki textarea + ortada sabit `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}`
+  (#3949). Personel mesai dışı kutusu aynı düzen + `{GörevNo} no'lu {GörevBaşlığı}` (#3950).
+  Kaydet toast’ı `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905).
+  **Bildirim Mesajı** içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
+  (#2906). Görev jetonları gönderim anında `G-{yıl}-{n}` + görev başlığı dolar. Mesai dışı talep oluşturulunca yönetici şablonu birim müdürü, sorumlu
   (`ResponsibleUserIdsJson`) ve (vatandaş talebinde) hedef birimde çalışabilen `CitizenRequestManager`
   cep numaralarına gider; tenant'taki **tüm** VTY değil (#3472, 2026-09-09). Yardımcı müdür ve tüm
   personel **dahil değil** (#2903/#2904, 2026-09-03). Vatandaş kaynağı `JobCitizenRequestHelper`
@@ -1157,8 +1158,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Standart personel aynı; salt müdür atlanır. Başkası atadığında atanan VTY veya birim sorumlusu
   ikinci (görev) SMS alır (#3601). Müdür/sorumlu/VTY görevi **kendine** atadığında veya talebi
   kendisi yönlendirdiğinde mesai dışı SMS **gitmez** (`actorUserId == assigneeUserId`, #3620 reopen).
-  Mesai dışı yönetici/personel SMS gövdesi talep numarası içermeli (`AfterHoursSmsTemplateRenderer`;
-  şablonda `{VatandaşTalepNo}` yoksa `Talep: VT-…` eklenir) — aynı şablon metni Teknomart
+  Mesai dışı yönetici/personel SMS gövdesi kimlik içermeli (`AfterHoursSmsTemplateRenderer`;
+  şablonda `{VatandaşTalepNo}` / `{GörevNo}` yoksa `Talep: VT-…` eklenir) — aynı şablon metni Teknomart
   `ERR_SMS_PKG_DUPLICATION` üretir (#3751). VT no, CreateJob SMS anında `SourceRefId` sosyal
   mesajından çözülür (JobId henüz bağlanmamış olabilir). Mesai dışında talep
   oluşturulunca/yönlendirilince (görev atanmadan) hedef birim müdür/sorumlu/VTY SMS'i gider
@@ -1799,9 +1800,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   silinemez — `"Sistemi kullanmış olan personel silinemez"` (card #1753). `+Yeni Kullanıcı` açıkken grid görünür kalır
   (`desktop-page-fill` form açıkken kapanır — card #1731). Kullanıcılar LDAP formunda
   “LDAP Kullanıcı Çek” solda, “Anlık LDAP Kullanıcı Senkronize Et” sağda (card #1735);
-  Birimler’de “LDAP Birim Çek” solda, senkron sağda (card #1737). LDAP dizin e-postası
-  yalnız `mail` attribute’tur — boşsa form E-posta alanı boş kalır, UPN ile doldurulmaz
-  (card #1734). Yeni kullanıcı E-posta placeholder’ı `ornek@belediye.bel.tr` (card #1740).
+  Birimler’de “LDAP Birim Çek” solda, senkron sağda (card #1737).   LDAP dizin e-postası
+  yalnız `mail` attribute’tur — boşsa değer `"-"` olur, UPN ile doldurulmaz
+  (card #1734/#3954). Yeni kullanıcı E-posta placeholder’ı `ornek@belediye.bel.tr` (card #1740).
   Ek görev birimleri placeholder “Ek birim seçiniz...”; multi-select’te
   arama satırı var; Birim+Ek birimler+Rol+Ek roller+Aktif+Oluştur tek satırda;
   Rol kolonu dar; Rol+Ek roller menü satır metni kompakt; Oluştur geniş ama alçak
@@ -1882,8 +1883,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   fresh `Connect`. SMB oturumu `RunWithInvariantCulture` içindedir: istek kültürü `tr` iken
   NTLMv2 `tim` kullanıcısını `TİM` yapar ve doğru parolada bile `STATUS_LOGON_FAILURE` döner.
   Yedek Kaydet bu sarmalayıcıyı atlamamalı.
-- **Talep/görev eki NAS replikasyonu (2026-09-03):** Ayarlar'daki "Talep ve Görev Eklerini
-  Barındıracak Sunucu Bilgileri" NAS (SMB/CIFS) doluysa `UploadAttachmentCommand` yerel
+- **Talep/görev eki NAS replikasyonu (2026-09-03):** Ayarlar'daki "Talep,Görev Ekleri ve Sosyal
+  Medyadan Gelen Medya Eklerini Barındıracak Sunucu Bilgileri" (#3952) NAS (SMB/CIFS) doluysa `UploadAttachmentCommand` yerel
   `uploads/` yazımından sonra paylaşıma kopyalar; NAS yolu `{talepNo}/{orijinalDosyaAdı}`
   (ör. `VT-2026-42/belge.pdf`) — tenant/Job/guid hiyerarşisi yok. Görev ekleri ilgili talebin
   klasörüne gider. Aynı isimde ikinci dosya `(2)` soneki alır. Yol `attachments.nasrelativepath`
@@ -1891,6 +1892,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Türkçe validation hatası döner (DB'ye kayıt yok). Kurum içi mesaj ekleri NAS'a gitmez. NAS
   başarılı yüklemeden sonra yerel staging dosyası silinir; indirme/okuma `IAttachmentContentProvider`
   ile önce NAS (`NasRelativePath`), gerekirse legacy yerel yola düşer (#3383). Ortak SMB oturumu: `SmbNasSessionSupport` + `SmbNasAttachmentStorage`.
+- **WhatsApp gelen medya uzak kopya (#3953):** NAS veya FTP doluysa webhook yerel kopyadan sonra
+  `{kanal}/{vatandaşNo}/{dosya}` yoluna arka planda kopyalar (`IConversationMediaRemoteArchive`);
+  yerel konuşma kopyası silinmez; uzak hata webhook'u bozmaz. Talep/görev eki NAS yolu (`{talepNo}/{dosya}`) değişmez.
 - **NAS kök klasör (testtim, card #3384):** Ayarlar'da opsiyonel `Kök Klasör` (`NasRootFolder`) paylaşım
   altındaki hedef dizini belirler (ör. `testtim` → `\\host\share\testtim\VT-…`). Prod boş;
   testtim ortamında prod NAS kimlik bilgileri + `testtim` kök klasörü kullanılır.
@@ -3127,8 +3131,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CitizenOutboundGreeting.Ensure`, zaten hitaplıysa tekrar eklenmez). Yöneticiye giden mesai dışı
   SMS ve test SMS'i hitapsızdır. Onay/UI şablon metni değişmez.
 - **Geciken talep SMS (#6aa4faf6 / #6a9bff9a / #6aa6f5c7):** Ayarlar → Otomatik Yönlendirme'de yönetici
-  (`overdueManagerSms`) ve personel (`overdueStaffSms`) kutuları yan yana; her biri iki textarea + ortada
-  sabit `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}` (kayıt tek string). Açık VT `dueDateUtc < now`
+  (`overdueManagerSms`) ve personel (`overdueStaffSms`) kutuları yan yana; yönetici iki textarea +
+  `{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı}`; personel aynı düzen + `{GörevNo} no'lu {GörevBaşlığı}`
+  (#3951; kayıt tek string). Açık VT `dueDateUtc < now`
   olduğunda `OverdueJobSmsPollingHostedService` (1 dk): yönetici → müdür/sorumlu/VTY (`OverdueManager`,
   talep bazlı tek gönderim); personel → açık görevli Staff atanan (`OverdueStaff`, alıcı bazlı tek gönderim).
   Hitap yok; token'lar mesai dışı ile aynı. Mesai saati kontrolü **yok**. İmleç (`OverdueSmsCursorUtc`)

@@ -418,6 +418,11 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
         }
 
         var trimmed = value.Trim();
+        if (trimmed == "-")
+        {
+            return null;
+        }
+
         // LDAP mail bazen geçersiz formatta gelir; uniqueness için geçerli olanları sakla (card #1784).
         return trimmed.Contains('@', StringComparison.Ordinal) ? trimmed : null;
     }

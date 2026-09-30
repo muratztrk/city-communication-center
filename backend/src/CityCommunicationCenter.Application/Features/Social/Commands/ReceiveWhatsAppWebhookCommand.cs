@@ -17,6 +17,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
     private readonly IWhatsAppTemplateAutoReplyService _autoReplyService;
     private readonly INotificationPushService _notificationPushService;
     private readonly ISocialMediaClientFactory _clientFactory;
+    private readonly IConversationMediaRemoteArchive _mediaRemoteArchive;
     private readonly ILogger<ReceiveWhatsAppWebhookCommandHandler> _logger;
     private readonly string _uploadRootPath;
 
@@ -25,6 +26,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         IWhatsAppTemplateAutoReplyService autoReplyService,
         INotificationPushService notificationPushService,
         ISocialMediaClientFactory clientFactory,
+        IConversationMediaRemoteArchive mediaRemoteArchive,
         ILogger<ReceiveWhatsAppWebhookCommandHandler> logger,
         Microsoft.Extensions.Options.IOptions<Attachments.AttachmentStorageOptions> attachmentStorageOptions)
     {
@@ -32,6 +34,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         _autoReplyService = autoReplyService;
         _notificationPushService = notificationPushService;
         _clientFactory = clientFactory;
+        _mediaRemoteArchive = mediaRemoteArchive;
         _logger = logger;
         _uploadRootPath = attachmentStorageOptions.Value.UploadRootPath;
     }
@@ -199,7 +202,12 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
                 if (!string.IsNullOrWhiteSpace(msg.MediaId))
                 {
-                    pendingMediaArchives.Add(new PendingConversationMediaArchive(entryId, msg.MediaId, msg.MediaMimeType));
+                    pendingMediaArchives.Add(new PendingConversationMediaArchive(
+                        entryId,
+                        msg.MediaId,
+                        msg.MediaMimeType,
+                        citizenHandle,
+                        TryExtractInboundFileName(msg.Content)));
                 }
 
                 savedCount++;
@@ -373,7 +381,12 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
                 if (!string.IsNullOrWhiteSpace(echo.MediaId))
                 {
-                    pendingMediaArchives.Add(new PendingConversationMediaArchive(entryId, echo.MediaId, echo.MediaMimeType));
+                    pendingMediaArchives.Add(new PendingConversationMediaArchive(
+                        entryId,
+                        echo.MediaId,
+                        echo.MediaMimeType,
+                        citizenHandle,
+                        TryExtractInboundFileName(echo.Content)));
                 }
 
                 savedCount++;
@@ -414,8 +427,22 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         {
             try
             {
-                if (ConversationLocalMediaStore.ResolveEntryFullPath(_uploadRootPath, tenantId, archive.EntryId) is not null)
+                var existingLocalPath = ConversationLocalMediaStore.ResolveEntryFullPath(
+                    _uploadRootPath,
+                    tenantId,
+                    archive.EntryId);
+                if (existingLocalPath is not null)
                 {
+                    var existingFileName = string.IsNullOrWhiteSpace(archive.FileName)
+                        ? Path.GetFileName(existingLocalPath)
+                        : archive.FileName;
+                    await _mediaRemoteArchive.EnqueueAsync(
+                        tenantId,
+                        SocialChannel.WhatsApp.ToString(),
+                        archive.CitizenHandle,
+                        existingLocalPath,
+                        existingFileName ?? archive.EntryId.ToString("D"),
+                        cancellationToken);
                     continue;
                 }
 
@@ -434,10 +461,20 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     archive.EntryId,
                     archive.MimeType ?? download.ContentType);
 
-                await ConversationLocalMediaStore.SaveAsync(
+                var localPath = await ConversationLocalMediaStore.SaveAsync(
                     _uploadRootPath,
                     localMediaId,
                     download.Content,
+                    cancellationToken);
+                var fileName = string.IsNullOrWhiteSpace(archive.FileName)
+                    ? $"{archive.EntryId:D}{ConversationLocalMediaStore.ExtensionFromMimeType(archive.MimeType ?? download.ContentType)}"
+                    : archive.FileName;
+                await _mediaRemoteArchive.EnqueueAsync(
+                    tenantId,
+                    SocialChannel.WhatsApp.ToString(),
+                    archive.CitizenHandle,
+                    localPath,
+                    fileName,
                     cancellationToken);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
@@ -477,11 +514,18 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 _dbContext.SocialMessages.IgnoreQueryFilters().Where(message => message.TenantId == tenantId),
                 entry => entry.SocialMessageId,
                 message => message.SocialMessageId,
-                (entry, _) => entry)
-            .Where(entry => entry.ExternalEntryId != null &&
-                            entry.MediaId != null &&
-                            mediaExternalIds.Contains(entry.ExternalEntryId))
-            .Select(entry => new { entry.EntryId, entry.MediaId, entry.MediaMimeType })
+                (entry, message) => new { entry, message })
+            .Where(row => row.entry.ExternalEntryId != null &&
+                            row.entry.MediaId != null &&
+                            mediaExternalIds.Contains(row.entry.ExternalEntryId))
+            .Select(row => new
+            {
+                row.entry.EntryId,
+                row.entry.MediaId,
+                row.entry.MediaMimeType,
+                row.entry.Content,
+                row.message.CitizenHandle,
+            })
             .ToListAsync(cancellationToken);
 
         if (entries.Count == 0)
@@ -490,13 +534,44 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         }
 
         var archives = entries
-            .Select(entry => new PendingConversationMediaArchive(entry.EntryId, entry.MediaId!, entry.MediaMimeType))
+            .Select(entry => new PendingConversationMediaArchive(
+                entry.EntryId,
+                entry.MediaId!,
+                entry.MediaMimeType,
+                entry.CitizenHandle,
+                TryExtractInboundFileName(entry.Content)))
             .ToList();
 
         await ArchiveMediaAsync(tenantId, archives, cancellationToken);
     }
 
-    private sealed record PendingConversationMediaArchive(Guid EntryId, string MediaId, string? MimeType);
+    private sealed record PendingConversationMediaArchive(
+        Guid EntryId,
+        string MediaId,
+        string? MimeType,
+        string CitizenHandle,
+        string? FileName);
+
+    private static string? TryExtractInboundFileName(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return null;
+        }
+
+        const string prefix = "[Dosya eki: ";
+        var start = content.IndexOf(prefix, StringComparison.Ordinal);
+        if (start < 0)
+        {
+            return null;
+        }
+
+        start += prefix.Length;
+        var end = content.IndexOf(']', start);
+        return end < 0
+            ? null
+            : WhatsAppInboundContentParser.NormalizeInboundMediaFileName(content[start..end]);
+    }
 
     private async Task<int> ProcessStatusUpdatesAsync(Guid tenantId, JsonElement payload, CancellationToken cancellationToken)
     {

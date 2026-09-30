@@ -24,6 +24,21 @@ public static class AttachmentNasPath
         return $"{folder}/{fileName}";
     }
 
+    public static string BuildSocialMediaRelativePath(string channel, string citizenPhone, string fileName)
+    {
+        var channelFolder = SanitizeNamedSegment(channel, "kanal");
+        var phoneFolder = SanitizeNamedSegment(citizenPhone, "numara");
+        return $"{channelFolder}/{phoneFolder}/{SanitizeFileName(fileName)}";
+    }
+
+    private static string SanitizeNamedSegment(string value, string fallback)
+    {
+        var sanitized = SanitizeSegment(value);
+        return string.Equals(sanitized, "Talep", StringComparison.Ordinal) && string.IsNullOrWhiteSpace(value)
+            ? fallback
+            : sanitized;
+    }
+
     public static string BuildLegacyRelativePath(
         Guid tenantId,
         string entityType,

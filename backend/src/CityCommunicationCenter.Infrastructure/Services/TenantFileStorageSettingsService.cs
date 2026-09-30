@@ -82,6 +82,30 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
             NormalizeNasRootFolder(payload.NasRootFolder));
     }
 
+    public async Task<FtpAttachmentStorageCredentials?> GetFtpAttachmentCredentialsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var payload = await GetPayloadAsync(tenantId, cancellationToken);
+        var host = Normalize(payload.FtpHost);
+        var username = Normalize(payload.FtpUsername);
+        var password = payload.FtpPassword;
+        if (string.IsNullOrWhiteSpace(host)
+            || string.IsNullOrWhiteSpace(username)
+            || string.IsNullOrWhiteSpace(password))
+        {
+            return null;
+        }
+
+        return new FtpAttachmentStorageCredentials(
+            host,
+            payload.FtpPort > 0 ? payload.FtpPort : 21,
+            Normalize(payload.FtpPath),
+            string.IsNullOrWhiteSpace(payload.FtpProtocol) ? "FTP" : payload.FtpProtocol,
+            username,
+            password);
+    }
+
     public async Task SaveSettingsAsync(
         Guid tenantId,
         TenantFileStorageSettingsUpdate settings,

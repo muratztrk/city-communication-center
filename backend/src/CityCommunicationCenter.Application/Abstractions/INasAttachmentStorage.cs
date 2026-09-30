@@ -7,6 +7,14 @@ public sealed record NasAttachmentStorageCredentials(
     string Password,
     string? RootFolder = null);
 
+public sealed record FtpAttachmentStorageCredentials(
+    string Host,
+    int Port,
+    string? Path,
+    string Protocol,
+    string Username,
+    string Password);
+
 /// <summary>
 /// Talep/görev eklerini tenant NAS (SMB/CIFS) ayarlarına kopyalar ve okur.
 /// NAS replikasyonu başarılıysa yerel kopya silinir; okuma önce NAS'tan yapılır (#3383).

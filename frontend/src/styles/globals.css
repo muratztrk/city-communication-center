@@ -5439,16 +5439,17 @@
     grid-column: auto !important;
   }
 
-  /* Görevlerim üç kutu: başlık ve `-` aynı düşey hizada, biraz sağa (#2576). */
+  /* Üç kutu Adres Bilgileri başlıkları vatandaş (attachments-only) ile aynı sola hiza (#4002). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
-    transform: translateX(0.45rem);
+    transform: none;
+    margin-inline: 0 !important;
+    text-align: left !important;
   }
 
-  /* No başlığı kartın sağına daha yakın (#2759 / #2576) — yalnız 3 kutu düzeni. */
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value {
-    transform: translateX(2.4rem) !important;
+    transform: none !important;
     margin-inline: 0 !important;
     text-align: left !important;
   }

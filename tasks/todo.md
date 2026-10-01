@@ -1,3 +1,9 @@
+## Round 1396 — #4000 / #4001 / #4002
+
+- [x] `6abeaa72` / #4000 — Talep Oluştur’da bildirim sesi yok.
+- [x] `6abeabb7` / #4001 — Taleplerim Yapılmakta detayda Düzenle yok.
+- [x] `6abeac27` / #4002 — Birim içi/dışı Adres başlıkları vatandaş ile aynı sola hiza.
+
 ## Round 1395 — #3985 r2 / #3990–#3998
 
 - [x] `6abe8394` / #3985 — Dosya ekle: overlay input + cancel/focus pointer unlock.

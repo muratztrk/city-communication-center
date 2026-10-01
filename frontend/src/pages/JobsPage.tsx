@@ -2997,8 +2997,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {/* Taleplerim detayında, "Talebi İptal Et"in soluna Düzenle — tüm kullanıcı tiplerinde.
                     Aktif/pasif koşulu ve teal arka plan rengi gridview'daki Düzenle ile birebir aynı
                     (card 648/653/654). */}
-                {isMyRequestsView && detail != null && (() => {
-                  const canReporterEdit = isPresidencyReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
+                {isMyRequestsView && currentMyRequestsView !== 'in-progress' && detail != null && (() => {
+                  const canReporterEdit = isPresidencyReporter && currentMyRequestsView === 'pending'
                   const canEditDetailJob = canReporterEdit
                     || canOperatorEditPendingExternalJob(user?.role, { ...detail, taskCount: detail.tasks?.length ?? 0 })
                     || isPreApprovalStatus(detail.status)

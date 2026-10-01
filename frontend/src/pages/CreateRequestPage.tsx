@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
+import { muteNewRecordSoundWhileMounted, suppressNewRecordSound } from '../utils/newRecordSoundSuppress'
 import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -342,6 +343,8 @@ export function CreateRequestPage() {
     window.addEventListener('focus', releaseCancelledFilePicker)
     return () => window.removeEventListener('focus', releaseCancelledFilePicker)
   }, [releaseCancelledFilePicker])
+
+  useEffect(() => muteNewRecordSoundWhileMounted(), [])
 
   const canCreateCitizenRequest = user?.role === 'Operator'
   const canShowCitizenRequest = canCreateCitizenRequest && isModuleUsable('citizen')
@@ -1008,6 +1011,7 @@ export function CreateRequestPage() {
           locationMapsUrl: originalGoogleMapsUrl(internalForm.coordinates),
         })
         await uploadPendingFiles(editJobId)
+        suppressNewRecordSound()
         invalidateJobs(queryClient, editJobId)
         navigate('/my-requests')
         return
@@ -1035,6 +1039,7 @@ export function CreateRequestPage() {
         locationMapsUrl: originalGoogleMapsUrl(internalForm.coordinates),
       })
       await uploadPendingFiles(job.jobId)
+      suppressNewRecordSound()
       invalidateJobs(queryClient, job.jobId)
       setInternalForm(EMPTY_INTERNAL_FORM)
       setPendingFiles([])
@@ -1119,6 +1124,7 @@ export function CreateRequestPage() {
           targetDepartmentIds,
         })
         await uploadPendingFiles(editJobId)
+        suppressNewRecordSound()
         invalidateJobs(queryClient, editJobId)
         navigate('/my-requests')
         return
@@ -1144,6 +1150,7 @@ export function CreateRequestPage() {
         locationMapsUrl: originalGoogleMapsUrl(externalForm.coordinates),
       })
       await uploadPendingFiles(job.jobId)
+      suppressNewRecordSound()
       invalidateJobs(queryClient, job.jobId)
       setExternalForm(EMPTY_EXTERNAL_FORM)
       setPendingFiles([])
@@ -1281,6 +1288,7 @@ export function CreateRequestPage() {
           longitude: mapsAddress.longitude ?? citizenCoords.longitude,
         })
         await uploadPendingFiles(editJobId)
+        suppressNewRecordSound()
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
         invalidateJobs(queryClient, editJobId)
         setCitizenForm(EMPTY_CITIZEN_FORM)
@@ -1356,6 +1364,7 @@ export function CreateRequestPage() {
         await uploadPendingFiles(job.jobId)
         invalidateSocialMessages(queryClient, socialMessageId)
       }
+      suppressNewRecordSound()
       invalidateJobs(queryClient)
       setCitizenForm(EMPTY_CITIZEN_FORM)
       setEditSocialMessageId(null)

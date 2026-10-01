@@ -305,6 +305,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
   biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar görünmez; seçim ve yükleme
   sırasında da gösterilmez (#3357) — WA, `CitizenRequestModal`, `AttachmentSection`, kurum içi FAB dahil.
+  Talep Oluştur sayfasında oluşturma/kayıt sonrası bildirim sesi yok (`suppress` + sayfa mute, #4000).
   Native dosya diyaloğu iptalinden sonra input remount edilir; dropzone/buton üzerinde
   `opacity:0` overlay `<input type="file">` gerçek tıklama alır (`label`/`.click()` yok).
   `cancel` + `focus` sonrası `pointer-events` sıfırlanır — iptal sonrası hover beklenmez (#3985).
@@ -1496,6 +1497,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yönetici notu / ek boş durum metinleri `0.75rem` (#1687).
   Boş ek metni `Talep için ek bulunmamaktadır.`;   yükleme etiketi `Dosya / Görsel Ekle (isteğe bağlı)`
   (card #1690 / #3997). Birimden Giden detayda ek yükleme yok — salt okunur + boş metin (card #1689).
+  Taleplerim **Yapılmakta Olan Taleplerim** detay popup’ta **Düzenle** yok (#4001).
   Yapılmakta scope chip mavi (`scope-chip--in-progress`); Geciken turuncu
   (`scope-chip--overdue`) — cards #1693/#1695. Birime Gelen'de Onaylanmış → Yapılmakta →
   Geciken sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
@@ -2629,7 +2631,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Başlık altı değerler **sola hizalı**, ortalı değil (#3311). Yalnız peek; detay kartı dokunulmaz.
   Mobilde 2 kolon durur, başlık aralıkları popup’ı kaplayıp ortalanır (`space-evenly`, #3300).
   X Talebi Yönlendir ile aynı.
-  Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın yalnız **üç kutu** düzeninde (`2.4rem`, #2759/#2728); **iki kutu** (`--attachments-only`) eşit 3 kolon sola yaslı, transform yok (#3327 reopen).
+  Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden üç kutu Adres başlıkları vatandaş (`--attachments-only`) ile aynı sola hiza, transform yok (#4002).
   Görevlerim İlgili Talep Adres Bilgileri 3+2 eşit kolon sola yaslı (#3327 reopen); Mahalle/Cadde/No üstünde boşluk (#2568); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyici genişliğinde, No tetikleyici genişliğinde, aşağı açılır (#2640/#3545). WA Talebi Oluştur Açıklama toolbar K/A + liste ikonları yalnız o popup’ta hafif büyük (`!important`, #2757 reopen). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).

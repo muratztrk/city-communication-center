@@ -1,5 +1,5 @@
 import { ArrowRight, CheckCheck, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -572,8 +572,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [returnUserId, setReturnUserId] = useState('')
   const [returnSaving, setReturnSaving] = useState(false)
   const [completeModal, setCompleteModal] = useState<{ taskId: string; displayNumber: string; isCitizenRequest: boolean } | null>(null)
-  const [completionNoteEditModal, setCompletionNoteEditModal] = useState<{ taskId: string; note: string } | null>(null)
+  const [completionNoteDraft, setCompletionNoteDraft] = useState('')
+  const [isEditingUnapprovedCompletion, setIsEditingUnapprovedCompletion] = useState(false)
+  const [showForcedTaskAttachmentsSection, setShowForcedTaskAttachmentsSection] = useState(false)
   const [completionNoteEditSaving, setCompletionNoteEditSaving] = useState(false)
+  const completionEditFileInputRef = useRef<HTMLInputElement>(null)
   const [completeSaving, setCompleteSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
@@ -1224,13 +1227,29 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
   }
 
+  const resetUnapprovedCompletionEdit = () => {
+    setIsEditingUnapprovedCompletion(false)
+    setCompletionNoteDraft('')
+    setShowForcedTaskAttachmentsSection(false)
+    setCompletionAttachmentError(null)
+  }
+
+  const startUnapprovedCompletionEdit = () => {
+    if (!taskDetail) return
+    setCompletionNoteDraft(richTextToPlainText(taskDetail.notes ?? '').trim())
+    setShowForcedTaskAttachmentsSection((taskDetail.attachments?.length ?? 0) === 0)
+    setIsEditingUnapprovedCompletion(true)
+    setCompletionAttachmentError(null)
+  }
+
   const handleSaveCompletionNoteEdit = async () => {
-    if (!completionNoteEditModal || !completionNoteEditModal.note.trim()) return
-    const taskId = completionNoteEditModal.taskId
+    const note = completionNoteDraft.trim()
+    const taskId = taskDetail?.taskId
+    if (!taskId || !note) return
     setCompletionNoteEditSaving(true)
     try {
-      await api.updateTaskCompletionNote(taskId, completionNoteEditModal.note.trim())
-      setCompletionNoteEditModal(null)
+      await api.updateTaskCompletionNote(taskId, note)
+      resetUnapprovedCompletionEdit()
       invalidateTasks(queryClient, taskId, selectedTask?.jobId ?? taskDetail?.jobId)
       await refreshOpenTaskDetailAfterAction(taskId)
       showToast(t('tasks.actions.completionNoteUpdated', 'Tamamlama notu güncellendi.'))
@@ -1238,6 +1257,63 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setCompletionNoteEditSaving(false)
+    }
+  }
+
+  const handleUnapprovedCompletionFilesSelected = async (files: FileList | null) => {
+    if (!taskDetail) return
+    if (!files || files.length === 0) {
+      if ((taskDetail.attachments?.length ?? 0) === 0) setShowForcedTaskAttachmentsSection(false)
+      return
+    }
+    setCompletionAttachmentError(null)
+    const incoming = Array.from(files)
+    for (const file of incoming) {
+      if (!isAllowedAttachmentFileName(file.name)) {
+        setCompletionAttachmentError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+        if (completionEditFileInputRef.current) completionEditFileInputRef.current.value = ''
+        return
+      }
+      if (file.size > COMPLETION_ATTACHMENT_MAX_SIZE) {
+        setCompletionAttachmentError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+        if (completionEditFileInputRef.current) completionEditFileInputRef.current.value = ''
+        return
+      }
+    }
+    const existingBytes = (taskDetail.attachments ?? []).reduce((sum, item) => sum + (item.fileSizeBytes ?? 0), 0)
+    if (exceedsAttachmentTotalLimit(existingBytes, sumFileSizes(incoming))) {
+      setCompletionAttachmentError(t('attachments.errorTotalSize', 'Dosyaların toplam boyutu 5 MB\'ı aşamaz.'))
+      if (completionEditFileInputRef.current) completionEditFileInputRef.current.value = ''
+      return
+    }
+    setCompletionAttachmentUploading(true)
+    try {
+      for (const file of incoming) {
+        const attachment = await api.uploadTaskAttachment(taskDetail.taskId, file)
+        setTaskDetail(current => current && current.taskId === taskDetail.taskId
+          ? { ...current, attachments: [...(current.attachments ?? []), attachment] }
+          : current)
+        setShowForcedTaskAttachmentsSection(true)
+      }
+    } catch (err) {
+      setCompletionAttachmentError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setCompletionAttachmentUploading(false)
+      if (completionEditFileInputRef.current) completionEditFileInputRef.current.value = ''
+    }
+  }
+
+  const handleDeleteUnapprovedCompletionAttachment = async (attachmentId: string) => {
+    if (!taskDetail) return
+    try {
+      await api.deleteAttachment(attachmentId)
+      const nextAttachments = (taskDetail.attachments ?? []).filter(item => item.attachmentId !== attachmentId)
+      setTaskDetail(current => current
+        ? { ...current, attachments: nextAttachments }
+        : current)
+      if (nextAttachments.length === 0) setShowForcedTaskAttachmentsSection(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
     }
   }
 
@@ -1791,8 +1867,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   // Görev/Rutin görev düzenleme artık ayrı bir forma geçmeden, Taleplerim detay popup'ındaki
   // gibi AYNI Görev Detayları düzeni içinde satır satır editable hale geliyor (card #1500).
   const activeTaskEditDraft = editJobModal ?? editRoutineTaskModal
-  const isEditingTaskDetail = Boolean(activeTaskEditDraft)
-  const isSavingTaskEdit = editJobSaving || editRoutineTaskSaving
+  const isEditingTaskDetail = Boolean(activeTaskEditDraft) || isEditingUnapprovedCompletion
+  const isSavingTaskEdit = editJobSaving || editRoutineTaskSaving || completionNoteEditSaving
   const updateActiveTaskEditDraft = (patch: Partial<{ title: string; description: string; priority: string; dueDateUtc: string }>) => {
     if (editJobModal) setEditJobModal(m => m && ({ ...m, ...patch }))
     else if (editRoutineTaskModal) setEditRoutineTaskModal(m => m && ({ ...m, ...patch }))
@@ -1803,7 +1879,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setEditRoutineTaskModal(m => m && ({ ...m, ...patch }))
   }
   const handleSaveActiveTaskEdit = () => {
-    if (editJobModal) void handleSaveEditJob()
+    if (isEditingUnapprovedCompletion) void handleSaveCompletionNoteEdit()
+    else if (editJobModal) void handleSaveEditJob()
     else if (editRoutineTaskModal) void handleSaveEditRoutineTask()
   }
   const handleCancelActiveTaskEdit = () => {
@@ -1812,6 +1889,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setDueDateEdit(null)
     setExtraTimeEdit(null)
     setExtraTimeReview(null)
+    resetUnapprovedCompletionEdit()
   }
 const pageKicker = isMyTasksView
     ? currentMyTaskViewLabel
@@ -1979,6 +2057,7 @@ const pageKicker = isMyTasksView
     setDueDateEdit(null)
     setExtraTimeEdit(null)
     setExtraTimeReview(null)
+    resetUnapprovedCompletionEdit()
     // Detay derin bağlantıyla (ör. Birime Gelen Talepler) açıldıysa kapatınca geldiği sayfaya dön;
     // bu sayfada kalıp Birimdeki Görevler'e düşmemeli (card 549).
     if (notificationTaskId) {
@@ -2185,7 +2264,7 @@ const pageKicker = isMyTasksView
                 )}
                 {isEditingTaskDetail ? (
                   <>
-                    <Button type="button" size="lg" variant="success" className="!min-w-[6.75rem]" disabled={isSavingTaskEdit} onClick={handleSaveActiveTaskEdit}>
+                    <Button type="button" size="lg" variant="success" className="!min-w-[6.75rem]" disabled={isSavingTaskEdit || (isEditingUnapprovedCompletion && !completionNoteDraft.trim())} onClick={handleSaveActiveTaskEdit}>
                       {isSavingTaskEdit ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
                     </Button>
                     <Button type="button" size="lg" variant="secondary" className="!min-w-[6.75rem]" disabled={isSavingTaskEdit} onClick={handleCancelActiveTaskEdit}>
@@ -2219,13 +2298,7 @@ const pageKicker = isMyTasksView
                         type="button"
                         size="lg"
                         className="inline-flex items-center gap-1.5 bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
-                        onClick={() => {
-                          if (!taskDetail) return
-                          setCompletionNoteEditModal({
-                            taskId: taskDetail.taskId,
-                            note: richTextToPlainText(taskDetail.notes ?? '').trim(),
-                          })
-                        }}
+                        onClick={startUnapprovedCompletionEdit}
                       >
                         <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                         {t('common.edit', 'Düzenle')}
@@ -2513,7 +2586,7 @@ const pageKicker = isMyTasksView
                               const outboundTone = outboundDiffers && !outboundIsAutoStatus
                                 ? 'outbound-diff' as const
                                 : 'completion' as const
-                              const rows: { label: string; value: string; tone?: 'completion' | 'cancel' | 'outbound-diff' | 'outbound-pending' }[] = []
+                              const rows: { label: string; value: ReactNode; tone?: 'completion' | 'cancel' | 'outbound-diff' | 'outbound-pending' }[] = []
                               if (showCitizenApprover && isCompletedTask) {
                                 rows.push({
                                   label: t('tasks.detail.completionNoteApprover', 'Tamamlama Notu Onaylayan'),
@@ -2527,7 +2600,22 @@ const pageKicker = isMyTasksView
                                 })
                               }
                               if (isCompletedTask || (isPendingCloseApproval && isCitizenTerminalTask)) {
-                                if (completionNoteEdit && isMyTasksView) {
+                                if (isEditingUnapprovedCompletion && isMyTasksView) {
+                                  rows.push({
+                                    label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
+                                    value: (
+                                      <textarea
+                                        className="field-textarea workflow-note-dialog__textarea w-full min-w-[16rem] text-right"
+                                        rows={3}
+                                        maxLength={TASK_TERMINAL_NOTE_MAX_LENGTH}
+                                        value={completionNoteDraft}
+                                        onChange={event => setCompletionNoteDraft(event.target.value)}
+                                        placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                                      />
+                                    ),
+                                    tone: 'completion',
+                                  })
+                                } else if (completionNoteEdit && isMyTasksView) {
                                   rows.push({
                                     label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                                     value: completionNoteEdit.updated,
@@ -2633,39 +2721,95 @@ const pageKicker = isMyTasksView
                             // Görev Ekleri artık ayrı bir kart değil, Durum Değişikliği'nin hemen
                             // altında diğer verilerle aynı hizada tek satır (card #1482); sadece
                             // görev Tamamlandı/İptal Edildi olduğunda gösterilir (card #1520).
-                            ...(taskDetail.jobSourceType !== 'Routine'
-                              && (taskDetail.currentStatus === 'Completed' || taskDetail.currentStatus === 'Cancelled')
-                              && (taskDetail.attachments?.length ?? 0) > 0
-                              ? [{
+                            ...(() => {
+                              const taskAttachments = taskDetail.attachments ?? []
+                              const canEditTaskAttachments = isEditingUnapprovedCompletion && isMyTasksView
+                              const showTaskAttachmentsRow = taskDetail.jobSourceType !== 'Routine'
+                                && (taskDetail.currentStatus === 'Completed' || taskDetail.currentStatus === 'Cancelled')
+                                && (taskAttachments.length > 0 || (canEditTaskAttachments && showForcedTaskAttachmentsSection))
+                              if (!showTaskAttachmentsRow) return []
+                              return [{
                                   label: t('tasks.detail.attachments', 'Görev Ekleri'),
-                                  // Dosya adı mavi; liste iki satırı aşarsa kendi içinde kayar (card #1617).
                                   value: (
-                                    <div className="flex w-full max-h-11 flex-col items-end gap-1 overflow-y-auto">
-                                      {taskDetail.attachments!.map(attachment => {
-                                        const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
-                                        return (
-                                          <div key={attachment.attachmentId} className="inline-flex max-w-full items-center gap-1">
-                                          <button
+                                    <div className="flex w-full flex-col items-end gap-1">
+                                      <div className="flex w-full max-h-11 flex-col items-end gap-1 overflow-y-auto">
+                                        {taskAttachments.map(attachment => {
+                                          const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
+                                          return (
+                                            <div key={attachment.attachmentId} className="inline-flex max-w-full items-center gap-1">
+                                            <button
+                                              type="button"
+                                              className="inline-flex min-w-0 max-w-full items-center gap-1 text-[11px] text-blue-700 hover:text-blue-800"
+                                              onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                                            >
+                                              <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
+                                              <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
+                                            </button>
+                                            <AttachmentImagePreviewButton
+                                              attachmentId={attachment.attachmentId}
+                                              fileName={attachment.fileName}
+                                              ownerKind="task"
+                                              className="h-6 shrink-0 px-1.5 text-[10px]"
+                                            />
+                                            {canEditTaskAttachments ? (
+                                              <Button
+                                                type="button"
+                                                size="sm"
+                                                variant="destructive"
+                                                className="h-6 shrink-0 px-1.5 text-[10px]"
+                                                disabled={completionAttachmentUploading || completionNoteEditSaving}
+                                                onClick={() => void handleDeleteUnapprovedCompletionAttachment(attachment.attachmentId)}
+                                              >
+                                                {t('common.delete', 'Sil')}
+                                              </Button>
+                                            ) : null}
+                                            </div>
+                                          )
+                                        })}
+                                      </div>
+                                      {canEditTaskAttachments ? (
+                                        <div className="flex flex-col items-end gap-1">
+                                          <Button
                                             type="button"
-                                            className="inline-flex min-w-0 max-w-full items-center gap-1 text-[11px] text-blue-700 hover:text-blue-800"
-                                            onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
+                                            size="sm"
+                                            variant="secondary"
+                                            className="h-6 px-1.5 text-[10px]"
+                                            disabled={completionAttachmentUploading || completionNoteEditSaving}
+                                            onClick={() => {
+                                              const input = completionEditFileInputRef.current
+                                              if (!input) return
+                                              const onWindowFocus = () => {
+                                                window.removeEventListener('focus', onWindowFocus)
+                                                window.setTimeout(() => {
+                                                  if (!input.files?.length && (taskDetail.attachments?.length ?? 0) === 0) {
+                                                    setShowForcedTaskAttachmentsSection(false)
+                                                  }
+                                                }, 300)
+                                              }
+                                              window.addEventListener('focus', onWindowFocus)
+                                              input.click()
+                                            }}
                                           >
-                                            <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
-                                            <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
-                                          </button>
-                                          <AttachmentImagePreviewButton
-                                            attachmentId={attachment.attachmentId}
-                                            fileName={attachment.fileName}
-                                            ownerKind="task"
-                                            className="h-6 shrink-0 px-1.5 text-[10px]"
+                                            {t('common.add', 'Ekle')}
+                                          </Button>
+                                          <input
+                                            ref={completionEditFileInputRef}
+                                            type="file"
+                                            accept={ATTACHMENT_FILE_ACCEPT}
+                                            multiple
+                                            className="hidden"
+                                            disabled={completionAttachmentUploading || completionNoteEditSaving}
+                                            onChange={event => void handleUnapprovedCompletionFilesSelected(event.target.files)}
                                           />
-                                          </div>
-                                        )
-                                      })}
+                                          {completionAttachmentError ? (
+                                            <p className="text-xs font-medium text-red-600">{completionAttachmentError}</p>
+                                          ) : null}
+                                        </div>
+                                      ) : null}
                                     </div>
                                   ),
                                 }]
-                              : []),
+                            })(),
                             ...(activeTaskEditDraft
                               ? [{
                                   label: t('tasks.newRequest.priority', 'Öncelik'),
@@ -3836,52 +3980,6 @@ const pageKicker = isMyTasksView
             onPageChange={setTasksPage}
           />
         </section>
-      )}
-
-      {completionNoteEditModal && createPortal(
-        <ModalBackdrop onEscapeClose={() => !completionNoteEditSaving && setCompletionNoteEditModal(null)}>
-          <div className="form-card page-stack relative w-full max-w-md">
-            <button
-              type="button"
-              onClick={() => !completionNoteEditSaving && setCompletionNoteEditModal(null)}
-              aria-label={t('common.close', 'Kapat')}
-              className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
-            >
-              <X className="size-4" />
-            </button>
-            <h2 className="workflow-note-dialog__title workflow-note-dialog__title--sm">{t('tasks.actions.editCompletionNoteTitle', 'Tamamlama Notunu Düzenle')}</h2>
-            <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
-              {t('tasks.actions.editCompletionNoteHelp', 'Yalnızca tamamlama notu düzenlenebilir.')}
-            </p>
-            <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_TERMINAL_NOTE_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
-              <textarea
-                className="field-textarea workflow-note-dialog__textarea"
-                rows={3}
-                maxLength={TASK_TERMINAL_NOTE_MAX_LENGTH}
-                value={completionNoteEditModal.note}
-                onChange={e => setCompletionNoteEditModal(current => current ? { ...current, note: e.target.value } : current)}
-                placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
-                autoFocus
-              />
-            </label>
-            <div className="mt-3 flex justify-end gap-2">
-              <Button type="button" size="sm" variant="secondary" disabled={completionNoteEditSaving} onClick={() => setCompletionNoteEditModal(null)}>
-                {t('common.cancel', 'Vazgeç')}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="success"
-                disabled={completionNoteEditSaving || !completionNoteEditModal.note.trim()}
-                onClick={() => void handleSaveCompletionNoteEdit()}
-              >
-                {completionNoteEditSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
-              </Button>
-            </div>
-          </div>
-        </ModalBackdrop>,
-        document.body,
       )}
 
       {completeModal && createPortal(

@@ -1,3 +1,9 @@
+## Round 1386 — #3956 reopen / #3961 / #3957
+
+- [x] `6abd087a` / #3956 — İade detayından iptal Bekleyen'den düşer, Tümü'ye gider; popup kapanır; yönlendir/düzenle/vatandaş mesaj satırları yok.
+- [x] `6abdfb8d` / #3961 — Görevlerim onaysız not Düzenle satır içi; ek Sil/Ekle.
+- [x] `6abdf1e1` / #3957 — WA balonunda http(s) link yeni sekmede açılır.
+
 ## Round 1385 — #3956 returned cancelled
 
 - [x] `6abd087a` / #3956 — İade Bekleyen'den iptal düşer; Tümü detayında yönlendir/düzenle ve vatandaş mesaj satırları yok.

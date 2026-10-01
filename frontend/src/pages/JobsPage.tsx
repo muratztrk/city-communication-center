@@ -750,6 +750,8 @@ interface JobsPageProps {
   onNotificationDetailClose?: () => void
   /** İade Edilen Talepler detayında yönlendirme başarılı (#3743). */
   onReturnedForwardSuccess?: () => void
+  /** İade detayından iptal: Bekleyen listesi düşer (#3956). */
+  onReturnedCancelSuccess?: () => void
   /** Vatandaşa Gönderilecek Mesaj Onayı detayında "Talep Durumu Değiştir" (card #2057). */
   onChangeStatusToInProgress?: (jobId: string) => void
   /** Mesaj Onayı Detaylar popup aksiyonları (#2088/#2089): Notu Düzenle / Mesajı Onayla; Yazdır gizlenir.
@@ -779,7 +781,7 @@ interface JobsPageProps {
   }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onReturnedForwardSuccess, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onReturnedForwardSuccess, onReturnedCancelSuccess, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -1971,8 +1973,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       await api.cancelJob(cancelModal.jobId, cancelModal.reason.trim())
       invalidateJobs(queryClient, cancelModal.jobId)
       setCancelModal(null)
-      await refreshDetail()
-      await reload()
+      if (isReturnedRequestDetail) {
+        onReturnedCancelSuccess?.()
+        closeDetail()
+      } else {
+        await refreshDetail()
+        await reload()
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setCancelModal(m => m ? { ...m, saving: false } : null)
@@ -2847,7 +2854,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 : Boolean(socialActions && !socialActions.cancel)}
               cancelDisabledTitle={socialActions?.cancelDisabledTitle}
               onForwardReturned={canForwardReturnedDetail ? openReturnedForwardModal : undefined}
-              onEdit={socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? ((canEditReturnedDetailJob || canEditMyRequestDetailJob) && !myRequestEditing ? startMyRequestEdit : undefined))}
+              onEdit={socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? ((isReturnedRequestDetail ? canEditReturnedDetailJob : canEditMyRequestDetailJob) && !myRequestEditing ? startMyRequestEdit : undefined))}
               showEditDisabled={socialActions ? Boolean(!socialActions.edit && socialActions.editDisabledTitle) : (showMyRequestEditDisabled && !myRequestEditing)}
               editDisabledTitle={socialActions?.editDisabledTitle}
               onGoToConversation={socialActions?.goToConversation ?? (isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage, user) ? openCitizenConversationModal : undefined)}

@@ -434,6 +434,11 @@ export function ReturnedCitizenRequestsPage() {
               setScope('forwarded')
               setCurrentPage(1)
             }}
+            onReturnedCancelSuccess={() => {
+              setDetailJobId(null)
+              setDetailRefreshKey(current => current + 1)
+              void jobsQuery.refetch()
+            }}
           />
         </Suspense>
       ) : null}

@@ -263,6 +263,42 @@ export function formatConversationDisplayContent(content: string): string {
   return stripAttachmentFilenameMarker(richTextToPlainText(trimmed))
 }
 
+const WEB_URL_RE = /https?:\/\/[^\s<>"'`]+/gi
+
+function sanitizeConversationHref(raw: string): { href: string; display: string; trailing: string } | null {
+  const trailingMatch = raw.match(/[),.!?;:]+$/)
+  const trailing = trailingMatch?.[0] ?? ''
+  const candidate = trailing ? raw.slice(0, -trailing.length) : raw
+  try {
+    const parsed = new URL(candidate)
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null
+    return { href: parsed.href, display: candidate, trailing }
+  } catch {
+    return null
+  }
+}
+
+/** WA balonunda http(s) adreslerini yeni sekmede açılır link yapar (#3957). */
+export function splitConversationContentWithLinks(text: string): Array<{ type: 'text' | 'url'; value: string; href?: string }> {
+  if (!text) return []
+  const parts: Array<{ type: 'text' | 'url'; value: string; href?: string }> = []
+  let lastIndex = 0
+  for (const match of text.matchAll(WEB_URL_RE)) {
+    const index = match.index ?? 0
+    if (index > lastIndex) parts.push({ type: 'text', value: text.slice(lastIndex, index) })
+    const sanitized = sanitizeConversationHref(match[0])
+    if (sanitized) {
+      parts.push({ type: 'url', value: sanitized.display, href: sanitized.href })
+      if (sanitized.trailing) parts.push({ type: 'text', value: sanitized.trailing })
+    } else {
+      parts.push({ type: 'text', value: match[0] })
+    }
+    lastIndex = index + match[0].length
+  }
+  if (lastIndex < text.length) parts.push({ type: 'text', value: text.slice(lastIndex) })
+  return parts.length > 0 ? parts : [{ type: 'text', value: text }]
+}
+
 /** WA konuşmada ara — içerik, gönderen etiketi ve Beklemede rozeti (#3378/#3379). */
 export function conversationEntryMatchesChatSearch(
   entry: {

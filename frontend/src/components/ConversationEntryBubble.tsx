@@ -16,6 +16,7 @@ import {
   isPlaceholderBracketContent,
   parseAttachmentFilenameFromContent,
   parseConversationLocationCoords,
+  splitConversationContentWithLinks,
 } from '../utils/socialConversationContent'
 import { extractGoogleMapsUrlFromContent } from '../utils/coordinates'
 import { formatWhatsAppDeliveryError, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
@@ -427,9 +428,30 @@ export function ConversationEntryBubble({
             <>
               {entry.content && !isPlaceholderBracketContent(entry.content) && (
                 <p className="min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere] leading-snug">
-                  {highlightOutboundPhrases && !isInbound
-                    ? renderWhatsAppOutboundHighlights(formatConversationDisplayContent(entry.content))
-                    : formatConversationDisplayContent(entry.content)}
+                  {splitConversationContentWithLinks(formatConversationDisplayContent(entry.content)).map((part, index) => {
+                    if (part.type === 'url' && part.href) {
+                      return (
+                        <a
+                          key={`${part.href}-${index}`}
+                          href={part.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={isInbound
+                            ? 'text-sky-700 underline underline-offset-2 hover:text-sky-800'
+                            : 'text-white underline underline-offset-2 hover:text-white/90'}
+                        >
+                          {part.value}
+                        </a>
+                      )
+                    }
+                    return (
+                      <span key={`text-${index}`}>
+                        {highlightOutboundPhrases && !isInbound
+                          ? renderWhatsAppOutboundHighlights(part.value)
+                          : part.value}
+                      </span>
+                    )
+                  })}
                 </p>
               )}
               {isPlaceholderBracketContent(entry.content) && !hasMedia && (

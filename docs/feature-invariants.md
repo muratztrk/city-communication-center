@@ -2334,10 +2334,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Tamamlama Notu** (orijinal, yeşil değil) + **Güncellenen Tamamlama Notu** (yeşil) +
   **Tamamlama Notu Güncelleyen** (başlık + değer yeşil, #3905 r2) gösterir.
   Görevlerim'de onaysız not Düzenle sonrası **Güncellenen / Güncelleyen satırları yok**;
-  Tamamlama Notu değeri güncellenir ve yeşil kalır (#3910). Tamamlama Notunu Düzenle
-  başlığı `workflow-note-dialog__title--sm` (#3911).
+  Tamamlama Notu değeri güncellenir ve yeşil kalır (#3910). Görevlerim onaysız
+  Tamamlama Notu **Düzenle** popup açmaz; not satır içi textarea + Kaydet/Vazgeç olur
+  (#3961). Ek varsa Ön İzle sağında kırmızı **Sil** ve **Ekle**; ek yoksa Düzenle
+  **Görev Ekleri** + **Ekle** gösterir, dosya seçilmezse başlık kaybolur.
   Görevlerim'de not onaylanmamışken (PendingCloseApproval veya vatandaş + Mesajı Onayla yok)
-  **Düzenle** yalnız Tamamlama Notu'nu açar; arka plan koyu turkuaz `#007985` / hover `#006570`
+  **Düzenle** yalnız Tamamlama Notu'nu (satır içi) açar; arka plan koyu turkuaz `#007985` / hover `#006570`
   (#3907 r2; turuncu değil). `GetJobById` bu iki alanı rol kapısı olmadan
   doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
   verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
@@ -3239,10 +3241,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **İade Bekleyen liste (#3727):** detaydan `forward-returned` sonrası `returned-citizen-requests`
   sorgusu invalidate edilir; satır Bekleyen'den düşer.
 - **İade iptal (#3956):** `returned-to-operator` (Bekleyen + sol menü rozeti) `Cancelled`/`Rejected`
-  kayıtları içermez. Tümü `returned-cancelled` ile iptalleri gösterir. İptal detayında Talebi
-  Yönlendir, Düzenle, Vatandaşa Giden Mesaj ve Vatandaşa Giden Mesajı Düzenleyen yoktur.
+  kayıtları içermez. Tümü `returned-cancelled` (`ReturnedToOperatorAtUtc` veya reason + iptal)
+  ile iptalleri gösterir. Detaydan iptal popup'ı kapatır ve Bekleyen'i yeniler. İptal
+  detayında Talebi Yönlendir, Düzenle, Vatandaşa Giden Mesaj ve Vatandaşa Giden Mesajı
+  Düzenleyen yoktur.
 - **WA mesaj sarma (#3728):** konuşma balonu `max-w-full overflow-hidden break-words`; pane
   `overflow-x-hidden`.
+- **WA http(s) link (#3957):** konuşma balonu metnindeki `http://`/`https://` adresleri
+  tıklanır; `target=_blank` + `rel=noopener noreferrer`. javascript/data şeması yok.
 - **Grid Kaydet toast (#3729):** Kullanıcılar/Birimler inline düzenleme `emitPageToast`.
 - **Kurum içi SMS telefon (#3732):** log grid Telefon No = personel `MobilePhone` (AfterHours).
 - **İptal Mesaj Onayı (#3731):** görevsiz iptalde `ReleaseTerminalMessagesAsync` Pending kuyruğa

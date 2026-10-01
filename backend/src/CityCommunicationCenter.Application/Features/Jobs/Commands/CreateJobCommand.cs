@@ -205,7 +205,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         var ownerTaskNotes = JobOwnerTaskProvisioning.CreateOwnerTaskNotes(ownerUserIds);
         var startDateUtc = request.StartDateUtc?.ToUniversalTime();
         var dueDateUtc = request.DueDateUtc?.ToUniversalTime();
-        if (!requiresOwnerApproval && dueDateUtc is null)
+        if (dueDateUtc is null)
         {
             var settings = await _dbContext.TenantSettings
                 .AsNoTracking()

@@ -1,3 +1,10 @@
+## Round 1400 — Doing'e eklenen #4015 / #4016 / #4017
+
+- [x] #4015 — Birimden Giden Yapılmakta gridinden Görevi Yapan sütunu kaldırıldı.
+- [x] #4016 — Birimden Giden Bekleyen gridinden Son Tarih sütunu kaldırıldı.
+- [x] #4017 — Son tarih seçilmeyen onay bekleyen taleplere oluşturma anından varsayılan SLA son tarihi atanıyor.
+- [x] Doğrulama: backend build + 287 test; frontend build + lint (0 error, 13 mevcut hook warning); backend/frontend incelemesinde bulgu yok.
+
 ## Round 1399 — Doing: #4005 / #3994 / #4009–#4014 / #4002 / #4008
 
 - [x] #4005 — WhatsApp ve kurum içi mesaj FAB aralığı azaltıldı.
@@ -11,7 +18,7 @@
 - [x] #4002 — Birim talebi adres etiketlerinin alt çizgileri hücre genişliğinde.
 - [x] #4008 — Onay Bekleyen dışındaki eksik durum tarihleri ve aktif tarih renkleri düzeltildi.
 - [x] Doğrulama: backend build + 286 test; frontend build + lint (0 error, 13 mevcut hook warning); gstack inceleme bulguları düzeltildi.
-- Testtim deploy: commit/push sonrası.
+- [x] Testtim deploy: `367f53ed` ile tamamlandı; health/database sağlıklı.
 
 ## Round 1398 — #3999 / #3991 r2 / #4006 / #4007
 

@@ -1997,6 +1997,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
   "Geciken" sayılmaz; takvim günü değişince overdue olur.
+- **Talep oluşturma varsayılan son tarih (#6abebcb2):** Son tarih seçilmezse onay gerektiren
+  talepler dahil tüm yeni taleplerde oluşturma anına varsayılan SLA süresi eklenir; boş son tarih
+  nedeniyle `Onay Bekleyen` metni üretilmez.
 - **SLA hafta sonu süresi (#3281, #3382):** `SlaBusinessHours` Türkiye takvimi (`Europe/Istanbul`);
   Cmt/Paz başlangıç aynı yerel saatte sonraki Pazartesi’ye kayar, sonra yalnız hafta içi saat.
   Hafta sonu SLA durdurma açıkken Türkiye resmi tatilleri de sayılmaz (ayrı toggle yok).
@@ -2164,7 +2167,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a75a7b9 / #6a75a725 / #6a75a790). Bağlı Olduğu Talep No dar (~10rem), başlık geniş (#6a75a6ae width).
 - **Taleplerim / Birime Gelen / Birimden Giden `Tümü`:** Durum sütunu Son Tarih’ten önce
   (#6a75a5fd / #6a75a5a3).
-- **Birimden Giden:** Onaylanmış + Yapılmakta’ta Son Tarih yok (#6a75a457); Tamamlanmış + İptal’de
+- **Birimden Giden:** Bekleyen + Onaylanmış + Yapılmakta’ta Son Tarih yok (#6abebb9a/#6a75a457);
+  Yapılmakta’da Görevi Yapan / Görev Sahibi yok (#6abeba74); Tamamlanmış + İptal’de de
   Görevi Yapan / Görev Sahibi yok (#6a75a4ff).
 - **Kurum içi FAB sohbet zemin:** liste paneli ile aynı `bg-[color:var(--color-background)]`
   (bej `#ece5dd` geri alındı — #6a75a09a).

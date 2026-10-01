@@ -1137,7 +1137,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
   const showTaskOwnerColumn = isMyRequestsView
     ? ['in-progress', 'completed', 'rejected'].includes(activeJobView)
-    : isDepartmentOutgoingView && activeJobView === 'in-progress'
+    : false
   // Tamamlanan / İptal Taleplerim: Gittiği Yer, Görevi Yapan'dan önce (#6a75e470).
   const destinationBeforeOwner = showTaskOwnerColumn
     && isMyRequestsView
@@ -1145,7 +1145,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const hideJobsDueDateColumn = (isMyRequestsView || isDepartmentOutgoingView) && (
     activeJobView === 'rejected'
     || activeJobView === 'completed'
-    || (isDepartmentOutgoingView && (activeJobView === 'approved' || activeJobView === 'in-progress'))
+    || (isDepartmentOutgoingView && (activeJobView === 'pending' || activeJobView === 'approved' || activeJobView === 'in-progress'))
   )
   const showDepartmentOutgoingCreatedBy = isDepartmentOutgoingView && activeJobView !== 'overdue'
   const showJobsGridStatusColumn = (isMyRequestsView || isDepartmentOutgoingView)

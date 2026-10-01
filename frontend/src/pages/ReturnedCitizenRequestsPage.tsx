@@ -45,6 +45,8 @@ type ReturnedCitizenRequestRow = {
   requestDateUtc: string
   requestDateText: string
   destinationName: string
+  forwardedDepartmentName: string
+  forwardNote: string
   returnedReason: string
   channel?: string | null
 }
@@ -66,6 +68,16 @@ function resolveDestinationName(job: JobSummary): string {
   return job.returnedFromDepartmentName?.trim() || '—'
 }
 
+function resolveLatestTarget(job: JobSummary): { departmentName: string; notes: string } {
+  const latest = [...(job.departments ?? [])]
+    .filter(department => department.role === 'Target')
+    .sort((left, right) => (right.requestedAtUtc ?? '').localeCompare(left.requestedAtUtc ?? ''))[0]
+  return {
+    departmentName: latest?.departmentName?.trim() || '—',
+    notes: latest?.notes?.trim() || '—',
+  }
+}
+
 function toReturnedRow(
   job: JobSummary,
   locale: string,
@@ -80,6 +92,7 @@ function toReturnedRow(
     : linkedMessage
       ? getSocialMessageCitizenPhone(linkedMessage)
       : '—'
+  const forwardedTarget = resolveLatestTarget(job)
 
   return {
     jobId: job.jobId,
@@ -90,6 +103,8 @@ function toReturnedRow(
     requestDateUtc,
     requestDateText: requestDateUtc ? new Date(requestDateUtc).toLocaleString(locale) : '—',
     destinationName: resolveDestinationName(job),
+    forwardedDepartmentName: forwardedTarget.departmentName,
+    forwardNote: forwardedTarget.notes,
     returnedReason: job.returnedToOperatorReason?.trim() || '—',
     channel: linkedMessage?.channel ?? null,
   }
@@ -108,6 +123,7 @@ export function ReturnedCitizenRequestsPage() {
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
   const activeScopeFilter = RETURNED_SCOPE_FILTERS.find(filter => filter.value === scope) ?? RETURNED_SCOPE_FILTERS[0]
+  const showForwardedColumns = scope === 'forwarded' || scope === 'all'
 
   const jobsQuery = useQuery({
     queryKey: queryKeys.jobs.returnedCitizenRequests(scope),
@@ -157,6 +173,8 @@ export function ReturnedCitizenRequestsPage() {
     if (key === 'title') return row.title
     if (key === 'requestDateUtc') return row.requestDateText
     if (key === 'destinationName') return row.destinationName
+    if (key === 'forwardedDepartmentName') return row.forwardedDepartmentName
+    if (key === 'forwardNote') return row.forwardNote
     if (key === 'returnedReason') return row.returnedReason
     return String((row as unknown as Record<string, unknown>)[key] ?? '')
   }
@@ -173,6 +191,8 @@ export function ReturnedCitizenRequestsPage() {
       row.citizenPhone,
       row.title,
       row.destinationName,
+      row.forwardedDepartmentName,
+      row.forwardNote,
       row.returnedReason,
       row.requestDateText,
     ])) {
@@ -215,7 +235,7 @@ export function ReturnedCitizenRequestsPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t('returnedCitizenRequests.title', 'İade Edilen Talepler')}</div>
+            <div className="page-kicker">{t(activeScopeFilter.labelKey, activeScopeFilter.fallback)}</div>
             <h1 className="page-title">{t('nav.returnedCitizenRequests', 'İade Edilen Talepler').replace('\n', ' ')}</h1>
             <p className="page-subtitle">{t('returnedCitizenRequests.subtitle', 'Birimlerden operatöre iade edilen vatandaş talepleri.')}</p>
           </div>
@@ -349,6 +369,32 @@ export function ReturnedCitizenRequestsPage() {
                 >
                   {t('returnedCitizenRequests.columns.destination', 'Geldiği Yer')}
                 </FilterableTh>
+                {showForwardedColumns ? (
+                  <>
+                    <FilterableTh
+                      filterKey="forwardedDepartmentName"
+                      filterValue={filters.forwardedDepartmentName ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="forwardedDepartmentName"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('returnedCitizenRequests.columns.forwardedDepartment', 'Yönlendirilen Birim')}
+                    </FilterableTh>
+                    <FilterableTh
+                      filterKey="forwardNote"
+                      filterValue={filters.forwardNote ?? ''}
+                      onFilter={handleFilter}
+                      sortKey="forwardNote"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={handleSort}
+                    >
+                      {t('returnedCitizenRequests.columns.forwardNote', 'Yönlendirme Notu')}
+                    </FilterableTh>
+                  </>
+                ) : null}
                 <FilterableTh
                   filterKey="returnedReason"
                   filterValue={filters.returnedReason ?? ''}
@@ -358,7 +404,7 @@ export function ReturnedCitizenRequestsPage() {
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('jobs.detail.returnedReason', 'İade Sebebi')}
+                  {t('returnedCitizenRequests.columns.returnedReason', 'İade Sebebi')}
                 </FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
@@ -382,6 +428,14 @@ export function ReturnedCitizenRequestsPage() {
                   </td>
                   <td><DateCell value={row.requestDateUtc} locale={locale} /></td>
                   <td><span className="font-semibold text-slate-700">{row.destinationName}</span></td>
+                  {showForwardedColumns ? (
+                    <>
+                      <td><span className="font-semibold text-slate-700">{row.forwardedDepartmentName}</span></td>
+                      <td>
+                        <TruncatedText text={row.forwardNote} className="cell-title" />
+                      </td>
+                    </>
+                  ) : null}
                   <td>
                     <TruncatedText text={row.returnedReason} className="cell-title" />
                   </td>
@@ -400,7 +454,7 @@ export function ReturnedCitizenRequestsPage() {
                 </tr>
               ))}
               {sortedRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={8} message={t('returnedCitizenRequests.empty', 'İade edilmiş talep yok.')} />
+                <TableEmptyStateRows columnCount={showForwardedColumns ? 10 : 8} message={t('returnedCitizenRequests.empty', 'İade edilmiş talep yok.')} />
               ) : null}
             </tbody>
           </table>

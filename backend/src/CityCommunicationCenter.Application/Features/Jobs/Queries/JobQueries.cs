@@ -150,14 +150,15 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         {
             q = q.Where(j => j.ReturnedToOperatorAtUtc == null
                 && j.ReturnedToOperatorReason != null
+                && j.Status != JobStatus.Cancelled
+                && j.Status != JobStatus.Rejected
                 && (j.RequestType == JobRequestType.Citizen
                     || j.SourceType == JobSourceType.SocialMessage
                     || j.SourceType == JobSourceType.CitizenRequest
                     || j.SourceType == JobSourceType.EDevlet)
                 && _dbContext.JobDepartments.Any(jd =>
                     jd.JobId == j.JobId
-                    && jd.Role == JobDepartmentRole.Target
-                    && jd.ApprovalStatus == JobApprovalStatus.Pending));
+                    && jd.Role == JobDepartmentRole.Target));
             if (actor is null
                 || (actor.RoleCode != RoleCode.Operator
                     && actor.RoleCode != RoleCode.SystemAdmin

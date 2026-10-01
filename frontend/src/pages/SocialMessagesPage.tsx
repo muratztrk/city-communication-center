@@ -620,7 +620,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
         <div className="page-header-row">
           <div className="space-y-1">
             {/* Kicker satırı eklendi; banner yüksekliği diğer bölümlerinkiyle aynı olsun (card 635). */}
-            <div className="page-kicker">{t('social.title')}</div>
+            <div className="page-kicker">{channelQuickFilters.find(filter => filter.value === channelFilter)?.label ?? t('nav.socialAll', 'Tümü')}</div>
             <h1 className="page-title">{t('nav.social', 'Vatandaş Talepleri')}</h1>
             <p className="page-subtitle">{t('social.subtitle')}</p>
           </div>

@@ -1,3 +1,11 @@
+## Round 1388 — #3966 r2 / #3970 / #3973 / #3972 / #3969
+
+- [x] `6abe10ee` / #3966 — Görevlerim onaysız not textarea altında koyu turkuaz Düzenle kaydeder.
+- [x] `6abe1f32` / #3970 — İade Yönlendirilen/Tümü: İade Sebebi soluna Yönlendirilen Birim + Yönlendirme Notu.
+- [x] `6abe236e` / #3973 — İade / Sms Onayı / Vatandaş Talepleri banner kicker = seçili chip.
+- [x] `6abe2353` / #3972 — Hedef yönetici onayından sonra yönlendirilen talep listeden düşmez.
+- [x] `6abe1ec4` / #3969 — Operatörün yönlendirdiği talep Yönlendirilen ve Tümü'nde görünür.
+
 ## Round 1387 — #3962 / #3966 / #3965
 
 - [x] `6abe06b3` / #3962 — Görevlerim not düzenlemesi Mesaj Onayı'nda Güncellenen/Güncelleyen satırı açmaz; yalnız Notu Düzenle açar.

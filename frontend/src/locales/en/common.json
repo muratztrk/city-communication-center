@@ -1002,13 +1002,22 @@
     "detailTitle": "Returned Request",
     "subtitle": "Citizen requests returned to the operator from departments.",
     "empty": "No returned requests.",
+    "scope": {
+      "pending": "Pending",
+      "forwarded": "Forwarded",
+      "all": "All"
+    },
     "columns": {
       "requestNumber": "Citizen Request No",
       "citizenName": "Citizen Name",
       "citizenPhone": "Phone No",
       "title": "Title",
       "requestDate": "Citizen Request Date",
+      "requestDateShort": "Request Date",
       "destination": "Source",
+      "forwardedDepartment": "Forwarded Department",
+      "forwardNote": "Forward Note",
+      "returnedReason": "Return Reason",
       "label": "Request Label"
     }
   },

@@ -97,7 +97,8 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
   const { sortKey, sortDir, toggleSort: toggleSortRaw, sortItems } = useSortable()
   const { filters, setFilter, clearFilters, matchesFilters, hasActiveFilters: hasActiveColumnFilters } = useColumnFilters()
 
-  const apiScope = useMemo(() => SCOPE_FILTERS.find(filter => filter.value === scope)?.apiScope ?? 'to-send', [scope])
+  const activeScopeFilter = SCOPE_FILTERS.find(filter => filter.value === scope) ?? SCOPE_FILTERS[0]
+  const apiScope = activeScopeFilter.apiScope
   const showMessageApproverColumn = scope === 'sent' || scope === 'all'
   const tableColumnCount = 8
 
@@ -297,7 +298,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t(`${i18nRoot}.kicker`, 'Vatandaş Talepleri')}</div>
+            <div className="page-kicker">{t(activeScopeFilter.labelKey, activeScopeFilter.fallback)}</div>
             <h1 className="page-title">{t(`${i18nRoot}.title`, isSms ? 'Sms Gönderim Onayı' : 'Vatandaşa Gönderilecek Mesaj Onayı')}</h1>
             <p className="page-subtitle">
               {t(

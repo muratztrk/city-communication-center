@@ -791,13 +791,22 @@
     "detailTitle": "İade Edilen Talep",
     "subtitle": "Birimlerden operatöre iade edilen vatandaş talepleri.",
     "empty": "İade edilmiş talep yok.",
+    "scope": {
+      "pending": "Bekleyen",
+      "forwarded": "Yönlendirilen",
+      "all": "Tümü"
+    },
     "columns": {
       "requestNumber": "Vatandaş Talep No",
       "citizenName": "Vatandaş Adı",
       "citizenPhone": "Telefon No",
       "title": "Başlık",
       "requestDate": "Vatandaş Talep Tarihi",
+      "requestDateShort": "Talep Tarihi",
       "destination": "Geldiği Yer",
+      "forwardedDepartment": "Yönlendirilen Birim",
+      "forwardNote": "Yönlendirme Notu",
+      "returnedReason": "İade Sebebi",
       "label": "Talep Etiketi"
     }
   },

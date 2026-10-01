@@ -717,14 +717,19 @@ function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOu
       job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
   }
 
-  // Onaylanan: sahip onaylı; tamamlanmış/iptal/yapılmakta hariç (#2826).
+  // Birim Dışı Onay Bekleyen: Taleplerim external-pending ile aynı (#3999) + sahip onaylı (#2826).
   if (view === 'approved') {
-    return outgoing.filter(job =>
-      (job.departments?.some(department => department.role === 'Owner' && department.decidedAtUtc != null) ?? false)
-      && job.status !== 'Completed'
-      && job.status !== 'Cancelled'
-      && job.status !== 'Rejected'
-      && !(job.status === 'Active' && job.taskCount > 0))
+    return outgoing.filter(job => {
+      const matchesMyExternalPending = job.requestType === 'ExternalUnit'
+        && (job.status === 'PendingExternalApproval' || (job.status === 'Active' && job.taskCount === 0))
+        && !isJobOverdue(job)
+      const ownerApproved = (job.departments?.some(department => department.role === 'Owner' && department.decidedAtUtc != null) ?? false)
+        && job.status !== 'Completed'
+        && job.status !== 'Cancelled'
+        && job.status !== 'Rejected'
+        && !(job.status === 'Active' && job.taskCount > 0)
+      return matchesMyExternalPending || ownerApproved
+    })
   }
 
   if (view === 'in-progress') {

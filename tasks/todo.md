@@ -1,3 +1,10 @@
+## Round 1398 — #3999 / #3991 r2 / #4006 / #4007
+
+- [x] `6abea98f` / #3999 — Taleplerim Birim Dışı Onay Bekleyen, Giden aynı chip’te.
+- [x] `6abe9fc7` / #3991 — Gelen Onaylanan header paging gibi tam genişlik.
+- [x] `6abeb215` / #4006 — Bildirim: Birim Dışı Talep oluşturuldu.
+- [x] `6abeb281` / #4007 — Bildirim başlıklarının sonuna nokta.
+
 ## Round 1397 — #3994 r2 / #4001 r2 / #4003 / #4004 / #4005
 
 - [x] `6abea2d2` / #3994 — Anasayfa dönem altı personel kutuları daha geniş.

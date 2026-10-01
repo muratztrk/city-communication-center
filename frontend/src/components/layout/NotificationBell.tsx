@@ -24,6 +24,7 @@ import {
   formatNotifDate,
   localizeNotificationText,
   parseNotificationDetailTarget,
+  withNotificationTitlePeriod,
 } from '../../utils/notificationShared'
 
 type NotifFilter = 'all' | 'unread'
@@ -185,7 +186,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   const unreadCount = notifQuery.data != null ? Math.max(apiUnreadCount, listUnreadCount) : apiUnreadCount
   const displayNotifications = notifications.map(notification => ({
     ...notification,
-    title: localizeNotificationText(notification.title),
+    title: withNotificationTitlePeriod(localizeNotificationText(notification.title)),
     message: localizeNotificationText(notification.message),
     isRead: notification.isRead || viewedNotificationIds.has(notification.notificationId),
   }))
@@ -236,7 +237,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
     (payload: NotificationPayload) => {
       const localizedPayload = {
         ...payload,
-        title: localizeNotificationText(payload.title),
+        title: withNotificationTitlePeriod(localizeNotificationText(payload.title)),
         message: localizeNotificationText(payload.message),
       }
       if (!payload.suppressToast) {

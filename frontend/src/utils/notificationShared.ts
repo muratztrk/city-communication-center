@@ -1,6 +1,12 @@
 export const OPEN_NOTIFICATIONS_MODAL_EVENT = 'ccc:open-notifications-modal'
 export const OPEN_NOTIFICATION_DETAIL_EVENT = 'ccc:open-notification-detail'
 
+export function withNotificationTitlePeriod(value: string): string {
+  const title = value.trim()
+  if (!title || /[.!?…]$/u.test(title)) return title
+  return `${title}.`
+}
+
 export function localizeNotificationText(value: string): string {
   return value
     .replace(/routine[\s\u00a0]+task[\s\u00a0]+created/giu, 'Rutin görev oluşturuldu')

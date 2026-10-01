@@ -1832,14 +1832,21 @@
       min-width: 8.75rem !important;
     }
 
+    .app-content-shell .incoming-requests-table--approved {
+      width: 100% !important;
+      min-width: 100% !important;
+    }
+
     .app-content-shell .incoming-requests-table--approved thead th {
       height: var(--table-header-row-height);
       max-height: var(--table-header-row-height);
     }
 
-    .app-content-shell .incoming-requests-table--approved thead th:last-child {
-      border-top-right-radius: 0.9rem;
-      background-attachment: scroll;
+    .app-content-shell .incoming-requests-table--approved .grid-col-actions,
+    .app-content-shell .incoming-requests-table--approved thead th:last-child,
+    .app-content-shell .incoming-requests-table--approved tbody td.actions-cell {
+      width: auto !important;
+      min-width: 8.75rem !important;
     }
 
     .app-content-shell .my-requests-table thead th:last-child,

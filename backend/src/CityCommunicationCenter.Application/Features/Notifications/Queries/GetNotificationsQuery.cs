@@ -398,6 +398,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         ? "Birim Dışı Gelen Talep"
                         : a.Action == "JobCreated" && jobRequestType == JobRequestType.InternalUnit
                             ? "Birim İçi Talep oluşturuldu"
+                            : a.Action == "JobCreated" && jobRequestType == JobRequestType.ExternalUnit
+                                ? "Birim Dışı Talep oluşturuldu"
                             : ResolveNotificationTitle(a, actorNamesById);
 
                     feed.Add(new NotificationResponse(

@@ -1528,10 +1528,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Birimden Giden chip `approved` metni **Birim Dışı Onay Bekleyen Talepler** (#3988).
   Birime Gelen Onaylanan: `İşleme Alındı` (hedef yönetici onayı yok) satır yok (#3986).
   Birime Gelen Yapılmakta / Geciken / Tümü İşlemler'de yalnız Detaylar (#3990).
-  Birime Gelen Onaylanan header sağ köşe + dar İşlemler kolonu (#3991).
+  Birime Gelen Onaylanan header paging gibi boydan boya (`width:100%`, #3991 r2).
   Birime Gelen Tamamlanan `Görevi Yapan` değeri biraz büyük (#3992).
   Birime Gelen banner alt yazı: `Birim içi/dışı gelen talepleri durumlarına göre takip edin.` (#3996).
-  Birimden Giden: sahip birim = hedef birim (birim içi) satır yok; gelen listede kalır (#3995).
+  Birimden Giden: yalnız **tüm** Target=Owner ise satır yok; en az bir dış Target varsa giden’de kalır (#3995/#3999).
+  Taleplerim Birim Dışı Onay Bekleyen satırı Giden `approved` chip’te de görünür (#3999).
   Birime Gelen Onaylanmış grid İşlemler'de `Onayla` yok (#1703). Birim içi onaylanmış
   (Active/Waiting/Assigned/InProgress/PendingCloseApproval) satırda **İptal Et pasif**
   (#3276; Geciken/Yapılmakta/Tümü/Onaylanmış). Birim dışı gelen, sahip onayından sonra
@@ -3620,7 +3621,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   host (`*.lumespec.com`, `testtim.tire.bel.tr`) `lumespec-icon.png` (logo metni olmadan yalnız katman
   ikonu). İsteğe bağlı build override: `VITE_FAVICON_URL`.
 - **Birim içi JobCreated bildirim başlığı (#6a6ca1d4):** InternalUnit →
-  `Birim İçi Talep oluşturuldu` (yönetici feed).
+  `Birim İçi Talep oluşturuldu`; ExternalUnit → `Birim Dışı Talep oluşturuldu` (#4006).
+  Bildirim listesi başlıklarının sonunda nokta vardır (#4007).
 - **Bildirim modal tarih = Ara (#6a6c6a6d / #6a75d499 / #6a75d499 reopen):** başlangıç/bitiş = Ara
   genişlik (`8.5rem`); tarih metin/ikon küçültülür (`~0.7rem` / `0.65rem`); Ara placeholder
   `0.72rem`. Seçili tarih truncate olursa DateTimePicker `title` ile tam değer gösterilir.

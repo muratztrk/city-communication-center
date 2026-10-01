@@ -12,6 +12,7 @@ import {
   OPEN_NOTIFICATION_DETAIL_EVENT,
   OPEN_NOTIFICATIONS_MODAL_EVENT,
   localizeNotificationText,
+  withNotificationTitlePeriod,
 } from '../utils/notificationShared'
 import { NotificationPreviewList } from './notifications/NotificationPreviewList'
 import type { AppNotification } from '../types/platform'
@@ -34,7 +35,7 @@ export function DashboardNotificationsCard() {
 
   const displayNotifications = (notifQuery.data ?? []).map(notification => ({
     ...notification,
-    title: localizeNotificationText(notification.title),
+    title: withNotificationTitlePeriod(localizeNotificationText(notification.title)),
     message: localizeNotificationText(notification.message),
     isRead: notification.isRead || viewedNotificationIds.has(notification.notificationId),
   }))

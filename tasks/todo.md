@@ -1,3 +1,9 @@
+## Round 1387 — #3962 / #3966 / #3965
+
+- [x] `6abe06b3` / #3962 — Görevlerim not düzenlemesi Mesaj Onayı'nda Güncellenen/Güncelleyen satırı açmaz; yalnız Notu Düzenle açar.
+- [x] `6abe10ee` / #3966 — Görevlerim satır içi not textarea dar ve sola dayalı; Sil/Ekle biraz daha geniş.
+- [x] `6abe100c` / #3965 — İade detayından operatör iptali yetki + modal hata; popup kapanır.
+
 ## Round 1386 — #3956 reopen / #3961 / #3957
 
 - [x] `6abd087a` / #3956 — İade detayından iptal Bekleyen'den düşer, Tümü'ye gider; popup kapanır; yönlendir/düzenle/vatandaş mesaj satırları yok.

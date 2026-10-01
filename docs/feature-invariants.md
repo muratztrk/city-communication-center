@@ -2334,10 +2334,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Tamamlama Notu** (orijinal, yeşil değil) + **Güncellenen Tamamlama Notu** (yeşil) +
   **Tamamlama Notu Güncelleyen** (başlık + değer yeşil, #3905 r2) gösterir.
   Görevlerim'de onaysız not Düzenle sonrası **Güncellenen / Güncelleyen satırları yok**;
-  Tamamlama Notu değeri güncellenir ve yeşil kalır (#3910). Görevlerim onaysız
-  Tamamlama Notu **Düzenle** popup açmaz; not satır içi textarea + Kaydet/Vazgeç olur
-  (#3961). Ek varsa Ön İzle sağında kırmızı **Sil** ve **Ekle**; ek yoksa Düzenle
-  **Görev Ekleri** + **Ekle** gösterir, dosya seçilmezse başlık kaybolur.
+  Tamamlama Notu değeri güncellenir ve yeşil kalır (#3910). Görevlerim düzenlemesi
+  `TaskCompletionNoteEdited` yazar — Mesaj Onayı sayfasında **Güncellenen Tamamlama Notu**
+  / **Tamamlama Notu Güncelleyen** yalnız o sayfadaki **Notu Düzenle** (`CitizenMessageApprovalCompletionNoteEdited`)
+  sonrası oluşur (#3962). Görevlerim onaysız Tamamlama Notu **Düzenle** popup açmaz;
+  not satır içi textarea + Kaydet/Vazgeç olur (#3961). Textarea dar (`13.5rem`) ve sola
+  dayalı; **Sil** / **Ekle** `min-w-[2.75rem] px-2.5` (#3966). Ek varsa Ön İzle sağında
+  kırmızı **Sil** ve **Ekle**; ek yoksa Düzenle **Görev Ekleri** + **Ekle** gösterir,
+  dosya seçilmezse başlık kaybolur.
   Görevlerim'de not onaylanmamışken (PendingCloseApproval veya vatandaş + Mesajı Onayla yok)
   **Düzenle** yalnız Tamamlama Notu'nu (satır içi) açar; arka plan koyu turkuaz `#007985` / hover `#006570`
   (#3907 r2; turuncu değil). `GetJobById` bu iki alanı rol kapısı olmadan
@@ -3240,11 +3244,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yönlendirme sonrası güncel Target birimi gösterilmez.
 - **İade Bekleyen liste (#3727):** detaydan `forward-returned` sonrası `returned-citizen-requests`
   sorgusu invalidate edilir; satır Bekleyen'den düşer.
-- **İade iptal (#3956):** `returned-to-operator` (Bekleyen + sol menü rozeti) `Cancelled`/`Rejected`
+- **İade iptal (#3956 / #3965):** `returned-to-operator` (Bekleyen + sol menü rozeti) `Cancelled`/`Rejected`
   kayıtları içermez. Tümü `returned-cancelled` (`ReturnedToOperatorAtUtc` veya reason + iptal)
   ile iptalleri gösterir. Detaydan iptal popup'ı kapatır ve Bekleyen'i yeniler. İptal
   detayında Talebi Yönlendir, Düzenle, Vatandaşa Giden Mesaj ve Vatandaşa Giden Mesajı
-  Düzenleyen yoktur.
+  Düzenleyen yoktur. Operatör / VTY / SystemAdmin, oluşturan olmasa da iade edilmiş
+  vatandaş talebini iptal edebilir; `detailOnly` iptal hatası modalda görünür.
 - **WA mesaj sarma (#3728):** konuşma balonu `max-w-full overflow-hidden break-words`; pane
   `overflow-x-hidden`.
 - **WA http(s) link (#3957):** konuşma balonu metnindeki `http://`/`https://` adresleri

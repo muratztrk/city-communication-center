@@ -76,38 +76,21 @@ public sealed class UpdateTaskCompletionNoteCommandHandler : ICommandHandler<Upd
             job.UpdatedByUserId = actor.UserId;
         }
 
-        if (isCitizen && job is not null)
+        // Görevlerim düzenlemesi onay sayfasındaki "Güncellenen Tamamlama Notu" ayrımını
+        // açmamalı — o ayrım yalnız Mesaj Onayı "Notu Düzenle" audit'inden gelir (#3962).
+        _dbContext.AuditLogs.Add(new AuditLog
         {
-            _dbContext.AuditLogs.Add(new AuditLog
-            {
-                AuditLogId = Guid.NewGuid(),
-                TenantId = tenantId,
-                EntityType = nameof(Job),
-                EntityId = job.JobId.ToString(),
-                Action = "CitizenMessageApprovalCompletionNoteEdited",
-                ActorUserId = actor.UserId,
-                ActorDisplayName = actor.DisplayName,
-                StatusAtEvent = job.Status.ToString(),
-                Notes = note,
-                Details = note,
-            });
-        }
-        else
-        {
-            _dbContext.AuditLogs.Add(new AuditLog
-            {
-                AuditLogId = Guid.NewGuid(),
-                TenantId = tenantId,
-                EntityType = nameof(WorkTask),
-                EntityId = task.TaskId.ToString(),
-                Action = "TaskCompletionNoteEdited",
-                ActorUserId = actor.UserId,
-                ActorDisplayName = actor.DisplayName,
-                StatusAtEvent = task.CurrentStatus.ToString(),
-                Notes = note,
-                Details = note,
-            });
-        }
+            AuditLogId = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = nameof(WorkTask),
+            EntityId = task.TaskId.ToString(),
+            Action = "TaskCompletionNoteEdited",
+            ActorUserId = actor.UserId,
+            ActorDisplayName = actor.DisplayName,
+            StatusAtEvent = task.CurrentStatus.ToString(),
+            Notes = note,
+            Details = note,
+        });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;

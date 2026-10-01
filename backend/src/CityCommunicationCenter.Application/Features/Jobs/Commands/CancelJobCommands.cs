@@ -77,8 +77,15 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
                 actor,
                 job,
                 cancellationToken);
+        // İade Edilen Talepler: operatör/VTY oluşturan olmasa da iade kaydını iptal edebilir (#3965).
+        var isReturnedOperatorCanceller = !isCreator && !isOwnerManager && !isTargetManager && !isCitizenRequestManager
+            && job.ReturnedToOperatorAtUtc != null
+            && JobCitizenRequestHelper.IsCitizenRequest(job)
+            && (actor.RoleCode == RoleCode.Operator
+                || UserRoleAccess.IsCitizenRequestManager(actor)
+                || JobWorkflowAuthorization.IsSystemAdmin(actor));
 
-        if (!isCreator && !isOwnerManager && !isTargetManager && !isCitizenRequestManager)
+        if (!isCreator && !isOwnerManager && !isTargetManager && !isCitizenRequestManager && !isReturnedOperatorCanceller)
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.JobId), "İş iptal yetkiniz yok.")

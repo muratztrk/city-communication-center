@@ -81,6 +81,52 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     }
 
     [Fact]
+    public async Task Assignee_gorevlerim_note_edit_does_not_open_approval_split()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var taskId = Guid.NewGuid();
+        var completedAt = DateTimeOffset.UtcNow.AddMinutes(-8);
+        db.AddRange(
+            BuildCompletedJob(jobId, releasedAt: default),
+            BuildCompletedTask(jobId, taskId, "Yeni not"),
+            new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = TenantId,
+                EntityType = nameof(WorkTask),
+                EntityId = taskId.ToString(),
+                Action = "TaskCompleted",
+                EventTimeUtc = completedAt,
+                Notes = "Eski not",
+                Details = "Eski not",
+            },
+            new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = TenantId,
+                EntityType = nameof(WorkTask),
+                EntityId = taskId.ToString(),
+                Action = "TaskCompletionNoteEdited",
+                ActorDisplayName = "Vatandaş Yöneticisi",
+                EventTimeUtc = completedAt.AddMinutes(4),
+                Notes = "Yeni not",
+                Details = "Yeni not",
+            });
+        await db.SaveChangesAsync();
+        var job = await db.Jobs.SingleAsync(item => item.JobId == jobId);
+        job.CitizenTerminalMessageReleasedAtUtc = null;
+        await db.SaveChangesAsync();
+
+        var split = await CitizenMessageApprovalNoteResolver.ResolveCompletionNoteEditSplitAsync(
+            db, TenantId, jobId, CancellationToken.None);
+
+        Assert.Null(split.OriginalNote);
+        Assert.Null(split.UpdatedNote);
+        Assert.Null(split.EditorDisplayName);
+    }
+
+    [Fact]
     public async Task Phone_manager_note_edit_before_release_is_not_outbound()
     {
         await using var db = CreateDbContext();

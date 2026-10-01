@@ -2605,7 +2605,7 @@ const pageKicker = isMyTasksView
                                     label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                                     value: (
                                       <textarea
-                                        className="field-textarea workflow-note-dialog__textarea w-full min-w-[16rem] text-right"
+                                        className="field-textarea workflow-note-dialog__textarea w-[13.5rem] max-w-[13.5rem] text-left"
                                         rows={3}
                                         maxLength={TASK_TERMINAL_NOTE_MAX_LENGTH}
                                         value={completionNoteDraft}
@@ -2756,7 +2756,7 @@ const pageKicker = isMyTasksView
                                                 type="button"
                                                 size="sm"
                                                 variant="destructive"
-                                                className="h-6 shrink-0 px-1.5 text-[10px]"
+                                                className="h-6 min-w-[2.75rem] shrink-0 px-2.5 text-[10px]"
                                                 disabled={completionAttachmentUploading || completionNoteEditSaving}
                                                 onClick={() => void handleDeleteUnapprovedCompletionAttachment(attachment.attachmentId)}
                                               >
@@ -2773,7 +2773,7 @@ const pageKicker = isMyTasksView
                                             type="button"
                                             size="sm"
                                             variant="secondary"
-                                            className="h-6 px-1.5 text-[10px]"
+                                            className="h-6 min-w-[2.75rem] px-2.5 text-[10px]"
                                             disabled={completionAttachmentUploading || completionNoteEditSaving}
                                             onClick={() => {
                                               const input = completionEditFileInputRef.current

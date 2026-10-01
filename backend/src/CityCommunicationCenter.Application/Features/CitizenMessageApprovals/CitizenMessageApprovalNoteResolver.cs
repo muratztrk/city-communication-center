@@ -116,8 +116,9 @@ internal static class CitizenMessageApprovalNoteResolver
     }
 
     /// <summary>
-    /// Mesaj Onayı / Görevlerim: Talep Durumu Notu düzenlendiyse orijinal + güncel not + düzenleyen (#3905).
-    /// Serbest bırakmadan sonraki outbound düzenlemesi bu ayrımı açmaz.
+    /// Mesaj Onayı "Notu Düzenle": orijinal + güncel not + düzenleyen (#3905 / #3962).
+    /// Görevlerim satır içi düzenlemesi (<c>TaskCompletionNoteEdited</c>) bu ayrımı açmaz;
+    /// serbest bırakmadan sonraki outbound düzenlemesi de açmaz.
     /// </summary>
     public static async Task<CompletionNoteEditSplit> ResolveCompletionNoteEditSplitAsync(
         IApplicationDbContext dbContext,
@@ -132,6 +133,13 @@ internal static class CitizenMessageApprovalNoteResolver
             .Select(audit => new { audit.Notes, audit.ActorDisplayName, audit.EventTimeUtc })
             .FirstOrDefaultAsync(cancellationToken);
         if (lastEdit is null || string.IsNullOrWhiteSpace(lastEdit.Notes))
+        {
+            return default;
+        }
+
+        var lastAssigneeEditAt = await ResolveLastAssigneeCompletionNoteEditAtAsync(
+            dbContext, tenantId, jobId, cycle.ReopenedAt, cancellationToken);
+        if (lastAssigneeEditAt is not null && lastAssigneeEditAt >= lastEdit.EventTimeUtc)
         {
             return default;
         }
@@ -853,6 +861,41 @@ internal static class CitizenMessageApprovalNoteResolver
         }
 
         return edits;
+    }
+
+    private const string AssigneeCompletionNoteEditedAction = "TaskCompletionNoteEdited";
+
+    private static async Task<DateTimeOffset?> ResolveLastAssigneeCompletionNoteEditAtAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        DateTimeOffset? reopenedAt,
+        CancellationToken cancellationToken)
+    {
+        var taskIds = await dbContext.Tasks.AsNoTracking()
+            .Where(task => task.TenantId == tenantId && task.JobId == jobId)
+            .Select(task => task.TaskId.ToString())
+            .ToListAsync(cancellationToken);
+        if (taskIds.Count == 0)
+        {
+            return null;
+        }
+
+        var edits = dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityType == nameof(WorkTask)
+                && taskIds.Contains(audit.EntityId)
+                && audit.Action == AssigneeCompletionNoteEditedAction);
+        if (reopenedAt.HasValue)
+        {
+            var cycleStart = reopenedAt.Value;
+            edits = edits.Where(audit => audit.EventTimeUtc > cycleStart);
+        }
+
+        return await edits
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => (DateTimeOffset?)audit.EventTimeUtc)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private static async Task<string?> ResolveTaskCompletedSnapshotAsync(

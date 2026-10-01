@@ -840,7 +840,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const [myRequestEditDraft, setMyRequestEditDraft] = useState<MyRequestEditDraft | null>(null)
   const [myRequestEditSaving, setMyRequestEditSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
-  const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean; displayNumber?: string } | null>(null)
+  const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean; displayNumber?: string; error?: string | null } | null>(null)
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
     selectedUserIds: string[]
@@ -1981,8 +1981,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         await reload()
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'))
-      setCancelModal(m => m ? { ...m, saving: false } : null)
+      const message = err instanceof Error ? err.message : t('common.error')
+      if (!detailOnly) setError(message)
+      setCancelModal(m => m ? { ...m, saving: false, error: message } : null)
     }
   }
   const handleApproveOwner = async (jobId: string) => {
@@ -4203,11 +4204,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 rows={3}
                 maxLength={CANCEL_JOB_REASON_MAX_LENGTH}
                 value={cancelModal.reason}
-                onChange={e => setCancelModal(m => m ? { ...m, reason: e.target.value } : null)}
+                onChange={e => setCancelModal(m => m ? { ...m, reason: e.target.value, error: null } : null)}
                 placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}
                 autoFocus
               />
             </label>
+            {cancelModal.error ? (
+              <p className="text-sm font-medium text-red-600">{cancelModal.error}</p>
+            ) : null}
             <div className="flex flex-wrap items-center justify-end gap-3">
               <div className="inline-actions justify-end">
                 <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>

@@ -1,3 +1,8 @@
+## Round 1401 — Doing'e eklenen #4018
+
+- [x] #4018 — Birimden Giden sayfasında nav rozeti ve liste yenilemesinin çift ses üretmesi engellendi; yeni kayıt sesi sayfa hook'undan tek kez çalıyor.
+- [x] Doğrulama: frontend build + lint (0 error, 13 mevcut hook warning); frontend incelemesinde bulgu yok.
+
 ## Round 1400 — Doing'e eklenen #4015 / #4016 / #4017
 
 - [x] #4015 — Birimden Giden Yapılmakta gridinden Görevi Yapan sütunu kaldırıldı.

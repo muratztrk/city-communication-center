@@ -473,7 +473,7 @@ export function AppShell() {
   useWhatsAppTabUnreadBadge(isCitizenRequestOperator)
   useNavBadgeCountSound(myTasksNavBadgeCount, navCountsQuery.isSuccess, '/my-tasks', { playOnTargetPage: false })
   useNavBadgeCountSound(incomingPendingApprovalNavCount, incomingPendingApprovalCountQuery.isSuccess, '/incoming-requests')
-  useNavBadgeCountSound(navDashboardCounts?.outgoingPendingCount ?? 0, navCountsQuery.isSuccess, '/outgoing-requests')
+  useNavBadgeCountSound(navDashboardCounts?.outgoingPendingCount ?? 0, navCountsQuery.isSuccess, '/outgoing-requests', { playOnTargetPage: false })
   useNavBadgeCountSound(pendingCitizenMessageApprovalCount, pendingCitizenMessageApprovalQuery.isSuccess, '/citizen-message-approval')
   useNavBadgeCountSound(pendingSmsDeliveryApprovalCount, pendingSmsDeliveryApprovalQuery.isSuccess, '/sms-delivery-approval')
   useNavBadgeCountSound(returnedCitizenRequestsNavCount, returnedCitizenRequestsCountQuery.isSuccess, '/returned-citizen-requests')

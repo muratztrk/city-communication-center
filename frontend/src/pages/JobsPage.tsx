@@ -880,7 +880,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     () => (isDepartmentOutgoingView ? jobs.map(job => job.jobId) : []),
     [isDepartmentOutgoingView, jobs],
   )
-  useNewRecordIdsSound(outgoingJobIds, !loading && isDepartmentOutgoingView)
+  useNewRecordIdsSound(outgoingJobIds, !loading && isDepartmentOutgoingView, {
+    targetPathPrefix: '/outgoing-requests',
+  })
   const detailContext = detailContextOverride ?? searchParams.get('context')
   const operatorSocialEdit = detailContext === 'social'
   const incomingReturnStatus = searchParams.get('returnStatus')

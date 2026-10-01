@@ -653,7 +653,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`playNewRecordSound`) oturum açıkken anında çalar (ilgili sayfadayken de); sayfa
   açılışında/veri ilk yüklendiğinde ve sayfaya girildiğinde mevcut kayıtlar için çalmaz
   (`useNewRecordIdsSound` + `targetPathPrefix`). Görevlerim'de nav rozeti sesi sayfadayken
-  kapalı (`playOnTargetPage: false`) — yalnızca `useNewRecordIdsSound` çalar. WA talep
+  kapalı (`playOnTargetPage: false`) — yalnızca `useNewRecordIdsSound` çalar. Birimden Giden'de
+  de sayfa açıkken nav rozeti sesi kapalıdır; yeni kayıt kimliğini sayfa hook'u tek kez çalar
+  (#6abec038). WA talep
   oluşturma sonrası `suppressNewRecordSound` ile liste yenilemesinde ses susturulur. Sayfalar:
   `/incoming-requests`, `/my-tasks`, `/outgoing-requests`, `/citizen-message-approval`,
   `/sms-delivery-approval` — nav rozeti artışı `useNavBadgeCountSound` ile. Mesaj Onayı chip

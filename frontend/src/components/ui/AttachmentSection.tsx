@@ -47,11 +47,13 @@ interface AttachmentSectionProps {
   displayMode?: 'gallery' | 'list' | 'rich-list'
   /** Upload açık olsa bile silme aksiyonunu yalnızca gerçek düzenleme modunda göstermek için. */
   showDeleteActions?: boolean
+  /** Dosya ekle butonu biraz daha küçük (Taleplerim detay popup'ı). */
+  slimUploadButton?: boolean
   /** Talep (job) veya görev (task) eki — NAS'ta dosya yoksa popup metni (#3398). */
   ownerKind?: AttachmentOwnerKind
 }
 
-export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery', showDeleteActions, ownerKind = 'job' }: AttachmentSectionProps) {
+export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery', showDeleteActions, ownerKind = 'job', slimUploadButton = false }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const fileInputId = useId()
@@ -190,7 +192,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
           <div className="attachment-upload-zone">
             <div
               aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
-              className={`relative inline-flex h-9 items-center gap-1.5 overflow-hidden rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 ${isDisabled ? 'pointer-events-none cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+              className={`relative inline-flex ${slimUploadButton ? 'h-8 px-3 text-[0.8125rem]' : 'h-9 px-3.5 text-sm'} items-center gap-1.5 overflow-hidden rounded-lg border border-slate-200 bg-white font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 ${isDisabled ? 'pointer-events-none cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
             >
               <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
               {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}

@@ -1,3 +1,12 @@
+## Round 1403 — Doing'e eklenen #4020 / #4021 / #4022 / #3991 r4 / #4011
+
+- [x] #4020 — Grid Durum "Onay Bekleyen" hapı, aktif "Onay Bekleyen Talepler" butonuyla aynı gri tona alındı (`getStatusPillClass` pendingApproval).
+- [x] #4021 — Birime Gelen sayfasında yalnız nav rozeti artışı ses çalar; liste kimliği hook'u kaldırıldı (sekme/filtre değişince çift ses).
+- [x] #4022 — Taleplerim detay: Düzenle koyu turkuaz, Adres Bilgileri düzenleme düzeni VT Düzenle ile aynı, Dosya ekle butonu biraz küçük (`myRequestsEditStyle`).
+- [x] #3991 r4 — Onaylanan grid başlık yüksekliği: boş durum `colSpan` 9 yerine 8 (kök neden); wrapper header gradient yaması kaldırıldı.
+- [x] #4011 — Yönetici Notu "Not Ekle" pasifken soluk değil (`disabled:opacity-100`, JobsPage).
+- [x] Doğrulama: frontend build + lint (0 error, 13 mevcut hook warning).
+
 ## Round 1402 — Doing'e eklenen #3991 r3 / #4019
 
 - [x] #3991 r3 — Birime Gelen Onaylanan grid başlık zemini tablo sütunları kısa kalsa da panelin sağ kenarına uzatıldı.

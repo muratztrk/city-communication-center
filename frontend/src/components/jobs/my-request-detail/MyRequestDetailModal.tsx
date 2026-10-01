@@ -86,6 +86,8 @@ export interface MyRequestDetailModalProps {
   citizenApprovalReleasedNote?: string | null
   /** Operatör + Vatandaş Talepleri Düzenle stili (#3588). */
   operatorSocialEdit?: boolean
+  /** Taleplerim detay: Düzenle koyu turkuaz, Adres Bilgileri düzenleme düzeni VT Düzenle ile aynı, Dosya ekle biraz küçük. */
+  myRequestsEditStyle?: boolean
   /** İade edilen talep detayında Talep Bilgileri alan düzeni (#3686). */
   returnedRequestDetail?: boolean
   /** VT Düzenle: yalnız İşleme Alındı (görev yok) başlık/açıklama (#6ab120c). */
@@ -155,6 +157,7 @@ export function MyRequestDetailModal({
   citizenOutboundMessage,
   citizenApprovalReleasedNote,
   operatorSocialEdit = false,
+  myRequestsEditStyle = false,
   returnedRequestDetail = false,
   canEditSocialTitleDescription = false,
 }: MyRequestDetailModalProps) {
@@ -192,7 +195,7 @@ export function MyRequestDetailModal({
         editSaving={editSaving}
         onSaveEdit={onSaveEdit}
         onCancelEdit={onCancelEdit}
-        editTurquoise={operatorSocialEdit}
+        editTurquoise={operatorSocialEdit || myRequestsEditStyle}
       />
 
       <div className="flex-1 overflow-y-auto p-6">
@@ -264,7 +267,8 @@ export function MyRequestDetailModal({
             isEditing={isEditing}
             editDraft={editDraft}
             onEditDraftChange={onEditDraftChange}
-            operatorSocialLayout={operatorSocialEdit}
+            operatorSocialLayout={operatorSocialEdit || myRequestsEditStyle}
+            slimUploadButton={myRequestsEditStyle}
           />
         ) : (
           <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn && !isStandardUser ? 'lg:grid-cols-3 my-request-detail-bottom--three-cards' : 'lg:grid-cols-2 my-request-detail-bottom--attachments-only'}`}>
@@ -273,7 +277,7 @@ export function MyRequestDetailModal({
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}
               </MyRequestSectionHeading>
               {isEditing && editDraft && onEditDraftChange ? (
-                <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} operatorSocialLayout={operatorSocialEdit} />
+                <MyRequestAddressEditFields draft={editDraft} onChange={onEditDraftChange} operatorSocialLayout={operatorSocialEdit || myRequestsEditStyle} />
               ) : (
                 <AddressDetailFields
                   variant="my-request"
@@ -311,6 +315,7 @@ export function MyRequestDetailModal({
                 onDelete={isEditing && (canEditJobAttachments || isEditing) ? onAttachmentDelete : undefined}
                 disabled={attachmentUploading}
                 showDeleteActions={isEditing}
+                slimUploadButton={myRequestsEditStyle}
               />
               {showAttachmentLockNotice && !isEditing && (
                 <p className="mt-2 text-xs font-medium text-amber-600">{attachmentLockText}</p>

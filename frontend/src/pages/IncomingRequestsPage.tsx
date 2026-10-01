@@ -29,7 +29,6 @@ function isCreatedToday(value: string | null | undefined): boolean {
     && created.getDate() === now.getDate()
 }
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNewRecordIdsSound } from '../hooks/useNewRecordIdsSound'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -459,11 +458,9 @@ export function IncomingRequestsPage() {
   const [activeDeptId, setActiveDeptIdState] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
-  const incomingJobIds = useMemo(() => jobs.map(job => job.jobId), [jobs])
   const [users, setUsers] = useState<User[]>([])
   const [socialMessages, setSocialMessages] = useState<SocialMessage[]>([])
   const [loading, setLoading] = useState(true)
-  useNewRecordIdsSound(incomingJobIds, !loading)
   const [error, setError] = useState<string | null>(null)
   const [incomingPage, setIncomingPage] = useState(1)
   const [incomingPageSize, setIncomingPageSize] = useState(10)
@@ -509,7 +506,8 @@ export function IncomingRequestsPage() {
     if (showTaskOwnerColumn) count += 1
     // Son Tarih: Tamamlanan/İptal/Onaylanan görünümlerinde yok (#1384 / #2825).
     if (currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && currentStatusFilter !== 'approved') count += 1
-    if (currentStatusFilter === 'approved') count += 2
+    // Onaylanan: Durum sütunu showIncomingStatusColumn ile zaten sayılır; yalnız Onay Tarihi eklenir.
+    if (currentStatusFilter === 'approved') count += 1
     if (currentStatusFilter === 'completed') count += 1
     if (currentStatusFilter === 'cancelled') count += 1
     if (showIncomingStatusColumn) count += 1
@@ -998,7 +996,7 @@ export function IncomingRequestsPage() {
         <div className="loading">{t('common.loading')}</div>
       ) : (
         <section className="section-card desktop-page-fill">
-          <div className={`table-wrap desktop-panel-scroll${currentStatusFilter === 'approved' ? ' incoming-requests-table-wrap--approved' : ''}`}>
+          <div className="table-wrap desktop-panel-scroll">
             <table className={`data-table jobs-table data-table--zebra my-requests-table incoming-requests-table${hideIncomingGridMutations ? ' incoming-requests-table--details-only' : ''}${currentStatusFilter === 'approved' ? ' incoming-requests-table--approved' : ''}`}>
               <colgroup>
                 <col className="grid-col-row-no" />

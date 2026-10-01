@@ -104,8 +104,9 @@ export function getStatusPillClass(tone: GridStatusTone): string {
     case 'cancelled':
     case 'rejected': return 'bg-red-100 text-red-700 ring-red-200'
     // "Yapılmakta" chip'i mavi (card #1649); turuncu yalnız süresi geçmiş birleşik etikette.
-    case 'inProgress':
-    case 'pendingApproval': return 'bg-sky-100 text-sky-700 ring-sky-200'
+    case 'inProgress': return 'bg-sky-100 text-sky-700 ring-sky-200'
+    // "Onay Bekleyen" chip'i, "Onay Bekleyen Talepler" scope butonuyla (.scope-chip--pending.active) aynı gri ton.
+    case 'pendingApproval': return 'bg-[#e2e8f0] text-[#334155] ring-[#b8c4d2]'
     // "İşleme Alındı" koyu turkuaz + beyaz yazı (card #1650 — açık ton isteği geri alındı).
     case 'processingReceived': return 'bg-teal-600 text-white ring-teal-700'
     // Solid turuncu + beyaz yazı — kullanıcı örneğiyle aynı ton (card #1649 reopen).

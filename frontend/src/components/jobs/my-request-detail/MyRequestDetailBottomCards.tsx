@@ -41,6 +41,8 @@ interface MyRequestDetailBottomCardsProps {
   // için hâlâ gerekli olduğundan sadece isEditing=false iken gizlenir (card #1481).
   hideAttachmentsCard?: boolean
   operatorSocialLayout?: boolean
+  /** Taleplerim düzenleme: Dosya ekle butonu biraz küçük. */
+  slimUploadButton?: boolean
 }
 
 export function MyRequestDetailBottomCards({
@@ -68,6 +70,7 @@ export function MyRequestDetailBottomCards({
   onEditDraftChange,
   hideAddressCard = false,
   hideAttachmentsCard = false,
+  slimUploadButton = false,
 }: MyRequestDetailBottomCardsProps) {
   const { t } = useTranslation()
 
@@ -191,6 +194,7 @@ export function MyRequestDetailBottomCards({
             onDelete={isEditing && canEditJobAttachments ? onAttachmentDelete : undefined}
             disabled={attachmentUploading}
             showDeleteActions={isEditing}
+            slimUploadButton={slimUploadButton}
           />
           {showAttachmentLockNotice && (
             <p className="mt-2 text-xs font-medium text-amber-600">{attachmentLockText}</p>

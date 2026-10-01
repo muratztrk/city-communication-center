@@ -2935,6 +2935,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               citizenOutboundMessage={detail.citizenOutboundMessage}
               citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
               operatorSocialEdit={operatorCitizenListEdit}
+              myRequestsEditStyle={isMyRequestsView}
               returnedRequestDetail={isReturnedRequestDetail}
               canEditSocialTitleDescription={canEditSocialTitleDescription}
             />
@@ -3632,7 +3633,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   </Button>
                                 </>
                               ) : (
-                                <Button type="button" variant="success" size="sm" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={() => void handleSaveManagerNote()}>
+                                <Button type="button" variant="success" size="sm" className="disabled:opacity-100" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={() => void handleSaveManagerNote()}>
                                   {t('jobs.managerNote.add', 'Not Ekle')}
                                 </Button>
                               )}

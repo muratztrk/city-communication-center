@@ -1,3 +1,7 @@
+## Round 1392 — testtim ayrı lisans bundle
+
+- [x] Testtim `CCC_LICENSE_BUNDLE_ID_PREFIX=com.lumespec.ccc.testtim` — prod `com.lumespec.ccc` kalır.
+
 ## Round 1391 — #3966 r5
 
 - [x] `6abe10ee` / #3966 — Mesaj Onayı Bekleyen Tamamlama Notu Görevlerim Kaydet sonrası task.Notes.

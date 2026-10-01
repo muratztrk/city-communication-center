@@ -74,3 +74,15 @@ CCC_SMS_LIVE_SEND_ENABLED=true
 `Sms:LiveSendEnabled=true` olduğunda mesai dışı / vatandaş durum SMS'leri gerçek sağlayıcıya gider
 (tenant SMS ayarları da açık olmalı). Kapatmak için sunucu `.env`'de `false` yapın ve API'yi yeniden
 başlatın. WhatsApp bu bayraktan bağımsızdır.
+
+## Lisans bundle (testtim ≠ prod)
+
+Prod Lumespec bundle öneki `com.lumespec.ccc` — örnek: `com.lumespec.ccc.tirebelediyesi.internal`.
+
+Testtim `CCC_LICENSE_BUNDLE_ID_PREFIX=com.lumespec.ccc.testtim` kullanır (`deploy-test.sh` yazar):
+
+- `com.lumespec.ccc.testtim.tirebelediyesi.citizen`
+- `com.lumespec.ccc.testtim.tirebelediyesi.internal`
+
+Lumespec panelinde bu iki ürün **ayrı** tanımlanır ve aktif lisans verilir. Prod'daki askıya alınmış
+Kurum İçi satırı testtim'i kapatmaz; testte açmak da yenitim'i açmaz.

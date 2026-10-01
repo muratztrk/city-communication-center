@@ -50,12 +50,13 @@ public class LicenseModuleStatusServiceTests
         CityCommunicationCenterDbContext dbContext,
         RemoteLicenseFetchResult remoteResult,
         LicensingPublicKeyOptions[] publicKeys,
-        IRemoteLicenseTokenClient? remoteClient = null)
+        IRemoteLicenseTokenClient? remoteClient = null,
+        string bundleIdPrefix = "com.lumespec.ccc")
     {
         var options = Options.Create(new LicensingOptions
         {
             BaseUrl = "https://lisans.example.invalid",
-            BundleIdPrefix = "com.lumespec.ccc",
+            BundleIdPrefix = bundleIdPrefix,
             PublicKeys = [.. publicKeys],
             CacheMinutes = 1,
         });
@@ -134,6 +135,22 @@ public class LicenseModuleStatusServiceTests
         Assert.False(status.Usable);
         Assert.Equal("suspended", status.Status);
         Assert.Equal("remote-denied", status.Source);
+    }
+
+    [Fact]
+    public async Task GetModuleStatusAsync_uses_configured_bundle_prefix()
+    {
+        await using var dbContext = await CreateDbContextAsync();
+        var service = CreateService(
+            dbContext,
+            new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Denied, null),
+            [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }],
+            bundleIdPrefix: "com.lumespec.ccc.testtim");
+
+        var status = await service.GetModuleStatusAsync(TenantId, "tirebelediyesi", LicenseModule.Internal, CancellationToken.None);
+
+        Assert.Equal("com.lumespec.ccc.testtim.tirebelediyesi.internal", status.BundleId);
+        Assert.False(status.Usable);
     }
 
     [Fact]

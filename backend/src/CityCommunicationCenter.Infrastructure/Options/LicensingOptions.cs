@@ -6,7 +6,7 @@ public sealed class LicensingOptions
 
     public string BaseUrl { get; set; } = "https://lisans.lumespec.com";
 
-    /// <summary>Bundle id önekı: "{BundleIdPrefix}.{tenantId:N}.{citizen|internal}".</summary>
+    /// <summary>Bundle id öneki: "{BundleIdPrefix}.{tenantSlug}.{citizen|internal}". Testtim ayrı lisans için `com.lumespec.ccc.testtim` kullanır.</summary>
     public string BundleIdPrefix { get; set; } = "com.lumespec.ccc";
 
     public int TimeoutSeconds { get; set; } = 5;

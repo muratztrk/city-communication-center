@@ -114,6 +114,15 @@ else
   printf '\n# Gerçek SMS gönderimi (testtim)\nCCC_SMS_LIVE_SEND_ENABLED=true\n' >> "${ENV_FILE}"
 fi
 echo "  CCC_SMS_LIVE_SEND_ENABLED=true"
+if grep -q '^CCC_LICENSE_BUNDLE_ID_PREFIX=' "${ENV_FILE}"; then
+  sed -i 's/^CCC_LICENSE_BUNDLE_ID_PREFIX=.*/CCC_LICENSE_BUNDLE_ID_PREFIX=com.lumespec.ccc.testtim/' "${ENV_FILE}"
+else
+  printf '\n# Testtim ayrı Lumespec bundle (prod: com.lumespec.ccc)\nCCC_LICENSE_BUNDLE_ID_PREFIX=com.lumespec.ccc.testtim\n' >> "${ENV_FILE}"
+fi
+if grep -q '^CCC_LICENSE_FORCE_USABLE_MODULES=' "${ENV_FILE}"; then
+  sed -i '/^CCC_LICENSE_FORCE_USABLE_MODULES=/d' "${ENV_FILE}"
+fi
+echo "  CCC_LICENSE_BUNDLE_ID_PREFIX=com.lumespec.ccc.testtim"
 EOF
 
 info "Building and starting test containers..."

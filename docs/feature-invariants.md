@@ -2801,6 +2801,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   citizen anasayfaya veya Vatandaş Bilgi Listesi'ne yönlendirilir; Reporter varsayılan açılış citizen açıksa
   `/dashboard`, değilse `/citizen-directory`.
   Backend `testDisabled` API'si kalır; Ayarlar > Lisans UI'da geçici pasife al butonu yok (#2365).
+  Testtim bundle öneki `com.lumespec.ccc.testtim` (`CCC_LICENSE_BUNDLE_ID_PREFIX`); prod `com.lumespec.ccc`.
+  Aynı Lumespec satırını paylaşmazlar — testte Kurum İçi açmak prod'u etkilemez.
 - **Sayfa Yetkileri modül filtresi (#2360 / #3337):** `visiblePageAccessItems` `isPageLicenseUsable`
   ile filtrelenir; e-Devlet satırları ve `EDevletActivityPlan` kolonu citizen **veya** internal
   lisans açıkken görünür. Citizen kapalıyken Vatandaş Bilgi Listesi, Vatandaş Talepleri, Sms

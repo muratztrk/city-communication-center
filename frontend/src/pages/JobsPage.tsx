@@ -2708,7 +2708,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         : null
                       return (
                         <td>
-                          <StatusPill className={getJobGridStatusPillClass(job)}>
+                          <StatusPill className={`${getJobGridStatusPillClass(job)}${isDepartmentOutgoingView && activeJobView === 'overdue' ? ' status-pill--outgoing-overdue' : ''}`}>
                             <GridStatusLabel
                               t={t}
                               label={getJobDisplayStatus(t, job)}
@@ -2719,7 +2719,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                   && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
                                 )
                               }
-                              hideInProgressOverdueSubline={activeJobView === 'overdue'}
+                              hideInProgressOverdueSubline={activeJobView === 'overdue' && !isDepartmentOutgoingView}
                               footer={statusDate
                                 ? (
                                   <span className={`text-[0.68rem] font-bold ${isCitizenRequestJob(job) ? getCitizenGridStatusDateFooterClass(job.status) : job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>

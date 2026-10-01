@@ -343,6 +343,9 @@
     },
     "columns": {
       "number": "Sıra",
+      "requestNo": "Talep No",
+      "taskNo": "Görev No",
+      "taskDate": "Görev Tarihi",
       "source": "Kaynak",
       "title": "Başlık",
       "status": "Durum",
@@ -2098,7 +2101,7 @@
     "outgoingViews": {
       "pending": "Bekleyen Talepler",
       "overdue": "Geciken Talepler",
-      "approved": "Onaylanan Talepler",
+      "approved": "Birim Dışı Onay Bekleyen Talepler",
       "inProgress": "Yapılmakta Olan Talepler",
       "completed": "Tamamlanan Talepler",
       "rejected": "İptal Talepler",

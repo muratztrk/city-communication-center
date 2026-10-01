@@ -14,6 +14,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { JobSummary, SocialMessage, Task } from '../types/platform'
+import { isCitizenRequestJob } from '../utils/citizenRequests'
 import { getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridPrioritySubline } from '../utils/localization'
 
 type WallboardSource = 'internal' | 'external' | 'citizen'
@@ -26,6 +27,7 @@ interface WallboardItem {
   dueDateUtc: string | null
   createdAtUtc: string | null
   jobNumber: string | null
+  requestNo: string | null
   taskNumber: string | null
   requestLocation: string | null
   requestCreator: string | null
@@ -100,6 +102,17 @@ function formatTaskNumber(num: number | null | undefined, year: number | null | 
   return `G-${year ?? new Date().getFullYear()}-${num}`
 }
 
+function formatWallboardRequestNo(job: JobSummary | undefined): string | null {
+  if (!job) return null
+  if (isCitizenRequestJob(job) && job.citizenRequestNumber != null) {
+    return `VT-${job.citizenRequestNumberYear ?? new Date().getFullYear()}-${job.citizenRequestNumber}`
+  }
+  if (job.jobNumber != null) {
+    return `T-${job.jobNumberYear ?? new Date().getFullYear()}-${job.jobNumber}`
+  }
+  return null
+}
+
 function buildWallboardItems(tasks: Task[], jobs: JobSummary[], socialMessages: SocialMessage[]): WallboardItem[] {
   const jobsById = new Map(jobs.map(job => [job.jobId, job]))
   const socialByJobId = new Map(socialMessages.flatMap(message => message.jobId ? [[message.jobId, message] as const] : []))
@@ -121,6 +134,7 @@ function buildWallboardItems(tasks: Task[], jobs: JobSummary[], socialMessages: 
         dueDateUtc: task.dueDateUtc,
         createdAtUtc: task.createdAtUtc ?? null,
         jobNumber: formatNumber(job?.jobNumber, job?.jobNumberYear),
+        requestNo: formatWallboardRequestNo(job),
         taskNumber: formatTaskNumber(task.taskNumber, task.taskNumberYear),
         requestLocation: job?.ownerDepartmentName ?? null,
         requestCreator: job?.createdByDisplayName ?? null,
@@ -351,6 +365,7 @@ export function WallboardPage() {
               <thead>
                 <tr>
                   <th className="wallboard-number-col">{t('wallboard.columns.number', 'Sıra')}</th>
+                  <FilterableTh filterKey="requestNo" filterValue={filters['requestNo']} onFilter={setFilter} sortKey="requestNo" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.requestNo', 'Talep No')}</FilterableTh>
                   <FilterableTh filterKey="taskNumber" filterValue={filters['taskNumber']} onFilter={setFilter} sortKey="taskNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskNo', 'Görev No')}</FilterableTh>
                   <FilterableTh filterKey="createdAtUtc" filterValue={filters['createdAtUtc']} onFilter={setFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('wallboard.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="requestLocation" filterValue={filters['requestLocation']} onFilter={setFilter} sortKey="requestLocation" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>
@@ -373,6 +388,9 @@ export function WallboardPage() {
                   return (
                     <tr key={item.id} className={`wallboard-row ${item.source}`}>
                       <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
+                      <td>
+                        <div className={item.isReporterRequest && hasConcreteNumberDisplay(item.requestNo ?? '') ? reporterGridValueClass(true) : ''}>{item.requestNo ?? '—'}</div>
+                      </td>
                       <td>
                         <div className={reporterNumberClass}>{item.taskNumber ?? '—'}</div>
                         {item.priority && shouldShowGridPrioritySubline(item.priority) ? (

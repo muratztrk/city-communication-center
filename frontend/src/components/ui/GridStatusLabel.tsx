@@ -36,7 +36,6 @@ export function GridStatusLabel({
   footer,
   align = 'center',
   overdueSubline,
-  /** Geciken-only grid: Yapılmakta alt satırında (Geciken) gösterme (#2859). */
   hideInProgressOverdueSubline,
   labelClassName,
 }: {
@@ -48,6 +47,7 @@ export function GridStatusLabel({
   align?: 'center' | 'start'
   /** İşleme Alındı + gecikmiş VT grid: alt satır `(Geciken)` (#2819). */
   overdueSubline?: boolean
+  /** Geciken-only grid: Yapılmakta alt satırında (Geciken) gösterme (#2859). Birimden Giden Geciken hariç (#3989). */
   hideInProgressOverdueSubline?: boolean
   /** Mesaj Onayı Yapan adı — tarihten bağımsız punto (#3530). */
   labelClassName?: string

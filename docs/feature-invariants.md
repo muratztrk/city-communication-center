@@ -305,6 +305,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
   biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar görünmez; seçim ve yükleme
   sırasında da gösterilmez (#3357) — WA, `CitizenRequestModal`, `AttachmentSection`, kurum içi FAB dahil.
+  Native dosya diyaloğu iptalinden sonra input remount edilir; dropzone/buton `<label>` ile native
+  gesture kullanır — iptal sonrası hover beklenmez (#3985).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -1514,7 +1516,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değil (#2897 reopen). Birime Gelen
   sayfa içi Onay Bekleyen scope chip'inde rozet yok — sayı yalnız sol menüde (#2830). Birimden
   Giden **Geciken** grid: **Oluşturan** yok; Gittiği Yer sonrası **Durum** (#2828). Birimden Giden
-  Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
+  Geciken'de `Yapılmakta (Geciken)` alt satır `(Geciken)` gösterilir ve punto biraz küçülür (#3989).
+  Birimden Giden Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
+  Birimden Giden chip `approved` metni **Birim Dışı Onay Bekleyen Talepler** (#3988).
+  Birime Gelen Onaylanan: `İşleme Alındı` (hedef yönetici onayı yok) satır yok (#3986).
   Birime Gelen Onaylanmış grid İşlemler'de `Onayla` yok (#1703). Birim içi onaylanmış
   (Active/Waiting/Assigned/InProgress/PendingCloseApproval) satırda **İptal Et pasif**
   (#3276; Geciken/Yapılmakta/Tümü/Onaylanmış). Birim dışı gelen, sahip onayından sonra
@@ -1795,7 +1800,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   LDAP’ta olmayanlar dropdown’u güncellenir (cards #1754/#1768). LDAP arama placeholder’ı
   **en az 3 karakter** (card #1754). Eklenecek kullanıcılar satırında `birim:` etiketi yok —
   `Ad — BirimAdı` (card #1767).   Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
-  uyarı ve Oluştur engeli (card #1762). Parola / Parola Onayla textbox’larında login ile aynı
+  uyarı ve Oluştur engeli (card #1762). Yeni yerel kullanıcı E-posta / Parola / Parola Onayla
+  tarayıcı autofill almaz; placeholder görünür kalır (`autocomplete=off` / `new-password`, #3987).
+  Parola / Parola Onayla textbox’larında login ile aynı
   göz ikonu (göster/gizle) vardır (card #1772). Oturum: 1 saat hareketsizlik → uyarı popup (60 sn geri
   sayım, Tekrar sorma yok); uzatılmazsa logout (card #1769 / #r490). Uyku/sekme sonrası duvar
   saati ile kontrol edilir — `setTimeout` donmuş olsa bile uyanınca logout (#2003 / #r528). Sistemde
@@ -3538,6 +3545,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
+- **Wallboard Talep No (#3984):** `Sıra` sağında, `Görev No` solunda; VT/T formatı job numarasıdır.
 - **Wallboard Görev No alt öncelik (#2122):** Normal öncelik gösterilmez; yalnız Yüksek / Çok Yüksek /
   Kritik (`shouldShowGridPrioritySubline` ile grid ile aynı kural).
 - **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı

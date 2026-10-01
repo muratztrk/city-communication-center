@@ -1,5 +1,5 @@
 import { Download, FileText, Paperclip } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -53,12 +53,25 @@ interface AttachmentSectionProps {
 export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery', showDeleteActions, ownerKind = 'job' }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputId = useId()
+  const [fileInputKey, setFileInputKey] = useState(0)
+  const filePickerOpenRef = useRef(false)
   const [uploading, setUploading] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [missingDialog, setMissingDialog] = useState<ConfirmDialogState | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const remountCancelledPicker = () => {
+      if (!filePickerOpenRef.current) return
+      filePickerOpenRef.current = false
+      setFileInputKey(key => key + 1)
+    }
+    window.addEventListener('focus', remountCancelledPicker)
+    return () => window.removeEventListener('focus', remountCancelledPicker)
+  }, [])
 
   const validate = (file: File): string | null => {
     if (!isAllowedAttachmentFileName(file.name)) {
@@ -101,7 +114,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     } finally {
       setUploading(false)
     }
-    if (fileInputRef.current) fileInputRef.current.value = ''
+    setFileInputKey(key => key + 1)
   }
 
   const handleDelete = (attachmentId: string) => {
@@ -172,24 +185,35 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       {!readOnly && (
         <>
           <div className="attachment-upload-zone">
-            <button
-              type="button"
+            <label
+              htmlFor={fileInputId}
               aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={isDisabled}
-              onClick={() => fileInputRef.current?.click()}
+              className={`inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 ${isDisabled ? 'pointer-events-none cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+              onClick={() => {
+                if (isDisabled) return
+                filePickerOpenRef.current = true
+                if (fileInputRef.current) fileInputRef.current.value = ''
+              }}
             >
               <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
               {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
-            </button>
+            </label>
             <input
+              key={fileInputKey}
+              id={fileInputId}
               ref={fileInputRef}
               type="file"
               accept={ATTACHMENT_FILE_ACCEPT}
               multiple
-              className="hidden"
+              className="sr-only"
               disabled={isDisabled}
-              onChange={e => void handleFiles(e.target.files)}
+              onClick={() => {
+                filePickerOpenRef.current = true
+              }}
+              onChange={e => {
+                filePickerOpenRef.current = false
+                void handleFiles(e.target.files)
+              }}
             />
           </div>
         </>

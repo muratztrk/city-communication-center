@@ -1,3 +1,12 @@
+## Round 1394 — #3988 / #3989 / #3985 / #3984 / #3986 / #3987
+
+- [x] `6abe94d2` / #3988 — Birimden Giden Onaylanan chip: Birim Dışı Onay Bekleyen Talepler.
+- [x] `6abe97fc` / #3989 — Giden Geciken Durum: Yapılmakta (Geciken) + küçük punto.
+- [x] `6abe8394` / #3985 — Dosya ekle iptal sonrası input remount; Trello yorumu.
+- [x] `6abe82eb` / #3984 — Ekrana Yansıt: Görev No soluna Talep No.
+- [x] `6abe8be7` / #3986 — Gelen Onaylanan'dan İşleme Alındı çıktı.
+- [x] `6abe8fc8` / #3987 — Yerel kullanıcı e-posta/parola autofill kapalı, placeholder görünür.
+
 ## Round 1393 — #3975
 
 - [x] `6abe58f8` / #3975 — Mesaj Onayı Notu Düzenle sonrası açık popup Güncellenen/Güncelleyen satırlarını yeniler.

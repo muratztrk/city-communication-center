@@ -3519,6 +3519,12 @@
     font-weight: 700;
   }
 
+  /* Birimden Giden Geciken: Yapılmakta / Yapılmakta (Geciken) biraz daha küçük (#3989). */
+  .data-table .status-pill.status-pill--outgoing-overdue .grid-status-label--flow-status > span:first-child,
+  .table-container .status-pill.status-pill--outgoing-overdue .grid-status-label--flow-status > span:first-child {
+    font-size: 0.76rem;
+  }
+
   .data-table tbody tr:hover td {
     background: rgba(248, 250, 252, 0.72);
   }
@@ -6475,7 +6481,7 @@
 
   .wallboard-table {
     width: 100%;
-    min-width: 980px;
+    min-width: 1080px;
     border-collapse: separate;
     border-spacing: 0;
     color: rgba(255, 255, 255, 0.9);

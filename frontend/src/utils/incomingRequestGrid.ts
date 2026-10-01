@@ -97,11 +97,14 @@ export function matchesIncomingStatusFilter(row: IncomingRequestRow, filter: Inc
     return isCitizenProcessingReceivedRow(row)
   }
 
-  // Onaylanmış: onaylı ama tamamlanmış/iptal/yapılmakta değil (#2826).
+  // Onaylanmış: hedef yönetici onayı var; İşleme Alındı / hedef onay bekleyen yok (#2826/#3986).
   if (filter === 'approved') {
     return row.approvedAtUtc != null
       && !isClosed
       && !isIncomingRowInProgress(row)
+      && !isCitizenProcessingReceivedRow(row)
+      && row.assignTargetDepartmentId == null
+      && row.pendingTargetApprovalDepartmentId == null
   }
 
   if (filter === 'overdue') {

@@ -1262,7 +1262,11 @@ export function UsersPage() {
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
       {canManageUsers && showForm ? (
-        <form className="form-card page-stack shrink-0" onSubmit={handleCreateUser}>
+        <form className="form-card page-stack shrink-0" onSubmit={handleCreateUser} autoComplete="off">
+          <div aria-hidden="true" className="sr-only">
+            <input type="text" name="ccc-autofill-username" autoComplete="username" tabIndex={-1} />
+            <input type="password" name="ccc-autofill-password" autoComplete="current-password" tabIndex={-1} />
+          </div>
           <div>
             <h2 className="text-xl font-extrabold text-slate-950">{t('users.newFormTitle')}</h2>
             <p className="helper-copy">{t('users.newFormDescription')}</p>
@@ -1469,6 +1473,8 @@ export function UsersPage() {
               <input
                 aria-label={t('users.username')}
                 {...ldapProfileFieldProps}
+                autoComplete="off"
+                name="ccc-local-username"
                 placeholder={t('users.usernamePlaceholder')}
                 type="text"
                 value={newUser.username}
@@ -1542,6 +1548,8 @@ export function UsersPage() {
               <input
                 aria-label={t('users.email')}
                 {...ldapProfileFieldProps}
+                autoComplete="off"
+                name="ccc-local-email"
                 placeholder={t('users.emailPlaceholder')}
                 type={createMode === 'ldap' ? 'text' : 'email'}
                 value={newUser.email}
@@ -1605,7 +1613,9 @@ export function UsersPage() {
                 <div className="relative">
                   <input
                     aria-label={t('users.password')}
+                    autoComplete="new-password"
                     className="field-input pr-10"
+                    name="ccc-local-password"
                     placeholder={t('users.passwordPlaceholder')}
                     type={showNewPassword ? 'text' : 'password'}
                     value={newUser.password}
@@ -1628,7 +1638,9 @@ export function UsersPage() {
                 <div className="relative">
                   <input
                     aria-label={t('users.passwordConfirm')}
+                    autoComplete="new-password"
                     className="field-input pr-10"
+                    name="ccc-local-password-confirm"
                     placeholder={t('users.passwordConfirmPlaceholder')}
                     type={showNewPasswordConfirm ? 'text' : 'password'}
                     value={newUser.passwordConfirm}

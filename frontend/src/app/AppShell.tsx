@@ -643,7 +643,7 @@ export function AppShell() {
   }
   const outgoingRequestsViewLabels: Record<string, string> = {
     pending: t('jobs.outgoingViews.pending', 'Bekleyen Talepler'),
-    approved: t('jobs.outgoingViews.approved', 'Onaylanan Talepler'),
+    approved: t('jobs.outgoingViews.approved', 'Birim Dışı Onay Bekleyen Talepler'),
     'in-progress': t('jobs.outgoingViews.inProgress', 'Yapılmakta Olan Talepler'),
     overdue: t('jobs.outgoingViews.overdue', 'Geciken Talepler'),
     completed: t('jobs.outgoingViews.completed', 'Tamamlanan Talepler'),

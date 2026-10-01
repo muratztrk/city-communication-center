@@ -343,6 +343,9 @@
     },
     "columns": {
       "number": "No.",
+      "requestNo": "Request No",
+      "taskNo": "Task No",
+      "taskDate": "Task Date",
       "source": "Source",
       "title": "Title",
       "status": "Status",
@@ -2057,7 +2060,7 @@
     "outgoingViews": {
       "pending": "Pending Requests",
       "overdue": "Overdue Requests",
-      "approved": "Approved Requests",
+      "approved": "Awaiting External Approval",
       "inProgress": "Requests In Progress",
       "completed": "Resulted Requests",
       "rejected": "Cancelled Requests",

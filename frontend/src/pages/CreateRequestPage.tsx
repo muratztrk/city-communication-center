@@ -309,6 +309,8 @@ export function CreateRequestPage() {
   const fileProgress = useLocalFileSelectProgress()
   const [activeDepartmentId, setActiveDepartmentId] = useState<string | null>(getActiveDepartmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [fileInputKey, setFileInputKey] = useState(0)
+  const filePickerOpenRef = useRef(false)
   const [internalForm, setInternalForm] = useState<InternalFormState>(EMPTY_INTERNAL_FORM)
   const [externalForm, setExternalForm] = useState<ExternalFormState>(EMPTY_EXTERNAL_FORM)
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
@@ -327,6 +329,17 @@ export function CreateRequestPage() {
       setEditPrefilled(false)
     }
   }, [selectedKind, editJobId, socialMessageIdParam])
+
+  useEffect(() => {
+    const remountCancelledPicker = () => {
+      if (!filePickerOpenRef.current) return
+      filePickerOpenRef.current = false
+      setFileInputKey(key => key + 1)
+    }
+    window.addEventListener('focus', remountCancelledPicker)
+    return () => window.removeEventListener('focus', remountCancelledPicker)
+  }, [])
+
   const canCreateCitizenRequest = user?.role === 'Operator'
   const canShowCitizenRequest = canCreateCitizenRequest && isModuleUsable('citizen')
   const districtId = useMunicipalityDistrictId()
@@ -683,18 +696,13 @@ export function CreateRequestPage() {
     <div className={['job-field', className].filter(Boolean).join(' ')}>
       <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
       <div className="grid gap-3 lg:grid-cols-2 lg:items-stretch">
-        <div
-          role="button"
-          tabIndex={saving ? -1 : 0}
+        <label
+          htmlFor="create-request-file-input"
           className={`request-photo-dropzone flex min-h-[3.25rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-1.5 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
           onClick={() => {
             if (saving) return
-            fileInputRef.current?.click()
-          }}
-          onKeyDown={event => {
-            if (event.key === 'Enter' && !saving) {
-              fileInputRef.current?.click()
-            }
+            filePickerOpenRef.current = true
+            if (fileInputRef.current) fileInputRef.current.value = ''
           }}
           onDragOver={event => event.preventDefault()}
             onDrop={event => {
@@ -717,15 +725,21 @@ export function CreateRequestPage() {
           <Paperclip className="mb-1 size-4 text-slate-400" />
           <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
           <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — toplam max 5 MB')}</span>
-        </div>
+        </label>
         <input
+          key={fileInputKey}
+          id="create-request-file-input"
           ref={fileInputRef}
           type="file"
           accept={ATTACHMENT_FILE_ACCEPT}
           multiple
-          className="hidden"
+          className="sr-only"
           disabled={saving}
+          onClick={() => {
+            filePickerOpenRef.current = true
+          }}
           onChange={event => {
+            filePickerOpenRef.current = false
             setFileError(null)
             const incoming = Array.from(event.target.files ?? [])
             let accepted = false
@@ -738,7 +752,7 @@ export function CreateRequestPage() {
             })
             if (accepted) fileProgress.holdAtZero()
             else fileProgress.stop()
-            if (fileInputRef.current) fileInputRef.current.value = ''
+            setFileInputKey(key => key + 1)
           }}
         />
         <div className="request-pending-files-panel flex h-full min-h-[5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-1.5">

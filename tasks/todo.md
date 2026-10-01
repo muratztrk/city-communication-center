@@ -1,3 +1,7 @@
+## Round 1391 — #3966 r5
+
+- [x] `6abe10ee` / #3966 — Mesaj Onayı Bekleyen Tamamlama Notu Görevlerim Kaydet sonrası task.Notes.
+
 ## Round 1390 — #3974 r2 / #3960 r2 / #3966 r4
 
 - [x] `6abe31fe` / #3974 — Yönlendirilen Birim = Durum Tamamlanan StatusPill.

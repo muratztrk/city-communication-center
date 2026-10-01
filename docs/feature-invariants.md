@@ -2341,7 +2341,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   not satır içi textarea + Kaydet/Vazgeç olur (#3961). Textarea dar (`13.5rem`) ve sola
   dayalı; **Sil** / **Ekle** `min-w-[2.75rem] px-2.5`. Textarea altında ekstra Düzenle
   yok; Kaydet textarea içeriğini yazar ve Görevlerim **Tamamlama Notu** değeri
-  `task.Notes` olur — Released ilk anlık görüntüsü kullanılmaz (#3966 r4). Ek varsa Ön İzle sağında
+  `task.Notes` olur — Released ilk anlık görüntüsü kullanılmaz (#3966 r4). Mesaj Onayı Bekleyen
+  detayında da Tamamlama Notu `task.Notes` olur; Güncellenen/Güncelleyen satırı açılmaz (#3966 r5).
+  Ek varsa Ön İzle sağında
   kırmızı **Sil** ve **Ekle**; ek yoksa Düzenle **Görev Ekleri** + **Ekle** gösterir,
   dosya seçilmezse başlık kaybolur.
   Mesaj Onayı Bekleyen detayında Görev Eki varsa Ön İzle sağında kırmızı **Sil** + **Ekle**;

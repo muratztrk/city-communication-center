@@ -281,10 +281,14 @@ export function MyRequestTaskDetailsSection({
           const cancelNoteDisplay = task.revisionReason?.trim() || detail.cancelReason?.trim() || '—'
           // Operatör Sms Onayı task.Notes'u ezer; Tamamlama yöneticinin onay notu olmalı.
           // Released yokken canlı görev notuna ancak outbound yoksa (veya aynıysa) düş.
+          // Mesaj Onayı Bekleyen: Görevlerim düzenlemesi Tamamlama Notu'nu günceller (#3966 r5).
+          const preferLiveTaskNotes = canEditUnapprovedTaskAttachments || hideMessageApprovalPendingFields
           const completionNoteDisplay = (isCompletedTask || (isPendingCloseApproval && isCitizenTask))
-            ? (releasedPlain
-              || (outboundPlain && notesDiffer(outboundPlain, taskNotesPlain) ? '—' : taskNotesPlain)
-              || '—')
+            ? (preferLiveTaskNotes
+              ? (taskNotesPlain || releasedPlain || '—')
+              : (releasedPlain
+                || (outboundPlain && notesDiffer(outboundPlain, taskNotesPlain) ? '—' : taskNotesPlain)
+                || '—'))
             : ''
           const completionNoteEdit = resolveCompletionNoteEditSplit({
             originalNote: detail.citizenOriginalCompletionNote ?? citizenApprovalReleasedNote,

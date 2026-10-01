@@ -54,7 +54,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
-import { formatCitizenRequestNumber, getCitizenGridStatusDateFooterClass, getCitizenGridStatusDateUtc, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenGridStatusDateFooterClass, getCitizenGridStatusDateUtc, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, getUnitGridStatusDateUtc, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -1127,13 +1127,12 @@ export function IncomingRequestsPage() {
                       </td>
                     )}
                     {showIncomingStatusColumn && (() => {
-                      const statusDate = currentStatusFilter === 'all'
-                        ? (row.isCitizenRequest
-                          ? getCitizenGridStatusDateUtc(row)
-                          : row.status === 'Completed' ? row.completedAtUtc
-                            : row.status === 'Cancelled' ? row.updatedAtUtc
-                              : null)
-                        : null
+                      const isAwaitingAssignment = !row.isCitizenRequest && row.statusDomain === 'job'
+                        && row.kind === 'external' && row.status === 'Active' && (row.taskCount ?? 0) === 0
+                        && !shouldShowJobOverdueLabel(row)
+                      const statusDate = isAwaitingAssignment ? null : row.isCitizenRequest
+                        ? getCitizenGridStatusDateUtc(row)
+                        : getUnitGridStatusDateUtc({ ...row, ownerDecidedAtUtc: row.approvedAtUtc })
                       return (
                         <td>
                           <StatusPill className={getIncomingStatusPillClass(row)}>
@@ -1152,7 +1151,7 @@ export function IncomingRequestsPage() {
                               hideInProgressOverdueSubline={false}
                               footer={statusDate
                                 ? (
-                                  <span className={`text-[0.68rem] font-bold ${row.isCitizenRequest ? getCitizenGridStatusDateFooterClass(row.status) : row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                  <span className={`text-[0.68rem] font-bold ${getCitizenGridStatusDateFooterClass(row.status)}`}>
                                     {formatDateTime(statusDate, locale)}
                                   </span>
                                 )

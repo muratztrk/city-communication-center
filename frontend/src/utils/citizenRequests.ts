@@ -164,6 +164,24 @@ export function getCitizenGridStatusDateUtc(job: CitizenRequestStatusSource & {
   return null
 }
 
+/** Birim içi/dışı grid Durum alt tarihi — Onay Bekleyen hariç (#4008). */
+export function getUnitGridStatusDateUtc(job: {
+  status: string
+  completedAtUtc?: string | null
+  updatedAtUtc?: string | null
+  createdAtUtc?: string | null
+  ownerDecidedAtUtc?: string | null
+}): string | null {
+  if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') {
+    return null
+  }
+  if (job.status === 'Completed') return job.completedAtUtc ?? job.updatedAtUtc ?? job.createdAtUtc ?? null
+  if (job.status === 'Active' || job.status === 'Assigned' || job.status === 'InProgress') {
+    return job.ownerDecidedAtUtc ?? job.updatedAtUtc ?? job.createdAtUtc ?? null
+  }
+  return job.updatedAtUtc ?? job.createdAtUtc ?? null
+}
+
 /** Aktif (İşleme Alındı / Yapılmakta) tarih, pill yazı rengini alır — koyu turkuaz/turuncu pill'de beyaz (#3896 r2). */
 export function getCitizenGridStatusDateFooterClass(status: string): string {
   if (status === 'Completed') return 'text-emerald-700'

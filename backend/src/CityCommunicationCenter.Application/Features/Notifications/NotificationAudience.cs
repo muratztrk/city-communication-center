@@ -11,7 +11,9 @@ internal static class NotificationAudience
     {
         var jobIds = await dbContext.Jobs
             .AsNoTracking()
-            .Where(job => job.TenantId == tenantId && job.CreatedByUserId == userId)
+            .Where(job => job.TenantId == tenantId && (job.CreatedByUserId == userId
+                || dbContext.Tasks.Any(task => task.TenantId == tenantId && task.JobId == job.JobId
+                    && (task.AssignedUserId == userId || task.OwnerUserId == userId))))
             .Select(job => job.JobId.ToString())
             .ToListAsync(cancellationToken);
 

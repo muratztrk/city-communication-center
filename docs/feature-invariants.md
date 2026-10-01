@@ -3607,7 +3607,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   birimi `PendingOwnerApproval` taleplerini feed'e almaz; sahip onayından sonra görünür
   (Birime Gelen `isIncomingExternalForActiveDept` ile aynı kural).
 - **Dış birim sahip onayı bildirimi (#6a6c73f2 / #6a6c80bf):** `JobOwnerApproved` + `ExternalUnit`
-  başlık `Birim Dışı Gelen Talep`; açıklamada onaylayan kişi yerine sahip birim adı.
+  başlık müdürde `Birim Dışı Gelen Talep`, diğer rollerde `Birim Dışı Oluşturulan Talep Onaylandı` (#4009); açıklamada sahip birim adı.
 - **Tek aktif oturum (#6a6c805e):** yeni login hemen yeni `ccc_sid` yazar ve önceki
   oturumu düşürür. Uyarı popup'ı (otomatik kapanmaz, X/Tamam) yeni giriş yapanada değil,
   eski oturumdaki kullanıcıya. Cookie düşse bile ekran açık kalır; paralel 401'ler
@@ -3861,3 +3861,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   path'e gitmez; authenticated router `getDefaultLandingPath(session.user)` ile tek hedefi seçer.
   Sonradan `/dashboard`'a gitmek SystemAdmin Ayarlar ekranını iki kez yükletir/flicker üretir (card #2263).
 - Detay: [`adaptive-auth-20260322.md`](adaptive-auth-20260322.md), [`authorization-matrix.md`](authorization-matrix.md).
+
+## Round 1399 — Doing düzeltmeleri
+
+- **Durum alt tarihi (#4008):** Onay Bekleyen hariç birim talep/görev gridlerinde tarih gösterilir; Birime Gelen onay alanı `approvedAtUtc`, Taleplerim/Giden `ownerDecidedAtUtc`; aktif tarih pill rengini miras alır.
+- **Yönetici notu bildirimi (#4012):** görev atanmış/sahip kullanıcısının bağlı talepleri hem feed hem okunmamış sayacına dahildir; aktör kendi notunu bildirim olarak almaz.
+- **Görevlerim yönetici notu (#4010):** dolu not, Görevi Atayan Yönetici altında ayrı satırdır; başlık yanındaki popup bağlantısı yoktur.
+- **Not Ekle (#4011):** boşken pasif kalır ancak yeşil rengi solmaz.
+- **İlgili Görev Detayları (#4013):** Görev Bilgileri ve Süreç başlıkları aynı `min-height: 3rem` ile çizgi hizasını korur.
+- **Taleplerim Tamamlanan (#4014):** detay popup'ta aktif veya pasif Düzenle butonu gösterilmez; Yapılmakta kuralı da korunur.
+- **Adres alt çizgileri (#4002):** üç kart düzeninde etiket çizgileri hücre genişliğini kaplar; vatandaş adres alanlarıyla aynı yapı korunur.
+- **Dashboard kutuları / FAB (#3994/#4005):** personel dönem kutuları `max-w-5xl`, başlık `0.72rem`; genel FAB yatay aralığı `gap-2`, vatandaş paneli kaydır düğmesi çakışma istisnası korunur.

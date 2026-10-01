@@ -395,7 +395,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     // Dış birim sahip onayı sonrası hedef müdür başlığı (#6a6c80bf).
                     // Birim içi oluşturma: yönetici feed başlığı (#6a6ca1d4).
                     var notificationTitle = a.Action == "JobOwnerApproved" && jobRequestType == JobRequestType.ExternalUnit
-                        ? "Birim Dışı Gelen Talep"
+                        ? (string.Equals(context.RoleCode, nameof(RoleCode.Manager), StringComparison.OrdinalIgnoreCase)
+                            ? "Birim Dışı Gelen Talep"
+                            : "Birim Dışı Oluşturulan Talep Onaylandı")
                         : a.Action == "JobCreated" && jobRequestType == JobRequestType.InternalUnit
                             ? "Birim İçi Talep oluşturuldu"
                             : a.Action == "JobCreated" && jobRequestType == JobRequestType.ExternalUnit

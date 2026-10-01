@@ -1,3 +1,18 @@
+## Round 1399 — Doing: #4005 / #3994 / #4009–#4014 / #4002 / #4008
+
+- [x] #4005 — WhatsApp ve kurum içi mesaj FAB aralığı azaltıldı.
+- [x] #3994 — Dönem altı kutular daraltıldı, başlıklar büyütüldü.
+- [x] #4009 — Birim dışı sahip onayında yönetici dışındaki kullanıcıya uygun bildirim başlığı.
+- [x] #4012 — Yönetici notu için görev sahibi/atanan kişinin bildirim sayacı feed ile hizalandı; kendi notu gizli.
+- [x] #4013 — İlgili görevlerde Süreç ve Görev Bilgileri başlık çizgileri hizalandı.
+- [x] #4014 — Taleplerim Tamamlanan detayında Düzenle gizlendi.
+- [x] #4010 — Yönetici Notu, Görevi Atayan Yönetici altında ayrı satır.
+- [x] #4011 — Not Ekle boşken de yeşil; boş not kaydı pasif kalır.
+- [x] #4002 — Birim talebi adres etiketlerinin alt çizgileri hücre genişliğinde.
+- [x] #4008 — Onay Bekleyen dışındaki eksik durum tarihleri ve aktif tarih renkleri düzeltildi.
+- [x] Doğrulama: backend build + 286 test; frontend build + lint (0 error, 13 mevcut hook warning); gstack inceleme bulguları düzeltildi.
+- Testtim deploy: commit/push sonrası.
+
 ## Round 1398 — #3999 / #3991 r2 / #4006 / #4007
 
 - [x] `6abea98f` / #3999 — Taleplerim Birim Dışı Onay Bekleyen, Giden aynı chip’te.

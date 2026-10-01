@@ -55,6 +55,7 @@ import {
   formatCitizenPhoneDisplay,
   getCitizenGridStatusDateFooterClass,
   getCitizenGridStatusDateUtc,
+  getUnitGridStatusDateUtc,
   getCitizenRequestDetailStatusLabel,
   getCitizenRequestStatusLabel,
   getCitizenRequestStatusTone,
@@ -2416,7 +2417,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     )
   }
 
-  const hideMyRequestDetailEdit = isMyRequestsView && currentMyRequestsView === 'in-progress'
+  const hideMyRequestDetailEdit = isMyRequestsView && (currentMyRequestsView === 'in-progress' || currentMyRequestsView === 'completed')
   const canReporterEditMyRequest = isPresidencyReporter && currentMyRequestsView === 'pending'
   const canEditMyRequestDetailJob = detail != null && (
     canReporterEditMyRequest
@@ -2713,13 +2714,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     )}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
                     {showJobsGridStatusColumn && (() => {
-                      const statusDate = activeJobView === 'all'
-                        ? (isCitizenRequestJob(job)
-                          ? getCitizenGridStatusDateUtc(job)
-                          : job.status === 'Completed' ? job.completedAtUtc
-                            : job.status === 'Cancelled' ? job.updatedAtUtc
-                              : null)
-                        : null
+                      const statusDate = isCitizenRequestJob(job)
+                        ? getCitizenGridStatusDateUtc(job)
+                        : getUnitGridStatusDateUtc(job)
                       return (
                         <td>
                           <StatusPill className={`${getJobGridStatusPillClass(job)}${isDepartmentOutgoingView && activeJobView === 'overdue' ? ' status-pill--outgoing-overdue' : ''}`}>
@@ -2736,7 +2733,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               hideInProgressOverdueSubline={activeJobView === 'overdue' && !isDepartmentOutgoingView}
                               footer={statusDate
                                 ? (
-                                  <span className={`text-[0.68rem] font-bold ${isCitizenRequestJob(job) ? getCitizenGridStatusDateFooterClass(job.status) : job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                  <span className={`text-[0.68rem] font-bold ${getCitizenGridStatusDateFooterClass(job.status)}`}>
                                     {formatDateTime(statusDate, locale)}
                                   </span>
                                 )
@@ -3003,7 +3000,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 {/* Taleplerim detayında, "Talebi İptal Et"in soluna Düzenle — tüm kullanıcı tiplerinde.
                     Aktif/pasif koşulu ve teal arka plan rengi gridview'daki Düzenle ile birebir aynı
                     (card 648/653/654). */}
-                {isMyRequestsView && currentMyRequestsView !== 'in-progress' && detail != null && (() => {
+                {isMyRequestsView && !hideMyRequestDetailEdit && detail != null && (() => {
                   const canReporterEdit = isPresidencyReporter && currentMyRequestsView === 'pending'
                   const canEditDetailJob = canReporterEdit
                     || canOperatorEditPendingExternalJob(user?.role, { ...detail, taskCount: detail.tasks?.length ?? 0 })

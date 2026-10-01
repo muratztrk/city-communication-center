@@ -63,6 +63,13 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
                     && user.RoleCode == RoleCode.Operator,
                 cancellationToken);
 
+        // Feed, atanan personelde bağlı talebin JobCreated olayını gizler (#1136).
+        var assignedJobEntityIds = await _dbContext.Tasks.AsNoTracking()
+            .Where(task => task.TenantId == tenantId && task.AssignedUserId == request.UserId)
+            .Select(task => task.JobId.ToString())
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
         // NotificationAuditRules.ShouldCountAuditAsUnread SQL'e çevrilemez (EF "could not be
         // translated" → /notifications/unread-count 500). SQL tarafında daraltılan adaylar
         // belleğe alınır, kural orada uygulanır; feed (GetNotificationsQuery) ile aynı davranış.
@@ -75,6 +82,7 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
                 && auditLog.EventTimeUtc > dismissedThroughUtc
                 && !readAuditIds.Contains(auditLog.AuditLogId)
                 && auditLog.ActorUserId != request.UserId
+                && !(auditLog.Action == "JobCreated" && assignedJobEntityIds.Contains(auditLog.EntityId))
                 && !(hideDueDateUpdates && auditLog.Action == "JobDueDateUpdated"))
             .Select(auditLog => new { auditLog.EntityType, auditLog.Action, auditLog.ActorUserId, auditLog.Notes })
             .ToListAsync(cancellationToken);

@@ -494,8 +494,11 @@
     box-sizing: border-box;
   }
 
-  /* İlgili Görev Detayları: Görev Bilgileri ↔ Süreç border tek satır başlık
-     yüksekliğinde hizalı; görev no/rozet absolute (card #1664 reopen). */
+  /* İlgili görev kartları: Süreç ve Görev Bilgileri aynı başlık yüksekliğini kullanır (#4013). */
+  .detail-modal-shell .my-request-task-details .job-detail-section-heading:has(> .job-detail-card-title) {
+    min-height: 3rem;
+    box-sizing: border-box;
+  }
 
   /* Kart başlık metni (Süreç vb.) ikon kutusuyla aynı düşey hizada (card #1665 reopen).
      1.85rem = size-[1.05rem] + padding 0.4rem*2. */
@@ -5446,7 +5449,16 @@
     grid-column: auto !important;
   }
 
-  /* Üç kutu Adres Bilgileri başlıkları vatandaş (attachments-only) ile aynı sola hiza (#4002). */
+  /* Üç kutu Adres Bilgileri başlık + alt çizgi vatandaş (attachments-only) ile aynı (#4002 r2). */
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item {
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    align-items: flex-start !important;
+    padding-inline-start: 0 !important;
+    transform: none !important;
+  }
+
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
     transform: none;
@@ -5454,11 +5466,21 @@
     text-align: left !important;
   }
 
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value {
     transform: none !important;
     margin-inline: 0 !important;
     text-align: left !important;
+  }
+
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   /* #3217 geri alındı: masaüstü Birime Gelen boş No hizası önceki haline döndü. */

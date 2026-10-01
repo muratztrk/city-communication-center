@@ -734,7 +734,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     : []
 
   const staffMetricGridClass = useStaffMetricFourCol
-    ? (staffMetrics.length >= 4 ? 'max-w-6xl sm:grid-cols-4' : 'max-w-xl sm:grid-cols-2')
+    ? (staffMetrics.length >= 4 ? 'max-w-5xl sm:grid-cols-4' : 'max-w-xl sm:grid-cols-2')
     : 'max-w-xl sm:grid-cols-2'
 
   // Yönetici dashboard'unda her grafik, üst bölümdeki ilgili hızlı erişim
@@ -874,7 +874,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <Icon className="size-3.5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className={`dashboard-metric-label text-[0.68rem] font-semibold capitalize leading-tight tracking-normal text-[color:var(--color-muted-foreground)]${metric.labelClassName ? ` ${metric.labelClassName}` : ''}`}>
+          <div className={`dashboard-metric-label text-[0.72rem] font-semibold capitalize leading-tight tracking-normal text-[color:var(--color-muted-foreground)]${metric.labelClassName ? ` ${metric.labelClassName}` : ''}`}>
             {metric.label}
           </div>
           {metric.sublabel ? (
@@ -1009,10 +1009,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         ) : (
           <div className="px-5 py-3.5 sm:px-8">
             {useStaffMetricFourCol && staffMetrics.length >= 4 ? (
-              <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-x-6 gap-y-2 [&>button]:w-full [&>button]:min-w-[13.5rem] [&>button]:sm:max-w-[calc((100%-4.5rem)/4)]">
+              <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-x-6 gap-y-2 [&>button]:w-full [&>button]:min-w-[12.75rem] [&>button]:sm:max-w-[calc((100%-4.5rem)/4)]">
                 {dashboardQuery.isLoading
                   ? Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="h-[72px] w-full min-w-[13.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-4.5rem)/4)]" />
+                      <div key={i} className="h-[72px] w-full min-w-[12.75rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-4.5rem)/4)]" />
                     ))
                   : staffMetrics.map(renderCard)}
               </div>

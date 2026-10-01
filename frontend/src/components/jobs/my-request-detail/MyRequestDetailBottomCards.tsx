@@ -166,7 +166,7 @@ export function MyRequestDetailBottomCards({
                     </Button>
                   </>
                 ) : (
-                  <Button type="button" variant="success" size="sm" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={onManagerNoteSave}>
+                  <Button type="button" variant="success" size="sm" className="disabled:opacity-100" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={onManagerNoteSave}>
                     {t('jobs.managerNote.add', 'Not Ekle')}
                   </Button>
                 )}

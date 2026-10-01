@@ -2473,34 +2473,14 @@ const pageKicker = isMyTasksView
                             // Atayan yönetici üstte, görevi yapan hemen altında kalır (card #1613).
                             ...(taskDetail.jobSourceType !== 'Routine'
                               ? [{
-                                  label: (
-                                    <>
-                                      {t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici')}
-                                      {parentJobDetail?.managerNote?.trim() ? (
-                                        <span className="ml-1 whitespace-nowrap font-semibold text-emerald-600">
-                                          (
-                                          <button
-                                            type="button"
-                                            className="underline underline-offset-2 hover:text-emerald-700"
-                                            onClick={() => setConfirmDialog({
-                                              title: t('jobs.managerNote.title', 'Yönetici Notu'),
-                                              titleDivider: true,
-                                              titleTone: 'success',
-                                              message: parentJobDetail.managerNote!,
-                                              hideCancel: true,
-                                              variant: 'success',
-                                              confirmLabel: t('common.close', 'Kapat'),
-                                              onConfirm: () => {},
-                                            })}
-                                          >
-                                            {t('jobs.managerNote.title', 'Yönetici Notu')}
-                                          </button>
-                                          )
-                                        </span>
-                                      ) : null}
-                                    </>
-                                  ),
+                                  label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'),
                                   value: taskDetail.assigningManagerDisplayName ?? '—',
+                                }]
+                              : []),
+                            ...(taskDetail.jobSourceType !== 'Routine' && parentJobDetail?.managerNote?.trim()
+                              ? [{
+                                  label: t('jobs.managerNote.title', 'Yönetici Notu'),
+                                  value: <span className="whitespace-pre-wrap">{parentJobDetail.managerNote}</span>,
                                 }]
                               : []),
                             // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
@@ -3826,10 +3806,10 @@ const pageKicker = isMyTasksView
                       // Tamamlanan→tamamlanma, İptal→iptal tarihi; tarih durum pill'inin İÇİNDE
                       // alt satırda gösterilir (card #714, #711'in rafine hali).
                       const isYapilmaktaStatus = task.currentStatus === 'InProgress' || task.currentStatus === 'Assigned'
-                      const statusDate = task.currentStatus === 'Completed' ? task.completedAtUtc
-                        : task.currentStatus === 'Cancelled' ? task.updatedAtUtc
-                        : isYapilmaktaStatus ? task.jobTargetApprovedAtUtc
-                        : null
+                      const statusDate = task.currentStatus === 'Completed' ? task.completedAtUtc ?? task.updatedAtUtc ?? task.createdAtUtc
+                        : task.currentStatus === 'Cancelled' ? task.updatedAtUtc ?? task.createdAtUtc
+                        : isYapilmaktaStatus ? task.jobTargetApprovedAtUtc ?? task.updatedAtUtc ?? task.createdAtUtc
+                        : task.updatedAtUtc ?? task.createdAtUtc
                       return (
                         <td>
                           <StatusPill className={`text-[0.82rem] ${getStatusPillClass(getTaskStatusTone(task))}`}>

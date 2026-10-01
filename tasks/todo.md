@@ -1,3 +1,7 @@
+## Round 1393 — #3975
+
+- [x] `6abe58f8` / #3975 — Mesaj Onayı Notu Düzenle sonrası açık popup Güncellenen/Güncelleyen satırlarını yeniler.
+
 ## Round 1392 — testtim ayrı lisans bundle
 
 - [x] Testtim `CCC_LICENSE_BUNDLE_ID_PREFIX=com.lumespec.ccc.testtim` — prod `com.lumespec.ccc` kalır.

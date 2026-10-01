@@ -83,6 +83,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
+  const [detailRefreshToken, setDetailRefreshToken] = useState(0)
   const [noteModal, setNoteModal] = useState<{ jobId: string; note: string; saving: boolean } | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
@@ -249,6 +250,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
       invalidateCitizenMessageApprovals(queryClient)
       showToast(t('citizenMessageApproval.noteSaved', 'Not kaydedildi.'))
       setNoteModal(null)
+      if (detailJobId === jobId) setDetailRefreshToken(token => token + 1)
       await loadApprovals()
     } catch (err) {
       showToast(err instanceof Error ? err.message : t('common.error'), 'error')
@@ -574,6 +576,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
           onNotificationDetailClose={() => setDetailJobId(null)}
           hideMessageApprovalPendingFields={scope === 'toSend' && !isSms}
           showRequestInfoCitizenOutbound
+          detailRefreshToken={detailRefreshToken}
           messageApprovalActions={scope === 'toSend'
             ? {
                 onEditNote: () => {

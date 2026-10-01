@@ -763,6 +763,8 @@ interface JobsPageProps {
   }
   /** Mesaj Onayı Bekleyen detay popup — onaylayan satırlarını gizle (#3519). */
   hideMessageApprovalPendingFields?: boolean
+  /** Artınca açık detay yeniden çekilir (Mesaj Onayı Notu Düzenle, #3975). */
+  detailRefreshToken?: number
   /** Mesaj Onayı detayı: Talep Bilgileri'nde Vatandaşa Giden Mesaj (#3563/#3565). */
   showRequestInfoCitizenOutbound?: boolean
   socialActions?: {
@@ -781,7 +783,7 @@ interface JobsPageProps {
   }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onReturnedForwardSuccess, onReturnedCancelSuccess, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onReturnedForwardSuccess, onReturnedCancelSuccess, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, detailRefreshToken = 0, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -1273,6 +1275,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [scope, t, activeDeptId, reporterDepartmentId, includeDepartmentJobs]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!detailRefreshToken) return
+    void refreshDetail()
+  }, [detailRefreshToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (detailOnly) return

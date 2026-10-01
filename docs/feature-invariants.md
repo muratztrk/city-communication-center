@@ -2333,6 +2333,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Tamamlama Notu düzenlemesi (`CitizenMessageApprovalCompletionNoteEdited`) detayda
   **Tamamlama Notu** (orijinal, yeşil değil) + **Güncellenen Tamamlama Notu** (yeşil) +
   **Tamamlama Notu Güncelleyen** (başlık + değer yeşil, #3905 r2) gösterir.
+  Açık detay popup Notu Düzenle kaydından sonra `detailRefreshToken` ile yeniden çekilir;
+  kapatıp açmaya gerek yoktur (#3975).
   Görevlerim'de onaysız not Düzenle sonrası **Güncellenen / Güncelleyen satırları yok**;
   Tamamlama Notu değeri güncellenir ve yeşil kalır (#3910). Görevlerim düzenlemesi
   `TaskCompletionNoteEdited` yazar — Mesaj Onayı sayfasında **Güncellenen Tamamlama Notu**

@@ -998,7 +998,7 @@ export function IncomingRequestsPage() {
         <div className="loading">{t('common.loading')}</div>
       ) : (
         <section className="section-card desktop-page-fill">
-          <div className="table-wrap desktop-panel-scroll">
+          <div className={`table-wrap desktop-panel-scroll${currentStatusFilter === 'approved' ? ' incoming-requests-table-wrap--approved' : ''}`}>
             <table className={`data-table jobs-table data-table--zebra my-requests-table incoming-requests-table${hideIncomingGridMutations ? ' incoming-requests-table--details-only' : ''}${currentStatusFilter === 'approved' ? ' incoming-requests-table--approved' : ''}`}>
               <colgroup>
                 <col className="grid-col-row-no" />
@@ -1121,7 +1121,7 @@ export function IncomingRequestsPage() {
                     <td className="font-semibold"><TruncatedText text={row.title} className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`} /></td>
                     {showTaskOwnerColumn && (
                       <td className={currentStatusFilter === 'completed' ? 'incoming-completed-owner-cell' : undefined}>
-                        <span className={`grid-stack-secondary font-semibold${currentStatusFilter === 'completed' ? ' incoming-completed-owner-value' : ''}`}>
+                        <span className={`grid-stack-secondary font-semibold${currentStatusFilter === 'completed' ? ' incoming-completed-owner-value' : currentStatusFilter === 'in-progress' ? ' incoming-in-progress-owner-value' : ''}`}>
                           <EmptyCell value={row.taskOwnerDisplayName} />
                         </span>
                       </td>

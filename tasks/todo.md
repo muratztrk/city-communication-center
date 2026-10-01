@@ -1,3 +1,9 @@
+## Round 1402 — Doing'e eklenen #3991 r3 / #4019
+
+- [x] #3991 r3 — Birime Gelen Onaylanan grid başlık zemini tablo sütunları kısa kalsa da panelin sağ kenarına uzatıldı.
+- [x] #4019 — Birime Gelen Yapılmakta gridinde Görevi Yapan değeri çok az büyütüldü.
+- [x] Doğrulama: frontend build + lint (0 error, 13 mevcut hook warning); frontend incelemesinde bulgu yok.
+
 ## Round 1401 — Doing'e eklenen #4018
 
 - [x] #4018 — Birimden Giden sayfasında nav rozeti ve liste yenilemesinin çift ses üretmesi engellendi; yeni kayıt sesi sayfa hook'undan tek kez çalıyor.

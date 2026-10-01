@@ -1530,8 +1530,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Birimden Giden chip `approved` metni **Birim Dışı Onay Bekleyen Talepler** (#3988).
   Birime Gelen Onaylanan: `İşleme Alındı` (hedef yönetici onayı yok) satır yok (#3986).
   Birime Gelen Yapılmakta / Geciken / Tümü İşlemler'de yalnız Detaylar (#3990).
-  Birime Gelen Onaylanan header paging gibi boydan boya (`width:100%`, #3991 r2).
-  Birime Gelen Tamamlanan `Görevi Yapan` değeri biraz büyük (#3992).
+  Birime Gelen Onaylanan header paging gibi boydan boya (`width:100%` + wrapper header zemini,
+  #3991 r3). Birime Gelen Tamamlanan `Görevi Yapan` değeri biraz büyük (#3992); Yapılmakta
+  `Görevi Yapan` değeri de normal ikincil grid metninden az büyük (`0.84rem`, #4019).
   Birime Gelen banner alt yazı: `Birim içi/dışı gelen talepleri durumlarına göre takip edin.` (#3996).
   Birimden Giden: yalnız **tüm** Target=Owner ise satır yok; en az bir dış Target varsa giden’de kalır (#3995/#3999).
   Taleplerim Birim Dışı Onay Bekleyen satırı Giden `approved` chip’te de görünür (#3999).

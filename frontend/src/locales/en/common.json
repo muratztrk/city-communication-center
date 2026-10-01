@@ -990,7 +990,7 @@
     }
   },
   "incomingRequests": {
-    "subtitle": "Track internal incoming unit requests in one list.",
+    "subtitle": "Track incoming internal/external requests by status.",
     "empty": "No incoming unit requests.",
     "columns": {
       "type": "Type",

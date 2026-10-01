@@ -1022,7 +1022,7 @@
     }
   },
   "incomingRequests": {
-    "subtitle": "Birim içi gelen talepleri tek listede takip edin.",
+    "subtitle": "Birim içi/dışı gelen talepleri durumlarına göre takip edin.",
     "empty": "Birime gelen talep bulunmuyor.",
     "columns": {
       "type": "Tip",
@@ -2159,8 +2159,8 @@
       "description": "Açıklama",
       "descriptionPlaceholder": "Talebinizi detaylı olarak açıklayınız...",
       "ownerDepartment": "Görevi Yapan Birim",
-      "startDate": "Başlangıç Tarihi (opsiyonel)",
-      "dueDate": "Son Tarih (opsiyonel)",
+      "startDate": "Başlangıç Tarihi (isteğe bağlı)",
+      "dueDate": "Son Tarih (isteğe bağlı)",
       "destinationUnit": "Gideceği Birim",
       "priority": "Öncelik",
       "isProject": "Proje niteliğinde mi?",
@@ -2258,7 +2258,7 @@
     "requestSectionTitle": "Talep Ekleri",
     "taskSectionTitle": "Görev Ekleri",
     "taskEditor": "Görev Eki Düzenleyen",
-    "label": "Dosya / Görsel Ekle (opsiyonel)",
+    "label": "Dosya / Görsel Ekle (isteğe bağlı)",
     "uploadLabel": "Fotoğraf Ekle",
     "uploadHint": "JPG, PNG, PDF, Office — toplam max 5 MB",
     "dragHint": "Dosyayı buraya sürükleyin veya tıklayın",

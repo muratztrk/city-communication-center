@@ -1,3 +1,16 @@
+## Round 1395 — #3985 r2 / #3990–#3998
+
+- [x] `6abe8394` / #3985 — Dosya ekle: overlay input + cancel/focus pointer unlock.
+- [x] `6abe987b` / #3990 — Gelen Yapılmakta/Geciken/Tümü İşlemler: yalnız Detaylar.
+- [x] `6abe9fc7` / #3991 — Gelen Onaylanan header sağ köşe + dar İşlemler.
+- [x] `6abea0b6` / #3992 — Gelen Tamamlanan Görevi Yapan değeri biraz büyük.
+- [x] `6abea2bf` / #3993 — Anasayfa altı kalın menü çizgisi.
+- [x] `6abea2d2` / #3994 — Anasayfa dönem kutucuk başlığı taşmaz.
+- [x] `6abea453` / #3995 — Giden'den aynı birim talepleri çıktı; gelen'de kalır.
+- [x] `6abea5ef` / #3996 — Gelen banner alt yazı durumlarına göre.
+- [x] `6abea7b3` / #3997 — (OPSİYONEL) → (İSTEĞE BAĞLI).
+- [x] `6abea806` / #3998 — Talep Oluştur ana başlıkları biraz küçük.
+
 ## Round 1394 — #3988 / #3989 / #3985 / #3984 / #3986 / #3987
 
 - [x] `6abe94d2` / #3988 — Birimden Giden Onaylanan chip: Birim Dışı Onay Bekleyen Talepler.

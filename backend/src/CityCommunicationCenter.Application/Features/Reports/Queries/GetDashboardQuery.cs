@@ -185,6 +185,10 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                             || j.Status == JobStatus.PendingExternalApproval
                             || j.Status == JobStatus.RevisionRequested)
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                        && !_dbContext.JobDepartments.Any(jd =>
+                            jd.JobId == j.JobId
+                            && jd.Role == JobDepartmentRole.Target
+                            && jd.DepartmentId == j.OwnerDepartmentId)
                         && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
                         && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
@@ -199,6 +203,10 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                             && t.CurrentStatus != WorkflowTaskStatus.Rejected)
                         && (!j.DueDateUtc.HasValue || j.DueDateUtc >= now)
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                        && !_dbContext.JobDepartments.Any(jd =>
+                            jd.JobId == j.JobId
+                            && jd.Role == JobDepartmentRole.Target
+                            && jd.DepartmentId == j.OwnerDepartmentId)
                         && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
                         && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
@@ -207,6 +215,10 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                     j => j.TenantId == tenantId
                         && j.RequestType == JobRequestType.ExternalUnit
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                        && !_dbContext.JobDepartments.Any(jd =>
+                            jd.JobId == j.JobId
+                            && jd.Role == JobDepartmentRole.Target
+                            && jd.DepartmentId == j.OwnerDepartmentId)
                         && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
                         && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);

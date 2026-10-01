@@ -1825,6 +1825,23 @@
       width: 17.25rem;
     }
 
+    .app-content-shell .incoming-requests-table--details-only .grid-col-actions,
+    .app-content-shell .incoming-requests-table--details-only thead th:last-child,
+    .app-content-shell .incoming-requests-table--details-only tbody td.actions-cell {
+      width: 8.75rem !important;
+      min-width: 8.75rem !important;
+    }
+
+    .app-content-shell .incoming-requests-table--approved thead th {
+      height: var(--table-header-row-height);
+      max-height: var(--table-header-row-height);
+    }
+
+    .app-content-shell .incoming-requests-table--approved thead th:last-child {
+      border-top-right-radius: 0.9rem;
+      background-attachment: scroll;
+    }
+
     .app-content-shell .my-requests-table thead th:last-child,
     .app-content-shell .my-requests-table tbody td.actions-cell {
       width: 14.25rem;
@@ -4220,7 +4237,7 @@
 
   .request-form--readable .job-field-label,
   .routine-task-form--readable .job-field-label {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
   }
 
   /* Parantez max ipuçları job-field-label uppercase'den etkilenmesin (#2506). */
@@ -5446,6 +5463,11 @@
 
     .app-content-shell .incoming-requests-table tbody td .grid-stack-secondary {
       font-size: 0.80rem !important;
+    }
+
+    .app-content-shell .incoming-requests-table tbody td .incoming-completed-owner-value,
+    .app-content-shell .incoming-requests-table tbody td.incoming-completed-owner-cell {
+      font-size: 0.88rem !important;
     }
   }
 
@@ -8753,6 +8775,8 @@
       font-size: 0.62rem !important;
       font-weight: 500 !important;
       letter-spacing: 0 !important;
+      white-space: normal !important;
+      overflow-wrap: anywhere;
     }
 
     .dashboard-metric-card span.tabular-nums,

@@ -500,6 +500,10 @@ export function IncomingRequestsPage() {
   // Onaylanan grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
   const showIncomingStatusColumn = currentStatusFilter === 'all' || currentStatusFilter === 'approved' || currentStatusFilter === 'overdue'
   const showTaskOwnerColumn = ['in-progress', 'completed'].includes(currentStatusFilter)
+  const hideIncomingGridMutations = currentStatusFilter === 'in-progress'
+    || currentStatusFilter === 'overdue'
+    || currentStatusFilter === 'all'
+    || currentStatusFilter === 'approved'
   const incomingTableColumnCount = useMemo(() => {
     let count = 6
     if (showTaskOwnerColumn) count += 1
@@ -888,7 +892,8 @@ export function IncomingRequestsPage() {
   // sütunu tutarlı kalsın diye pasif "Onayla" gösterilir (card #1409).
   const shouldShowDisabledApprove = (row: IncomingRequestRow) =>
     canManageIncomingActions
-    && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue' || currentStatusFilter === 'pending-approval')
+    && !hideIncomingGridMutations
+    && currentStatusFilter === 'pending-approval'
     && !canApproveRow(row)
 
   const isInternalAlreadyApproved = (row: IncomingRequestRow) =>
@@ -918,15 +923,9 @@ export function IncomingRequestsPage() {
 
   const shouldShowDisabledCancel = (row: IncomingRequestRow) =>
     canManageIncomingActions
+    && !hideIncomingGridMutations
     && !canCancelRow(row)
-    && (
-      currentStatusFilter === 'all'
-      || (isInternalAlreadyApproved(row) && (
-        currentStatusFilter === 'overdue'
-        || currentStatusFilter === 'in-progress'
-        || currentStatusFilter === 'approved'
-      ))
-    )
+    && isInternalAlreadyApproved(row)
 
   return (
     <div className="page-stack desktop-page-shell incoming-requests-page">
@@ -936,7 +935,7 @@ export function IncomingRequestsPage() {
             {/* Banner ilk satır = seçili sekme metni (card #1700; Taleplerim ile aynı kalıp). */}
             <div className="page-kicker">{currentStatusFilterLabel}</div>
             <h1 className="page-title">{t('nav.incomingRequests', 'Birime Gelen Talepler')}</h1>
-            <p className="page-subtitle">{t('incomingRequests.subtitle', 'Birim içi ve birim dışı gelen talepleri tek listede takip edin.')}</p>
+            <p className="page-subtitle">{t('incomingRequests.subtitle', 'Birim içi/dışı gelen talepleri durumlarına göre takip edin.')}</p>
           </div>
           <div className="ml-auto mt-auto shrink-0">
             <div className="scope-chips-filters">
@@ -1000,7 +999,7 @@ export function IncomingRequestsPage() {
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className="data-table jobs-table data-table--zebra my-requests-table incoming-requests-table">
+            <table className={`data-table jobs-table data-table--zebra my-requests-table incoming-requests-table${hideIncomingGridMutations ? ' incoming-requests-table--details-only' : ''}${currentStatusFilter === 'approved' ? ' incoming-requests-table--approved' : ''}`}>
               <colgroup>
                 <col className="grid-col-row-no" />
                 <col className="grid-col-request-no" />
@@ -1121,8 +1120,8 @@ export function IncomingRequestsPage() {
                     </td>
                     <td className="font-semibold"><TruncatedText text={row.title} className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`} /></td>
                     {showTaskOwnerColumn && (
-                      <td>
-                        <span className="grid-stack-secondary font-semibold">
+                      <td className={currentStatusFilter === 'completed' ? 'incoming-completed-owner-cell' : undefined}>
+                        <span className={`grid-stack-secondary font-semibold${currentStatusFilter === 'completed' ? ' incoming-completed-owner-value' : ''}`}>
                           <EmptyCell value={row.taskOwnerDisplayName} />
                         </span>
                       </td>
@@ -1191,31 +1190,31 @@ export function IncomingRequestsPage() {
                           {t('jobs.actions.details', 'Detaylar')}
                         </Button>
                         {/* Yapılmakta / Onaylanan: yalnız Detaylar (cards #1695/#1702/#1703). */}
-                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
+                        {!hideIncomingGridMutations && canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveOwner(row.id)}>
                             <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
+                        {!hideIncomingGridMutations && canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
                           <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveTarget(row.id, row.pendingTargetApprovalDepartmentId!)}>
                             <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
+                        {!hideIncomingGridMutations && canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
                           <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleAssignStaff(row.id)}>
                             <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
+                        {!hideIncomingGridMutations && canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
                           <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveClose(row.id)}>
                             <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('tasks.actions.approveClose', 'Onayla')}
                           </Button>
                         )}
-                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && shouldShowDisabledApprove(row) && (
+                        {!hideIncomingGridMutations && shouldShowDisabledApprove(row) && (
                           <DisabledActionButton
                             size="sm"
                             variant="success"
@@ -1227,13 +1226,13 @@ export function IncomingRequestsPage() {
                           </DisabledActionButton>
                         )}
                         {/* Onaylanan gridde İptal Et yok (card #1702); Yapılmakta'da da yok (#1695). */}
-                        {canCancelRow(row) && currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && (
+                        {canCancelRow(row) && !hideIncomingGridMutations && (
                           <Button size="sm" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openCancelReturn(row)}>
                             <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.cancel', 'İptal Et')}
                           </Button>
                         )}
-                        {shouldShowDisabledCancel(row) && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue' || isInternalAlreadyApproved(row)) && (
+                        {!hideIncomingGridMutations && shouldShowDisabledCancel(row) && (
                           <DisabledActionButton
                             size="sm"
                             variant="destructive"

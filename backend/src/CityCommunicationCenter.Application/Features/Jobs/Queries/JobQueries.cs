@@ -102,7 +102,11 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         {
             q = actor is { RoleCode: RoleCode.Manager } && visibleDepartmentIds.Length > 0
                 ? q.Where(j => j.RequestType == JobRequestType.ExternalUnit
-                    && visibleDepartmentIds.Contains(j.OwnerDepartmentId))
+                    && visibleDepartmentIds.Contains(j.OwnerDepartmentId)
+                    && !_dbContext.JobDepartments.Any(jd =>
+                        jd.JobId == j.JobId
+                        && jd.Role == JobDepartmentRole.Target
+                        && jd.DepartmentId == j.OwnerDepartmentId))
                 : q.Where(_ => false);
         }
         else if (scope == "active")

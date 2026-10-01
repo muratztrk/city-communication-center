@@ -305,8 +305,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
   biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar görünmez; seçim ve yükleme
   sırasında da gösterilmez (#3357) — WA, `CitizenRequestModal`, `AttachmentSection`, kurum içi FAB dahil.
-  Native dosya diyaloğu iptalinden sonra input remount edilir; dropzone/buton `<label>` ile native
-  gesture kullanır — iptal sonrası hover beklenmez (#3985).
+  Native dosya diyaloğu iptalinden sonra input remount edilir; dropzone/buton üzerinde
+  `opacity:0` overlay `<input type="file">` gerçek tıklama alır (`label`/`.click()` yok).
+  `cancel` + `focus` sonrası `pointer-events` sıfırlanır — iptal sonrası hover beklenmez (#3985).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -1493,8 +1494,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Detay popup bold kart/bölüm başlıkları `0.875rem` (card #1686 reopen — biraz büyüt,
   çok değil). Talep/Görev Bilgileri etiket `0.75rem`, değer `0.8125rem` (card #1688);
   yönetici notu / ek boş durum metinleri `0.75rem` (#1687).
-  Boş ek metni `Talep için ek bulunmamaktadır.`; yükleme etiketi `Dosya / Görsel Ekle (opsiyonel)`
-  (card #1690). Birimden Giden detayda ek yükleme yok — salt okunur + boş metin (card #1689).
+  Boş ek metni `Talep için ek bulunmamaktadır.`;   yükleme etiketi `Dosya / Görsel Ekle (isteğe bağlı)`
+  (card #1690 / #3997). Birimden Giden detayda ek yükleme yok — salt okunur + boş metin (card #1689).
   Yapılmakta scope chip mavi (`scope-chip--in-progress`); Geciken turuncu
   (`scope-chip--overdue`) — cards #1693/#1695. Birime Gelen'de Onaylanmış → Yapılmakta →
   Geciken sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
@@ -1520,6 +1521,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Birimden Giden Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
   Birimden Giden chip `approved` metni **Birim Dışı Onay Bekleyen Talepler** (#3988).
   Birime Gelen Onaylanan: `İşleme Alındı` (hedef yönetici onayı yok) satır yok (#3986).
+  Birime Gelen Yapılmakta / Geciken / Tümü İşlemler'de yalnız Detaylar (#3990).
+  Birime Gelen Onaylanan header sağ köşe + dar İşlemler kolonu (#3991).
+  Birime Gelen Tamamlanan `Görevi Yapan` değeri biraz büyük (#3992).
+  Birime Gelen banner alt yazı: `Birim içi/dışı gelen talepleri durumlarına göre takip edin.` (#3996).
+  Birimden Giden: sahip birim = hedef birim (birim içi) satır yok; gelen listede kalır (#3995).
   Birime Gelen Onaylanmış grid İşlemler'de `Onayla` yok (#1703). Birim içi onaylanmış
   (Active/Waiting/Assigned/InProgress/PendingCloseApproval) satırda **İptal Et pasif**
   (#3276; Geciken/Yapılmakta/Tümü/Onaylanmış). Birim dışı gelen, sahip onayından sonra
@@ -1533,6 +1539,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`right/top: -0.35rem` / `top: -0.45rem` hafif yukarı — #2551 reopen), `z-index: 30`;
   `.scope-chips` z-index 3 — banner üstüne taşan rozet banner'ı ezer (#2555).
   `incoming-requests-page` daha sıkı `page-stack` gap + çip `margin-top: 0.2rem` (#2555 reopen).
+  VTY / Standart / Müdür / Personel sol menüde Anasayfa sonrası kalın ayırıcı,
+  Mesaj Onayı altındakiyle aynı (`separatorAfter`, #3993).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   **Birim yöneticisi menüsü (#2553):** `SidebarNav` `compactLabels` — uzun çok satırlı başlıklar
@@ -1651,6 +1659,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   birim adından önce `\n\n` (çağrı SMS ile aynı helper).
 - **WA terminal not (#6a6f24e7):** tamamlandı/iptal mesajından sonra `\n\n` + not metni;
   ayrıca `{GönderilenBirim}` öncesi `\n\n` (release yolu).
+- **Talep Oluştur alan başlıkları (#3998):** `.request-form--readable .job-field-label` 0.8rem.
 - **Talep Oluştur ilk harf (#6a6f496e):** Birim İçi/Dışı/Çağrı formlarında başlık, vatandaş
 - **Birim Dışı dosya dropzone (#6a6f2982):** `min-h` 4rem→3.25rem, dikey padding azaltıldı.
   adı ve açıklama blur/submit'te yalnız ilk harf TR büyük (`ensureLeadingCapitalTr` /
@@ -2181,6 +2190,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   biraz küçük (#6a75be0b).
 - **Anasayfa kutucuk sayıları (#2520):** ikon solda; sayı başlık metninin hemen sağında (hafif
   sağa, `font-bold`/`text-xl`); başlık+sublabel bir satır yukarı hizalı.
+  Dönem altı metrik başlığı `whitespace-nowrap` olmaz; kutu dışına taşmaz (#3994).
 - **Reporter vatandaş anasayfa (#2519):** pie grid son kutusu `Bildirimler` — son 3 bildirim (sıra no),
   mesaj `line-clamp-1` + `title` tooltip; başlık satırında `Tüm bildirimleri gör`. Tüm anasayfalarda
   pie bölümü sonunda (#2519 reopen). Bildirim modalı (`max-w-xl`) sayfalama barı

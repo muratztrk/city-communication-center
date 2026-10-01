@@ -854,7 +854,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     />
                   </label>
                   <div className="job-field flex min-h-0 flex-col gap-1">
-                    <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
+                    <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (isteğe bağlı)')}</span>
                     <div className="flex min-h-[5rem] items-start gap-2">
                       <div className="flex shrink-0 flex-col gap-1">
                       <button

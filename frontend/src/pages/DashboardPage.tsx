@@ -672,7 +672,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-requests?view=overdue',
           iconBg: 'bg-orange-100',
           iconColor: 'text-orange-600',
-          labelClassName: 'whitespace-nowrap tracking-[0.03em]',
+          labelClassName: 'tracking-[0.01em]',
         }] as MetricCard[] : []),
       ]
     : []
@@ -728,7 +728,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-requests?view=overdue',
           iconBg: 'bg-orange-100',
           iconColor: 'text-orange-600',
-          labelClassName: 'whitespace-nowrap tracking-[0.03em]',
+          labelClassName: 'tracking-[0.01em]',
         }] : []),
       ]
     : []
@@ -874,7 +874,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <Icon className="size-3.5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className={`dashboard-metric-label whitespace-nowrap text-[0.72rem] font-semibold capitalize leading-snug tracking-normal text-[color:var(--color-muted-foreground)]${metric.labelClassName ? ` ${metric.labelClassName}` : ''}`}>
+          <div className={`dashboard-metric-label text-[0.68rem] font-semibold capitalize leading-tight tracking-normal text-[color:var(--color-muted-foreground)]${metric.labelClassName ? ` ${metric.labelClassName}` : ''}`}>
             {metric.label}
           </div>
           {metric.sublabel ? (

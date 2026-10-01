@@ -509,7 +509,7 @@ export function AppShell() {
               : []),
           ]
         : [
-            { pageKey: 'dashboard' as const, path: showCitizenDashboard ? '/dashboard' : '/dashboard/birimler', label: t('nav.dashboard'), icon: LayoutDashboard },
+            { pageKey: 'dashboard' as const, path: showCitizenDashboard ? '/dashboard' : '/dashboard/birimler', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
             { pageKey: 'departmentRequestMap' as const, path: '/department-request-map', label: t('nav.departmentRequestMap', 'Birim Talep Haritası'), icon: MapPin, separatorAfter: true },
           ]),
     { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },

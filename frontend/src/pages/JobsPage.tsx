@@ -700,18 +700,26 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
   return jobs.filter(job => job.status === 'Rejected' || job.status === 'Cancelled' || job.status === 'RevisionRequested')
 }
 
+function isSameOwnerAndTargetDepartment(job: JobSummary): boolean {
+  if (job.requestType === 'InternalUnit') return true
+  const targets = (job.departments ?? []).filter(department => department.role === 'Target')
+  if (targets.length === 0) return false
+  return targets.every(department => department.departmentId === job.ownerDepartmentId)
+}
+
 function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOutgoingView): JobSummary[] {
-  if (view === 'all') return jobs
-  if (view === 'overdue') return jobs.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
+  const outgoing = jobs.filter(job => !isSameOwnerAndTargetDepartment(job))
+  if (view === 'all') return outgoing
+  if (view === 'overdue') return outgoing.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
 
   if (view === 'pending') {
-    return jobs.filter(job =>
+    return outgoing.filter(job =>
       job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
   }
 
   // Onaylanan: sahip onaylı; tamamlanmış/iptal/yapılmakta hariç (#2826).
   if (view === 'approved') {
-    return jobs.filter(job =>
+    return outgoing.filter(job =>
       (job.departments?.some(department => department.role === 'Owner' && department.decidedAtUtc != null) ?? false)
       && job.status !== 'Completed'
       && job.status !== 'Cancelled'
@@ -720,14 +728,14 @@ function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOu
   }
 
   if (view === 'in-progress') {
-    return jobs.filter(job => job.status === 'Active' && job.taskCount > 0 && !isJobOverdue(job))
+    return outgoing.filter(job => job.status === 'Active' && job.taskCount > 0 && !isJobOverdue(job))
   }
 
   if (view === 'completed') {
-    return jobs.filter(job => job.status === 'Completed')
+    return outgoing.filter(job => job.status === 'Completed')
   }
 
-  return jobs.filter(job => job.status === 'Rejected' || job.status === 'Cancelled')
+  return outgoing.filter(job => job.status === 'Rejected' || job.status === 'Cancelled')
 }
 
 async function loadJobsForView(scope: JobListScope, departmentId: string | null, includeDepartmentJobs: boolean): Promise<JobSummary[]> {

@@ -24,6 +24,7 @@ import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm
 import { emitPageToast } from '../components/ui/pageToast'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
+import { unlockDocumentPointers } from '../utils/filePickerUnlock'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { AddressCoordinatesField, CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { useAuth } from '../context/AuthContext'
@@ -330,15 +331,17 @@ export function CreateRequestPage() {
     }
   }, [selectedKind, editJobId, socialMessageIdParam])
 
-  useEffect(() => {
-    const remountCancelledPicker = () => {
-      if (!filePickerOpenRef.current) return
-      filePickerOpenRef.current = false
-      setFileInputKey(key => key + 1)
-    }
-    window.addEventListener('focus', remountCancelledPicker)
-    return () => window.removeEventListener('focus', remountCancelledPicker)
+  const releaseCancelledFilePicker = useCallback(() => {
+    if (!filePickerOpenRef.current) return
+    filePickerOpenRef.current = false
+    unlockDocumentPointers()
+    setFileInputKey(key => key + 1)
   }, [])
+
+  useEffect(() => {
+    window.addEventListener('focus', releaseCancelledFilePicker)
+    return () => window.removeEventListener('focus', releaseCancelledFilePicker)
+  }, [releaseCancelledFilePicker])
 
   const canCreateCitizenRequest = user?.role === 'Operator'
   const canShowCitizenRequest = canCreateCitizenRequest && isModuleUsable('citizen')
@@ -694,16 +697,10 @@ export function CreateRequestPage() {
 
   const renderPhotoUpload = (className?: string) => (
     <div className={['job-field', className].filter(Boolean).join(' ')}>
-      <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
+      <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (isteğe bağlı)')}</span>
       <div className="grid gap-3 lg:grid-cols-2 lg:items-stretch">
-        <label
-          htmlFor="create-request-file-input"
-          className={`request-photo-dropzone flex min-h-[3.25rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-1.5 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
-          onClick={() => {
-            if (saving) return
-            filePickerOpenRef.current = true
-            if (fileInputRef.current) fileInputRef.current.value = ''
-          }}
+        <div
+          className={`request-photo-dropzone relative flex min-h-[3.25rem] flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed px-4 py-1.5 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
           onDragOver={event => event.preventDefault()}
             onDrop={event => {
             event.preventDefault()
@@ -725,36 +722,40 @@ export function CreateRequestPage() {
           <Paperclip className="mb-1 size-4 text-slate-400" />
           <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
           <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — toplam max 5 MB')}</span>
-        </label>
-        <input
-          key={fileInputKey}
-          id="create-request-file-input"
-          ref={fileInputRef}
-          type="file"
-          accept={ATTACHMENT_FILE_ACCEPT}
-          multiple
-          className="sr-only"
-          disabled={saving}
-          onClick={() => {
-            filePickerOpenRef.current = true
-          }}
-          onChange={event => {
-            filePickerOpenRef.current = false
-            setFileError(null)
-            const incoming = Array.from(event.target.files ?? [])
-            let accepted = false
-            setPendingFiles(prev => {
-              const err = validatePendingBatch(prev, incoming)
-              if (err) { setFileError(err); return prev }
+          <input
+            key={fileInputKey}
+            id="create-request-file-input"
+            ref={node => {
+              fileInputRef.current = node
+              if (node) node.oncancel = releaseCancelledFilePicker
+            }}
+            type="file"
+            accept={ATTACHMENT_FILE_ACCEPT}
+            multiple
+            className="absolute inset-0 z-10 cursor-pointer opacity-0"
+            disabled={saving}
+            onClick={() => {
+              filePickerOpenRef.current = true
+              if (fileInputRef.current) fileInputRef.current.value = ''
+            }}
+            onChange={event => {
+              filePickerOpenRef.current = false
               setFileError(null)
-              accepted = true
-              return [...prev, ...incoming]
-            })
-            if (accepted) fileProgress.holdAtZero()
-            else fileProgress.stop()
-            setFileInputKey(key => key + 1)
-          }}
-        />
+              const incoming = Array.from(event.target.files ?? [])
+              let accepted = false
+              setPendingFiles(prev => {
+                const err = validatePendingBatch(prev, incoming)
+                if (err) { setFileError(err); return prev }
+                setFileError(null)
+                accepted = true
+                return [...prev, ...incoming]
+              })
+              if (accepted) fileProgress.holdAtZero()
+              else fileProgress.stop()
+              setFileInputKey(key => key + 1)
+            }}
+          />
+        </div>
         <div className="request-pending-files-panel flex h-full min-h-[5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-1.5">
           {pendingFiles.length === 0 ? (
             <p className="text-sm text-slate-500">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>

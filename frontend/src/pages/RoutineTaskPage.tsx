@@ -422,7 +422,7 @@ export function RoutineTaskPage() {
                 </label>
 
                 <div className="job-field min-h-0">
-                <span className="job-field-label text-[0.82rem]">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
+                <span className="job-field-label text-[0.82rem]">{t('attachments.label', 'Dosya / Görsel Ekle (isteğe bağlı)')}</span>
                   <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
                     <div className="flex items-start justify-start">
                       <button

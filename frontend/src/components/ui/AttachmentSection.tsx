@@ -1,5 +1,6 @@
 import { Download, FileText, Paperclip } from 'lucide-react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { unlockDocumentPointers } from '../../utils/filePickerUnlock'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -63,15 +64,17 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
 
-  useEffect(() => {
-    const remountCancelledPicker = () => {
-      if (!filePickerOpenRef.current) return
-      filePickerOpenRef.current = false
-      setFileInputKey(key => key + 1)
-    }
-    window.addEventListener('focus', remountCancelledPicker)
-    return () => window.removeEventListener('focus', remountCancelledPicker)
+  const releaseCancelledFilePicker = useCallback(() => {
+    if (!filePickerOpenRef.current) return
+    filePickerOpenRef.current = false
+    unlockDocumentPointers()
+    setFileInputKey(key => key + 1)
   }, [])
+
+  useEffect(() => {
+    window.addEventListener('focus', releaseCancelledFilePicker)
+    return () => window.removeEventListener('focus', releaseCancelledFilePicker)
+  }, [releaseCancelledFilePicker])
 
   const validate = (file: File): string | null => {
     if (!isAllowedAttachmentFileName(file.name)) {
@@ -185,36 +188,34 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       {!readOnly && (
         <>
           <div className="attachment-upload-zone">
-            <label
-              htmlFor={fileInputId}
+            <div
               aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
-              className={`inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 ${isDisabled ? 'pointer-events-none cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-              onClick={() => {
-                if (isDisabled) return
-                filePickerOpenRef.current = true
-                if (fileInputRef.current) fileInputRef.current.value = ''
-              }}
+              className={`relative inline-flex h-9 items-center gap-1.5 overflow-hidden rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 ${isDisabled ? 'pointer-events-none cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
             >
               <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
               {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
-            </label>
-            <input
-              key={fileInputKey}
-              id={fileInputId}
-              ref={fileInputRef}
-              type="file"
-              accept={ATTACHMENT_FILE_ACCEPT}
-              multiple
-              className="sr-only"
-              disabled={isDisabled}
-              onClick={() => {
-                filePickerOpenRef.current = true
-              }}
-              onChange={e => {
-                filePickerOpenRef.current = false
-                void handleFiles(e.target.files)
-              }}
-            />
+              <input
+                key={fileInputKey}
+                id={fileInputId}
+                ref={node => {
+                  fileInputRef.current = node
+                  if (node) node.oncancel = releaseCancelledFilePicker
+                }}
+                type="file"
+                accept={ATTACHMENT_FILE_ACCEPT}
+                multiple
+                className="absolute inset-0 z-10 cursor-pointer opacity-0"
+                disabled={isDisabled}
+                onClick={() => {
+                  filePickerOpenRef.current = true
+                  if (fileInputRef.current) fileInputRef.current.value = ''
+                }}
+                onChange={e => {
+                  filePickerOpenRef.current = false
+                  void handleFiles(e.target.files)
+                }}
+              />
+            </div>
           </div>
         </>
       )}

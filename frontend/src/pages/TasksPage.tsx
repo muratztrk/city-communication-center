@@ -2604,25 +2604,14 @@ const pageKicker = isMyTasksView
                                   rows.push({
                                     label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
                                     value: (
-                                      <div className="flex w-[13.5rem] max-w-[13.5rem] flex-col items-start gap-2">
-                                        <textarea
-                                          className="field-textarea workflow-note-dialog__textarea w-full text-left"
-                                          rows={3}
-                                          maxLength={TASK_TERMINAL_NOTE_MAX_LENGTH}
-                                          value={completionNoteDraft}
-                                          onChange={event => setCompletionNoteDraft(event.target.value)}
-                                          placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
-                                        />
-                                        <Button
-                                          type="button"
-                                          size="sm"
-                                          className="bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
-                                          disabled={completionNoteEditSaving || !completionNoteDraft.trim()}
-                                          onClick={() => void handleSaveCompletionNoteEdit()}
-                                        >
-                                          {t('common.edit', 'Düzenle')}
-                                        </Button>
-                                      </div>
+                                      <textarea
+                                        className="field-textarea workflow-note-dialog__textarea w-[13.5rem] max-w-[13.5rem] text-left"
+                                        rows={3}
+                                        maxLength={TASK_TERMINAL_NOTE_MAX_LENGTH}
+                                        value={completionNoteDraft}
+                                        onChange={event => setCompletionNoteDraft(event.target.value)}
+                                        placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
+                                      />
                                     ),
                                     tone: 'completion',
                                   })

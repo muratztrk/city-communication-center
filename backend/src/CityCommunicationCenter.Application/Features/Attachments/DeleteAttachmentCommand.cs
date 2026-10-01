@@ -77,6 +77,14 @@ public sealed class DeleteAttachmentCommandHandler : ICommandHandler<DeleteAttac
             }
         }
 
+        await CitizenMessageApprovals.CitizenMessageApprovalTaskAttachmentAudit.TryWriteAsync(
+            _dbContext,
+            tenantId,
+            attachment.EntityType,
+            attachment.EntityId,
+            request.ActorUserId,
+            $"Delete={attachment.FileName}",
+            cancellationToken);
         _dbContext.Attachments.Remove(attachment);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;

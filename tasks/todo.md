@@ -1,3 +1,11 @@
+## Round 1389 — #3970 r3 / #3974 / #3960 / #3968 / #3966 r3
+
+- [x] `6abe1f32` / #3970 — Tümü'nden Yönlendirilen Birim/Notu kalktı; İade Sebebi Geldiği Yer'in sağında.
+- [x] `6abe31fe` / #3974 — Yönlendirilen Birim değeri yeşil çerçevede.
+- [x] `6abdfa8f` / #3960 — Mesaj Onayı Bekleyen detayda Görev Eki Sil/Ekle + Görev Eki Düzenleyen.
+- [x] `6abe1bdc` / #3968 — Hedef yönetici onayladıysa iade detayında İptal yok.
+- [x] `6abe10ee` / #3966 — Görevlerim textarea altındaki Düzenle kalktı; Kaydet notu yazar.
+
 ## Round 1388 — #3966 r2 / #3970 / #3973 / #3972 / #3969
 
 - [x] `6abe10ee` / #3966 — Görevlerim onaysız not textarea altında koyu turkuaz Düzenle kaydeder.

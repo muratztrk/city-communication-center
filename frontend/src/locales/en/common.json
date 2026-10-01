@@ -2210,6 +2210,7 @@
     "sectionTitle": "Attachments / Photos",
     "requestSectionTitle": "Request Attachments",
     "taskSectionTitle": "Task Attachments",
+    "taskEditor": "Task Attachment Editor",
     "label": "Add File / Image (optional)",
     "uploadLabel": "Add Photo",
     "uploadHint": "JPG, PNG, PDF, Office — total max 5 MB",

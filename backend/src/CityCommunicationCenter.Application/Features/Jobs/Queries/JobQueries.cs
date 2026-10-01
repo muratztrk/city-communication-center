@@ -745,6 +745,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         string? citizenUpdatedCompletionNote = null;
         string? citizenCompletionNoteEditorDisplayName = null;
         string? citizenOriginalCompletionNote = null;
+        string? citizenTaskAttachmentEditorDisplayName = null;
         var hasCitizenWaPhoneLink = citizenRequest is not null
             && (citizenRequest.Channel == SocialChannel.WhatsApp
                 || citizenRequest.Channel == SocialChannel.Phone);
@@ -788,6 +789,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             citizenOriginalCompletionNote = completionNoteEdit.OriginalNote;
             citizenUpdatedCompletionNote = completionNoteEdit.UpdatedNote;
             citizenCompletionNoteEditorDisplayName = completionNoteEdit.EditorDisplayName;
+            citizenTaskAttachmentEditorDisplayName = await CitizenMessageApprovalTaskAttachmentAudit.ResolveEditorDisplayNameAsync(
+                _dbContext, tenantId, job.JobId, cancellationToken);
 
             if (shouldResolveCitizenOutbound)
             {
@@ -908,7 +911,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             dueDateChanges,
             citizenUpdatedCompletionNote,
             citizenCompletionNoteEditorDisplayName,
-            citizenOriginalCompletionNote);
+            citizenOriginalCompletionNote,
+            citizenTaskAttachmentEditorDisplayName);
     }
 
     private static IReadOnlyCollection<string> SplitRequestTags(string? tags, string? category = null)

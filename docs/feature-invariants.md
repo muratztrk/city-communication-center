@@ -2339,10 +2339,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   / **Tamamlama Notu Güncelleyen** yalnız o sayfadaki **Notu Düzenle** (`CitizenMessageApprovalCompletionNoteEdited`)
   sonrası oluşur (#3962). Görevlerim onaysız Tamamlama Notu **Düzenle** popup açmaz;
   not satır içi textarea + Kaydet/Vazgeç olur (#3961). Textarea dar (`13.5rem`) ve sola
-  dayalı; **Sil** / **Ekle** `min-w-[2.75rem] px-2.5`. Textarea altında koyu turkuaz
-  `#007985` **Düzenle** notu kaydeder (#3966 r2). Ek varsa Ön İzle sağında
+  dayalı; **Sil** / **Ekle** `min-w-[2.75rem] px-2.5`. Textarea altında ekstra Düzenle
+  yok; Kaydet textarea içeriğini yazar (#3966 r3). Ek varsa Ön İzle sağında
   kırmızı **Sil** ve **Ekle**; ek yoksa Düzenle **Görev Ekleri** + **Ekle** gösterir,
   dosya seçilmezse başlık kaybolur.
+  Mesaj Onayı Bekleyen detayında Görev Eki varsa Ön İzle sağında kırmızı **Sil** + **Ekle**;
+  ekleme/silme `CitizenMessageApprovalTaskAttachmentEdited` yazar ve **Görev Eki Düzenleyen**
+  satırını doldurur (#3960).
   Görevlerim'de not onaylanmamışken (PendingCloseApproval veya vatandaş + Mesajı Onayla yok)
   **Düzenle** yalnız Tamamlama Notu'nu (satır içi) açar; arka plan koyu turkuaz `#007985` / hover `#006570`
   (#3907 r2; turuncu değil). `GetJobById` bu iki alanı rol kapısı olmadan
@@ -3253,8 +3256,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   vatandaş talebini iptal edebilir; `detailOnly` iptal hatası modalda görünür.
 - **İade Yönlendirilen (#3969/#3972):** `returned-forwarded-by-operator` reason + `AtUtc == null`
   + herhangi bir Target (Pending şartı yok) + iptal/red hariç. Hedef yönetici onayladıktan
-  sonra satır Yönlendirilen ve Tümü'nde kalır. Yönlendirilen/Tümü gridinde İade Sebebi
-  soluna **Yönlendirilen Birim** + **Yönlendirme Notu** (#3970).
+  sonra satır Yönlendirilen ve Tümü'nde kalır. Yönlendirilen gridinde sıra: Geldiği Yer,
+  İade Sebebi, **Yönlendirilen Birim** (yeşil çerçeve, #3974), **Yönlendirme Notu**.
+  Tümü'nde yönlendirme sütunları yok (#3970 r3). Hedef yönetici onayladıysa iade detay
+  popup'ta **İptal** yok (#3968).
 - **İade / Sms Onayı / Vatandaş Talepleri banner kicker (#3973):** `.page-kicker` seçili
   scope/kanal chip metnidir (`Bekleyen`, `Mesaj Onayı Bekleyen`, `WhatsApp`, …).
 - **WA mesaj sarma (#3728):** konuşma balonu `max-w-full overflow-hidden break-words`; pane

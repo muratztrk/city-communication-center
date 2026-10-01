@@ -923,6 +923,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const returnedTargetDepartment = jobTargetDepartment
   const isReturnedCancelledDetail = isReturnedRequestDetail
     && (detail?.status === 'Cancelled' || detail?.status === 'Rejected')
+  const returnedTargetApproved = isReturnedRequestDetail
+    && (detail?.departments ?? []).some(department => department.role === 'Target' && department.approvalStatus === 'Approved')
   const canForwardReturnedDetail = isReturnedRequestDetail
     && !isReturnedCancelledDetail
     && (user?.role === 'Operator' || isCitizenRequestManager)
@@ -2845,11 +2847,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 requestLabel: citizenSourceMessage?.category,
                 sourceChannel: citizenSourceMessage?.channel,
               })}
-              onCancel={detailContext === 'social'
-                ? (canCancelSocialDetail
-                  ? (socialActions?.cancel ?? (() => handleCancel(detail.jobId)))
-                  : undefined)
-                : (socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined))}
+              onCancel={returnedTargetApproved
+                ? undefined
+                : (detailContext === 'social'
+                  ? (canCancelSocialDetail
+                    ? (socialActions?.cancel ?? (() => handleCancel(detail.jobId)))
+                    : undefined)
+                  : (socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined)))}
               showCancelDisabled={detailContext === 'social'
                 ? detail != null && !canCancelSocialDetail
                 : Boolean(socialActions && !socialActions.cancel)}
@@ -3885,6 +3889,20 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
                 citizenMessageApproverDisplayName={detail.citizenMessageApproverDisplayName}
                 hideMessageApprovalPendingFields={hideMessageApprovalPendingFields}
+                canEditUnapprovedTaskAttachments={Boolean(messageApprovalActions?.onEditNote)}
+                taskAttachmentEditorDisplayName={detail.citizenTaskAttachmentEditorDisplayName}
+                onUploadTaskAttachment={async (taskId, file) => {
+                  await api.uploadTaskAttachment(taskId, file)
+                  invalidateJobs(queryClient, detail.jobId)
+                  invalidateTasks(queryClient, undefined, detail.jobId)
+                  await refreshDetail()
+                }}
+                onDeleteTaskAttachment={async attachmentId => {
+                  await api.deleteAttachment(attachmentId)
+                  invalidateJobs(queryClient, detail.jobId)
+                  invalidateTasks(queryClient, undefined, detail.jobId)
+                  await refreshDetail()
+                }}
               />
             )}
            </div>

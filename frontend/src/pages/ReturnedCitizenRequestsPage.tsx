@@ -123,7 +123,7 @@ export function ReturnedCitizenRequestsPage() {
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
 
   const activeScopeFilter = RETURNED_SCOPE_FILTERS.find(filter => filter.value === scope) ?? RETURNED_SCOPE_FILTERS[0]
-  const showForwardedColumns = scope === 'forwarded' || scope === 'all'
+  const showForwardedColumns = scope === 'forwarded'
 
   const jobsQuery = useQuery({
     queryKey: queryKeys.jobs.returnedCitizenRequests(scope),
@@ -369,6 +369,17 @@ export function ReturnedCitizenRequestsPage() {
                 >
                   {t('returnedCitizenRequests.columns.destination', 'Geldiği Yer')}
                 </FilterableTh>
+                <FilterableTh
+                  filterKey="returnedReason"
+                  filterValue={filters.returnedReason ?? ''}
+                  onFilter={handleFilter}
+                  sortKey="returnedReason"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                >
+                  {t('returnedCitizenRequests.columns.returnedReason', 'İade Sebebi')}
+                </FilterableTh>
                 {showForwardedColumns ? (
                   <>
                     <FilterableTh
@@ -395,17 +406,6 @@ export function ReturnedCitizenRequestsPage() {
                     </FilterableTh>
                   </>
                 ) : null}
-                <FilterableTh
-                  filterKey="returnedReason"
-                  filterValue={filters.returnedReason ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="returnedReason"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('returnedCitizenRequests.columns.returnedReason', 'İade Sebebi')}
-                </FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>
@@ -428,17 +428,25 @@ export function ReturnedCitizenRequestsPage() {
                   </td>
                   <td><DateCell value={row.requestDateUtc} locale={locale} /></td>
                   <td><span className="font-semibold text-slate-700">{row.destinationName}</span></td>
+                  <td>
+                    <TruncatedText text={row.returnedReason} className="cell-title" />
+                  </td>
                   {showForwardedColumns ? (
                     <>
-                      <td><span className="font-semibold text-slate-700">{row.forwardedDepartmentName}</span></td>
+                      <td>
+                        {row.forwardedDepartmentName !== '—' ? (
+                          <span className="inline-flex max-w-full rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
+                            {row.forwardedDepartmentName}
+                          </span>
+                        ) : (
+                          <span className="font-semibold text-slate-700">{row.forwardedDepartmentName}</span>
+                        )}
+                      </td>
                       <td>
                         <TruncatedText text={row.forwardNote} className="cell-title" />
                       </td>
                     </>
                   ) : null}
-                  <td>
-                    <TruncatedText text={row.returnedReason} className="cell-title" />
-                  </td>
                   <td>
                     <div className="flex justify-center">
                       <Button

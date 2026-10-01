@@ -168,6 +168,14 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
         };
 
         _dbContext.Attachments.Add(attachment);
+        await CitizenMessageApprovals.CitizenMessageApprovalTaskAttachmentAudit.TryWriteAsync(
+            _dbContext,
+            tenantId,
+            entityType,
+            entityId,
+            request.ActorUserId,
+            $"Add={request.FileName}",
+            cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return new AttachmentResponse(

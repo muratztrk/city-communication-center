@@ -1,10 +1,13 @@
 import { FileText, Info, ListChecks } from 'lucide-react'
+import { useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../../context/AuthContext'
-import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentImagePreviewButton } from '../../ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
+import { Button } from '../../ui/button'
+import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../../../utils/attachmentAccept'
+import { ATTACHMENT_MAX_TOTAL_BYTES, exceedsAttachmentTotalLimit, sumAttachmentBytes, sumFileSizes } from '../../../utils/attachmentLimits'
 import type { JobDetail } from '../../../types/platform'
 import { isCitizenRequestJob, requestLocationFieldLabel } from '../../../utils/citizenRequests'
 import { shouldShowCitizenMessageApproverField } from '../../../utils/jobDetails'
@@ -39,6 +42,10 @@ interface MyRequestTaskDetailsSectionProps {
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
   // olarak buraya taşınır; Süreç, Açıklama'nın yerine kayar (card #1549).
   addressColumnContent?: ReactNode
+  canEditUnapprovedTaskAttachments?: boolean
+  taskAttachmentEditorDisplayName?: string | null
+  onUploadTaskAttachment?: (taskId: string, file: File) => Promise<void>
+  onDeleteTaskAttachment?: (attachmentId: string) => Promise<void>
 }
 
 function notePlain(value?: string | null) {
@@ -164,14 +171,65 @@ export function MyRequestTaskDetailsSection({
   hideMessageApprovalPendingFields = false,
   hideCitizenOutboundFields = false,
   addressColumnContent,
+  canEditUnapprovedTaskAttachments = false,
+  taskAttachmentEditorDisplayName,
+  onUploadTaskAttachment,
+  onDeleteTaskAttachment,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
+  const approvalAttachmentInputRef = useRef<HTMLInputElement | null>(null)
+  const [approvalAttachmentTaskId, setApprovalAttachmentTaskId] = useState<string | null>(null)
+  const [approvalAttachmentBusy, setApprovalAttachmentBusy] = useState(false)
+  const [approvalAttachmentError, setApprovalAttachmentError] = useState<string | null>(null)
+
+  const handleApprovalAttachmentFiles = async (files: FileList | null) => {
+    const taskId = approvalAttachmentTaskId
+    const task = detail.tasks.find(item => item.taskId === taskId)
+    if (!taskId || !files?.length || !onUploadTaskAttachment) return
+    const incoming = Array.from(files)
+    for (const file of incoming) {
+      if (!isAllowedAttachmentFileName(file.name)) {
+        setApprovalAttachmentError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+        return
+      }
+      if (file.size > ATTACHMENT_MAX_TOTAL_BYTES) {
+        setApprovalAttachmentError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+        return
+      }
+    }
+    if (exceedsAttachmentTotalLimit(sumAttachmentBytes(task?.attachments ?? []), sumFileSizes(incoming))) {
+      setApprovalAttachmentError(t('attachments.errorTotalSize', 'Dosyaların toplam boyutu 5 MB\'ı aşamaz.'))
+      return
+    }
+    setApprovalAttachmentError(null)
+    setApprovalAttachmentBusy(true)
+    try {
+      for (const file of incoming) {
+        await onUploadTaskAttachment(taskId, file)
+      }
+    } catch (err) {
+      setApprovalAttachmentError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setApprovalAttachmentBusy(false)
+      setApprovalAttachmentTaskId(null)
+      if (approvalAttachmentInputRef.current) approvalAttachmentInputRef.current.value = ''
+    }
+  }
 
   if (detail.tasks.length === 0) return null
 
   return (
     <section className="my-request-task-details form-card page-stack mb-5">
+      <input
+        ref={approvalAttachmentInputRef}
+        type="file"
+        accept={ATTACHMENT_FILE_ACCEPT}
+        multiple
+        className="hidden"
+        disabled={approvalAttachmentBusy}
+        onChange={event => void handleApprovalAttachmentFiles(event.target.files)}
+      />
       <MyRequestSectionHeading icon={ListChecks} tone="primary">
         {t('tasks.detail.relatedTitle', 'İlgili Görev Detayları')}
       </MyRequestSectionHeading>
@@ -421,13 +479,19 @@ export function MyRequestTaskDetailsSection({
                     // Ekler/Fotoğraflar kartı var; bu paylaşılan "Görev Detayları" bileşeninde öyle bir
                     // kart yok — rutin dışlaması burada uygulanmaz, aksi halde tamamlanmış/iptal rutin
                     // görevin ekleri hiçbir yerde görünmez olurdu (codex review, card #1548 regresyonu).
-                    ...((task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
-                      && (task.attachments?.length ?? 0) > 0
-                      ? [{
+                    ...(() => {
+                      const taskAttachments = task.attachments ?? []
+                      const canEditAttachments = canEditUnapprovedTaskAttachments
+                        && Boolean(onUploadTaskAttachment && onDeleteTaskAttachment)
+                        && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+                      const showAttachments = (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+                        && (taskAttachments.length > 0 || canEditAttachments)
+                      if (!showAttachments) return []
+                      const rows: { label: string; value: ReactNode }[] = [{
                           label: t('attachments.taskSectionTitle', 'Görev Ekleri'),
                           value: (
                             <div className="flex w-full flex-col items-end gap-1">
-                              {task.attachments!.map(attachment => {
+                              {taskAttachments.map(attachment => {
                                 const AttachmentIcon = getInlineAttachmentIcon(attachment.fileName)
                                 return (
                                   <div key={attachment.attachmentId} className="inline-flex max-w-full items-center gap-1">
@@ -445,13 +509,64 @@ export function MyRequestTaskDetailsSection({
                                     ownerKind="task"
                                     className="h-6 shrink-0 px-1.5 text-[10px]"
                                   />
+                                  {canEditAttachments ? (
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      variant="destructive"
+                                      className="h-6 min-w-[2.75rem] shrink-0 px-2.5 text-[10px]"
+                                      disabled={approvalAttachmentBusy}
+                                      onClick={() => {
+                                        void (async () => {
+                                          setApprovalAttachmentError(null)
+                                          setApprovalAttachmentBusy(true)
+                                          try {
+                                            await onDeleteTaskAttachment?.(attachment.attachmentId)
+                                          } catch (err) {
+                                            setApprovalAttachmentError(err instanceof Error ? err.message : t('common.error'))
+                                          } finally {
+                                            setApprovalAttachmentBusy(false)
+                                          }
+                                        })()
+                                      }}
+                                    >
+                                      {t('common.delete', 'Sil')}
+                                    </Button>
+                                  ) : null}
                                   </div>
                                 )
                               })}
+                              {canEditAttachments ? (
+                                <div className="flex flex-col items-end gap-1">
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="secondary"
+                                    className="h-6 min-w-[2.75rem] px-2.5 text-[10px]"
+                                    disabled={approvalAttachmentBusy}
+                                    onClick={() => {
+                                      setApprovalAttachmentTaskId(task.taskId)
+                                      approvalAttachmentInputRef.current?.click()
+                                    }}
+                                  >
+                                    {t('common.add', 'Ekle')}
+                                  </Button>
+                                  {approvalAttachmentError ? (
+                                    <p className="text-xs font-medium text-red-600">{approvalAttachmentError}</p>
+                                  ) : null}
+                                </div>
+                              ) : null}
                             </div>
                           ),
                         }]
-                      : []),
+                      if (taskAttachmentEditorDisplayName?.trim()) {
+                        rows.push({
+                          label: t('attachments.taskEditor', 'Görev Eki Düzenleyen'),
+                          value: taskAttachmentEditorDisplayName.trim(),
+                        })
+                      }
+                      return rows
+                    })(),
                   ].map((row) => {
                     const tone = 'tone' in row ? row.tone : undefined
                     const fullRow = 'fullRow' in row && row.fullRow

@@ -199,4 +199,5 @@ public sealed record JobDetailResponse(
     IReadOnlyCollection<JobDueDateChangeResponse>? DueDateChanges = null,
     string? CitizenUpdatedCompletionNote = null,
     string? CitizenCompletionNoteEditorDisplayName = null,
-    string? CitizenOriginalCompletionNote = null);
+    string? CitizenOriginalCompletionNote = null,
+    string? CitizenTaskAttachmentEditorDisplayName = null);

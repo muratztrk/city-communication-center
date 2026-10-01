@@ -492,6 +492,7 @@ export interface JobDetail {
   citizenUpdatedCompletionNote?: string | null;
   citizenCompletionNoteEditorDisplayName?: string | null;
   citizenOriginalCompletionNote?: string | null;
+  citizenTaskAttachmentEditorDisplayName?: string | null;
   returnedToOperatorAtUtc?: string | null;
   returnedToOperatorReason?: string | null;
   returnedToOperatorFromDepartmentId?: string | null;

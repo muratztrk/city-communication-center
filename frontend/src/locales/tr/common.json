@@ -2254,6 +2254,7 @@
     "sectionTitle": "Ekler / Fotoğraflar",
     "requestSectionTitle": "Talep Ekleri",
     "taskSectionTitle": "Görev Ekleri",
+    "taskEditor": "Görev Eki Düzenleyen",
     "label": "Dosya / Görsel Ekle (opsiyonel)",
     "uploadLabel": "Fotoğraf Ekle",
     "uploadHint": "JPG, PNG, PDF, Office — toplam max 5 MB",

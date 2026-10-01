@@ -9,6 +9,7 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
+import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TruncatedText } from '../components/ui/TruncatedText'
@@ -17,7 +18,7 @@ import { useSortable } from '../hooks/useSortable'
 import type { JobListScope, JobSummary, SocialMessage } from '../types/platform'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
-import { getLocale } from '../utils/localization'
+import { getLocale, getStatusPillClass } from '../utils/localization'
 import { looksLikePhone } from '../utils/phoneDisplay'
 
 const JobsPage = lazy(() => import('./JobsPage').then(module => ({ default: module.JobsPage })))
@@ -435,9 +436,9 @@ export function ReturnedCitizenRequestsPage() {
                     <>
                       <td>
                         {row.forwardedDepartmentName !== '—' ? (
-                          <span className="inline-flex max-w-full rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
+                          <StatusPill className={`${getStatusPillClass('completed')} max-w-full whitespace-normal`}>
                             {row.forwardedDepartmentName}
-                          </span>
+                          </StatusPill>
                         ) : (
                           <span className="font-semibold text-slate-700">{row.forwardedDepartmentName}</span>
                         )}

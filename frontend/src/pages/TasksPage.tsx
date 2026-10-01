@@ -1249,6 +1249,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setCompletionNoteEditSaving(true)
     try {
       await api.updateTaskCompletionNote(taskId, note)
+      setTaskDetail(current => current && current.taskId === taskId ? { ...current, notes: note } : current)
       resetUnapprovedCompletionEdit()
       invalidateTasks(queryClient, taskId, selectedTask?.jobId ?? taskDetail?.jobId)
       await refreshOpenTaskDetailAfterAction(taskId)
@@ -2552,9 +2553,11 @@ const pageKicker = isMyTasksView
                                 || taskDetail.jobCancelReason?.trim()
                                 || '—'
                               const completionNoteDisplay = (isCompletedTask || (isPendingCloseApproval && isCitizenTerminalTask))
-                                ? (releasedPlain
-                                  || (outboundRaw && notesDiffer(outboundRaw, taskNotesPlain) ? '—' : taskNotesPlain)
-                                  || '—')
+                                ? (isMyTasksView
+                                  ? (taskNotesPlain || releasedPlain || '—')
+                                  : (releasedPlain
+                                    || (outboundRaw && notesDiffer(outboundRaw, taskNotesPlain) ? '—' : taskNotesPlain)
+                                    || '—'))
                                 : ''
                               const completionNoteEdit = resolveCompletionNoteEditSplit({
                                 originalNote: citizenParent?.citizenOriginalCompletionNote

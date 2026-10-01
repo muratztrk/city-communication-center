@@ -559,7 +559,7 @@ export function MyRequestTaskDetailsSection({
                             </div>
                           ),
                         }]
-                      if (taskAttachmentEditorDisplayName?.trim()) {
+                      if (taskAttachments.length > 0 && taskAttachmentEditorDisplayName?.trim()) {
                         rows.push({
                           label: t('attachments.taskEditor', 'Görev Eki Düzenleyen'),
                           value: taskAttachmentEditorDisplayName.trim(),

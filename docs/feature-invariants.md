@@ -2340,12 +2340,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonrası oluşur (#3962). Görevlerim onaysız Tamamlama Notu **Düzenle** popup açmaz;
   not satır içi textarea + Kaydet/Vazgeç olur (#3961). Textarea dar (`13.5rem`) ve sola
   dayalı; **Sil** / **Ekle** `min-w-[2.75rem] px-2.5`. Textarea altında ekstra Düzenle
-  yok; Kaydet textarea içeriğini yazar (#3966 r3). Ek varsa Ön İzle sağında
+  yok; Kaydet textarea içeriğini yazar ve Görevlerim **Tamamlama Notu** değeri
+  `task.Notes` olur — Released ilk anlık görüntüsü kullanılmaz (#3966 r4). Ek varsa Ön İzle sağında
   kırmızı **Sil** ve **Ekle**; ek yoksa Düzenle **Görev Ekleri** + **Ekle** gösterir,
   dosya seçilmezse başlık kaybolur.
   Mesaj Onayı Bekleyen detayında Görev Eki varsa Ön İzle sağında kırmızı **Sil** + **Ekle**;
   ekleme/silme `CitizenMessageApprovalTaskAttachmentEdited` yazar ve **Görev Eki Düzenleyen**
-  satırını doldurur (#3960).
+  satırını doldurur; son durumda ek yoksa Düzenleyen satırı da yoktur (#3960 r2).
   Görevlerim'de not onaylanmamışken (PendingCloseApproval veya vatandaş + Mesajı Onayla yok)
   **Düzenle** yalnız Tamamlama Notu'nu (satır içi) açar; arka plan koyu turkuaz `#007985` / hover `#006570`
   (#3907 r2; turuncu değil). `GetJobById` bu iki alanı rol kapısı olmadan
@@ -3257,7 +3258,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **İade Yönlendirilen (#3969/#3972):** `returned-forwarded-by-operator` reason + `AtUtc == null`
   + herhangi bir Target (Pending şartı yok) + iptal/red hariç. Hedef yönetici onayladıktan
   sonra satır Yönlendirilen ve Tümü'nde kalır. Yönlendirilen gridinde sıra: Geldiği Yer,
-  İade Sebebi, **Yönlendirilen Birim** (yeşil çerçeve, #3974), **Yönlendirme Notu**.
+  İade Sebebi, **Yönlendirilen Birim** (Durum Tamamlanan `StatusPill` + `completed` tone, #3974 r2), **Yönlendirme Notu**.
   Tümü'nde yönlendirme sütunları yok (#3970 r3). Hedef yönetici onayladıysa iade detay
   popup'ta **İptal** yok (#3968).
 - **İade / Sms Onayı / Vatandaş Talepleri banner kicker (#3973):** `.page-kicker` seçili

@@ -1,3 +1,9 @@
+## Round 1390 — #3974 r2 / #3960 r2 / #3966 r4
+
+- [x] `6abe31fe` / #3974 — Yönlendirilen Birim = Durum Tamamlanan StatusPill.
+- [x] `6abdfa8f` / #3960 — Görev eki yoksa Görev Eki Düzenleyen yok.
+- [x] `6abe10ee` / #3966 — Görevlerim Tamamlama Notu Kaydet sonrası task.Notes.
+
 ## Round 1389 — #3970 r3 / #3974 / #3960 / #3968 / #3966 r3
 
 - [x] `6abe1f32` / #3970 — Tümü'nden Yönlendirilen Birim/Notu kalktı; İade Sebebi Geldiği Yer'in sağında.

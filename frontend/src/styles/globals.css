@@ -8153,7 +8153,7 @@
 
   /* Fixed FAB stack: WhatsApp above footer, scroll arrow above WhatsApp (#1055). */
   .fixed-fab-stack {
-    bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) - 0.35rem);
+    bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) + 0.2rem);
   }
 
   /* VT-only lisans + kaydır FAB yok: harita sayfasındaki dikey FAB hizası (#3483). */
@@ -9702,9 +9702,9 @@ body:has(.settings-page-shell) .fixed-fab-stack {
   bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) + 0.25rem);
 }
 
-/* Vatandaş Paneli FAB: WA bildirim düğmesi + paneli scroll düğmesine yaklaştır (#3634 reopen). */
+/* Vatandaş Paneli FAB: WA / kurum içi kaydır düğmesiyle çakışmasın (#4005). */
 body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) {
-  gap: 0.35rem !important;
+  gap: 0.75rem !important;
 }
 
 body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {

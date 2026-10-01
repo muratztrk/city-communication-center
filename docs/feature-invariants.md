@@ -130,6 +130,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talep Haritası alt yazı (#2892):** "açık adres bilgileriyle haritada gösterilir" —
   mahalle/cadde/no sıralaması yok.
 - **Rutin Görev Oluştur banner (#2893):** alt yazı `Yönetici onay gerektirmeyen rutin görev oluşturun.`
+  Form alanı etiketi `Görev Başlığı` (`routineTask.formTitle`, #4003).
   ve `page-subtitle` (diğer banner alt yazılarıyla aynı punto; `text-base` yok).
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
@@ -996,6 +997,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
   Vatandaş Paneli ve Ayarlar’da yığın footer’dan biraz yukarıdadır (`+0.25rem`, #3913).
+  Tüm sayfalarda yığın `+0.2rem` daha yukarı (#4004). Vatandaş Paneli kaydır FAB varken
+  WA/kurum içi `gap: 0.75rem` — üstüne binmez (#4005).
 - **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, 24px ve belirgin dolu konuşma
   balonu görünür; ikinci/öndeki balon ve üç nokta gösterilmez (card #1583 reopen).
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
@@ -1497,7 +1500,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yönetici notu / ek boş durum metinleri `0.75rem` (#1687).
   Boş ek metni `Talep için ek bulunmamaktadır.`;   yükleme etiketi `Dosya / Görsel Ekle (isteğe bağlı)`
   (card #1690 / #3997). Birimden Giden detayda ek yükleme yok — salt okunur + boş metin (card #1689).
-  Taleplerim **Yapılmakta Olan Taleplerim** detay popup’ta **Düzenle** yok (#4001).
+  Taleplerim **Yapılmakta Olan Taleplerim** detay popup’ta **Düzenle** yok
+  (`MyRequestDetailModal` `onEdit`/`showEditDisabled` kapalı, #4001 r2).
   Yapılmakta scope chip mavi (`scope-chip--in-progress`); Geciken turuncu
   (`scope-chip--overdue`) — cards #1693/#1695. Birime Gelen'de Onaylanmış → Yapılmakta →
   Geciken sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
@@ -2193,6 +2197,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Anasayfa kutucuk sayıları (#2520):** ikon solda; sayı başlık metninin hemen sağında (hafif
   sağa, `font-bold`/`text-xl`); başlık+sublabel bir satır yukarı hizalı.
   Dönem altı metrik başlığı `whitespace-nowrap` olmaz; kutu dışına taşmaz (#3994).
+  Personel Anasayfa dört kutu `min-w 13.5rem` / `max-w-6xl` — kutular daha geniş (#3994 r2).
 - **Reporter vatandaş anasayfa (#2519):** pie grid son kutusu `Bildirimler` — son 3 bildirim (sıra no),
   mesaj `line-clamp-1` + `title` tooltip; başlık satırında `Tüm bildirimleri gör`. Tüm anasayfalarda
   pie bölümü sonunda (#2519 reopen). Bildirim modalı (`max-w-xl`) sayfalama barı

@@ -1,3 +1,11 @@
+## Round 1397 — #3994 r2 / #4001 r2 / #4003 / #4004 / #4005
+
+- [x] `6abea2d2` / #3994 — Anasayfa dönem altı personel kutuları daha geniş.
+- [x] `6abeabb7` / #4001 — Yapılmakta detay Düzenle: MyRequestDetailModal `onEdit` kapalı.
+- [x] `6abeaf61` / #4003 — Rutin Görev Oluştur: Başlık → Görev Başlığı.
+- [x] `6abeafaf` / #4004 — WA / kurum içi FAB biraz yukarı.
+- [x] `6abeaff6` / #4005 — Vatandaş Paneli FAB kaydır düğmesiyle çakışmaz.
+
 ## Round 1396 — #4000 / #4001 / #4002
 
 - [x] `6abeaa72` / #4000 — Talep Oluştur’da bildirim sesi yok.

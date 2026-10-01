@@ -2322,6 +2322,7 @@
     "openAddressPlaceholder": "Mevki, daire, kat bilgisi giriniz..."
   },
   "routineTask": {
+    "formTitle": "Görev Başlığı",
     "submit": "Görev Oluştur",
     "subtitle": "Yönetici onay gerektirmeyen rutin görev oluşturun.",
     "titlePlaceholder": "Görev başlığını giriniz...",

@@ -2411,7 +2411,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     )
   }
 
-  const canReporterEditMyRequest = isPresidencyReporter && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress')
+  const hideMyRequestDetailEdit = isMyRequestsView && currentMyRequestsView === 'in-progress'
+  const canReporterEditMyRequest = isPresidencyReporter && currentMyRequestsView === 'pending'
   const canEditMyRequestDetailJob = detail != null && (
     canReporterEditMyRequest
     || canOperatorEditPendingExternalJob(user?.role, { ...detail, taskCount: detail.tasks?.length ?? 0 })
@@ -2874,8 +2875,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 : Boolean(socialActions && !socialActions.cancel)}
               cancelDisabledTitle={socialActions?.cancelDisabledTitle}
               onForwardReturned={canForwardReturnedDetail ? openReturnedForwardModal : undefined}
-              onEdit={socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? ((isReturnedRequestDetail ? canEditReturnedDetailJob : canEditMyRequestDetailJob) && !myRequestEditing ? startMyRequestEdit : undefined))}
-              showEditDisabled={socialActions ? Boolean(!socialActions.edit && socialActions.editDisabledTitle) : (showMyRequestEditDisabled && !myRequestEditing)}
+              onEdit={hideMyRequestDetailEdit || socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? ((isReturnedRequestDetail ? canEditReturnedDetailJob : canEditMyRequestDetailJob) && !myRequestEditing ? startMyRequestEdit : undefined))}
+              showEditDisabled={hideMyRequestDetailEdit ? false : (socialActions ? Boolean(!socialActions.edit && socialActions.editDisabledTitle) : (showMyRequestEditDisabled && !myRequestEditing))}
               editDisabledTitle={socialActions?.editDisabledTitle}
               onGoToConversation={socialActions?.goToConversation ?? (isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage, user) ? openCitizenConversationModal : undefined)}
               showManagerNoteColumn={showManagerNoteColumn}

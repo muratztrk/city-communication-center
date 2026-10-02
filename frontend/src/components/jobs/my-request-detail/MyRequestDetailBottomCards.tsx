@@ -2,9 +2,9 @@ import { MapPin, NotebookPen, Paperclip } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AddressDetailFields } from '../../ui/AddressDetailFields'
 import { AttachmentSection } from '../../ui/AttachmentSection'
-import { Button } from '../../ui/button'
 import type { ConfirmDialogState } from '../../ui/confirm-dialog'
 import type { JobDetail } from '../../../types/platform'
+import { ManagerNotesSection } from '../ManagerNotesSection'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { MyRequestAddressEditFields } from './MyRequestAddressEditFields'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
@@ -21,6 +21,8 @@ interface MyRequestDetailBottomCardsProps {
   managerNoteSaving: boolean
   onManagerNoteDraftChange: (value: string) => void
   onManagerNoteEditStart: () => void
+  onManagerNoteEditCancel?: () => void
+  currentUserId?: string | null
   onManagerNoteSave: () => void
   onManagerNoteDeleteConfirm: () => void
   setConfirmDialog: (state: ConfirmDialogState | null) => void
@@ -55,6 +57,8 @@ export function MyRequestDetailBottomCards({
   managerNoteSaving,
   onManagerNoteDraftChange,
   onManagerNoteEditStart,
+  onManagerNoteEditCancel,
+  currentUserId,
   onManagerNoteSave,
   onManagerNoteDeleteConfirm,
   setConfirmDialog,
@@ -112,70 +116,22 @@ export function MyRequestDetailBottomCards({
           <MyRequestSectionHeading icon={NotebookPen}>
             {t('jobs.managerNote.title', 'Yönetici Notu')}
           </MyRequestSectionHeading>
-          {!canEditManagerNote ? (
-            detail.managerNote ? (
-              <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
-            ) : (
-              <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
-            )
-          ) : (detail.managerNote && !managerNoteEditing) ? (
-            <>
-              <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
-              <div className="mt-3 flex justify-end">
-                <Button
-                  type="button"
-                  size="sm"
-                  className="bg-emerald-700 text-white hover:bg-emerald-800"
-                  onClick={onManagerNoteEditStart}
-                >
-                  {t('jobs.managerNote.editOrDelete', 'Değiştir/Sil')}
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              {managerNoteSaved ? (
-                <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
-              ) : null}
-              <textarea
-                className="field-textarea manager-note-textarea min-h-24 w-full text-xs placeholder:text-xs"
-                rows={3}
-                maxLength={100}
-                value={managerNoteDraft}
-                onChange={e => onManagerNoteDraftChange(e.target.value)}
-                placeholder={t('jobs.managerNote.placeholder', 'Yönetici notu girin...')}
-              />
-              <div className="mt-3 flex justify-end gap-2">
-                {managerNoteEditing ? (
-                  <>
-                    <Button type="button" variant="success" size="sm" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={onManagerNoteSave}>
-                      {t('common.change', 'Değiştir')}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      disabled={managerNoteSaving}
-                      onClick={() => setConfirmDialog({
-                        title: t('common.delete', 'Sil'),
-                        message: 'Notu silmek istediğinize emin misiniz?',
-                        variant: 'destructive',
-                        confirmLabel: t('common.delete', 'Sil'),
-                        cancelLabel: t('common.cancel', 'İptal'),
-                        onConfirm: onManagerNoteDeleteConfirm,
-                      })}
-                    >
-                      {t('common.delete', 'Sil')}
-                    </Button>
-                  </>
-                ) : (
-                  <Button type="button" variant="success" size="sm" className="disabled:opacity-100" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={onManagerNoteSave}>
-                    {t('jobs.managerNote.add', 'Not Ekle')}
-                  </Button>
-                )}
-              </div>
-            </>
-          )}
+          <ManagerNotesSection
+            notes={detail.managerNotes}
+            legacyText={detail.managerNote}
+            currentUserId={currentUserId}
+            canEdit={canEditManagerNote}
+            draft={managerNoteDraft}
+            editing={managerNoteEditing}
+            saved={managerNoteSaved}
+            saving={managerNoteSaving}
+            onDraftChange={onManagerNoteDraftChange}
+            onEditStart={onManagerNoteEditStart}
+            onEditCancel={onManagerNoteEditCancel ?? (() => undefined)}
+            onSave={onManagerNoteSave}
+            onDeleteConfirm={onManagerNoteDeleteConfirm}
+            setConfirmDialog={setConfirmDialog}
+          />
         </div>
       )}
 

@@ -36,7 +36,7 @@ import {
   shouldUsePrimaryDepartmentOnLoad,
 } from '../api/http'
 import { refreshRolePageAccessFromServer } from '../api/auth'
-import { canAnyRoleAccessPage, canAccessCitizenLicensedRoute, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
+import { canAnyRoleAccessPage, canAccessCitizenLicensedRoute, canUserAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import { isCitizenOnlyLicense, isModuleUsable, LICENSE_MODULES_EVENT } from '../lib/licenseModules'
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
@@ -549,7 +549,7 @@ export function AppShell() {
     const canUseParent = item.requiredRole
       ? user?.role === item.requiredRole
       : item.pageKey
-        ? canAnyRoleAccessPage(roles, item.pageKey)
+        ? canUserAccessPage(user, item.pageKey)
         : false
     const visibleChildren = (item.children ?? []).filter(child => {
       if (child.path && !canAccessCitizenLicensedRoute(child.path)) return false

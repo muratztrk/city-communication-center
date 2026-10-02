@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -37,14 +38,28 @@ public sealed class GetDashboardChartDrilldownQueryHandler
     {
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
-        if (context.RoleCode is not ("Reporter" or "Operator" or "SystemAdmin"))
+        var chartKey = request.ChartKey
+            .Replace("dashboard.charts.", string.Empty, StringComparison.Ordinal)
+            .Replace("dashboard.citizenChannels.title", "citizenChannels", StringComparison.Ordinal);
+
+        // Birim Yöneticisi/Sorumlusu yalnız "Mahallelerdeki Tüm Talepler" detayına erişir ve yalnız
+        // hedef birimi kendi birim(ler)i olan talepleri görür (#6abf5223).
+        Guid[]? managerDepartmentScope = null;
+        if (context.RoleCode == "Manager" && chartKey == "neighborhoodAllRequests" && context.UserId.HasValue)
+        {
+            var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
+                user => user.TenantId == tenantId && user.UserId == context.UserId.Value && user.IsActive,
+                cancellationToken);
+            managerDepartmentScope = actor is null
+                ? []
+                : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                    _dbContext, tenantId, actor, context.ActiveDepartmentId, cancellationToken);
+        }
+        else if (context.RoleCode is not ("Reporter" or "Operator" or "SystemAdmin"))
         {
             throw new ForbiddenAccessException("Bu rapor detayına yalnızca Üst Düzey Yönetici veya Vatandaş Talep Operatörü erişebilir.");
         }
 
-        var chartKey = request.ChartKey
-            .Replace("dashboard.charts.", string.Empty, StringComparison.Ordinal)
-            .Replace("dashboard.citizenChannels.title", "citizenChannels", StringComparison.Ordinal);
         return chartKey switch
         {
             "externalRequestCreators" => await BuildOwnerDepartmentRowsAsync(tenantId, request, cancellationToken),
@@ -88,7 +103,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "neighborhoodAllRequests" => await BuildCitizenScopedStatusRowsAsync(
                 tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
                 [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress, CitizenDepartmentDrilldownStatus.Completed],
-                cancellationToken),
+                cancellationToken, managerDepartmentScope),
             "neighborhoodOpenRequests" => await BuildCitizenScopedStatusRowsAsync(
                 tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
                 [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress],
@@ -225,7 +240,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         string? neighborhood,
         Guid? departmentId,
         CitizenDepartmentDrilldownStatus[] statuses,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        Guid[]? scopeDepartmentIds = null)
     {
         if (departmentId is null && string.IsNullOrWhiteSpace(neighborhood))
         {
@@ -237,6 +253,12 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Where(job => job.TenantId == tenantId
                 && job.SourceType != JobSourceType.Routine
                 && (neighborhood == null || job.Neighborhood == neighborhood)
+                && (scopeDepartmentIds == null
+                    || _dbContext.JobDepartments.Any(link => link.JobId == job.JobId
+                        && link.TenantId == tenantId
+                        && link.Role == JobDepartmentRole.Target
+                        && link.ApprovalStatus != JobApprovalStatus.Rejected
+                        && scopeDepartmentIds.Contains(link.DepartmentId)))
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
             .WhereHasCitizenRequestNumber(_dbContext)

@@ -150,6 +150,27 @@ const CITIZEN_SOURCE_CHART_KEYS = {
   ],
 } as const
 
+/**
+ * Birim Yöneticisi/Sorumlusu Anasayfa grafik sırası (#6abf5223): Birime Gelen ile Görevlerim yer
+ * değiştirir, ardından Mahallelerdeki Tüm Talepler ile Görevlerim yer değiştirir → Görevlerim sonda.
+ */
+const MANAGER_DASHBOARD_CHART_ORDER = [
+  'dashboard.charts.staffTasks',
+  'dashboard.charts.staffOverdueTasks',
+  'dashboard.charts.staffResolutionTime',
+  'dashboard.charts.incomingRequests',
+  'dashboard.charts.outgoingRequests',
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.myRequests',
+  'dashboard.citizenChannels.title',
+  'dashboard.charts.myTasks',
+]
+
+function managerChartOrder(titleKey: string): number {
+  const index = MANAGER_DASHBOARD_CHART_ORDER.indexOf(titleKey)
+  return index === -1 ? MANAGER_DASHBOARD_CHART_ORDER.length : index
+}
+
 /** Anasayfa - Vatandaş grafik sırası (#3054). */
 const CITIZEN_DASHBOARD_CHART_ORDER = [
   'dashboard.charts.neighborhoodCompletedRequests',
@@ -773,6 +794,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     if (REMOVED_PIE_CHART_KEYS.has(card.titleKey)) {
       return false
     }
+    if (effectiveView === 'full' && card.titleKey === 'dashboard.charts.neighborhoodAllRequests' && !isModuleUsable('citizen')) {
+      return false
+    }
     if (!isInternalModuleUsable && (
       card.titleKey === 'dashboard.charts.myRequests'
       || card.titleKey === 'dashboard.charts.outgoingRequests'
@@ -794,6 +818,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   // Anasayfa - Vatandaş: mahalle/birim tüm + açık birleşik pie'lar; durum üçlülerinden yalnız Tamamlanan kalır (#2979).
   if (effectiveView === 'citizen') {
     chartCards.sort((a, b) => citizenChartOrder(a.titleKey) - citizenChartOrder(b.titleKey))
+  }
+  if (effectiveView === 'full' && role === 'Manager') {
+    chartCards.sort((a, b) => managerChartOrder(a.titleKey) - managerChartOrder(b.titleKey))
   }
   if (effectiveView === 'departments' && isReporter) {
     chartCards.sort((a, b) => reporterDepartmentChartOrder(a.titleKey) - reporterDepartmentChartOrder(b.titleKey))
@@ -1079,7 +1106,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               || (isCitizenDashboardDrilldownRole && role !== 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')
             // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343/#1860).
             // Operatör kanal pie → navigate /social?channel= (#6a6eeb56); diğer roller drilldown popup.
-            const isDrilldownChart = isCitizenDashboardDrilldownRole
+            const isManagerNeighborhoodDrilldown = role === 'Manager'
+              && card.titleKey === 'dashboard.charts.neighborhoodAllRequests'
+            const isDrilldownChart = (isCitizenDashboardDrilldownRole || isManagerNeighborhoodDrilldown)
               && DRILLDOWN_CHART_KEYS.has(card.titleKey)
               && !(role === 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')
             const chartRoute = isExternalDrilldownOnlyChart ? undefined : CHART_ROUTES[card.titleKey]

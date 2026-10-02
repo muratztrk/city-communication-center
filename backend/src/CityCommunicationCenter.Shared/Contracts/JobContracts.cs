@@ -119,6 +119,14 @@ public sealed record JobSummaryResponse(
     string? CancelledByRoleCode = null,
     bool HadOverdueDueDate = false);
 
+public sealed record JobManagerNoteResponse(
+    Guid NoteId,
+    Guid AuthorUserId,
+    string? AuthorDisplayName,
+    string Text,
+    DateTimeOffset CreatedAtUtc,
+    DateTimeOffset? UpdatedAtUtc);
+
 public sealed record JobDueDateChangeResponse(
     string? ActorDisplayName,
     DateTimeOffset ChangedAtUtc);
@@ -200,4 +208,5 @@ public sealed record JobDetailResponse(
     string? CitizenUpdatedCompletionNote = null,
     string? CitizenCompletionNoteEditorDisplayName = null,
     string? CitizenOriginalCompletionNote = null,
-    string? CitizenTaskAttachmentEditorDisplayName = null);
+    string? CitizenTaskAttachmentEditorDisplayName = null,
+    IReadOnlyCollection<JobManagerNoteResponse>? ManagerNotes = null);

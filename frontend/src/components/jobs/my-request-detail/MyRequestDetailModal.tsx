@@ -11,6 +11,7 @@ import { MyRequestDetailHeader } from './MyRequestDetailHeader'
 import type { DetailDueDateEditState, JobExtraTimeReviewState } from './MyRequestDetailMainCard'
 import { MyRequestDetailMainCard } from './MyRequestDetailMainCard'
 import { MyRequestTaskDetailsSection } from './MyRequestTaskDetailsSection'
+import { ManagerNotesReadOnly } from '../ManagerNotesSection'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { MyRequestAddressEditFields } from './MyRequestAddressEditFields'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
@@ -56,6 +57,8 @@ export interface MyRequestDetailModalProps {
   managerNoteSaving: boolean
   onManagerNoteDraftChange: (value: string) => void
   onManagerNoteEditStart: () => void
+  onManagerNoteEditCancel?: () => void
+  currentUserId?: string | null
   onManagerNoteSave: () => void
   onManagerNoteDeleteConfirm: () => void
   setConfirmDialog: (state: ConfirmDialogState | null) => void
@@ -133,6 +136,8 @@ export function MyRequestDetailModal({
   managerNoteSaving,
   onManagerNoteDraftChange,
   onManagerNoteEditStart,
+  onManagerNoteEditCancel,
+  currentUserId,
   onManagerNoteSave,
   onManagerNoteDeleteConfirm,
   setConfirmDialog,
@@ -255,6 +260,8 @@ export function MyRequestDetailModal({
             managerNoteSaving={managerNoteSaving}
             onManagerNoteDraftChange={onManagerNoteDraftChange}
             onManagerNoteEditStart={onManagerNoteEditStart}
+            onManagerNoteEditCancel={onManagerNoteEditCancel}
+            currentUserId={currentUserId}
             onManagerNoteSave={onManagerNoteSave}
             onManagerNoteDeleteConfirm={onManagerNoteDeleteConfirm}
             setConfirmDialog={setConfirmDialog}
@@ -294,11 +301,7 @@ export function MyRequestDetailModal({
                 <MyRequestSectionHeading icon={NotebookPen}>
                   {t('jobs.managerNote.title', 'Yönetici Notu')}
                 </MyRequestSectionHeading>
-                {detail.managerNote ? (
-                  <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
-                ) : (
-                  <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
-                )}
+                <ManagerNotesReadOnly notes={detail.managerNotes} legacyText={detail.managerNote} />
               </section>
             )}
             <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">

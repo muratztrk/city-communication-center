@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { LicenseModuleSync } from '../context/LicenseModuleContext'
-import { canAnyRoleAccessPage, canAccessCitizenLicensedRoute, getDefaultLandingPath, getEffectiveUserRoles, type PageAccessKey } from '../lib/rolePageAccess'
+import { canAnyRoleAccessPage, canAccessCitizenLicensedRoute, canUserAccessPage, getDefaultLandingPath, getEffectiveUserRoles, type PageAccessKey } from '../lib/rolePageAccess'
 
 const AppShell = lazy(() => import('./AppShell').then(module => ({ default: module.AppShell })))
 const AuditLogsPage = lazy(() => import('../pages/AuditLogsPage').then(module => ({ default: module.AuditLogsPage })))
@@ -44,8 +44,8 @@ function LoadingScreen() {
   )
 }
 
-function PageAccessGate({ pageKey, user, children }: { pageKey: PageAccessKey; user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
-  return canAnyRoleAccessPage(getEffectiveUserRoles(user), pageKey) ? children : <Navigate to={getDefaultLandingPath(user)} replace />
+function PageAccessGate({ pageKey, user, children }: { pageKey: PageAccessKey; user?: { role?: string; additionalRoles?: string[]; departmentName?: string | null } | null; children: ReactNode }) {
+  return canUserAccessPage(user, pageKey) ? children : <Navigate to={getDefaultLandingPath(user)} replace />
 }
 
 function RequestDetailsGate({ user, children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {

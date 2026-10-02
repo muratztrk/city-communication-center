@@ -1,3 +1,15 @@
+## Round 1404 — Doing'e eklenen #3991 r5 / #4022 r2 / #4023 / #4024 / #4025 / #4026-#4031 / #3983 / #4032
+
+- [x] #3991 r5 — Onaylanan grid İşlemler sütunu sabit `8.75rem`; artan genişlik diğer sütunlara dağılır.
+- [x] #4022 r2 — Taleplerim düzenleme: Cadde/Sokak biraz geniş, No biraz dar, `(max 400 karakter)` kaldırıldı.
+- [x] #4023 — Yönetici Notu textbox yazı boyutu `0.8125rem`.
+- [x] #4025 — Not varsa `Değiştir` ve `Sil` ayrı butonlar, not kutusunun sağ altında (`ManagerNotesSection`).
+- [x] #4024 — Çok notlu Yönetici Notu: yeni `jobmanagernotes` tablosu (job+yazar tekil), her yönetici yalnız kendi notunu ekler/değiştirir/siler; başlık satırı `Ad · tarih`, altında not. `Job.ManagerNote` salt-okunur tüketiciler için birleşik metin. Migration mevcut notları taşır.
+- [x] #4031 / #4030 / #4026 / #4027 / #4028 / #4029 — Sayfa Yetkileri: `PAGE_ROLE_RESTRICTIONS` ile izin verilen roller dışındaki hücreler Pasif + disabled (normalize'da zorla kapanır).
+- [x] #3983 — Ekrana Yansıt: Sistem Yöneticisi + adında "Bilgi İşlem" geçen birimin Birim Yöneticisi/Sorumluları; etiket altı `(Sadece Bilgi İşlem)`.
+- [x] #4032 — Birim Yöneticisi anasayfası: `Mahallelerdeki Tüm Talepler` pie (yalnız kendi birimleri, drilldown dahil); sıra Gelen, Giden, Mahalle, Taleplerim, Vatandaş Talep Kanalları, Görevlerim.
+- [x] Doğrulama: frontend build + lint (0 error, 13 mevcut hook warning), `dotnet build` temiz. Yerel DB/Docker yok: migration SQL ve ekranlar testtim'de doğrulanacak.
+
 ## Round 1403 — Doing'e eklenen #4020 / #4021 / #4022 / #3991 r4 / #4011
 
 - [x] #4020 — Grid Durum "Onay Bekleyen" hapı, aktif "Onay Bekleyen Talepler" butonuyla aynı gri tona alındı (`getStatusPillClass` pendingApproval).

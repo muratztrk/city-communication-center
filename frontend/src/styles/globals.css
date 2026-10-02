@@ -1845,10 +1845,11 @@
       max-height: var(--table-header-row-height);
     }
 
+    /* İşlemler sabit dar; artan genişlik diğer sütunlara dağılır (#3991 r5). */
     .app-content-shell .incoming-requests-table--approved .grid-col-actions,
     .app-content-shell .incoming-requests-table--approved thead th:last-child,
     .app-content-shell .incoming-requests-table--approved tbody td.actions-cell {
-      width: auto !important;
+      width: 8.75rem !important;
       min-width: 8.75rem !important;
     }
 

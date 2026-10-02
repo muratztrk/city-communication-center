@@ -35,6 +35,7 @@ import { useTenantTheme } from '../context/ThemeContext'
 import { DEFAULT_TENANT_APPEARANCE, deriveAppearanceFromPrimary, resolveTenantAppearance } from '../lib/theme'
 import {
   createDefaultRolePageAccessMatrix,
+  isRolePageConfigurable,
   PAGE_ACCESS_ITEMS,
   ROLE_CODES,
   isPageLicenseUsable,
@@ -1532,6 +1533,14 @@ export function SettingsPage() {
         </span>
       )
     }
+    if (page.key === 'display') {
+      return (
+        <span className="role-matrix-page-label role-matrix-page-label--emphasis">
+          <span className="role-matrix-page-label-title">{t(page.labelKey)}</span>
+          <span className="role-matrix-page-label-hint">{t('settings.roles.pages.displayHint', '(Sadece Bilgi İşlem)')}</span>
+        </span>
+      )
+    }
     if (page.key === 'returnedCitizenRequests') {
       return (
         <span className="role-matrix-page-label role-matrix-page-label--returned">
@@ -1593,7 +1602,7 @@ export function SettingsPage() {
   }
 
   const toggleRolePageAccess = (role: RoleCode, pageKey: PageAccessKey) => {
-    if (pageKey === 'dashboard' || pageKey === 'settings') return
+    if (pageKey === 'dashboard' || pageKey === 'settings' || !isRolePageConfigurable(role, pageKey)) return
     setRolePageAccess(current => ({
       ...current,
       [role]: {
@@ -4605,7 +4614,7 @@ export function SettingsPage() {
                       <tr key={page.key}>
                         <td className="font-semibold">{renderRolePageLabel(page)}</td>
                         {visibleRoleCodes.map(role => {
-                          const disabled = page.key === 'dashboard' || page.key === 'settings'
+                          const disabled = page.key === 'dashboard' || page.key === 'settings' || !isRolePageConfigurable(role, page.key)
                           return (
                             <td key={`${role}-${page.key}`}>
                               <label className="role-matrix-toggle">

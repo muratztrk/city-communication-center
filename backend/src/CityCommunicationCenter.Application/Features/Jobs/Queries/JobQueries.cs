@@ -882,6 +882,13 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             .Where(task => task.JobId == job.JobId && task.TenantId == tenantId)
             .Select(task => task.TaskId)
             .ToListAsync(cancellationToken);
+        var managerNotes = await _dbContext.JobManagerNotes
+            .Where(note => note.JobId == job.JobId && note.TenantId == tenantId)
+            .OrderBy(note => note.CreatedAtUtc)
+            .Select(note => new JobManagerNoteResponse(
+                note.NoteId, note.AuthorUserId, note.AuthorDisplayName, note.Text, note.CreatedAtUtc, note.UpdatedAtUtc))
+            .ToListAsync(cancellationToken);
+
         var dueDateChanges = await JobDueDateChangeResolver.ResolveAsync(
             _dbContext, tenantId, job.JobId, linkedTaskIds, cancellationToken);
 
@@ -918,7 +925,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             citizenUpdatedCompletionNote,
             citizenCompletionNoteEditorDisplayName,
             citizenOriginalCompletionNote,
-            citizenTaskAttachmentEditorDisplayName);
+            citizenTaskAttachmentEditorDisplayName,
+            managerNotes);
     }
 
     private static IReadOnlyCollection<string> SplitRequestTags(string? tags, string? category = null)

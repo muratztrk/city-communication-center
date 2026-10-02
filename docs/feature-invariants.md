@@ -1534,6 +1534,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gerçek sütun sayısı 8 — fazla sütun başlıkta hayalet alan açar, wrapper yaması YOK, #3991 r4). Birime Gelen Tamamlanan `Görevi Yapan` değeri biraz büyük (#3992); Yapılmakta
   `Görevi Yapan` değeri de normal ikincil grid metninden az büyük (`0.84rem`, #4019).
   Birime Gelen yeni talep sesi yalnız nav rozeti hook'undan (sayfada ayrıca id-hook YOK, #4021). Grid Durum `Onay Bekleyen` hapı = `.scope-chip--pending.active` grisi (#4020). Taleplerim detay düzenleme: `myRequestsEditStyle` (turkuaz Düzenle, VT adres düzeni, ince Dosya ekle, #4022).
+  Yönetici Notu çok yazarlı (#4024): `jobmanagernotes` (job+yazar tekil); `POST /jobs/{id}/manager-note` çağıranın KENDİ notunu ekler/değiştirir/siler (boş=sil). `Job.ManagerNote` yalnız birleşik salt-okunur metindir, düzenleme kaynağı DEĞİL. Sayfa Yetkileri: rol kısıtı `PAGE_ROLE_RESTRICTIONS` (rolePageAccess.ts) — yeni sayfa kısıtı oraya, UI'da `isRolePageConfigurable`; Ekrana Yansıt ayrıca `canUserAccessPage` (Bilgi İşlem birimi). Yönetici anasayfa pie sırası `MANAGER_DASHBOARD_CHART_ORDER` (#4032).
   Birime Gelen banner alt yazı: `Birim içi/dışı gelen talepleri durumlarına göre takip edin.` (#3996).
   Birimden Giden: yalnız **tüm** Target=Owner ise satır yok; en az bir dış Target varsa giden’de kalır (#3995/#3999).
   Taleplerim Birim Dışı Onay Bekleyen satırı Giden `approved` chip’te de görünür (#3999).

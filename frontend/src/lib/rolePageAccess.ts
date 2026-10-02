@@ -49,6 +49,32 @@ export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = [
 ] as const satisfies readonly PageAccessKey[]
 
 /**
+ * Sayfa Yetkileri matrisinde yalnız belirli rollere açılabilen sayfalar (#6abf4edaf / #6abf4e04 /
+ * #6abf4c5d / #6abf4cca / #6abf4d02 / #6abf4d67 / #6abe80c6). Listedeki roller dışındaki
+ * hücreler Pasif + devre dışıdır ve kayıtlı matriste açık olsa bile normalize edilirken kapatılır.
+ */
+export const PAGE_ROLE_RESTRICTIONS: Partial<Record<PageAccessKey, readonly RoleCode[]>> = {
+  audit: ['SystemAdmin'],
+  users: ['SystemAdmin'],
+  departments: ['SystemAdmin'],
+  returnedCitizenRequests: ['SystemAdmin', 'Operator'],
+  departmentRequestMap: ['SystemAdmin', 'Reporter'],
+  smsDeliveryApproval: ['SystemAdmin', 'Operator'],
+  citizenMessageApproval: ['SystemAdmin', 'Manager', 'CitizenRequestManager'],
+  social: ['SystemAdmin', 'Operator', 'Reporter'],
+  whatsappMessageApprovalLogs: ['SystemAdmin', 'Operator', 'Reporter'],
+  citizenRequestMap: ['SystemAdmin', 'Operator', 'Reporter'],
+  citizenDirectory: ['SystemAdmin', 'Operator', 'Reporter'],
+  display: ['SystemAdmin', 'Manager'],
+}
+
+/** Rol bu sayfa için matriste yapılandırılabilir mi (kısıtlama yoksa evet). */
+export function isRolePageConfigurable(role: RoleCode, pageKey: PageAccessKey): boolean {
+  const allowed = PAGE_ROLE_RESTRICTIONS[pageKey]
+  return !allowed || allowed.includes(role)
+}
+
+/**
  * Modüler lisans (Trello #WGDYIM79 / #MHrIEwuE): bir sayfa yalnız belirli bir modül lisanslıyken
  * görünür. Haritada olmayan sayfalar (dashboard, createRequest, myTasks, departmentTasks,
  * incomingRequests, citizenMessageApproval, smsDeliveryApproval, departments, users, settings,
@@ -104,7 +130,7 @@ export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 
 /** Referans grid (#2243): Ayarlar > Sayfa Yetkileri ekran görüntüsündeki Aktif hücreler. */
 const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> = {
-  SystemAdmin: ['settings'],
+  SystemAdmin: ['settings', 'audit', 'users', 'departments', 'display'],
   Manager: PAGE_ACCESS_ITEMS
     .map(page => page.key)
     .filter(pageKey =>
@@ -205,6 +231,11 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       matrix[role].dashboard = false
     }
     matrix[role].settings = role === 'SystemAdmin'
+    for (const page of PAGE_ACCESS_ITEMS) {
+      if (!isRolePageConfigurable(role, page.key)) {
+        matrix[role][page.key] = false
+      }
+    }
     if (role === 'EDevletActivityPlan') {
       matrix[role].edevletActivityPlan = true
       matrix[role].edevletActivityPlansList = true
@@ -302,6 +333,29 @@ export function canAnyRoleAccessPage(roles: readonly (string | undefined)[] | un
   }
 
   return effectiveRoles.some(role => matrix[role][pageKey])
+}
+
+/** Ekrana Yansıt yalnız Bilgi İşlem birimindeki Birim Yönetici/Sorumluları için açılır (#6abe80c6). */
+export const DISPLAY_PAGE_DEPARTMENT_KEYWORD = 'bilgi işlem'
+
+export function isInformationTechnologyDepartment(departmentName: string | null | undefined): boolean {
+  return (departmentName ?? '').toLocaleLowerCase('tr').includes(DISPLAY_PAGE_DEPARTMENT_KEYWORD)
+}
+
+/**
+ * Rol matrisi + sayfaya özgü ek kurallar. Ekrana Yansıt'ta Birim Yöneticisi/Sorumlusu rolü,
+ * yalnız adında "Bilgi İşlem" geçen birimdeyse sayfayı görür; Sistem Yöneticisi etkilenmez.
+ */
+export function canUserAccessPage(
+  user: { role?: string; additionalRoles?: string[]; departmentName?: string | null } | null | undefined,
+  pageKey: PageAccessKey,
+): boolean {
+  const roles = getEffectiveUserRoles(user)
+  if (!canAnyRoleAccessPage(roles, pageKey)) return false
+  if (pageKey === 'display' && !roles.includes('SystemAdmin')) {
+    return isInformationTechnologyDepartment(user?.departmentName)
+  }
+  return true
 }
 
 export function getEffectiveUserRoles(user: { role?: string; additionalRoles?: string[] } | null | undefined): string[] {

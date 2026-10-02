@@ -64,7 +64,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
       required={hasNeighborhood}
       labelClassName="text-xs font-semibold text-slate-500"
       openUp
-      className={`grid min-w-0 gap-2 ${operatorSocialLayout ? 'grid-cols-[minmax(0,1fr)_6.75rem]' : 'grid-cols-[minmax(0,1fr)_4.5rem]'}`}
+      className={`grid min-w-0 gap-2 ${operatorSocialLayout ? 'grid-cols-[minmax(0,1fr)_5.75rem]' : 'grid-cols-[minmax(0,1fr)_4.5rem]'}`}
       streetNoColumnClassName=""
       menuClassName={menuClassName}
       menuScrollClassName={operatorSocialLayout ? 'my-request-edit-neighborhood-menu--compact' : 'my-request-edit-neighborhood-menu'}
@@ -82,11 +82,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
         <span className={operatorSocialLayout ? 'whitespace-nowrap' : undefined}>
           {t('address.openAddressLabel', 'Adres Tarifi')}
         </span>
-        {operatorSocialLayout ? (
-          <span className="shrink-0 font-normal text-slate-400 whitespace-nowrap">
-            {t('address.openAddressMaxHint', '(max 400 karakter)')}
-          </span>
-        ) : hasNeighborhood ? (
+        {operatorSocialLayout ? null : hasNeighborhood ? (
           <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 400 karakter)')}</span>
         ) : null}
       </span>
@@ -116,7 +112,7 @@ export function MyRequestAddressEditFields({ draft, onChange, operatorSocialLayo
     <div className="my-request-edit-fields grid gap-3">
       {operatorSocialLayout ? (
         <>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.5fr)]">
             {neighborhoodField}
             {streetFields}
           </div>

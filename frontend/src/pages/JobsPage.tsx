@@ -79,6 +79,7 @@ import { getChannelLabelColor } from '../utils/channelColors'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
+import { ManagerNotesReadOnly, ManagerNotesSection } from '../components/jobs/ManagerNotesSection'
 import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detail/MyRequestTaskDetailsSection'
 import { StackedFieldLabel, StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { CitizenAddressPeekButton } from '../components/jobs/my-request-detail/CitizenAddressPeekButton'
@@ -1112,6 +1113,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && (isManagerLike || isReporter)
     && detail != null
     && detail.status !== 'Completed' && detail.status !== 'Cancelled'
+  // Her yönetici yalnız kendi notunu yönetir; taslak/düzenleme bu nota bağlanır (#6abf44d1).
+  const ownManagerNoteText = detail?.managerNotes?.find(note => note.authorUserId === user?.userId)?.text ?? ''
   // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); vatandaş talebinde gizlenir (#895).
   const isCitizenRequestDetail = detail != null && isCitizenRequestJob(detail)
   const incomingReturnTargetDepartment = activeIncomingTarget ?? jobTargetDepartment
@@ -1732,7 +1735,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   // Açılan talebin mevcut yönetici notunu forma yükle (card 453); aynı talep yenilenince yazılanı korur.
   useEffect(() => {
-    setManagerNoteDraft(detail?.managerNote ?? '')
+    setManagerNoteDraft(ownManagerNoteText)
     setManagerNoteSaved(false)
     setManagerNoteEditing(false)
     setDetailDueDateEdit(null)
@@ -2896,10 +2899,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 setManagerNoteSaved(false)
               }}
               onManagerNoteEditStart={() => {
-                setManagerNoteDraft(detail.managerNote ?? '')
+                setManagerNoteDraft(ownManagerNoteText)
                 setManagerNoteEditing(true)
                 setManagerNoteSaved(false)
               }}
+              onManagerNoteEditCancel={() => {
+                setManagerNoteDraft(ownManagerNoteText)
+                setManagerNoteEditing(false)
+              }}
+              currentUserId={user?.userId}
               onManagerNoteSave={() => void handleSaveManagerNote()}
               onManagerNoteDeleteConfirm={() => void handleDeleteManagerNote()}
               setConfirmDialog={setConfirmDialog}
@@ -3566,80 +3574,32 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <MyRequestSectionHeading icon={NotebookPen}>
                           {t('jobs.managerNote.title', 'Yönetici Notu')}
                         </MyRequestSectionHeading>
-                        {!canEditManagerNote ? (
-                          // Salt-okunur: terminal durum veya yetkisiz kullanıcı.
-                          detail.managerNote ? (
-                            <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
-                          ) : (
-                            <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
-                          )
-                        ) : (detail.managerNote && !managerNoteEditing) ? (
-                          // Not var, düzenleme kapalı: notu göster + "Değiştir/Sil" tetikleyici (card #727)
-                          <>
-                            <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
-                            <div className="mt-3 flex justify-end">
-                              <Button
-                                type="button"
-                                size="sm"
-                                className="bg-emerald-700 text-white hover:bg-emerald-800"
-                                onClick={() => {
-                                  setManagerNoteDraft(detail.managerNote ?? '')
-                                  setManagerNoteEditing(true)
-                                  setManagerNoteSaved(false)
-                                }}
-                              >
-                                {t('jobs.managerNote.editOrDelete', 'Değiştir/Sil')}
-                              </Button>
-                            </div>
-                          </>
-                        ) : (
-                          // Ekleme (not yok) veya düzenleme (not var + editing): textbox + butonlar (card #727)
-                          <>
-                            {managerNoteSaved ? (
-                              <p className="mb-3 text-sm font-semibold text-emerald-600">{t('jobs.managerNote.saved', 'Notunuz Eklendi')}</p>
-                            ) : null}
-                            <textarea
-                              className="field-textarea manager-note-textarea min-h-24 w-full text-xs placeholder:text-xs"
-                              rows={3}
-                              maxLength={100}
-                              value={managerNoteDraft}
-                              onChange={e => {
-                                setManagerNoteDraft(e.target.value)
-                                setManagerNoteSaved(false)
-                              }}
-                              placeholder={t('jobs.managerNote.placeholder', 'Yönetici notu girin...')}
-                            />
-                            <div className="mt-3 flex justify-end gap-2">
-                              {managerNoteEditing ? (
-                                <>
-                                  <Button type="button" variant="success" size="sm" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={() => void handleSaveManagerNote()}>
-                                    {t('common.change', 'Değiştir')}
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="sm"
-                                    disabled={managerNoteSaving}
-                                    onClick={() => setConfirmDialog({
-                                      title: t('common.delete', 'Sil'),
-                                      message: 'Notu silmek istediğinize emin misiniz?',
-                                      variant: 'destructive',
-                                      confirmLabel: t('common.delete', 'Sil'),
-                                      cancelLabel: t('common.cancel', 'İptal'),
-                                      onConfirm: () => void handleDeleteManagerNote(),
-                                    })}
-                                  >
-                                    {t('common.delete', 'Sil')}
-                                  </Button>
-                                </>
-                              ) : (
-                                <Button type="button" variant="success" size="sm" className="disabled:opacity-100" disabled={managerNoteSaving || !managerNoteDraft.trim()} onClick={() => void handleSaveManagerNote()}>
-                                  {t('jobs.managerNote.add', 'Not Ekle')}
-                                </Button>
-                              )}
-                            </div>
-                          </>
-                        )}
+                        <ManagerNotesSection
+                          notes={detail.managerNotes}
+                          legacyText={detail.managerNote}
+                          currentUserId={user?.userId}
+                          canEdit={canEditManagerNote}
+                          draft={managerNoteDraft}
+                          editing={managerNoteEditing}
+                          saved={managerNoteSaved}
+                          saving={managerNoteSaving}
+                          onDraftChange={value => {
+                            setManagerNoteDraft(value)
+                            setManagerNoteSaved(false)
+                          }}
+                          onEditStart={() => {
+                            setManagerNoteDraft(ownManagerNoteText)
+                            setManagerNoteEditing(true)
+                            setManagerNoteSaved(false)
+                          }}
+                          onEditCancel={() => {
+                            setManagerNoteDraft(ownManagerNoteText)
+                            setManagerNoteEditing(false)
+                          }}
+                          onSave={() => void handleSaveManagerNote()}
+                          onDeleteConfirm={() => void handleDeleteManagerNote()}
+                          setConfirmDialog={setConfirmDialog}
+                        />
                       </div>
                     )}
                     {/* 4. sütun: Ekler / Fotoğraflar — yalnızca Birimden Giden Onay Bekleyen/Taleplerim
@@ -3794,11 +3754,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <MyRequestSectionHeading icon={NotebookPen}>
                       {t('jobs.managerNote.title', 'Yönetici Notu')}
                     </MyRequestSectionHeading>
-                    {detail.managerNote ? (
-                      <p className="whitespace-pre-wrap text-sm text-slate-800">{detail.managerNote}</p>
-                    ) : (
-                      <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>
-                    )}
+                    <ManagerNotesReadOnly notes={detail.managerNotes} legacyText={detail.managerNote} />
                   </section>
                   ) : null}
                   <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">

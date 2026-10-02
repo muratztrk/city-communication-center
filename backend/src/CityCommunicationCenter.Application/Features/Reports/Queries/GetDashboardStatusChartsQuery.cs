@@ -155,13 +155,20 @@ public sealed class GetDashboardStatusChartsQueryHandler
         {
             charts.Add(staffResolutionTimeChart);
         }
-        charts.AddRange(
-        [
-            BuildTaskChart("dashboard.charts.myTasks", FilterTasks(myAssignedTasks, request.MyTaskType), now),
-            BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true),
-            BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true),
-            BuildJobChart("dashboard.charts.myRequests", myRequestsJobs, "dashboard.chart.externalPendingApproval", now, true),
-        ]);
+
+        // Birim Yöneticisi/Sorumlusu pie sırası (#6abf5223): Birime Gelen → Birimden Giden →
+        // Mahallelerdeki Tüm Talepler (yalnız kendi birim(ler)i) → Taleplerim → (Vatandaş Talep
+        // Kanalları FE'de eklenir) → Görevlerim en sonda.
+        charts.Add(BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true));
+        charts.Add(BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true));
+        if (context.RoleCode == "Manager")
+        {
+            charts.Add(await BuildNeighborhoodAllRequestsChartForDepartmentsAsync(
+                tenantId, departmentIds, request, cancellationToken));
+        }
+
+        charts.Add(BuildJobChart("dashboard.charts.myRequests", myRequestsJobs, "dashboard.chart.externalPendingApproval", now, true));
+        charts.Add(BuildTaskChart("dashboard.charts.myTasks", FilterTasks(myAssignedTasks, request.MyTaskType), now));
 
         return new DashboardStatusChartsResponse(charts);
 
@@ -816,6 +823,62 @@ public sealed class GetDashboardStatusChartsQueryHandler
         return BuildNeighborhoodChartWithZeros(
             "dashboard.charts.neighborhoodProcessingRequests",
             counts.ToDictionary(item => item.Neighborhood, item => item.Count, StringComparer.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Birim Yöneticisi/Sorumlusu panosu için "Mahallelerdeki Tüm Talepler": hedef birimi kendi
+    /// birim(ler)i olan vatandaş taleplerinin (Cancelled/Rejected/RevisionRequested hariç; İşleme
+    /// Alınan + Yapılmakta + Tamamlanan) mahalleye göre dağılımı. Detay popup'ı ile aynı kümedir.
+    /// </summary>
+    private async Task<DashboardChartResponse> BuildNeighborhoodAllRequestsChartForDepartmentsAsync(
+        Guid tenantId,
+        Guid[] departmentIds,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var rows = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.SourceType != JobSourceType.Routine
+                && job.Neighborhood != null
+                && job.Neighborhood != ""
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)
+                && _dbContext.JobDepartments.Any(link => link.JobId == job.JobId
+                    && link.TenantId == tenantId
+                    && link.Role == JobDepartmentRole.Target
+                    && link.ApprovalStatus != JobApprovalStatus.Rejected
+                    && departmentIds.Contains(link.DepartmentId)))
+            .WhereHasCitizenRequestNumber(_dbContext)
+            .Select(job => new
+            {
+                Neighborhood = job.Neighborhood!,
+                job.Status,
+                job.DueDateUtc,
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
+            })
+            .ToListAsync(cancellationToken);
+
+        var counts = rows
+            .Where(row =>
+            {
+                if (request.OverdueOnly
+                    && !CitizenVtDashboardClassification.IsCitizenPieOverdue(row.Status, row.DueDateUtc, row.TaskCount, now))
+                {
+                    return false;
+                }
+
+                return CitizenVtDashboardClassification.Classify(
+                    new CitizenVtDashboardClassification.JobSlice(row.Status, row.DueDateUtc, row.TaskCount),
+                    now) != CitizenVtDashboardClassification.DisplayStatus.Cancelled;
+            })
+            .GroupBy(row => row.Neighborhood)
+            .ToDictionary(group => group.Key, group => group.Count(), StringComparer.OrdinalIgnoreCase);
+
+        return BuildNeighborhoodChartWithZeros("dashboard.charts.neighborhoodAllRequests", counts);
     }
 
     /// <summary>

@@ -57,6 +57,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches => Set<IzmirCbsCatalogCache>();
     public DbSet<SmsOutboundLog> SmsOutboundLogs => Set<SmsOutboundLog>();
     public DbSet<MailOutboundLog> MailOutboundLogs => Set<MailOutboundLog>();
+    public DbSet<JobManagerNote> JobManagerNotes => Set<JobManagerNote>();
     public DbSet<SupportRequest> SupportRequests => Set<SupportRequest>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -130,6 +131,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureIzmirCbsCatalogCache(modelBuilder.Entity<IzmirCbsCatalogCache>());
         ConfigureSmsOutboundLog(modelBuilder.Entity<SmsOutboundLog>());
         ConfigureMailOutboundLog(modelBuilder.Entity<MailOutboundLog>());
+        ConfigureJobManagerNote(modelBuilder.Entity<JobManagerNote>());
         ConfigureSupportRequest(modelBuilder.Entity<SupportRequest>());
 
         modelBuilder.ApplyAutomaticIndexes();
@@ -164,6 +166,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<InternalMessage>());
         ApplyTenantFilter(modelBuilder.Entity<SmsOutboundLog>());
         ApplyTenantFilter(modelBuilder.Entity<MailOutboundLog>());
+        ApplyTenantFilter(modelBuilder.Entity<JobManagerNote>());
         ApplyTenantFilter(modelBuilder.Entity<SupportRequest>());
 
         ApplyInstallSeedData(modelBuilder);
@@ -502,6 +505,15 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.ProviderCode).HasMaxLength(64);
         builder.Property(entity => entity.ProviderMessage).HasMaxLength(500);
         builder.Property(entity => entity.BodyPreview).HasMaxLength(500);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureJobManagerNote(EntityTypeBuilder<JobManagerNote> builder)
+    {
+        builder.ToTable("jobmanagernotes");
+        builder.HasKey(entity => entity.NoteId);
+        builder.Property(entity => entity.Text).HasMaxLength(100);
+        builder.Property(entity => entity.AuthorDisplayName).HasMaxLength(200);
         ApplyLowerCaseColumnNames(builder);
     }
 

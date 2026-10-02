@@ -428,6 +428,16 @@ export interface JobApprovalStep {
   comment: string | null;
 }
 
+/** Talebe bir yöneticinin eklediği not; her yönetici talep başına yalnız kendi notunu yönetir. */
+export interface JobManagerNote {
+  noteId: string;
+  authorUserId: string;
+  authorDisplayName?: string | null;
+  text: string;
+  createdAtUtc: string;
+  updatedAtUtc?: string | null;
+}
+
 export interface JobDetail {
   jobId: string;
   tenantId: string;
@@ -464,6 +474,7 @@ export interface JobDetail {
   jobNumber: number | null;
   jobNumberYear: number | null;
   managerNote?: string | null;
+  managerNotes?: JobManagerNote[] | null;
   departments: JobDepartmentInfo[];
   tasks: Task[];
   approvals: JobApprovalStep[];

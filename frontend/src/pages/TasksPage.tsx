@@ -2698,7 +2698,7 @@ const pageKicker = isMyTasksView
                                   label: t('tasks.detail.attachments', 'Görev Ekleri'),
                                   value: (
                                     <div className="flex w-full flex-col items-end gap-1">
-                                      <div className="flex w-full max-h-11 flex-col items-end gap-1 overflow-y-auto">
+                                      <div className={`flex w-full ${taskAttachments.length > 1 ? 'max-h-[5.25rem]' : 'max-h-11'} flex-col items-end gap-1 overflow-y-auto`}>
                                         {taskAttachments.map(attachment => {
                                           const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
                                           return (
@@ -3105,6 +3105,26 @@ const pageKicker = isMyTasksView
                                   </div>
                                 </div>
                               ) : null}
+                              {/* Yapılmakta'ya alınan görev yeniden Tamamlandı/İptal olduysa ikinci geçiş satırı (#6abfa39b). */}
+                              {latestStatusChange?.toStatus === 'InProgress'
+                                && (taskDetail.currentStatus === 'Completed' || taskDetail.currentStatus === 'Cancelled')
+                                && (taskDetail.currentStatus === 'Completed' ? taskDetail.completedAtUtc : (cancelledAtUtc ?? taskDetail.updatedAtUtc))
+                                ? (
+                                  <div className="task-process-status-change mt-1 border-t border-slate-100 pt-1">
+                                    <div className="job-detail-field-row job-detail-field-row--request-info task-process-status-change__row">
+                                      <div className="job-detail-field-row__label">{t('tasks.detail.statusChangeHistory', 'Durum Değişikliği')}</div>
+                                      <div className="job-detail-field-row__value">
+                                        <StatusChangeTransition
+                                          fromStatus="InProgress"
+                                          toStatus={taskDetail.currentStatus}
+                                          fromAtUtc={latestStatusChange.changedAtUtc}
+                                          toAtUtc={(taskDetail.currentStatus === 'Completed' ? taskDetail.completedAtUtc : (cancelledAtUtc ?? taskDetail.updatedAtUtc)) as string}
+                                          locale={locale}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : null}
                             </>
                           )
                         })()}

@@ -10,6 +10,15 @@ export function normalizeTitleCaseField(value: string | null | undefined): strin
   return trimmed ? toTitleCaseTr(trimmed) : null
 }
 
+/** Metnin yalnızca ilk harfi büyük, diğer harfler küçük (#6abfad6c). */
+export function toSentenceCaseTr(value: string | null | undefined): string {
+  const trimmed = value?.trim()
+  if (!trimmed) return ''
+  return trimmed
+    .toLocaleLowerCase('tr')
+    .replace(/\p{L}/u, letter => letter.toLocaleUpperCase('tr'))
+}
+
 /** Yalnızca ilk harfi TR büyük yapar (#6a6f496e); zaten büyükse değişmez. */
 export function ensureLeadingCapitalTr(value: string | null | undefined): string {
   if (value == null || value.length === 0) return value ?? ''

@@ -31,11 +31,13 @@ type PlanRowView = ActivityPlanRow & {
   planNoDisplay: string
 }
 
-type PlanScope = 'daily' | 'past'
+type PlanScope = 'daily' | 'past' | 'all'
 
 const SCOPE_FILTERS: Array<{ value: PlanScope; labelKey: string; fallback: string; chipClass: string }> = [
-  { value: 'daily', labelKey: 'edevletActivityPlans.scope.daily', fallback: 'Günlük Faaliyetler', chipClass: 'scope-chip--approved' },
-  { value: 'past', labelKey: 'edevletActivityPlans.scope.past', fallback: 'Geçmiş Faaliyet', chipClass: 'scope-chip--all' },
+  // Günlük yeşil, Geçmiş turuncu, Tümü gri (#6abfa982).
+  { value: 'daily', labelKey: 'edevletActivityPlans.scope.daily', fallback: 'Günlük Faaliyetler', chipClass: 'scope-chip--completed' },
+  { value: 'past', labelKey: 'edevletActivityPlans.scope.past', fallback: 'Geçmiş Faaliyet', chipClass: 'scope-chip--overdue' },
+  { value: 'all', labelKey: 'edevletActivityPlans.scope.all', fallback: 'Tümü', chipClass: 'scope-chip--all' },
 ]
 
 const SEARCH_COLUMN_KEYS = ['planNoDisplay', 'activityTypeName', 'neighborhood', 'street', 'description'] as const
@@ -64,6 +66,7 @@ function isSameLocalDay(left: Date, right: Date) {
 
 function isPlanInScope(createdAtUtc: string, scope: PlanScope) {
   const created = new Date(createdAtUtc)
+  if (scope === 'all') return true
   const isToday = isSameLocalDay(created, new Date())
   return scope === 'daily' ? isToday : !isToday
 }
@@ -74,7 +77,7 @@ export function EDevletActivityPlansListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const locale = getLocale(i18n.language)
   const scopeParam = searchParams.get('view')
-  const scope: PlanScope = scopeParam === 'past' ? 'past' : 'daily'
+  const scope: PlanScope = scopeParam === 'past' ? 'past' : scopeParam === 'all' ? 'all' : 'daily'
   const [plans, setPlans] = useState<ActivityPlanRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -214,7 +217,7 @@ export function EDevletActivityPlansListPage() {
           <div className="space-y-1">
             <div className="page-kicker">{t('edevletActivityPlans.kicker', 'e-Devlet entegrasyonu')}</div>
             <h1 className="page-title">{t('edevletActivityPlans.title', 'e-Devlet Günlük Faaliyet Planları Listesi')}</h1>
-            <p className="page-subtitle text-base">
+            <p className="page-subtitle text-sm">
               {t('edevletActivityPlans.subtitle', 'Biriminize ait günlük faaliyet planlarını görüntüleyin ve yönetin.')}
             </p>
           </div>
@@ -270,7 +273,7 @@ export function EDevletActivityPlansListPage() {
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className="data-table jobs-table data-table--zebra">
+            <table className="data-table jobs-table data-table--zebra edevlet-plans-table">
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -330,7 +333,9 @@ export function EDevletActivityPlansListPage() {
                     message={
                       scope === 'daily'
                         ? t('edevletActivityPlans.emptyDaily', 'Bugün oluşturulmuş faaliyet planı bulunmuyor.')
-                        : t('edevletActivityPlans.emptyPast', 'Geçmiş faaliyet planı bulunmuyor.')
+                        : scope === 'all'
+                          ? t('edevletActivityPlans.emptyAll', 'Faaliyet planı bulunmuyor.')
+                          : t('edevletActivityPlans.emptyPast', 'Geçmiş faaliyet planı bulunmuyor.')
                     }
                   />
                 ) : null}

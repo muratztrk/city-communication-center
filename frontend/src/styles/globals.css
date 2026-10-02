@@ -3200,7 +3200,8 @@
   .users-table thead th,
   .audit-logs-table thead th,
   .whatsapp-message-logs-table thead th,
-  .role-matrix-table thead th {
+  .role-matrix-table thead th,
+  .edevlet-plans-table thead th {
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     background-attachment: fixed;
@@ -3220,7 +3221,8 @@
   .users-table thead,
   .audit-logs-table thead,
   .whatsapp-message-logs-table thead,
-  .role-matrix-table thead {
+  .role-matrix-table thead,
+  .edevlet-plans-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
@@ -5812,6 +5814,7 @@
     .audit-logs-table thead,
     .whatsapp-message-logs-table thead,
     .role-matrix-table thead,
+    .edevlet-plans-table thead,
     .detail-modal-shell .dashboard-drilldown-table thead,
     .data-table.dashboard-drilldown-table thead {
       background-color: var(--color-header-from);
@@ -5832,6 +5835,7 @@
     .audit-logs-table thead th,
     .whatsapp-message-logs-table thead th,
     .role-matrix-table thead th,
+    .edevlet-plans-table thead th,
     .detail-modal-shell .dashboard-drilldown-table thead th,
     .data-table.dashboard-drilldown-table thead th {
       background-color: transparent;

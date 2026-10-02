@@ -1,3 +1,18 @@
+## Round 1409 — Doing'e eklenen #4044 / #4045 / #4046-#4055
+
+- [x] #4045 — Görev detayı Süreç: Yapılmakta'ya alınmış görev yeniden Tamamlandı/İptal olduysa ikinci `Durum Değişikliği` satırı (Yapılmakta → Tamamlanan/İptal), aynı tasarım.
+- [x] #4044 — Görev Ekleri: birden fazla ek varsa yükseklik `max-h-[5.25rem]`.
+- [x] #4049 — e-Devlet Faaliyet Planları Listesi grid başlık zemini diğer gridler gibi tek şerit (`edevlet-plans-table` ortak başlık CSS listelerine eklendi).
+- [x] #4046/#4047 — Liste chip'leri: Günlük yeşil (`scope-chip--completed`), Geçmiş turuncu (`--overdue`), sonuna `Tümü` (`view=all`). İki kart çelişiyordu (mavi/yeşil); sonraki karttaki yeşil uygulandı.
+- [x] #4048 — İki e-Devlet banner alt yazısı `text-sm`.
+- [x] #4054 — Faaliyet tipi placeholder `Faaliyet tipi seçiniz`; #4050 Faaliyet Tipi `SingleSelectDropdown`.
+- [x] #4051 — Açıklama ipucu `(max 400 karakter) *`; limit 100→400 (FE + backend validator).
+- [x] #4053 — `Faaliyet Tipi Ekle (max 100 karakter)`; limit 50→100 (FE + backend).
+- [x] #4052 — Adres: Mahalle `SingleSelectDropdown`, Cadde/Sokak `CbsStreetNoDropdowns hideStreetNo`; `(Max 50 Karakter)` kalktı.
+- [x] #4055 — Faaliyet tipi adı ve Açıklama blur'da yalnız ilk harf büyük (`toSentenceCaseTr`).
+- [ ] #4036 — popup titreme: kullanıcı doğrulaması bekleniyor.
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning), `dotnet build` temiz.
+
 ## Round 1408 — Doing'e eklenen #4036 / #4039 / #4040 / #4041 / #4042 / #4043
 
 - [x] #4043 — Talep Yönlenme Sebebi satırında yalnız sebep (birim adı ve `/` kaldırıldı); JobsPage + TasksPage.

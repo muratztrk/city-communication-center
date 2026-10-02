@@ -7,8 +7,10 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
-import { ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
-import { normalizeTitleCaseField } from '../utils/textNormalization'
+import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { stringListSelectOptions } from '../utils/formDropdownOptions'
+import { toSentenceCaseTr } from '../utils/textNormalization'
 
 interface ActivityType {
   activityTypeId: string
@@ -30,8 +32,8 @@ const INITIAL: FormState = {
   street: '',
 }
 
-const TYPE_NAME_MAX = 50
-const DESCRIPTION_MAX = 100
+const TYPE_NAME_MAX = 100
+const DESCRIPTION_MAX = 400
 
 export function EDevletActivityPlanPage() {
   const { t } = useTranslation()
@@ -48,6 +50,11 @@ export function EDevletActivityPlanPage() {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const districtId = useMunicipalityDistrictId()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
+  const activityTypeOptions = useMemo(
+    () => activityTypes.map(type => ({ value: type.activityTypeId, label: type.name })),
+    [activityTypes],
+  )
 
   useEffect(() => {
     void api.getEDevletActivityTypes()
@@ -76,13 +83,14 @@ export function EDevletActivityPlanPage() {
   }
 
   const handleSaveType = async () => {
-    if (!typeName.trim()) return
+    const normalizedTypeName = toSentenceCaseTr(typeName)
+    if (!normalizedTypeName) return
     setError(null)
     try {
       if (editingTypeId) {
-        await api.updateEDevletActivityType(editingTypeId, typeName.trim())
+        await api.updateEDevletActivityType(editingTypeId, normalizedTypeName)
       } else {
-        await api.createEDevletActivityType(typeName.trim())
+        await api.createEDevletActivityType(normalizedTypeName)
       }
       setTypeName('')
       setEditingTypeId(null)
@@ -115,9 +123,9 @@ export function EDevletActivityPlanPage() {
     try {
       const payload = {
         activityTypeId: form.activityTypeId,
-        description: form.description.trim(),
+        description: toSentenceCaseTr(form.description),
         neighborhood: form.neighborhood,
-        street: normalizeTitleCaseField(form.street),
+        street: form.street.trim() || null,
         openAddress: null,
       }
       if (editingPlanId) {
@@ -175,7 +183,7 @@ export function EDevletActivityPlanPage() {
                 ? t('edevletActivityPlan.editTitle', 'Faaliyet Planını Düzenle')
                 : t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur')}
             </h1>
-            <p className="page-subtitle text-base">
+            <p className="page-subtitle text-sm">
               {t('edevletActivityPlan.subtitle', 'Belediyenizin günlük faaliyet planını oluşturarak vatandaşlarınızla paylaşınız.')}
             </p>
           </div>
@@ -191,23 +199,17 @@ export function EDevletActivityPlanPage() {
               <label className="job-field-label" htmlFor="activity-type">
                 {t('edevletActivityPlan.activityType', 'Faaliyet Tipi')} <span className="text-red-500">*</span>
               </label>
-              <select
-                id="activity-type"
-                className="field-select"
+              <SingleSelectDropdown
+                options={activityTypeOptions}
                 value={form.activityTypeId}
-                onChange={event => setForm(current => ({ ...current, activityTypeId: event.target.value }))}
-                required
-              >
-                <option value="">{t('edevletActivityPlan.activityTypePlaceholder', 'Faaliyet tipi seçin')}</option>
-                {activityTypes.map(type => (
-                  <option key={type.activityTypeId} value={type.activityTypeId}>{type.name}</option>
-                ))}
-              </select>
+                onChange={activityTypeId => setForm(current => ({ ...current, activityTypeId }))}
+                placeholder={t('edevletActivityPlan.activityTypePlaceholder', 'Faaliyet tipi seçiniz')}
+              />
             </div>
             <div className="grid gap-1">
               <span className="job-field-label">
-                {t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle/Düzenle/Sil')}
-                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(Max 50 Karakter)')}</span>
+                {t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle')}
+                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.typeNameMax', '(max 100 karakter)')}</span>
               </span>
               <div className="flex flex-wrap items-center gap-2">
                 <input
@@ -216,6 +218,7 @@ export function EDevletActivityPlanPage() {
                   value={typeName}
                   maxLength={TYPE_NAME_MAX}
                   onChange={event => setTypeName(event.target.value)}
+                  onBlur={() => setTypeName(current => toSentenceCaseTr(current))}
                 />
                 <Button type="button" variant="secondary" onClick={() => { void handleSaveType() }}>
                   {editingTypeId ? t('common.update', 'Güncelle') : t('common.add', 'Ekle')}
@@ -260,40 +263,29 @@ export function EDevletActivityPlanPage() {
           <span className="job-field-label">{t('address.sectionTitleRequired', 'Adres Bilgisi')} <span className="text-red-500">*</span></span>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="grid gap-1">
-              <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')} <span className="text-red-500">*</span></span>
-              <select
-                className="field-select"
+              <span className="text-sm font-semibold text-slate-500">
+                {t('address.neighborhoodLabel', 'Mahalle')}
+                {form.neighborhood ? <span className="text-red-500"> *</span> : null}
+              </span>
+              <SingleSelectDropdown
+                searchable
+                clearable
+                options={neighborhoodOptions}
                 value={form.neighborhood}
-                onChange={event => {
-                  const neighborhood = event.target.value
-                  setForm(current => neighborhood
-                    ? { ...current, neighborhood }
-                    : { ...current, neighborhood, street: '' })
-                }}
-                required
-              >
-                <option value="">{t('address.neighborhoodPlaceholder', 'Mahalle seçin')}</option>
-                {neighborhoods.map(n => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
-            <div className="grid gap-1">
-              <label className="text-sm font-semibold text-slate-500" htmlFor="activity-street">
-                {t('edevletActivityPlan.streetLabel', 'Cadde / Sokak')}
-                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(Max 50 Karakter)')}</span>
-                <span className="text-red-500"> *</span>
-              </label>
-              <input
-                id="activity-street"
-                className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                value={form.street}
-                maxLength={ADDRESS_STREET_MAX_LENGTH}
-                onChange={event => setForm(current => ({ ...current, street: event.target.value }))}
-                onBlur={() => setForm(current => ({ ...current, street: normalizeTitleCaseField(current.street) ?? '' }))}
-                disabled={!form.neighborhood}
-                required
+                onChange={neighborhood => setForm(current => ({ ...current, neighborhood, street: '' }))}
+                placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
               />
             </div>
+            <CbsStreetNoDropdowns
+              hideStreetNo
+              neighborhood={form.neighborhood}
+              street={form.street}
+              streetNo=""
+              required
+              className="grid min-w-0 grid-cols-1 gap-2"
+              onStreetChange={street => setForm(current => ({ ...current, street }))}
+              onStreetNoChange={() => undefined}
+            />
           </div>
         </div>
 
@@ -301,7 +293,7 @@ export function EDevletActivityPlanPage() {
           <div className="job-field">
             <label className="job-field-label" htmlFor="activity-description">
               {t('tasks.detail.description', 'Açıklama')}
-              <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(Max 100 karakter)')}</span>
+              <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 400 karakter)')}</span>
               <span className="text-red-500"> *</span>
             </label>
             <textarea
@@ -310,6 +302,7 @@ export function EDevletActivityPlanPage() {
               maxLength={DESCRIPTION_MAX}
               value={form.description}
               onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
+              onBlur={() => setForm(current => ({ ...current, description: toSentenceCaseTr(current.description) }))}
               placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını girin...')}
               required
             />

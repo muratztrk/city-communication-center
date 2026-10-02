@@ -89,6 +89,8 @@ interface CbsStreetNoDropdownsProps {
   streetNoColumnClassName?: string
   /** Mobilde mahalle+cadde / no+konum satırları (#3628). */
   splitMobileLayout?: boolean
+  /** Yalnız Cadde / Sokak dropdown'u (e-Devlet faaliyet planı: No yok, #6abfab0e). */
+  hideStreetNo?: boolean
 }
 
 /** Cadde/Sokak + No: İzmir CBS kademeli dropdown (#2655). */
@@ -116,6 +118,7 @@ export function CbsStreetNoDropdowns({
   triggerClassName,
   streetNoColumnClassName = 'lg:w-[8.25rem] lg:min-w-[8.25rem] lg:max-w-[8.25rem]',
   splitMobileLayout = false,
+  hideStreetNo = false,
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
@@ -160,6 +163,7 @@ export function CbsStreetNoDropdowns({
           menuWidthExtraPx={streetMenuWidth ? 0 : streetMenuWidthExtraPx}
         />
       </div>
+      {hideStreetNo ? null : (
       <div className={`grid min-w-0 w-full max-w-full gap-1 overflow-hidden max-lg:shrink max-lg:basis-full lg:shrink-0 ${streetNoColumnClassName}`}>
         <span className={labelClassName}>
           {t('address.streetNoLabel', 'No')}
@@ -184,6 +188,7 @@ export function CbsStreetNoDropdowns({
           menuExpand={streetNoMenuExpand}
         />
       </div>
+      )}
       {showCoordinates ? (
         <AddressCoordinatesField
           value={coordinates ?? ''}

@@ -1,3 +1,13 @@
+## Round 1412 — Doing'e eklenen #4037 / #4061 r2 / #4062 r2 / #4067-#4069 r2 / #4073
+
+- [x] #4037 — Birimler gridinde ilk sütun `Sıra` (`departments-table` nth-child genişlikleri kaydırıldı, boş durum colSpan 5).
+- [x] #4061 r2 — FAB halka animasyonu biraz daha yavaş (2.3s → 2.8s; üç FAB).
+- [x] #4062 r2 — Mobil e-Devlet banner alt yazısı biraz daha küçük (`0.75rem`).
+- [x] #4068 r2 — Faaliyet Tipi `Ekle` butonu yeşil (`variant="success"`).
+- [x] #4073 — Masaüstü: Faaliyet Tipi / Faaliyet Tipi Ekle etiketleri aynı hizada (`items-start`), Ekle/Düzenle/Sil textbox'ın sağında eşit genişlik (`6.25rem`); mobil değişmedi.
+- [x] #4067 — Mobil: Ekle/Düzenle/Sil satırı eşit üçe bölüp kaplar, yükseklik `2.35rem`; #4069 mobil Faaliyet Planı Oluştur butonu daha alçak (`3.1rem`).
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning).
+
 ## Round 1411 — Doing'e eklenen #4057 r2 / #4060 r2 / #4061-#4072
 
 - [x] #4057 r2 — e-Devlet liste kolon sırası: Faaliyet No, Faaliyet Tipi, Açıklama, Tarih, Mahalle, Cadde/Sokak; #4070 Tarih kolonu `min-width:11rem`.

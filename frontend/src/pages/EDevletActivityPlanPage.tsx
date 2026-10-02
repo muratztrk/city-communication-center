@@ -193,7 +193,7 @@ export function EDevletActivityPlanPage() {
 
       <form onSubmit={handleSubmit} className="section-card request-form request-form--readable edevlet-plan-form grid gap-4">
         <div className="job-field">
-          <div className="grid items-end gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+          <div className="grid items-start gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
             <div className="grid gap-1">
               <label className="job-field-label" htmlFor="activity-type">
                 {t('edevletActivityPlan.activityType', 'Faaliyet Tipi')} <span className="text-red-500">*</span>
@@ -210,18 +210,20 @@ export function EDevletActivityPlanPage() {
                 {t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle')}
                 <span className="ml-1 text-xs font-normal text-slate-400">{t('edevletActivityPlan.typeNameMax', '(max 100 karakter)')}</span>
               </span>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 md:flex-nowrap">
                 <input
-                  className="field-input w-full basis-full md:min-w-[10rem] md:flex-1 md:basis-auto"
+                  className="field-input w-full basis-full md:min-w-0 md:flex-1 md:basis-auto"
                   placeholder={t('edevletActivityPlan.newTypePlaceholder', 'Yeni faaliyet tipi adı')}
                   value={typeName}
                   maxLength={TYPE_NAME_MAX}
                   onChange={event => setTypeName(event.target.value)}
                   onBlur={() => setTypeName(current => toSentenceCaseTr(current))}
                 />
+                <div className="edevlet-type-actions flex w-full gap-2 md:contents">
                 <Button
                   type="button"
-                  className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
+                  variant="success"
+                  className="inline-flex items-center gap-1.5"
                   onClick={() => { void handleSaveType() }}
                 >
                   {editingTypeId
@@ -271,6 +273,7 @@ export function EDevletActivityPlanPage() {
                     {t('common.cancel', 'İptal')}
                   </Button>
                 ) : null}
+                </div>
               </div>
             </div>
           </div>
@@ -324,7 +327,7 @@ export function EDevletActivityPlanPage() {
               required
             />
           </div>
-          <Button type="submit" disabled={!canSubmit} className="min-h-14 w-full gap-2 self-end">
+          <Button type="submit" disabled={!canSubmit} className="edevlet-submit-button min-h-14 w-full gap-2 self-end">
             <Send className="size-4" />
             {submitting
               ? t('common.saving', 'Kaydediliyor...')

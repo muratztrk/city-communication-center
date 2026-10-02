@@ -868,6 +868,7 @@ export function DepartmentsPage() {
           <table className="data-table departments-table">
             <thead>
               <tr>
+                <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                 <FilterableTh
                   filterKey="name"
                   filterValue={deptFilters['name'] ?? ''}
@@ -895,12 +896,13 @@ export function DepartmentsPage() {
               </tr>
             </thead>
             <tbody>
-              {pagedDepts.map(department => {
+              {pagedDepts.map((department, deptRowIndex) => {
                 const isManagerAssigning = managerAssignId === department.departmentId
                 const isManagerSaving = managerAssignSavingId === department.departmentId
 
                 return (
                   <tr key={department.departmentId}>
+                    <td className="text-center text-xs font-bold tabular-nums text-slate-400">{(deptSafePage - 1) * deptPageSize + deptRowIndex + 1}</td>
                     <td className="font-semibold">{department.name}</td>
                     <td>
                       {isManagerAssigning ? (
@@ -998,7 +1000,7 @@ export function DepartmentsPage() {
                 )
               })}
               {pagedDepts.length === 0 ? (
-                <TableEmptyStateRows columnCount={4} message={t('departments.empty')} />
+                <TableEmptyStateRows columnCount={5} message={t('departments.empty')} />
               ) : null}
             </tbody>
           </table>

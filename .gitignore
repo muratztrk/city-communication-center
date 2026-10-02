@@ -513,3 +513,6 @@ $RECYCLE.BIN/
 .tmp-r737-*.png
 .gstack/
 /mobile-releases/
+
+# Trello kart ekran görüntüleri (yerel çalışma dosyaları)
+tasks/trello-attachments/

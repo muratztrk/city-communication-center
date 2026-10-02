@@ -124,7 +124,7 @@ export function EDevletActivityPlanPage() {
       const payload = {
         activityTypeId: form.activityTypeId,
         description: toSentenceCaseTr(form.description),
-        neighborhood: form.neighborhood,
+        neighborhood: form.neighborhood || null,
         street: form.street.trim() || null,
         openAddress: null,
       }
@@ -144,7 +144,7 @@ export function EDevletActivityPlanPage() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    if (!form.activityTypeId || !form.description.trim() || !form.neighborhood || !form.street.trim()) return
+    if (!form.activityTypeId || !form.description.trim() || (form.neighborhood && !form.street.trim())) return
     setConfirmDialog({
       title: editingPlanId
         ? t('edevletActivityPlan.editTitle', 'Faaliyet Planını Düzenle')
@@ -165,8 +165,7 @@ export function EDevletActivityPlanPage() {
   const canSubmit = !submitting && !loadingPlan
     && form.activityTypeId !== ''
     && form.description.trim() !== ''
-    && form.neighborhood !== ''
-    && form.street.trim() !== ''
+    && (form.neighborhood === '' || form.street.trim() !== '')
 
   if (loadingPlan) {
     return <div className="loading">{t('common.loading')}</div>
@@ -209,7 +208,7 @@ export function EDevletActivityPlanPage() {
             <div className="grid gap-1">
               <span className="job-field-label">
                 {t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle')}
-                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.typeNameMax', '(max 100 karakter)')}</span>
+                <span className="ml-1 text-xs font-normal text-slate-400">{t('edevletActivityPlan.typeNameMax', '(max 100 karakter)')}</span>
               </span>
               <div className="flex flex-wrap items-center gap-2">
                 <input
@@ -260,7 +259,7 @@ export function EDevletActivityPlanPage() {
         </div>
 
         <div className="job-field">
-          <span className="job-field-label">{t('address.sectionTitleRequired', 'Adres Bilgisi')} <span className="text-red-500">*</span></span>
+          <span className="job-field-label">{t('edevletActivityPlan.addressTitle', 'Adres Bilgisi')}</span>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="grid gap-1">
               <span className="text-sm font-semibold text-slate-500">
@@ -281,7 +280,7 @@ export function EDevletActivityPlanPage() {
               neighborhood={form.neighborhood}
               street={form.street}
               streetNo=""
-              required
+              required={Boolean(form.neighborhood)}
               className="grid min-w-0 grid-cols-1 gap-2"
               onStreetChange={street => setForm(current => ({ ...current, street }))}
               onStreetNoChange={() => undefined}
@@ -293,7 +292,7 @@ export function EDevletActivityPlanPage() {
           <div className="job-field">
             <label className="job-field-label" htmlFor="activity-description">
               {t('tasks.detail.description', 'Açıklama')}
-              <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 400 karakter)')}</span>
+              <span className="ml-1 text-xs font-normal text-slate-400">{t('edevletActivityPlan.descriptionMax', '(max 400 karakter)')}</span>
               <span className="text-red-500"> *</span>
             </label>
             <textarea
@@ -303,7 +302,7 @@ export function EDevletActivityPlanPage() {
               value={form.description}
               onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
               onBlur={() => setForm(current => ({ ...current, description: toSentenceCaseTr(current.description) }))}
-              placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını girin...')}
+              placeholder={t('edevletActivityPlan.descriptionPlaceholder', 'Faaliyet açıklamasını giriniz...')}
               required
             />
           </div>

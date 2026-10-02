@@ -168,7 +168,7 @@ export function WhatsAppDepartmentReviewFab() {
           title={t('whatsapp.departmentReviewFabLabel', 'İncelenmesi Gereken Mesajı Oku')}
           aria-expanded={isOpen}
           onClick={() => setIsOpen(current => !current)}
-          className={`ccc-floating-fab-btn group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
+          className={`ccc-floating-fab-btn group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${reviews.length > 0 && !isOpen ? 'fab-notify-ripple' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
         >
           <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
           <img src="/icons/whatsapp-fab.png" alt="" className="ccc-floating-fab-icon relative size-6" aria-hidden="true" />

@@ -1,3 +1,13 @@
+## Round 1410 — Doing'e eklenen #4054 r2 / #4056-#4060
+
+- [x] #4054 r2 — Açıklama placeholder `Faaliyet açıklamasını giriniz...`.
+- [x] #4059 — WhatsApp: aynı birime daha önce gönderilmiş ve henüz incelenmemişse İncelemeye Gönder popup'ı "…'ne zaten gönderilmiştir. Mesaj henüz incelenmemiştir." (birim yeşil), Onayla yok, tek `Kapat` (`pendingDepartmentReviewDepartmentIds`).
+- [x] #4057 — e-Devlet liste kolon sırası: Faaliyet No, Faaliyet Tipi, Tarih, Açıklama, Mahalle, Cadde/Sokak.
+- [x] #4056 — e-Devlet oluştur: Adres Bilgisi `*` yok; Mahalle zorunlu değil (seçilirse Cadde zorunlu). Backend validator `Neighborhood` kuralı kaldırıldı, `Street` yalnız mahalle varsa zorunlu.
+- [x] #4058 — `Faaliyet Tipi Ekle` ve `Açıklama` başlıklarından sonra ipucuyla arasına boşluk (`ml-1`).
+- [x] #4060 — Bildirim varken WhatsApp bildirim FAB'ı ve İncelenmesi Gereken Mesaj FAB'ında dışa doğru yayılan halka animasyonu (`fab-notify-ripple`, reduced-motion'da kapalı).
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning), `dotnet build` temiz.
+
 ## Round 1409 — Doing'e eklenen #4044 / #4045 / #4046-#4055
 
 - [x] #4045 — Görev detayı Süreç: Yapılmakta'ya alınmış görev yeniden Tamamlandı/İptal olduysa ikinci `Durum Değişikliği` satırı (Yapılmakta → Tamamlanan/İptal), aynı tasarım.

@@ -8331,6 +8331,42 @@
     animation: whatsapp-fab-pulse 0.9s ease-in-out 2;
   }
 
+  /* Bildirim varken FAB'dan dışa doğru yayılan dairesel renk halkaları (#6abfbcfb). */
+  @keyframes fab-notify-ripple {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  .fab-notify-ripple::before,
+  .fab-notify-ripple::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: rgb(37 211 102 / 0.45);
+    pointer-events: none;
+    z-index: -1;
+    animation: fab-notify-ripple 1.8s ease-out infinite;
+  }
+
+  .fab-notify-ripple::after {
+    animation-delay: 0.9s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fab-notify-ripple::before,
+    .fab-notify-ripple::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
   .whatsapp-fab-badge {
     display: inline-flex;
     align-items: center;

@@ -94,8 +94,9 @@ public sealed class UpdateEDevletDailyActivityPlanCommandValidator : AbstractVal
         RuleFor(c => c.ActivityTypeId).NotEmpty().WithMessage("Faaliyet tipi secilmelidir.");
         RuleFor(c => c.Description).NotEmpty().WithMessage("Aciklama zorunludur.");
         RuleFor(c => c.Description).MaximumLength(400).WithMessage("Aciklama en fazla 400 karakter olabilir.");
-        RuleFor(c => c.Neighborhood).NotEmpty().WithMessage("Mahalle secilmelidir.");
-        RuleFor(c => c.Street).NotEmpty().WithMessage("Cadde / sokak zorunludur.");
+        // Mahalle zorunlu değil (#6abfb6a3); mahalle seçildiyse cadde / sokak zorunludur.
+        RuleFor(c => c.Street).NotEmpty().When(c => !string.IsNullOrWhiteSpace(c.Neighborhood))
+            .WithMessage("Cadde / sokak zorunludur.");
         RuleFor(c => c.Street).MaximumLength(50).WithMessage("Cadde / sokak en fazla 50 karakter olabilir.");
     }
 }

@@ -1303,6 +1303,26 @@ function ConversationDetail({
     setReviewDepartmentId('')
     const department = reviewDepartmentOptions.find(option => option.value === departmentId)
     if (!department) return
+    // Aynı birime daha önce gönderilmiş ve henüz incelenmemişse tekrar onay istenmez (#6abfbae9).
+    if ((activeDetail?.pendingDepartmentReviewDepartmentIds ?? []).includes(departmentId)) {
+      setConfirmDialog({
+        title: t('whatsapp.departmentReviewConfirmTitle', 'İncelemeye Gönder'),
+        titleDivider: true,
+        message: (
+          <>
+            {t('whatsapp.departmentReviewConfirmPrefix', 'Bu mesaj incelenmek üzere ')}
+            <span className="font-semibold text-emerald-600">{department.label}</span>
+            {t('whatsapp.departmentReviewAlreadySentSuffix', "'ne zaten gönderilmiştir. Mesaj henüz incelenmemiştir.")}
+          </>
+        ),
+        hideCancel: true,
+        confirmLabel: t('common.close', 'Kapat'),
+        messageClassName: 'text-justify',
+        variant: 'success',
+        onConfirm: () => {},
+      })
+      return
+    }
     setConfirmDialog({
       title: t('whatsapp.departmentReviewConfirmTitle', 'İncelemeye Gönder'),
       titleDivider: true,

@@ -278,11 +278,11 @@ export function EDevletActivityPlansListPage() {
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <FilterableTh filterKey="planNo" filterValue={planFilters['planNo'] ?? ''} onFilter={setPlanFilter} sortKey="planNoDisplay" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.planNo', 'Faaliyet No')}</FilterableTh>
-                  <FilterableTh filterKey="createdAtUtc" filterValue={planFilters['createdAtUtc'] ?? ''} onFilter={setPlanFilter} sortKey="createdAtUtc" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.date', 'Tarih')}</FilterableTh>
                   <FilterableTh filterKey="activityTypeName" filterValue={planFilters['activityTypeName'] ?? ''} onFilter={setPlanFilter} sortKey="activityTypeName" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</FilterableTh>
+                  <FilterableTh filterKey="createdAtUtc" filterValue={planFilters['createdAtUtc'] ?? ''} onFilter={setPlanFilter} sortKey="createdAtUtc" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.date', 'Tarih')}</FilterableTh>
+                  <FilterableTh filterKey="description" filterValue={planFilters['description'] ?? ''} onFilter={setPlanFilter} sortKey="description" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.description', 'Açıklama')}</FilterableTh>
                   <FilterableTh filterKey="neighborhood" filterValue={planFilters['neighborhood'] ?? ''} onFilter={setPlanFilter} sortKey="neighborhood" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.neighborhood', 'Mahalle')}</FilterableTh>
                   <FilterableTh filterKey="street" filterValue={planFilters['street'] ?? ''} onFilter={setPlanFilter} sortKey="street" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.street', 'Cadde/Sokak')}</FilterableTh>
-                  <FilterableTh filterKey="description" filterValue={planFilters['description'] ?? ''} onFilter={setPlanFilter} sortKey="description" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.description', 'Açıklama')}</FilterableTh>
                   <th className="text-center">{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -295,11 +295,11 @@ export function EDevletActivityPlansListPage() {
                       <td className="table-number-cell font-mono text-xs text-slate-500">
                         <div className="table-number-cell__value">{plan.planNoDisplay}</div>
                       </td>
-                      <td><DateCell value={plan.createdAtUtc} locale={locale} /></td>
                       <td>{plan.activityTypeName}</td>
+                      <td><DateCell value={plan.createdAtUtc} locale={locale} /></td>
+                      <td className="max-w-xs truncate" title={plan.description}>{plan.description}</td>
                       <td>{plan.neighborhood ?? '—'}</td>
                       <td>{plan.street ?? '—'}</td>
-                      <td className="max-w-xs truncate" title={plan.description}>{plan.description}</td>
                       <td className="actions-cell">
                         <div className="flex flex-wrap justify-center gap-2">
                           <Button

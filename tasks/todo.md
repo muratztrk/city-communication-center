@@ -1,3 +1,14 @@
+## Round 1411 — Doing'e eklenen #4057 r2 / #4060 r2 / #4061-#4072
+
+- [x] #4057 r2 — e-Devlet liste kolon sırası: Faaliyet No, Faaliyet Tipi, Açıklama, Tarih, Mahalle, Cadde/Sokak; #4070 Tarih kolonu `min-width:11rem`.
+- [x] #4060 r2 — Halka animasyonu biraz yavaşladı (1.8s → 2.3s); #4061 Kurum İçi Mesajlar FAB'ında da aynı animasyon (zümrüt renk, `--fab-ripple-rgb`).
+- [x] #4064 — `Geçmiş Faaliyet` → `Geçmiş Faaliyetler`; #4065 banner 1. satır (kicker) seçili butonun metni.
+- [x] #4063 (mobil) — chip'ler 3 sütun tek satır, küçük; #4062 (mobil) banner alt yazısı küçük (`edevlet-banner-subtitle`, iki sayfa).
+- [x] #4066 — Faaliyet Tipi Sil onay popup'ı (başlık çizgili, `İptal`/`Sil`); #4071/#4072 Düzenle ve İptal Et popup başlıklarına çizgi.
+- [x] #4067 (mobil) — Faaliyet Tipi Ekle textbox tam satır, altında Ekle/Düzenle/Sil; #4069 (mobil) form placeholder'ları biraz küçük.
+- [x] #4068 — Ekle (koyu turkuaz, `Plus`) ve Sil (`Trash2`) butonlarına ikon.
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning).
+
 ## Round 1410 — Doing'e eklenen #4054 r2 / #4056-#4060
 
 - [x] #4054 r2 — Açıklama placeholder `Faaliyet açıklamasını giriniz...`.

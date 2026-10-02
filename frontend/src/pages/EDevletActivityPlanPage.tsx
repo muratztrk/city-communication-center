@@ -1,4 +1,4 @@
-import { Send, PenLine } from 'lucide-react'
+import { Check, PenLine, Plus, Send, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -149,7 +149,7 @@ export function EDevletActivityPlanPage() {
       title: editingPlanId
         ? t('edevletActivityPlan.editTitle', 'Faaliyet Planını Düzenle')
         : t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur'),
-      titleDivider: !editingPlanId,
+      titleDivider: true,
       message: editingPlanId
         ? t('edevletActivityPlan.updateConfirm', 'Faaliyet planındaki değişiklikleri kaydetmek istediğinize emin misiniz?')
         : t('edevletActivityPlan.createConfirm', 'Faaliyet planını kaydetmek istediğinize emin misiniz?'),
@@ -182,7 +182,7 @@ export function EDevletActivityPlanPage() {
                 ? t('edevletActivityPlan.editTitle', 'Faaliyet Planını Düzenle')
                 : t('edevletActivityPlan.title', 'e-Devlet Günlük Faaliyet Planı Oluştur')}
             </h1>
-            <p className="page-subtitle text-sm">
+            <p className="page-subtitle edevlet-banner-subtitle text-sm">
               {t('edevletActivityPlan.subtitle', 'Belediyenizin günlük faaliyet planını oluşturarak vatandaşlarınızla paylaşınız.')}
             </p>
           </div>
@@ -191,7 +191,7 @@ export function EDevletActivityPlanPage() {
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
 
-      <form onSubmit={handleSubmit} className="section-card request-form request-form--readable grid gap-4">
+      <form onSubmit={handleSubmit} className="section-card request-form request-form--readable edevlet-plan-form grid gap-4">
         <div className="job-field">
           <div className="grid items-end gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
             <div className="grid gap-1">
@@ -212,14 +212,21 @@ export function EDevletActivityPlanPage() {
               </span>
               <div className="flex flex-wrap items-center gap-2">
                 <input
-                  className="field-input min-w-[10rem] flex-1"
+                  className="field-input w-full basis-full md:min-w-[10rem] md:flex-1 md:basis-auto"
                   placeholder={t('edevletActivityPlan.newTypePlaceholder', 'Yeni faaliyet tipi adı')}
                   value={typeName}
                   maxLength={TYPE_NAME_MAX}
                   onChange={event => setTypeName(event.target.value)}
                   onBlur={() => setTypeName(current => toSentenceCaseTr(current))}
                 />
-                <Button type="button" variant="secondary" onClick={() => { void handleSaveType() }}>
+                <Button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 bg-[#007985] text-white hover:bg-[#006570]"
+                  onClick={() => { void handleSaveType() }}
+                >
+                  {editingTypeId
+                    ? <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    : <Plus className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
                   {editingTypeId ? t('common.update', 'Güncelle') : t('common.add', 'Ekle')}
                 </Button>
                 <Button
@@ -240,12 +247,23 @@ export function EDevletActivityPlanPage() {
                 <Button
                   type="button"
                   variant="destructive"
+                  className="inline-flex items-center gap-1.5"
                   disabled={!form.activityTypeId}
                   onClick={() => {
-                    if (!form.activityTypeId) return
-                    void handleDeleteType(form.activityTypeId)
+                    const activityTypeId = form.activityTypeId
+                    if (!activityTypeId) return
+                    setConfirmDialog({
+                      title: t('edevletActivityPlan.deleteTypeTitle', 'Faaliyet Tipi Sil'),
+                      titleDivider: true,
+                      message: t('edevletActivityPlan.deleteTypeConfirm', 'Bu faaliyet tipini silmek istediğinize emin misiniz?'),
+                      confirmLabel: t('common.delete', 'Sil'),
+                      cancelLabel: t('common.cancel', 'İptal'),
+                      variant: 'destructive',
+                      onConfirm: () => { void handleDeleteType(activityTypeId) },
+                    })
                   }}
                 >
+                  <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.delete', 'Sil')}
                 </Button>
                 {editingTypeId ? (

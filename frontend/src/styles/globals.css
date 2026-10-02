@@ -8349,14 +8349,19 @@
     position: absolute;
     inset: 0;
     border-radius: 9999px;
-    background: rgb(37 211 102 / 0.45);
+    background: rgb(var(--fab-ripple-rgb, 37 211 102) / 0.45);
     pointer-events: none;
     z-index: -1;
-    animation: fab-notify-ripple 1.8s ease-out infinite;
+    animation: fab-notify-ripple 2.3s ease-out infinite;
   }
 
   .fab-notify-ripple::after {
-    animation-delay: 0.9s;
+    animation-delay: 1.15s;
+  }
+
+  /* Kurum İçi Mesajlar FAB'ı kendi (zümrüt) rengiyle aynı animasyon (#6abfd0b5). */
+  .fab-notify-ripple--internal {
+    --fab-ripple-rgb: 4 120 87;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -9958,5 +9963,36 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   .whatsapp-blocked-list-modal li > .min-w-0 {
     flex: 1 1 auto;
     min-width: 0;
+  }
+}
+
+
+/* e-Devlet Faaliyet Planları (#6abfd232/#6abfd1bd/#6abfd4b8/#6abfd560/#6abfb743): mobil ve grid ayarları. */
+.edevlet-plans-table thead th:nth-child(5),
+.edevlet-plans-table tbody td:nth-child(5) {
+  min-width: 11rem;
+}
+
+@media (max-width: 767px) {
+  .scope-chips.edevlet-plans-chips {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.3rem;
+  }
+
+  .scope-chips.edevlet-plans-chips .scope-chip {
+    min-height: 1.9rem;
+    padding: 0.3rem 0.2rem;
+    font-size: 0.64rem;
+    white-space: nowrap;
+  }
+
+  .edevlet-banner-subtitle {
+    font-size: 0.8rem !important;
+  }
+
+  .edevlet-plan-form input::placeholder,
+  .edevlet-plan-form textarea::placeholder,
+  .edevlet-plan-form button .text-slate-400 {
+    font-size: 0.88rem;
   }
 }

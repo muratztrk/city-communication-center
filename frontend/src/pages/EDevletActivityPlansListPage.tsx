@@ -36,7 +36,7 @@ type PlanScope = 'daily' | 'past' | 'all'
 const SCOPE_FILTERS: Array<{ value: PlanScope; labelKey: string; fallback: string; chipClass: string }> = [
   // Günlük yeşil, Geçmiş turuncu, Tümü gri (#6abfa982).
   { value: 'daily', labelKey: 'edevletActivityPlans.scope.daily', fallback: 'Günlük Faaliyetler', chipClass: 'scope-chip--completed' },
-  { value: 'past', labelKey: 'edevletActivityPlans.scope.past', fallback: 'Geçmiş Faaliyet', chipClass: 'scope-chip--overdue' },
+  { value: 'past', labelKey: 'edevletActivityPlans.scope.past', fallback: 'Geçmiş Faaliyetler', chipClass: 'scope-chip--overdue' },
   { value: 'all', labelKey: 'edevletActivityPlans.scope.all', fallback: 'Tümü', chipClass: 'scope-chip--all' },
 ]
 
@@ -178,6 +178,8 @@ export function EDevletActivityPlansListPage() {
     setCurrentPage(1)
   }
 
+  const activeScopeFilter = SCOPE_FILTERS.find(filter => filter.value === scope)
+
   const setScope = (nextScope: PlanScope) => {
     setSearchParams(current => {
       const next = new URLSearchParams(current)
@@ -193,6 +195,7 @@ export function EDevletActivityPlansListPage() {
   const handleCancel = (plan: ActivityPlanRow) => {
     setConfirmDialog({
       title: t('edevletActivityPlans.cancelTitle', 'Faaliyet Planını İptal Et'),
+      titleDivider: true,
       message: t('edevletActivityPlans.cancelConfirm', 'Bu faaliyet planını iptal etmek istediğinize emin misiniz?'),
       confirmLabel: t('edevletActivityPlans.cancelAction', 'İptal Et'),
       cancelLabel: t('common.back', 'Geri'),
@@ -215,9 +218,10 @@ export function EDevletActivityPlansListPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t('edevletActivityPlans.kicker', 'e-Devlet entegrasyonu')}</div>
+            {/* Banner 1. satır: seçili butonun metni (#6abfd2a7). */}
+            <div className="page-kicker">{activeScopeFilter ? t(activeScopeFilter.labelKey, activeScopeFilter.fallback) : t('edevletActivityPlans.kicker', 'e-Devlet entegrasyonu')}</div>
             <h1 className="page-title">{t('edevletActivityPlans.title', 'e-Devlet Günlük Faaliyet Planları Listesi')}</h1>
-            <p className="page-subtitle text-sm">
+            <p className="page-subtitle edevlet-banner-subtitle text-sm">
               {t('edevletActivityPlans.subtitle', 'Biriminize ait günlük faaliyet planlarını görüntüleyin ve yönetin.')}
             </p>
           </div>
@@ -253,7 +257,7 @@ export function EDevletActivityPlansListPage() {
         </div>
       </header>
 
-      <nav className="scope-chips" aria-label={t('edevletActivityPlans.title', 'e-Devlet Günlük Faaliyet Planları Listesi')}>
+      <nav className="scope-chips edevlet-plans-chips" aria-label={t('edevletActivityPlans.title', 'e-Devlet Günlük Faaliyet Planları Listesi')}>
         {SCOPE_FILTERS.map(filter => (
           <button
             key={filter.value}
@@ -279,8 +283,8 @@ export function EDevletActivityPlansListPage() {
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <FilterableTh filterKey="planNo" filterValue={planFilters['planNo'] ?? ''} onFilter={setPlanFilter} sortKey="planNoDisplay" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.planNo', 'Faaliyet No')}</FilterableTh>
                   <FilterableTh filterKey="activityTypeName" filterValue={planFilters['activityTypeName'] ?? ''} onFilter={setPlanFilter} sortKey="activityTypeName" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</FilterableTh>
-                  <FilterableTh filterKey="createdAtUtc" filterValue={planFilters['createdAtUtc'] ?? ''} onFilter={setPlanFilter} sortKey="createdAtUtc" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.date', 'Tarih')}</FilterableTh>
                   <FilterableTh filterKey="description" filterValue={planFilters['description'] ?? ''} onFilter={setPlanFilter} sortKey="description" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.description', 'Açıklama')}</FilterableTh>
+                  <FilterableTh filterKey="createdAtUtc" filterValue={planFilters['createdAtUtc'] ?? ''} onFilter={setPlanFilter} sortKey="createdAtUtc" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.date', 'Tarih')}</FilterableTh>
                   <FilterableTh filterKey="neighborhood" filterValue={planFilters['neighborhood'] ?? ''} onFilter={setPlanFilter} sortKey="neighborhood" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.neighborhood', 'Mahalle')}</FilterableTh>
                   <FilterableTh filterKey="street" filterValue={planFilters['street'] ?? ''} onFilter={setPlanFilter} sortKey="street" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.street', 'Cadde/Sokak')}</FilterableTh>
                   <th className="text-center">{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
@@ -296,8 +300,8 @@ export function EDevletActivityPlansListPage() {
                         <div className="table-number-cell__value">{plan.planNoDisplay}</div>
                       </td>
                       <td>{plan.activityTypeName}</td>
-                      <td><DateCell value={plan.createdAtUtc} locale={locale} /></td>
                       <td className="max-w-xs truncate" title={plan.description}>{plan.description}</td>
+                      <td><DateCell value={plan.createdAtUtc} locale={locale} /></td>
                       <td>{plan.neighborhood ?? '—'}</td>
                       <td>{plan.street ?? '—'}</td>
                       <td className="actions-cell">

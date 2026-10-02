@@ -1135,7 +1135,7 @@ export function InternalMessagesFab() {
         title={t('internalMessages.fabLabel', 'Kurum İçi Mesajlar')}
         aria-expanded={isOpen}
         onClick={toggleOpen}
-        className={`ccc-floating-fab-btn group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
+        className={`ccc-floating-fab-btn group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${totalUnread > 0 && !isOpen ? 'fab-notify-ripple fab-notify-ripple--internal' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
       >
         <span className="absolute inset-0 rounded-full bg-emerald-700/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
         <InternalMessagesIcon />

@@ -10,6 +10,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
+import { emitPageToast } from '../components/ui/pageToast'
 import { toSentenceCaseTr } from '../utils/textNormalization'
 
 interface ActivityType {
@@ -91,6 +92,7 @@ export function EDevletActivityPlanPage() {
         await api.updateEDevletActivityType(editingTypeId, normalizedTypeName)
       } else {
         await api.createEDevletActivityType(normalizedTypeName)
+        emitPageToast(t('edevletActivityPlan.typeAdded', 'Faaliyet tipi eklendi.'), 'success')
       }
       setTypeName('')
       setEditingTypeId(null)
@@ -243,7 +245,7 @@ export function EDevletActivityPlanPage() {
                     setTypeName(selected.name)
                   }}
                 >
-                  <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  <PenLine className="size-4" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.edit', 'Düzenle')}
                 </Button>
                 <Button
@@ -327,7 +329,7 @@ export function EDevletActivityPlanPage() {
               required
             />
           </div>
-          <Button type="submit" disabled={!canSubmit} className="edevlet-submit-button min-h-14 w-full gap-2 self-end">
+          <Button type="submit" disabled={!canSubmit} className="edevlet-submit-button min-h-[3.25rem] w-full gap-2 self-end">
             <Send className="size-4" />
             {submitting
               ? t('common.saving', 'Kaydediliyor...')

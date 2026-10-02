@@ -1,3 +1,12 @@
+## Round 1413 — Doing'e eklenen #3977 / #3978 / #3979 / #3981 / #4037 r2 / #4067 r2 / #4073 r2
+
+- [x] #3979 / #4067 — e-Devlet Düzenle butonu ikonu büyüdü (`size-3.5` → `size-4`, masaüstü ve mobil).
+- [x] #3981 (mobil) — Ekle/Düzenle/Sil yüksekliği `2.35rem` → `2.15rem`; #4073 (masaüstü) aynı butonlar `2.25rem`.
+- [x] #3978 — Faaliyet Planı Oluştur / Kaydet butonu `min-h-14` → `3.25rem` (mobilde `3.1rem` kalır).
+- [x] #3977 — Faaliyet Tipi eklenince sağ altta `Faaliyet tipi eklendi.` toast (`emitPageToast`); güncelle/sil için toast eklenmedi.
+- [x] #4037 r2 — Kullanıcılar ve Birimler gridleri zebra (`data-table--zebra`).
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning).
+
 ## Round 1412 — Doing'e eklenen #4037 / #4061 r2 / #4062 r2 / #4067-#4069 r2 / #4073
 
 - [x] #4037 — Birimler gridinde ilk sütun `Sıra` (`departments-table` nth-child genişlikleri kaydırıldı, boş durum colSpan 5).

@@ -865,7 +865,7 @@ export function DepartmentsPage() {
           ) : null}
         </div>
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table departments-table">
+          <table className="data-table data-table--zebra departments-table">
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>

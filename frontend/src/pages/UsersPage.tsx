@@ -1800,7 +1800,7 @@ export function UsersPage() {
           ) : null}
         </div>
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table users-table">
+          <table className="data-table data-table--zebra users-table">
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>

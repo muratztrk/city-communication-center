@@ -998,10 +998,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       (detail.status === 'PendingExternalApproval' && jobTargetDepartment.approvalStatus === 'Pending')
       || (detail.status === 'Active' && countOpenWorkTasks(detail) === 0)
     )
+  // Hedef birim talebi talep sahibi birime geri yönlendirdiyse sahip birim 1 kez daha yönlendirebilir (#6abf8422).
+  const forwardedBackToOwnerDetail = detail?.requestType === 'ExternalUnit'
+    && forwardReason != null
+    && jobTargetDepartment != null
+    && jobTargetDepartment.departmentId === detail.ownerDepartmentId
   const canForwardTargetDetail = (
     (detail?.requestType === 'ExternalUnit' && (canApproveTargetDetail || canAssignIncomingDetail))
     || canForwardCitizenTargetDetail
-  ) && !forwardReason
+  ) && (!forwardReason || forwardedBackToOwnerDetail)
   // Yönlendirme dropdown'ı: mevcut hedef ve talep sahibi birim hariç tüm birimler ("Talebin Gideceği Birim").
   // Başkanlık seviyesi birimler (Başkanlık / Daire) hiçbir zaman listelenmez (card #1410).
   // VTY vatandaş talebinde tüm birimler listelenir (#3449).
@@ -1009,8 +1014,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     ? departments.filter(department => department.departmentId !== jobTargetDepartment?.departmentId)
     : departments.filter(department =>
       department.departmentId !== activeDeptId
-      && department.departmentId !== detail?.ownerDepartmentId
-      && !isPresidencyLevelDepartment(department)))
+      // İlk yönlendirmede talep sahibi birim de seçilebilir; geri yönlendirilmiş talepte seçilemez (#6abf8422).
+      && (!forwardReason || department.departmentId !== detail?.ownerDepartmentId)
+      && (department.departmentId === detail?.ownerDepartmentId || !isPresidencyLevelDepartment(department))))
     .map(department => ({ value: department.departmentId, label: department.name }))
   const needsDepartmentCatalog = canManageCoordination
     || (isIncomingRequestDetail && (isManagerLike || isCitizenRequestManager))

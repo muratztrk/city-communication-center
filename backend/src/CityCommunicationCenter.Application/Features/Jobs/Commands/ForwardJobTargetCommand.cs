@@ -114,9 +114,27 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
         {
             throw Validation(nameof(request.TargetDepartmentId), "Talep zaten bu birimde. Farklı bir birim seçin.");
         }
-        if (!isCitizenRequest && request.TargetDepartmentId == job.OwnerDepartmentId)
+        // Birim dışı talep en fazla 1 kez yönlendirilir. Hedef birim talebi talep sahibi birime geri
+        // yönlendirirse sahip birim 1 kez daha yönlendirebilir (#6abf8422).
+        if (!isCitizenRequest)
         {
-            throw Validation(nameof(request.TargetDepartmentId), "Talep, talep sahibi birime yönlendirilemez.");
+            var forwardLogs = await _dbContext.AuditLogs
+                .AsNoTracking()
+                .Where(log => log.TenantId == tenantId
+                    && log.EntityType == nameof(Job)
+                    && log.EntityId == job.JobId.ToString()
+                    && log.Action == "JobTargetForwarded")
+                .OrderBy(log => log.EventTimeUtc)
+                .Select(log => log.Details)
+                .ToListAsync(cancellationToken);
+            var firstForwardToOwner = forwardLogs.Count > 0
+                && forwardLogs[0] is { } firstDetails
+                && firstDetails.EndsWith($"To={job.OwnerDepartmentId}", StringComparison.OrdinalIgnoreCase);
+            var maxForwards = firstForwardToOwner ? 2 : 1;
+            if (forwardLogs.Count >= maxForwards)
+            {
+                throw Validation(nameof(request.JobId), "Bu talep daha önce yönlendirildiği için tekrar yönlendirilemez.");
+            }
         }
         if (targets.Any(t => t.DepartmentId == request.TargetDepartmentId))
         {

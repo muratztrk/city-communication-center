@@ -1,3 +1,9 @@
+## Round 1407 — Doing'e eklenen #4005 r3 / #4038
+
+- [x] #4005 r3 — FAB aralığı kök neden: boş `WhatsAppDepartmentReviewFab` sarmalayıcı div'i flex öğesi olarak WA ile Kurum İçi arasına ikinci boşluk ekliyordu. `.fixed-fab-stack > div:empty { display:none }`; WA panel `right` değerleri bir boşluk kadar telafi edildi. Önceki turdaki citizen gap değişikliği geri alındı (0.75rem).
+- [x] #4038 — Birim dışı talep: hedef birim talebi talep sahibine geri yönlendirirse sahip birim 1 kez daha yönlendirebilir. Backend `ForwardJobTargetCommand`: sahibe yönlendirme serbest, max yönlendirme 1 (ilki sahibe ise 2; `JobTargetForwarded` denetim kayıtlarından sayılır). FE: `forwardedBackToOwnerDetail`, ilk yönlendirmede sahip birim seçenekte.
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning), `dotnet build` temiz.
+
 ## Round 1406 — Doing'e eklenen #4005 r2 / #4033 / #4034 / #4035
 
 - [x] #4005 r2 — Vatandaş Paneli: WhatsApp FAB ile Kurum İçi Mesajlar FAB arası `0.75rem → 0.5rem`; WA paneli aynı yerde kalsın diye `right` telafisi.

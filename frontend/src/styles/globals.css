@@ -8190,6 +8190,13 @@
     bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) + 0.2rem);
   }
 
+  /* WhatsApp Departman İnceleme FAB'ı boşken sarmalayıcı div flex öğesi olarak kalıp WhatsApp ile
+     Kurum İçi Mesajlar arasına ikinci bir boşluk ekliyordu; boş sarmalayıcı gizlenir (#6abeaff6 r2).
+     WhatsApp düğmesi bir boşluk kadar sağa kayar; paneller aynı yerde kalsın diye aşağıda telafi edilir. */
+  .fixed-fab-stack > div:empty {
+    display: none;
+  }
+
   /* VT-only lisans + kaydır FAB yok: harita sayfasındaki dikey FAB hizası (#3483). */
   .fixed-fab-stack--vt-only:not(:has(.scroll-fab-button)) {
     flex-direction: column;
@@ -8236,7 +8243,7 @@
   }
 
   .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
-    right: -5.25rem;
+    right: -4.75rem;
   }
 
   /* Kurum içi FAB + kaydır düğmesi yokken yığın dikeyleşir ve WA düğmesi en sağa dayanır;
@@ -9738,12 +9745,12 @@ body:has(.settings-page-shell) .fixed-fab-stack {
 
 /* Vatandaş Paneli FAB: WA / kurum içi kaydır düğmesiyle çakışmasın (#4005). */
 body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) {
-  gap: 0.5rem !important;
+  gap: 0.75rem !important;
 }
 
-/* gap 0.75 → 0.5rem (#6abeaff6): WA düğmesi sağa kayar, panel sağ kenarı aynı yerde kalsın. */
+/* Boş FAB sarmalayıcısı gizlenince WA düğmesi 0.75rem sağa kayar (#6abeaff6 r2); panel aynı yerde kalsın. */
 body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
-  right: -4rem !important;
+  right: -3.5rem !important;
 }
 
 /* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */

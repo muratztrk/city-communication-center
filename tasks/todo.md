@@ -1,3 +1,8 @@
+## Round 1405 — Doing'e eklenen #4025 r2
+
+- [x] #4025 r2 — Yönetici Notu silme popup başlığı `Notu Sil`, altında ayırıcı çizgi (`titleDivider`).
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning).
+
 ## Round 1404 — Doing'e eklenen #3991 r5 / #4022 r2 / #4023 / #4024 / #4025 / #4026-#4031 / #3983 / #4032
 
 - [x] #3991 r5 — Onaylanan grid İşlemler sütunu sabit `8.75rem`; artan genişlik diğer sütunlara dağılır.

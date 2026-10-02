@@ -52,7 +52,8 @@ export function ManagerNotesSection({
   const showEditForm = canEdit && Boolean(ownNote) && editing
 
   const confirmDelete = () => setConfirmDialog({
-    title: t('common.delete', 'Sil'),
+    title: t('jobs.managerNote.deleteTitle', 'Notu Sil'),
+    titleDivider: true,
     message: 'Notu silmek istediğinize emin misiniz?',
     variant: 'destructive',
     confirmLabel: t('common.delete', 'Sil'),

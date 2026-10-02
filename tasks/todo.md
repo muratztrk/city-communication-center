@@ -1,3 +1,13 @@
+## Round 1408 — Doing'e eklenen #4036 / #4039 / #4040 / #4041 / #4042 / #4043
+
+- [x] #4043 — Talep Yönlenme Sebebi satırında yalnız sebep (birim adı ve `/` kaldırıldı); JobsPage + TasksPage.
+- [x] #4039 — Yeniden yönlendirilmiş (`forwardCount >= 2`) talepte Talep Yönlenme Sebebi satırı yok.
+- [x] #4042 — Talep Yapılan Birim: 1 kez yönlendirilmişse yönlendiren birim (`forwardedFromDepartmentName`), yeniden yönlendirilmişse gönderilen (güncel hedef) birim. `JobDetailResponse.ForwardCount/ForwardedFromDepartmentName` (audit `JobTargetForwarded` `Details` içindeki `From=`).
+- [x] #4041 — Bildirimlerde `Talep No: ` / `Vatandaş Talep No: ` öneki kaldırıldı (`GetNotificationsQuery`).
+- [x] #4040 — Onayla ve Personel Ata: personel listesi varsa personel seçilmeden Onayla pasif (JobsPage + IncomingRequestsPage).
+- [~] #4036 — Detay popup'ında kaydırma titremesi: yerelde yeniden üretilemedi; kaydırma gövdesi kendi katmanına alındı (`will-change/translateZ`). Testtim'de doğrulanmadı — sürerse kart yeniden açılmalı.
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning), `dotnet build` temiz.
+
 ## Round 1407 — Doing'e eklenen #4005 r3 / #4038
 
 - [x] #4005 r3 — FAB aralığı kök neden: boş `WhatsAppDepartmentReviewFab` sarmalayıcı div'i flex öğesi olarak WA ile Kurum İçi arasına ikinci boşluk ekliyordu. `.fixed-fab-stack > div:empty { display:none }`; WA panel `right` değerleri bir boşluk kadar telafi edildi. Önceki turdaki citizen gap değişikliği geri alındı (0.75rem).

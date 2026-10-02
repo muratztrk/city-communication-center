@@ -209,4 +209,8 @@ public sealed record JobDetailResponse(
     string? CitizenCompletionNoteEditorDisplayName = null,
     string? CitizenOriginalCompletionNote = null,
     string? CitizenTaskAttachmentEditorDisplayName = null,
-    IReadOnlyCollection<JobManagerNoteResponse>? ManagerNotes = null);
+    IReadOnlyCollection<JobManagerNoteResponse>? ManagerNotes = null,
+    /// <summary>Birim dışı talebin kaç kez yönlendirildiği (JobTargetForwarded denetim kaydı sayısı, #6abf9c54).</summary>
+    int ForwardCount = 0,
+    /// <summary>Son yönlendirmeyi yapan (talebin önceki hedef) birim adı.</summary>
+    string? ForwardedFromDepartmentName = null);

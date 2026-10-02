@@ -1376,7 +1376,9 @@ export function IncomingRequestsPage() {
               <Button
                 type="button"
                 variant="success"
-                disabled={staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation && staffAssignModal.projectDecision === null}
+                disabled={(staffAssignModal.approvalType === 'owner' && staffAssignModal.requiresProjectConfirmation && staffAssignModal.projectDecision === null)
+                  // Personel listesi varsa personel seçilmeden Onayla basılamaz (#6abf9440).
+                  || (departmentUsers.length > 0 && staffAssignModal.selectedUserIds.length === 0)}
                 onClick={handleStaffAssignConfirm}
               >
                 {t('common.approve', 'Onayla')}

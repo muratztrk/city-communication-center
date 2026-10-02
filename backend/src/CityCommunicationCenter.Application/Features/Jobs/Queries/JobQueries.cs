@@ -889,6 +889,26 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 note.NoteId, note.AuthorUserId, note.AuthorDisplayName, note.Text, note.CreatedAtUtc, note.UpdatedAtUtc))
             .ToListAsync(cancellationToken);
 
+        var forwardLogDetails = await _dbContext.AuditLogs
+            .AsNoTracking()
+            .Where(log => log.TenantId == tenantId
+                && log.EntityType == nameof(Job)
+                && log.EntityId == job.JobId.ToString()
+                && log.Action == "JobTargetForwarded")
+            .OrderBy(log => log.EventTimeUtc)
+            .Select(log => log.Details)
+            .ToListAsync(cancellationToken);
+        string? forwardedFromDepartmentName = null;
+        if (forwardLogDetails.Count > 0
+            && ParseForwardFromDepartmentId(forwardLogDetails[^1]) is Guid forwardedFromDepartmentId)
+        {
+            forwardedFromDepartmentName = await _dbContext.Departments
+                .AsNoTracking()
+                .Where(department => department.TenantId == tenantId && department.DepartmentId == forwardedFromDepartmentId)
+                .Select(department => department.Name)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         var dueDateChanges = await JobDueDateChangeResolver.ResolveAsync(
             _dbContext, tenantId, job.JobId, linkedTaskIds, cancellationToken);
 
@@ -926,7 +946,23 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             citizenCompletionNoteEditorDisplayName,
             citizenOriginalCompletionNote,
             citizenTaskAttachmentEditorDisplayName,
-            managerNotes);
+            managerNotes,
+            forwardLogDetails.Count,
+            forwardedFromDepartmentName);
+    }
+
+    /// <summary>"From=&lt;guid&gt; To=&lt;guid&gt;" biçimindeki yönlendirme denetim detayından kaynak birim kimliği.</summary>
+    private static Guid? ParseForwardFromDepartmentId(string? details)
+    {
+        const string prefix = "From=";
+        if (string.IsNullOrWhiteSpace(details) || !details.StartsWith(prefix, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var end = details.IndexOf(' ', prefix.Length);
+        var raw = end < 0 ? details[prefix.Length..] : details[prefix.Length..end];
+        return Guid.TryParse(raw, out var id) ? id : null;
     }
 
     private static IReadOnlyCollection<string> SplitRequestTags(string? tags, string? category = null)

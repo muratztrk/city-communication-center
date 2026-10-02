@@ -972,18 +972,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
   const forwardTarget = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim())) ?? null
   const forwardReason = forwardTarget?.notes?.trim() ?? null
-  const forwardSourceUser = forwardTarget?.requestedByUserId
-    ? users.find(item => item.userId === forwardTarget.requestedByUserId)
-    : null
-  const forwardSourceDepartmentName = forwardSourceUser?.departments?.find(department => department.isPrimary)?.name
-    ?? forwardSourceUser?.departments?.[0]?.name
-    ?? null
-  const forwardReasonDisplay = forwardReason ? (
-    <span className="text-teal-800">
-      {forwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
-      <span aria-hidden="true"> / </span>
-      {forwardReason}
-    </span>
+  // Yalnız yönlendirme sebebi gösterilir (birim adı/"/" yok, #6abf9d24); yeniden yönlendirilmiş
+  // talepte Talep Yönlenme Sebebi satırı hiç yoktur (#6abf93b5).
+  const forwardReasonDisplay = forwardReason && (detail?.forwardCount ?? 0) < 2 ? (
+    <span className="text-teal-800">{forwardReason}</span>
   ) : null
   // Dış birimden gelen (birime düşen) talep, hedef birim yöneticisi onaylayana (personel atayana) kadar
   // başka birime yönlendirilebilir. Hem onay bekleyen (PendingExternalApproval) hem de otomatik aktifleşmiş
@@ -3985,7 +3977,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <Button
                 type="button"
                 variant="success"
-                disabled={staffAssignModal.saving || (staffAssignModal.requiresProjectConfirmation && staffAssignModal.projectDecision === null)}
+                disabled={staffAssignModal.saving
+                  || (staffAssignModal.requiresProjectConfirmation && staffAssignModal.projectDecision === null)
+                  // Personel listesi varsa personel seçilmeden Onayla basılamaz (#6abf9440).
+                  || (staffAssignModal.users.length > 0 && staffAssignModal.selectedUserIds.length === 0)}
                 onClick={() => void handleStaffAssignConfirm()}
               >
                 {staffAssignModal.saving ? t('common.loading') : t('common.approve', 'Onayla')}

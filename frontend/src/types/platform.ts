@@ -475,6 +475,10 @@ export interface JobDetail {
   jobNumberYear: number | null;
   managerNote?: string | null;
   managerNotes?: JobManagerNote[] | null;
+  /** Birim dışı talebin yönlendirilme sayısı (#6abf9c54). */
+  forwardCount?: number;
+  /** Son yönlendirmeyi yapan (önceki hedef) birim adı. */
+  forwardedFromDepartmentName?: string | null;
   departments: JobDepartmentInfo[];
   tasks: Task[];
   approvals: JobApprovalStep[];

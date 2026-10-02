@@ -537,6 +537,15 @@
     white-space: nowrap;
   }
 
+  /* Detay popup gövdesi kaydırılırken Talep Bilgileri satırlarındaki metinlerin titremesi (#6abf8015):
+     kaydırma alanı kendi katmanına alınır (CSS zoom + yuvarlatılmış/gölgeli üst kap altında Chrome'da
+     alt piksel yeniden boyama titremesi). Doğrulama testtim'de, sürerse kartı açın. */
+  .detail-modal-shell > .overflow-y-auto {
+    will-change: scroll-position;
+    transform: translateZ(0);
+    overscroll-behavior: contain;
+  }
+
   /* Talep Bilgileri satırları gridview zebra satırları gibi dönüşümlü zeminlidir (card #1338). */
   .detail-modal-shell--my-request .my-request-detail-fields .job-detail-field-row--request-info,
   .detail-modal-shell .my-request-detail-fields .job-detail-field-row--request-info {

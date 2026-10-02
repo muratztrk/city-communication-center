@@ -3252,18 +3252,9 @@ const pageKicker = isMyTasksView
                       dept => dept.departmentId === taskDetail.assignedDepartmentId && dept.role === 'Target',
                     )
                     const parentForwardReason = fulfillingJobDepartment?.notes?.trim() || null
-                    const parentForwardSourceUser = fulfillingJobDepartment?.requestedByUserId
-                      ? users.find(item => item.userId === fulfillingJobDepartment.requestedByUserId)
-                      : null
-                    const parentForwardSourceDepartmentName = parentForwardSourceUser?.departments?.find(department => department.isPrimary)?.name
-                      ?? parentForwardSourceUser?.departments?.[0]?.name
-                      ?? null
-                    const parentForwardReasonDisplay = parentForwardReason ? (
-                      <span className="text-teal-800">
-                        {parentForwardSourceDepartmentName ?? t('jobs.forward.sourceFallback', 'Talebi Yönlendiren Birim')}
-                        <span aria-hidden="true"> / </span>
-                        {parentForwardReason}
-                      </span>
+                    // Yalnız yönlendirme sebebi; yeniden yönlendirilmişse satır yok (#6abf9d24/#6abf93b5).
+                    const parentForwardReasonDisplay = parentForwardReason && (parentJobDetail.forwardCount ?? 0) < 2 ? (
+                      <span className="text-teal-800">{parentForwardReason}</span>
                     ) : null
                     const isCitizenParentJob = isCitizenRequestJob(parentJobDetail)
                     const parentOverdue = parentJobDetail.dueDateUtc != null

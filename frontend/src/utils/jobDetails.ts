@@ -188,6 +188,13 @@ export function getJobDestinationStacks(job: JobDetail): Array<{ departmentName:
 
 export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassignedPlaceholder = false, includeAssignee = true): string {
   void showUnassignedPlaceholder // eski " / -" placeholder kaldırıldı (#r481)
+  // Talep 1 kez yönlendirildiyse Talep Yapılan Birim = talebi yönlendiren birim; yeniden yönlendirilmişse
+  // gönderilen (güncel hedef) birim gösterilir (#6abf9c54).
+  const forwarderName = job.requestType === 'ExternalUnit' && job.forwardCount === 1
+    ? job.forwardedFromDepartmentName?.trim() || null
+    : null
+  const displayName = (department: { role: string; departmentName?: string | null }) =>
+    forwarderName && department.role === 'Target' ? forwarderName : department.departmentName
   const destinations = sortJobDepartments(job.departments)
     .filter(department => department.role === 'Target' || department.role === 'Coordinating')
   const effectiveDestinations = destinations.length > 0
@@ -198,7 +205,7 @@ export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassigne
   // Görev Bilgileri panelinde zaten var (card #1446).
   if (!includeAssignee) {
     return effectiveDestinations
-      .map(department => department.departmentName ?? job.ownerDepartmentName ?? '—')
+      .map(department => displayName(department) ?? job.ownerDepartmentName ?? '—')
       .join(', ') || job.ownerDepartmentName || '—'
   }
 
@@ -212,7 +219,7 @@ export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassigne
           .map(task => task.assignedUserDisplayName)
           .filter((name): name is string => Boolean(name)),
       )]
-      const departmentName = department.departmentName ?? job.ownerDepartmentName ?? '—'
+      const departmentName = displayName(department) ?? job.ownerDepartmentName ?? '—'
       // Atanan yoksa (onay bekleyen dahil) yalnız birim adı — " / -" gösterme (#r481).
       if (assignees.length > 0) {
         return `${departmentName} / ${assignees.join(', ')}`

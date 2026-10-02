@@ -306,12 +306,12 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                                 entityNumber = FormatNumber("T", jobRec.JobNumber.Value, jobRec.JobNumberYear);
                         }
                         else if (!string.IsNullOrWhiteSpace(citizenRequestNumber))
-                            entityNumber = $"Vatandaş Talep No: {citizenRequestNumber}";
+                            entityNumber = citizenRequestNumber;
                         else if (jobRec.JobNumber.HasValue)
-                            entityNumber = $"Talep No: {FormatNumber("T", jobRec.JobNumber.Value, jobRec.JobNumberYear)}";
+                            entityNumber = FormatNumber("T", jobRec.JobNumber.Value, jobRec.JobNumberYear);
                         else if (a.Action is "JobManagerNoteAdded" or "JobManagerNoteDeleted")
                             // Onay öncesi taleplerde numara yok; bildirimde yine talep no alanı kalsın (card r417).
-                            entityNumber = $"Talep No: T-{jobRec.CreatedAtUtc.Year}-Onay Bekleyen";
+                            entityNumber = $"T-{jobRec.CreatedAtUtc.Year}-Onay Bekleyen";
                     }
 
                     var messageParts = new List<string>();

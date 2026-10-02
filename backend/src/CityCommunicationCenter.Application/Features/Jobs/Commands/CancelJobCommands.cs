@@ -99,6 +99,25 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
             ]);
         }
 
+        // Birim dışı talepte hedef birim yöneticisi onayladıysa talebi oluşturan/sahip birim iptal edemez
+        // (#6abf73f8). Hedef birim kendi onayladığı talebi Birime Gelen'den iptal etmeye devam eder.
+        if ((isCreator || isOwnerManager) && job.RequestType == JobRequestType.ExternalUnit)
+        {
+            var targetApproved = await _dbContext.JobDepartments
+                .AsNoTracking()
+                .AnyAsync(jd => jd.JobId == job.JobId
+                    && jd.Role == JobDepartmentRole.Target
+                    && jd.ApprovalStatus == JobApprovalStatus.Approved, cancellationToken);
+            if (targetApproved)
+            {
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(request.JobId),
+                        "Hedef birim yöneticisi talebi onayladığı için talep iptal edilemez.")
+                ]);
+            }
+        }
+
         var previousTaskCount = await _dbContext.Tasks
             .AsNoTracking()
             .CountAsync(entity => entity.JobId == job.JobId && entity.TenantId == tenantId, cancellationToken);

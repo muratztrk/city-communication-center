@@ -32,7 +32,6 @@ import { Button } from '../components/ui/button'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import { emitPageToast } from '../components/ui/pageToast'
-import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { RichTextContent } from '../components/ui/RichTextContent'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
@@ -1020,20 +1019,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     ? detail?.tasks.find(task => task.currentStatus === 'PendingCloseApproval') ?? null
     : null
   const canApproveIncomingCloseDetail = incomingPendingCloseTask != null
-  const isDepartmentOutgoingTargetApprovedDetail = isDepartmentOutgoingView
+  // Birim dışı talepte hedef birim yöneticisi onayladıysa talep sahibi tarafı iptal edemez (#6abf73f8);
+  // Birimden Giden ve Taleplerim detayında geçerlidir.
+  const isDepartmentOutgoingTargetApprovedDetail = (isDepartmentOutgoingView || isMyRequestsView)
     && detail != null
+    && detail.requestType === 'ExternalUnit'
     && detail.departments.some(department => department.role === 'Target' && department.approvalStatus === 'Approved')
-  // Son tarihi geçmiş kayıtlarda listede gösterilen pasif Onayla düğmesi,
-  // detay popup'ında da aynı işleme uygun olmayan durumu açıkça belirtmelidir.
-  const shouldShowDisabledIncomingApprove = isIncomingRequestDetail
-    && incomingDetailManager
-    && detail != null
-    && detail.dueDateUtc != null
-    && new Date(detail.dueDateUtc).getTime() < Date.now()
-    && !['Completed', 'Cancelled', 'Rejected', 'RevisionRequested'].includes(detail.status)
-    && !canApproveDetail
-    && !canApproveTargetDetail
-    && !canAssignIncomingDetail
   const canCancelIncomingDetail = isIncomingRequestDetail
     && incomingDetailManager
     && detail != null
@@ -1049,20 +1040,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         || task.currentStatus === 'InProgress'
         || task.currentStatus === 'PendingCloseApproval') ?? false)
     )
-  const shouldShowDisabledIncomingCancel = isIncomingRequestDetail
-    && incomingDetailManager
-    && detail != null
-    && !canCancelIncomingDetail
-    && !hideIncomingCancelAfterMessageReopen
-    && (
-      incomingStatusFilter === 'all'
-      || incomingStatusFilter === 'overdue'
-      || (isIncomingInternalAlreadyApproved && (
-        incomingStatusFilter === 'overdue'
-        || incomingStatusFilter === 'in-progress'
-        || incomingStatusFilter === 'approved'
-      ))
-    )
   const canCancelSocialDetail = detailContext === 'social'
     && detail != null
     && isCitizenProcessingReceivedState(detail)
@@ -1074,9 +1051,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
       && !isDepartmentOutgoingTargetApprovedDetail
       && !hideIncomingCancelAfterMessageReopen
-  const shouldShowDisabledDepartmentOutgoingCancel = isDepartmentOutgoingTargetApprovedDetail
-    && detail != null
-    && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
   const showWorkflowSections = !isMyRequestsView
     && !isDepartmentOutgoingView
     && detailContext !== 'incoming'
@@ -2434,7 +2408,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       || (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0)
     ))
   )
-  const showMyRequestEditDisabled = isMyRequestsView && detail != null && !canEditMyRequestDetailJob && (isManagerLike || isPresidencyReporter)
   const canPresidencyEditMyRequestAttachments = isPresidencyReporter && isMyRequestsView
     && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress' || currentMyRequestsView === 'overdue')
   const canEditMyRequestAttachments = detail != null && (
@@ -2877,14 +2850,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     ? (socialActions?.cancel ?? (() => handleCancel(detail.jobId)))
                     : undefined)
                   : (socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined)))}
-              showCancelDisabled={detailContext === 'social'
-                ? detail != null && !canCancelSocialDetail
-                : Boolean(socialActions && !socialActions.cancel)}
-              cancelDisabledTitle={socialActions?.cancelDisabledTitle}
               onForwardReturned={canForwardReturnedDetail ? openReturnedForwardModal : undefined}
               onEdit={hideMyRequestDetailEdit || socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? ((isReturnedRequestDetail ? canEditReturnedDetailJob : canEditMyRequestDetailJob) && !myRequestEditing ? startMyRequestEdit : undefined))}
-              showEditDisabled={hideMyRequestDetailEdit ? false : (socialActions ? Boolean(!socialActions.edit && socialActions.editDisabledTitle) : (showMyRequestEditDisabled && !myRequestEditing))}
-              editDisabledTitle={socialActions?.editDisabledTitle}
               onGoToConversation={socialActions?.goToConversation ?? (isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage, user) ? openCitizenConversationModal : undefined)}
               showManagerNoteColumn={showManagerNoteColumn}
               canEditManagerNote={canEditManagerNote}
@@ -2997,17 +2964,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('tasks.actions.approveClose', 'Onayla')}
                   </Button>
                 )}
-                {shouldShowDisabledIncomingApprove && !hideIncomingApproveCancelByView && (
-                  <DisabledActionButton
-                    size="lg"
-                    variant="success"
-                    className="inline-flex items-center gap-1.5"
-                    hoverTitle={t('jobs.actions.approveUnavailable', 'Bu kayıtta onay işlemi yapılamaz')}
-                  >
-                    <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('jobs.actions.approveOwner', 'Onayla')}
-                  </DisabledActionButton>
-                )}
                 {/* Taleplerim detayında, "Talebi İptal Et"in soluna Düzenle — tüm kullanıcı tiplerinde.
                     Aktif/pasif koşulu ve teal arka plan rengi gridview'daki Düzenle ile birebir aynı
                     (card 648/653/654). */}
@@ -3031,11 +2987,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                       {t('jobs.actions.edit', 'Düzenle')}
                     </Button>
-                  ) : isManagerLike || isPresidencyReporter ? (
-                    <DisabledActionButton size="lg" className="inline-flex items-center gap-1.5 bg-teal-700 text-white" hoverTitle={t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}>
-                      <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                      {t('jobs.actions.edit', 'Düzenle')}
-                    </DisabledActionButton>
                   ) : null
                 })()}
                 {canForwardReturnedDetail && (
@@ -3071,28 +3022,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </Button>
-                )}
-                {shouldShowDisabledIncomingCancel && !hideIncomingApproveCancelByView && (
-                  <DisabledActionButton
-                    size="lg"
-                    variant="destructive"
-                    className="inline-flex items-center gap-1.5"
-                    hoverTitle={t('jobs.actions.cancelUnavailable', 'Bu kayıtta iptal işlemi yapılamaz')}
-                  >
-                    <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('jobs.actions.cancel', 'İptal Et')}
-                  </DisabledActionButton>
-                )}
-                {shouldShowDisabledDepartmentOutgoingCancel && (
-                  <DisabledActionButton
-                    size="lg"
-                    variant="destructive"
-                    className="inline-flex items-center gap-1.5"
-                    hoverTitle={t('jobs.actions.cancelUnavailableApproved', 'Talep onaylandığı için iptal edilemez')}
-                  >
-                    <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('jobs.actions.cancel', 'İptal Et')}
-                  </DisabledActionButton>
                 )}
                 {messageApprovalActions ? (
                   <>

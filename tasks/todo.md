@@ -1,3 +1,12 @@
+## Round 1406 — Doing'e eklenen #4005 r2 / #4033 / #4034 / #4035
+
+- [x] #4005 r2 — Vatandaş Paneli: WhatsApp FAB ile Kurum İçi Mesajlar FAB arası `0.75rem → 0.5rem`; WA paneli aynı yerde kalsın diye `right` telafisi.
+- [x] #4035 — Vatandaş Bilgi Listesi popup Durum alt tarihi Vatandaş Talepleri gridiyle aynı (`getCitizenGridStatusDateUtc`); `CitizenConversationTicketDto.TargetApprovedAtUtc` eklendi.
+- [x] #4034 — Detay popup'larında pasif butonlar gizlendi (MyRequestDetailHeader, JobsPage detay header, TasksPage detay Yönlendir/Durum Değiştir). Grid satırlarındaki pasif butonlar kalır.
+- [x] #4033 — Birim dışı talep: hedef birim yöneticisi onayladıysa talep sahibi tarafı iptal edemez; backend `CancelJobCommand` kuralı + Taleplerim detayında İptal Et gizli (`isDepartmentOutgoingTargetApprovedDetail` genişledi).
+- [ ] #4025 r2 — kullanıcı Done'a taşımayı bekliyor (önceki tur).
+- [x] Doğrulama: frontend `tsc -b` + lint (0 error, 13 mevcut hook warning), `dotnet build` temiz.
+
 ## Round 1405 — Doing'e eklenen #4025 r2
 
 - [x] #4025 r2 — Yönetici Notu silme popup başlığı `Notu Sil`, altında ayırıcı çizgi (`titleDivider`).

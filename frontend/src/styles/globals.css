@@ -9738,11 +9738,12 @@ body:has(.settings-page-shell) .fixed-fab-stack {
 
 /* Vatandaş Paneli FAB: WA / kurum içi kaydır düğmesiyle çakışmasın (#4005). */
 body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) {
-  gap: 0.75rem !important;
+  gap: 0.5rem !important;
 }
 
+/* gap 0.75 → 0.5rem (#6abeaff6): WA düğmesi sağa kayar, panel sağ kenarı aynı yerde kalsın. */
 body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
-  right: -4.25rem !important;
+  right: -4rem !important;
 }
 
 /* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */

@@ -2,7 +2,6 @@ import { MessageSquareText, PenLine, Printer, Send, X as XIcon, XCircle } from '
 import { useTranslation } from 'react-i18next'
 import { DetailModalHeaderBrand } from '../../branding/DetailModalHeaderBrand'
 import { Button } from '../../ui/button'
-import { DisabledActionButton } from '../../ui/DisabledActionButton'
 import { DetailModalTitle } from '../../../utils/detailModalTitle'
 
 interface MyRequestDetailHeaderProps {
@@ -10,13 +9,9 @@ interface MyRequestDetailHeaderProps {
   onClose: () => void
   onPrint: () => void
   onCancel?: () => void
-  showCancelDisabled?: boolean
-  cancelDisabledTitle?: string
   onEdit?: () => void
   onForwardReturned?: () => void
   onGoToConversation?: () => void
-  showEditDisabled?: boolean
-  editDisabledTitle?: string
   isEditing?: boolean
   editSaving?: boolean
   onSaveEdit?: () => void
@@ -30,13 +25,9 @@ export function MyRequestDetailHeader({
   onClose,
   onPrint,
   onCancel,
-  showCancelDisabled,
-  cancelDisabledTitle,
   onEdit,
   onForwardReturned,
   onGoToConversation,
-  showEditDisabled,
-  editDisabledTitle,
   isEditing = false,
   editSaving = false,
   onSaveEdit,
@@ -101,18 +92,6 @@ export function MyRequestDetailHeader({
                 {t('jobs.actions.edit', 'Düzenle')}
               </Button>
             )}
-            {showEditDisabled && (
-              <DisabledActionButton
-                size="lg"
-                className={editTurquoise
-                  ? 'inline-flex items-center gap-1.5 bg-[#007985] text-white'
-                  : 'inline-flex items-center gap-1.5 bg-emerald-700 text-white'}
-                hoverTitle={editDisabledTitle ?? t('jobs.actions.editUnavailable', 'Bu kayıtta düzenleme yapılamaz')}
-              >
-                <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                {t('jobs.actions.edit', 'Düzenle')}
-              </DisabledActionButton>
-            )}
             {onCancel && (
               <Button
                 type="button"
@@ -125,17 +104,6 @@ export function MyRequestDetailHeader({
                 <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                 {t('jobs.actions.cancel', 'İptal Et')}
               </Button>
-            )}
-            {showCancelDisabled && !onCancel && (
-              <DisabledActionButton
-                size="lg"
-                variant="destructive"
-                className="inline-flex items-center gap-1.5"
-                hoverTitle={cancelDisabledTitle ?? t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')}
-              >
-                <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                {t('jobs.actions.cancel', 'İptal Et')}
-              </DisabledActionButton>
             )}
           </>
         )}

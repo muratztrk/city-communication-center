@@ -16,7 +16,7 @@ import { ClearPieFilterLink } from '../ui/ClearPieFilterLink'
 import { useColumnFilters } from '../../hooks/useColumnFilters'
 import { useSortable } from '../../hooks/useSortable'
 import type { CitizenConversationTicket } from '../../types/platform'
-import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue } from '../../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, getCitizenGridStatusDateFooterClass, getCitizenGridStatusDateUtc, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue } from '../../utils/citizenRequests'
 import { DetailModalTitle } from '../../utils/detailModalTitle'
 import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../../utils/localization'
 import { formatDirectoryPhone } from '../../utils/phoneDisplay'
@@ -562,15 +562,20 @@ export function CitizenDirectoryTicketsModal({
                                     taskCount: ticket.openTaskCount ?? 0,
                                   })}
                                   footer={(() => {
-                                    const statusDate = ticket.jobStatus === 'Completed'
-                                      ? ticket.completedAtUtc
-                                      : ticket.jobStatus === 'Cancelled' || ticket.jobStatus === 'Rejected'
-                                        ? ticket.updatedAtUtc
-                                        : null
+                                    // Vatandaş Talepleri gridiyle aynı Durum alt tarihi (#6abf7558).
+                                    const statusDate = getCitizenGridStatusDateUtc({
+                                      status: ticket.jobStatus,
+                                      dueDateUtc: ticket.dueDateUtc,
+                                      taskCount: ticket.openTaskCount ?? 0,
+                                      completedAtUtc: ticket.completedAtUtc,
+                                      updatedAtUtc: ticket.updatedAtUtc,
+                                      createdAtUtc: ticket.receivedAtUtc,
+                                      targetApprovedAtUtc: ticket.targetApprovedAtUtc,
+                                    })
                                     const formatted = formatDirectoryDateTime(statusDate, locale)
                                     if (!formatted) return undefined
                                     return (
-                                      <span className={`text-[0.68rem] font-bold ${ticket.jobStatus === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                      <span className={`text-[0.68rem] font-bold ${getCitizenGridStatusDateFooterClass(ticket.jobStatus)}`}>
                                         {formatted}
                                       </span>
                                     )

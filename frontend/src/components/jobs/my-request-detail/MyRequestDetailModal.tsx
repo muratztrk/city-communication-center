@@ -41,12 +41,8 @@ export interface MyRequestDetailModalProps {
   onClose: () => void
   onPrint: () => void
   onCancel?: () => void
-  showCancelDisabled?: boolean
-  cancelDisabledTitle?: string
   onEdit?: () => void
   onForwardReturned?: () => void
-  showEditDisabled?: boolean
-  editDisabledTitle?: string
   onGoToConversation?: () => void
   showManagerNoteColumn: boolean
   canEditManagerNote: boolean
@@ -120,12 +116,8 @@ export function MyRequestDetailModal({
   onClose,
   onPrint,
   onCancel,
-  showCancelDisabled,
-  cancelDisabledTitle,
   onEdit,
   onForwardReturned,
-  showEditDisabled,
-  editDisabledTitle,
   onGoToConversation,
   showManagerNoteColumn,
   canEditManagerNote,
@@ -189,12 +181,8 @@ export function MyRequestDetailModal({
         onClose={onClose}
         onPrint={onPrint}
         onCancel={onCancel}
-        showCancelDisabled={showCancelDisabled}
-        cancelDisabledTitle={cancelDisabledTitle}
         onEdit={onEdit}
         onForwardReturned={onForwardReturned}
-        showEditDisabled={showEditDisabled}
-        editDisabledTitle={editDisabledTitle}
         onGoToConversation={onGoToConversation}
         isEditing={isEditing}
         editSaving={editSaving}

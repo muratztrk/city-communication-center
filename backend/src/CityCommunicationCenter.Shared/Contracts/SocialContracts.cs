@@ -349,7 +349,9 @@ public sealed record CitizenConversationTicketDto(
     DateTimeOffset? DueDateUtc = null,
     DateTimeOffset? CompletedAtUtc = null,
     DateTimeOffset? UpdatedAtUtc = null,
-    int? OpenTaskCount = null);
+    int? OpenTaskCount = null,
+    /// <summary>Hedef birim yöneticisinin onay anı — Yapılmakta Durum alt tarihi (#6abf7558).</summary>
+    DateTimeOffset? TargetApprovedAtUtc = null);
 
 public sealed record WhatsAppMessageTemplateDto(
     Guid TemplateId,

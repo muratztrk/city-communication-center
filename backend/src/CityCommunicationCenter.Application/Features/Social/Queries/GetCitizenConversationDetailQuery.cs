@@ -312,7 +312,14 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 // Filled below. Counting through Job.Tasks inside this projection
                 // shares the collection with the assignee lookup and can count
                 // closed tasks, so an İşleme Alındı request reads as Yapılmakta.
-                0))
+                0,
+                m.Job != null
+                    ? m.Job.Departments
+                        .Where(d => d.Role == JobDepartmentRole.Target && d.DecidedAtUtc != null)
+                        .OrderBy(d => d.DecidedAtUtc)
+                        .Select(d => d.DecidedAtUtc)
+                        .FirstOrDefault()
+                    : null))
             .ToListAsync(cancellationToken);
 
         tickets = await ApplyOpenTaskCountsAsync(tickets, cancellationToken);

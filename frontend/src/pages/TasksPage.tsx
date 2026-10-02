@@ -2284,16 +2284,7 @@ const pageKicker = isMyTasksView
                         <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                         {t('tasks.actions.route', 'Görevi Yönlendir')}
                       </Button>
-                    ) : (
-                      <DisabledActionButton
-                        size="lg"
-                        className="inline-flex items-center gap-1.5 bg-[#007985] text-white"
-                        hoverTitle={t('tasks.actions.routeUnavailable', 'Bu görev yönlendirilemez')}
-                      >
-                        <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                        {t('tasks.actions.route', 'Görevi Yönlendir')}
-                      </DisabledActionButton>
-                    ))}
+                    ) : null)}
                     {isMyTasksView && canEditUnapprovedCompletionNote && (
                       <Button
                         type="button"
@@ -2331,15 +2322,7 @@ const pageKicker = isMyTasksView
                   </>
                 )}
                 {selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
-                  (taskDetail?.statusChangeHistory?.length ?? 0) > 0 ? (
-                    <DisabledActionButton
-                      size="lg"
-                      className="bg-orange-500 text-white"
-                      hoverTitle={t('tasks.actions.changeStatusUsed', 'Görevin durumu yalnızca bir kez değiştirilebilir')}
-                    >
-                      {t('tasks.actions.changeStatus', 'Durum Değiştir')}
-                    </DisabledActionButton>
-                  ) : (
+                  (taskDetail?.statusChangeHistory?.length ?? 0) > 0 ? null : (
                     <Button
                       type="button"
                       size="lg"

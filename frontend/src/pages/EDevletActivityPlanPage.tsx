@@ -256,7 +256,7 @@ export function EDevletActivityPlanPage() {
                     setTypeName(selected.name)
                   }}
                 >
-                  <PenLine className="size-[1.05rem] shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                  <PenLine className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.edit', 'Düzenle')}
                 </Button>
                 <Button

@@ -9,6 +9,7 @@ import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalBackdrop } from './ui/modal-backdrop'
 import { emitPageToast } from './ui/pageToast'
 import { buildDuplicateNameDialog, hasDuplicateName } from '../utils/duplicateNameDialog'
+import { ensureLeadingCapitalTr } from '../utils/textNormalization'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 
@@ -48,7 +49,8 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAdd = async () => {
-    const trimmedName = name.trim()
+    // Etiket adının ilk harfi büyük (#6ac0cae4).
+    const trimmedName = ensureLeadingCapitalTr(name.trim())
     if (!trimmedName) return
 
     // Aynı etiket adı oluşturulamaz (#6abe2023).

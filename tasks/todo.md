@@ -1,3 +1,9 @@
+## Round 1416 — #3979 r4 / #4067 r5 / #4075
+
+- [x] #3979 / #4067 — Düzenle simgesi bir miktar daha küçüldü (`1.05rem` → `size-4`, Ekle/Sil ikonlarıyla aynı; `shrink-0` korundu).
+- [x] #4075 — Talep etiketi adının ilk harfi büyük kaydedilir (`ensureLeadingCapitalTr`); Kişisel şablonda ad zaten `normalizeTitleCaseField` ile büyük başlar, Şablon Mesaj metninin ilk harfi de büyütülür (geri kalanı olduğu gibi). Karşılaştırma/kayıt normalize edilmiş değerle.
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning).
+
 ## Round 1415 — #3971 / #3976 / #3978 r3 / #3979 r3 / #4067 r4 / #4074
 
 - [x] #3979 / #4067 — Düzenle simgesi çok az küçüldü (`1.15rem` → `1.05rem`, masaüstü ve mobil).

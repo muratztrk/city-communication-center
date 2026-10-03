@@ -11,7 +11,7 @@ import { ModalBackdrop } from './ui/modal-backdrop'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { emitPageToast } from './ui/pageToast'
 import { buildDuplicateNameDialog, hasDuplicateName } from '../utils/duplicateNameDialog'
-import { normalizeTitleCaseField } from '../utils/textNormalization'
+import { ensureLeadingCapitalTr, normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface UserQuickReplyDialogProps {
   open: boolean
@@ -58,7 +58,8 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
 
   const handleSave = async () => {
     const trimmedName = normalizeTitleCaseField(name) ?? name.trim()
-    const trimmedContent = content.trim()
+    // Şablon adı ve mesaj metninin ilk harfi büyük (#6ac0cae4).
+    const trimmedContent = ensureLeadingCapitalTr(content.trim())
     if (!trimmedName || !trimmedContent) return
 
     // Aynı şablon adı oluşturulamaz; düzenlenen şablonun kendi adı hariç (#6abe2023).

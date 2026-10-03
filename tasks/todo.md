@@ -1,3 +1,11 @@
+## Round 1414 — Yeniden açılan #3977 r2 / #3978 r2 / #3979 r2 / #3981 r2 / #4067 r3
+
+- [x] #3979 / #4067 r3 — Düzenle simgesi boyutu: kök neden simgenin flex düzeninde ezilmesiydi (5.7px); tüm tip butonu simgelerine `shrink-0`, Düzenle simgesi `1.15rem` (ölçüm: 5.7px → 17px). Masaüstü buton genişliği `6.25rem` → `6.75rem`.
+- [x] #3981 r2 / #4073 — Tip butonu yüksekliği: mobil `2rem`, masaüstü `2.1rem` (ölçüldü: 28.8px / 30.2px, zoom 0.9).
+- [x] #3978 r2 — Faaliyet Planı Oluştur / Kaydet `min-h-12` (48px); mobilde `3.1rem` kuralı geçerli.
+- [~] #3977 r2 — Tip eklendi toast'ı: kodda hata bulunamadı (aynı `emitPageToast` yolu); testtim'de eski PWA önbelleği şüphesi, doğrulama kullanıcıda.
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning); derlenmiş CSS ile deney sayfasında masaüstü ve 390px ölçüldü.
+
 ## Round 1413 — Doing'e eklenen #3977 / #3978 / #3979 / #3981 / #4037 r2 / #4067 r2 / #4073 r2
 
 - [x] #3979 / #4067 — e-Devlet Düzenle butonu ikonu büyüdü (`size-3.5` → `size-4`, masaüstü ve mobil).

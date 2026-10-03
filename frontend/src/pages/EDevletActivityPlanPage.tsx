@@ -229,8 +229,8 @@ export function EDevletActivityPlanPage() {
                   onClick={() => { void handleSaveType() }}
                 >
                   {editingTypeId
-                    ? <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    : <Plus className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
+                    ? <Check className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                    : <Plus className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />}
                   {editingTypeId ? t('common.update', 'Güncelle') : t('common.add', 'Ekle')}
                 </Button>
                 <Button
@@ -245,7 +245,7 @@ export function EDevletActivityPlanPage() {
                     setTypeName(selected.name)
                   }}
                 >
-                  <PenLine className="size-4" strokeWidth={1.75} aria-hidden="true" />
+                  <PenLine className="size-[1.15rem] shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.edit', 'Düzenle')}
                 </Button>
                 <Button
@@ -267,7 +267,7 @@ export function EDevletActivityPlanPage() {
                     })
                   }}
                 >
-                  <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  <Trash2 className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.delete', 'Sil')}
                 </Button>
                 {editingTypeId ? (
@@ -329,8 +329,8 @@ export function EDevletActivityPlanPage() {
               required
             />
           </div>
-          <Button type="submit" disabled={!canSubmit} className="edevlet-submit-button min-h-[3.25rem] w-full gap-2 self-end">
-            <Send className="size-4" />
+          <Button type="submit" disabled={!canSubmit} className="edevlet-submit-button min-h-12 w-full gap-2 self-end">
+            <Send className="size-4 shrink-0" />
             {submitting
               ? t('common.saving', 'Kaydediliyor...')
               : editingPlanId

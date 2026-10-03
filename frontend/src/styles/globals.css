@@ -10011,10 +10011,10 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 
 @media (min-width: 768px) {
   .edevlet-type-actions > button {
-    width: 6.25rem;
+    width: 6.75rem;
     flex: none;
     min-height: 0;
-    height: 2.25rem;
+    height: 2.1rem;
   }
 }
 
@@ -10022,8 +10022,8 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   .edevlet-type-actions > button {
     flex: 1 1 0;
     min-width: 0;
-    min-height: 2.15rem;
-    height: 2.15rem;
+    min-height: 2rem;
+    height: 2rem;
   }
 
   .edevlet-submit-button {

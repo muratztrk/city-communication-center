@@ -1,3 +1,12 @@
+## Round 1415 — #3971 / #3976 / #3978 r3 / #3979 r3 / #4067 r4 / #4074
+
+- [x] #3979 / #4067 — Düzenle simgesi çok az küçüldü (`1.15rem` → `1.05rem`, masaüstü ve mobil).
+- [x] #4074 — Faaliyet Tipi dropdown'ında arama kutusu (`searchable`).
+- [x] #3978 r3 — Aynı faaliyet tipi adı eklenemez: başlık çizgili bilgi popup'ı (`buildDuplicateNameDialog`), düzenlenen tipin kendi adı hariç.
+- [x] #3971 — Talep etiketleri ve Kişisel şablon mesajlar popup'larında aynı ad eklenemez: aynı popup; şablonda düzenlenen kaydın kendi adı hariç. Karşılaştırma TR küçük harf, boşluk yok sayılır (`utils/duplicateNameDialog.ts`). Yalnız frontend kontrolü (backend benzersizlik kuralı yok).
+- [x] #3976 — Etiket ve şablon eklenince sağ altta `Etiket eklendi.` / `Şablon eklendi.` toast'ı (kartta "Faaliyet Tipi eklendi" yazıyordu; her biri kendi adıyla).
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut hook warning).
+
 ## Round 1414 — Yeniden açılan #3977 r2 / #3978 r2 / #3979 r2 / #3981 r2 / #4067 r3
 
 - [x] #3979 / #4067 r3 — Düzenle simgesi boyutu: kök neden simgenin flex düzeninde ezilmesiydi (5.7px); tüm tip butonu simgelerine `shrink-0`, Düzenle simgesi `1.15rem` (ölçüm: 5.7px → 17px). Masaüstü buton genişliği `6.25rem` → `6.75rem`.

@@ -1543,6 +1543,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   e-Devlet liste: banner kicker = seçili chip metni; kolon sırası No, Tip, Açıklama, Tarih, Mahalle, Cadde (#4057/#4065); Faaliyet Tipi Sil onaylı popup (#4066); mobil kuralları `edevlet-*` sınıflarında globals.css sonunda. FAB halkası `fab-notify-ripple` (+`--internal`), süre 2.3s (#4060/#4061).
   Birimler gridinde ilk sütun Sıra; `.departments-table` genişlikleri nth-child ile (Sıra 3.5 | Ad 20 | Müdür 12 | Sorumlular 14 | İşlemler 16.5rem) — sütun eklerken kaydır (#4037). e-Devlet tip satırı: `edevlet-type-actions` (masaüstü `md:contents` + 6.25rem eşit, mobil eşit üç) (#4073/#4067).
   Düğme içi simgeler flex'te ezilir: ikonlu butonlarda simgeye `shrink-0` ver (e-Devlet tip butonları, #3979/#4067). Görsel ölçü kartlarını doğrularken derlenmiş `dist` CSS'iyle statik deney sayfasında `getBoundingClientRect` ölç (zoom 0.9 hesaba katılır).
+  Aynı adla kayıt engeli (FE, `utils/duplicateNameDialog.ts`): e-Devlet faaliyet tipi, Talep etiketi, Kişisel şablon — başlık çizgili bilgi popup'ı, TR küçük harf duyarsız; backend benzersizlik kuralı YOK (#3971/#3978). Ekleme başarı toast'ı `emitPageToast` (#3976/#3977).
   Birime Gelen banner alt yazı: `Birim içi/dışı gelen talepleri durumlarına göre takip edin.` (#3996).
   Birimden Giden: yalnız **tüm** Target=Owner ise satır yok; en az bir dış Target varsa giden’de kalır (#3995/#3999).
   Taleplerim Birim Dışı Onay Bekleyen satırı Giden `approved` chip’te de görünür (#3999).

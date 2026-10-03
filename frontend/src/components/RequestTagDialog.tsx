@@ -7,6 +7,8 @@ import type { RequestTag } from '../types/platform'
 import { Button } from './ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalBackdrop } from './ui/modal-backdrop'
+import { emitPageToast } from './ui/pageToast'
+import { buildDuplicateNameDialog, hasDuplicateName } from '../utils/duplicateNameDialog'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 
@@ -49,6 +51,16 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
     const trimmedName = name.trim()
     if (!trimmedName) return
 
+    // Aynı etiket adı oluşturulamaz (#6abe2023).
+    if (hasDuplicateName(tags.map(tag => tag.name), trimmedName)) {
+      setConfirmDialog(buildDuplicateNameDialog(
+        t('whatsapp.requestTagDuplicateTitle', 'Etiket Oluşturulamadı'),
+        t('whatsapp.requestTagDuplicateMessage', 'Bu etiket adı zaten kayıtlı. Lütfen farklı bir etiket adı giriniz.'),
+        t('common.ok', 'Tamam'),
+      ))
+      return
+    }
+
     setSaving(true)
     setError(null)
     try {
@@ -56,6 +68,7 @@ export function RequestTagDialog({ open, onClose, onChanged }: RequestTagDialogP
       setName('')
       await loadTags()
       onChanged?.()
+      emitPageToast(t('whatsapp.requestTagAdded', 'Etiket eklendi.'), 'success')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error', 'Hata oluştu'))
     } finally {

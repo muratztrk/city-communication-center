@@ -11,6 +11,7 @@ import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { emitPageToast } from '../components/ui/pageToast'
+import { buildDuplicateNameDialog, hasDuplicateName } from '../utils/duplicateNameDialog'
 import { toSentenceCaseTr } from '../utils/textNormalization'
 
 interface ActivityType {
@@ -86,6 +87,15 @@ export function EDevletActivityPlanPage() {
   const handleSaveType = async () => {
     const normalizedTypeName = toSentenceCaseTr(typeName)
     if (!normalizedTypeName) return
+    // Aynı faaliyet tipi adı oluşturulamaz; düzenlenen tipin kendi adı hariç (#6abe6455).
+    if (hasDuplicateName(activityTypes.filter(type => type.activityTypeId !== editingTypeId).map(type => type.name), normalizedTypeName)) {
+      setConfirmDialog(buildDuplicateNameDialog(
+        t('edevletActivityPlan.duplicateTypeTitle', 'Faaliyet Tipi Oluşturulamadı'),
+        t('edevletActivityPlan.duplicateTypeMessage', 'Bu faaliyet tipi zaten kayıtlı. Lütfen farklı bir faaliyet tipi adı giriniz.'),
+        t('common.ok', 'Tamam'),
+      ))
+      return
+    }
     setError(null)
     try {
       if (editingTypeId) {
@@ -201,6 +211,7 @@ export function EDevletActivityPlanPage() {
                 {t('edevletActivityPlan.activityType', 'Faaliyet Tipi')} <span className="text-red-500">*</span>
               </label>
               <SingleSelectDropdown
+                searchable
                 options={activityTypeOptions}
                 value={form.activityTypeId}
                 onChange={activityTypeId => setForm(current => ({ ...current, activityTypeId }))}
@@ -245,7 +256,7 @@ export function EDevletActivityPlanPage() {
                     setTypeName(selected.name)
                   }}
                 >
-                  <PenLine className="size-[1.15rem] shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                  <PenLine className="size-[1.05rem] shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.edit', 'Düzenle')}
                 </Button>
                 <Button

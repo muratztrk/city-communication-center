@@ -9,6 +9,8 @@ import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalBackdrop } from './ui/modal-backdrop'
 import { ModalCloseButton } from './ui/modal-close-button'
+import { emitPageToast } from './ui/pageToast'
+import { buildDuplicateNameDialog, hasDuplicateName } from '../utils/duplicateNameDialog'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface UserQuickReplyDialogProps {
@@ -59,6 +61,16 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
     const trimmedContent = content.trim()
     if (!trimmedName || !trimmedContent) return
 
+    // Aynı şablon adı oluşturulamaz; düzenlenen şablonun kendi adı hariç (#6abe2023).
+    if (hasDuplicateName(templates.filter(item => item.templateId !== editingId).map(item => item.name), trimmedName)) {
+      setConfirmDialog(buildDuplicateNameDialog(
+        t('whatsapp.userQuickReplyDuplicateTitle', 'Şablon Oluşturulamadı'),
+        t('whatsapp.userQuickReplyDuplicateMessage', 'Bu şablon adı zaten kayıtlı. Lütfen farklı bir şablon adı giriniz.'),
+        t('common.ok', 'Tamam'),
+      ))
+      return
+    }
+
     setSaving(true)
     setError(null)
     try {
@@ -66,6 +78,7 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
         await api.updateUserQuickReply(editingId, { name: trimmedName, content: trimmedContent })
       } else {
         await api.createUserQuickReply({ name: trimmedName, content: trimmedContent })
+        emitPageToast(t('whatsapp.userQuickReplyAdded', 'Şablon eklendi.'), 'success')
       }
       resetForm()
       await loadTemplates()

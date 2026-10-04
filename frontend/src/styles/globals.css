@@ -5720,12 +5720,21 @@
   }
 
   /* Pie drilldown: başlık şeridi standart gridview gibi üstten kavisli (#6a6a578d), gövde
-     metni biraz küçük (#2087). Kavis wrap'te; tablo gövdesi kayar, paging popup altında kalır (#2881). */
+     metni biraz küçük (#2087). Sayfalama tablonun hemen altında; popup dibine yaslanmaz (#4108). */
   .dashboard-drilldown-grid-shell {
     display: flex;
     min-height: 0;
     flex: 1 1 auto;
     flex-direction: column;
+  }
+
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-grid-shell,
+  .detail-modal-shell--tickets-grid .dashboard-drilldown-grid-shell {
+    flex: 0 1 auto;
+    align-self: flex-start;
+    width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
   }
 
   .dashboard-drilldown-table-wrap {
@@ -5739,7 +5748,7 @@
     display: flex;
     min-height: 0;
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     flex-direction: column;
     /* Kavis clip burada; kaydırma hscroll'da. Aynı kutuda border-radius + overflow:auto
        WebKit/iOS'ta yatay pan'i yutuyor (paging düzeltmesinden sonra sağa kaymaz). */
@@ -5750,7 +5759,8 @@
   .detail-modal-shell--tickets-grid .dashboard-drilldown-table-hscroll {
     min-height: 0;
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
+    max-height: min(52dvh, 32rem);
     overflow: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;

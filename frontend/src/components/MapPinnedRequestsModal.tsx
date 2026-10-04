@@ -195,7 +195,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4 pt-4">
+        <div className="flex min-h-0 flex-1 flex-col justify-start overflow-hidden px-4 pb-4 pt-4">
             <div className="dashboard-drilldown-grid-shell">
               <div className="dashboard-drilldown-table-wrap">
                 <div className="dashboard-drilldown-table-hscroll">

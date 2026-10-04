@@ -68,13 +68,13 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col p-4">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4">
           {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
           {!data && !error ? <div className="loading">{t('common.loading')}</div> : null}
           {data ? (
-            <div className="flex min-h-0 flex-1 flex-col gap-3">
-              <div className="dashboard-drilldown-table-wrap min-h-0 flex-1 overflow-hidden">
-                <div className="dashboard-drilldown-table-hscroll h-full overflow-y-auto">
+            <div className="dashboard-drilldown-grid-shell">
+              <div className="dashboard-drilldown-table-wrap">
+                <div className="dashboard-drilldown-table-hscroll">
                   <table className="data-table data-table--zebra dashboard-drilldown-table">
                     <thead>
                       <tr>

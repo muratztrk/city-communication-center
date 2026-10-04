@@ -15,6 +15,8 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import { getLocale } from '../utils/localization'
 import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
+import { DateTimeText } from '../components/ui/date-time-text'
+import { buildLumespecSupportTicketDisplayMap, formatLumespecSupportTicketNo } from '../utils/lumespecSupportTicket'
 import {
   formatCentralSupportStatus,
   isCentralSupportStatusResolved,
@@ -53,6 +55,11 @@ export function LumespecSupportPage() {
     queryFn: () => api.getMySupportRequests(),
   })
 
+  const ticketDisplayMap = useMemo(
+    () => buildLumespecSupportTicketDisplayMap(requestsQuery.data ?? []),
+    [requestsQuery.data],
+  )
+
   const rows = useMemo(() => {
     const source = (requestsQuery.data ?? []).map(item => {
       const statusLabel = formatCentralSupportStatus(item.centralStatus, t)
@@ -61,7 +68,7 @@ export function LumespecSupportPage() {
           : t('support.statusPending', 'İşleniyor'))
       return {
         ...item,
-        ticketNoText: item.centralTicketNo ?? t('support.localTicket', 'Yerel kayıt'),
+        ticketNoText: formatLumespecSupportTicketNo(item, ticketDisplayMap),
         requestDateText: new Date(item.createdAtUtc).toLocaleString(locale, {
           day: '2-digit',
           month: '2-digit',
@@ -93,7 +100,7 @@ export function LumespecSupportPage() {
       return [...filtered].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc))
     }
     return sortItems(filtered)
-  }, [locale, matchesFilters, requestsQuery.data, scope, sortItems, sortKey, t, userDisplayName])
+  }, [locale, matchesFilters, requestsQuery.data, scope, sortItems, sortKey, t, ticketDisplayMap, userDisplayName])
 
   const totalCount = rows.length
   const safePage = Math.min(currentPage, Math.max(1, Math.ceil(totalCount / pageSize) || 1))
@@ -225,7 +232,7 @@ export function LumespecSupportPage() {
                   <tr key={row.supportRequestId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
                     <td><TruncatedText text={row.ticketNoText} /></td>
-                    <td>{row.requestDateText}</td>
+                    <td><DateTimeText value={row.createdAtUtc} locale={locale} /></td>
                     <td><TruncatedText text={row.userNameText} /></td>
                     <td><TruncatedText text={row.subject} /></td>
                     <td><TruncatedText text={row.statusLabel} /></td>
@@ -263,6 +270,7 @@ export function LumespecSupportPage() {
         <SupportRequestDetailModal
           item={detailItem}
           userDisplayName={userDisplayName}
+          ticketDisplayNo={formatLumespecSupportTicketNo(detailItem, ticketDisplayMap)}
           onClose={() => setDetailItem(null)}
         />
       ) : null}

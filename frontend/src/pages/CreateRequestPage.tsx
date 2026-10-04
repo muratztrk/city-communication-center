@@ -26,6 +26,7 @@ import { emitPageToast } from '../components/ui/pageToast'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { unlockDocumentPointers } from '../utils/filePickerUnlock'
+import { pickAttachmentFiles, supportsAttachmentFilePicker } from '../utils/attachmentFilePicker'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { AddressCoordinatesField, CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { useAuth } from '../context/AuthContext'
@@ -698,6 +699,20 @@ export function CreateRequestPage() {
   }, [user?.role, selectedKind, canShowCitizenRequest, navigate])
 
 
+  const addPickedFiles = (incoming: File[]) => {
+    setFileError(null)
+    let accepted = false
+    setPendingFiles(prev => {
+      const err = validatePendingBatch(prev, incoming)
+      if (err) { setFileError(err); return prev }
+      setFileError(null)
+      accepted = true
+      return [...prev, ...incoming]
+    })
+    if (accepted) fileProgress.holdAtZero()
+    else fileProgress.stop()
+  }
+
   const renderPhotoUpload = (className?: string) => (
     <div className={['job-field', className].filter(Boolean).join(' ')}>
       <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (isteğe bağlı)')}</span>
@@ -737,24 +752,21 @@ export function CreateRequestPage() {
             multiple
             className="absolute inset-0 z-10 cursor-pointer opacity-0"
             disabled={saving}
-            onClick={() => {
+            onClick={event => {
+              // Engellemeyen seçici (#3985 r3): klasik diyalog ağ dışında sayfayı 5-10 sn kilitliyor.
+              if (supportsAttachmentFilePicker()) {
+                event.preventDefault()
+                void pickAttachmentFiles().then(picked => {
+                  if (picked.length > 0) addPickedFiles(picked)
+                })
+                return
+              }
               filePickerOpenRef.current = true
               if (fileInputRef.current) fileInputRef.current.value = ''
             }}
             onChange={event => {
               filePickerOpenRef.current = false
-              setFileError(null)
-              const incoming = Array.from(event.target.files ?? [])
-              let accepted = false
-              setPendingFiles(prev => {
-                const err = validatePendingBatch(prev, incoming)
-                if (err) { setFileError(err); return prev }
-                setFileError(null)
-                accepted = true
-                return [...prev, ...incoming]
-              })
-              if (accepted) fileProgress.holdAtZero()
-              else fileProgress.stop()
+              addPickedFiles(Array.from(event.target.files ?? []))
               setFileInputKey(key => key + 1)
             }}
           />

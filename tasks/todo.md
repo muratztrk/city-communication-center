@@ -1,3 +1,8 @@
+## Round 1418 — #3985 r3 (Dosya ekle sonrası 5-10 sn kilitlenme)
+
+- [x] Kök neden: Windows Chrome'un klasik `<input type="file">` diyaloğu, belediye ağı dışındayken erişilemeyen ağ konumlarını/son klasörü çözerken sayfayı kilitliyor — JS tarafında düzeltilemez (r1 remount, r2 pointer unlock yetmedi). Çözüm: `showOpenFilePicker` (`utils/attachmentFilePicker.ts`): asenkron, `startIn: 'documents'`, uzantı filtresi korunur; desteklenmiyorsa (Safari/Firefox/http) eski input'a düşer. Uygulandı: Talep Oluştur (`CreateRequestPage`) ve `AttachmentSection`. Diğer input'lar (CitizenRequestModal, TasksPage, RoutineTask, ConversationPanel, FAB, Settings) değişmedi.
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut warning). Gerçek Windows + ağ dışı denemesi kullanıcıda.
+
 ## Round 1417 — #6ac0cd78 (e-Devlet Planları Listesi Detaylar)
 
 - [x] e-Devlet Günlük Faaliyet Planları Listesi gridinde İşlemler sütununa `Detaylar` butonu (FileText ikonu, Düzenle/İptal Et'in solunda). Tıklayınca Talepler detay popup'ıyla aynı kabukta (`detail-modal-shell`, başlık+marka+kırmızı kapat) `EDevletActivityPlanDetailModal`: Faaliyet Bilgileri (no, tip, tarih, durum), Konum (mahalle, cadde/sokak, açık adres), Açıklama. Veri `getEDevletDailyActivityPlan`; yeni backend yok. İptal edilmiş planda da Detaylar açılır.

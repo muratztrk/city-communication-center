@@ -310,6 +310,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Native dosya diyaloğu iptalinden sonra input remount edilir; dropzone/buton üzerinde
   `opacity:0` overlay `<input type="file">` gerçek tıklama alır (`label`/`.click()` yok).
   `cancel` + `focus` sonrası `pointer-events` sıfırlanır — iptal sonrası hover beklenmez (#3985).
+  Güvenli bağlamda Talep Oluştur + `AttachmentSection` `showOpenFilePicker` kullanır (`utils/attachmentFilePicker.ts`, `startIn: 'documents'`): klasik diyalog ağ dışında sayfayı 5-10 sn kilitliyordu; input yalnız fallback (#3985 r3).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).

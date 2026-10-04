@@ -1,6 +1,7 @@
 import { Download, FileText, Paperclip } from 'lucide-react'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { unlockDocumentPointers } from '../../utils/filePickerUnlock'
+import { pickAttachmentFiles, supportsAttachmentFilePicker } from '../../utils/attachmentFilePicker'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -88,7 +89,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     return null
   }
 
-  const handleFiles = async (files: FileList | null) => {
+  const handleFiles = async (files: FileList | File[] | null) => {
     if (!files || files.length === 0) return
     setValidationError(null)
     const selectedFiles = Array.from(files)
@@ -208,7 +209,15 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 multiple
                 className="absolute inset-0 z-10 cursor-pointer opacity-0"
                 disabled={isDisabled}
-                onClick={() => {
+                onClick={event => {
+                  // Engellemeyen seçici (#3985 r3): klasik diyalog ağ dışında sayfayı kilitliyor.
+                  if (supportsAttachmentFilePicker()) {
+                    event.preventDefault()
+                    void pickAttachmentFiles().then(picked => {
+                      if (picked.length > 0) void handleFiles(picked)
+                    })
+                    return
+                  }
                   filePickerOpenRef.current = true
                   if (fileInputRef.current) fileInputRef.current.value = ''
                 }}

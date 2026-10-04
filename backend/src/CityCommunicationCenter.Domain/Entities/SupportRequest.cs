@@ -12,4 +12,12 @@ public sealed class SupportRequest : AuditableTenantEntity
 
     /// <summary>İsteğin gönderildiği ekran (frontend route) — Lumespec tarafının bağlamı anlaması için.</summary>
     public string? PageContext { get; set; }
+
+    public string? CentralTicketNo { get; set; }
+
+    public string? CentralStatus { get; set; }
+
+    public DateTimeOffset? CentralSyncedAtUtc { get; set; }
+
+    public string? CentralSyncError { get; set; }
 }

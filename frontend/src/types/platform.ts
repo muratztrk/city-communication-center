@@ -866,8 +866,30 @@ export interface SupportRequest {
   subject: string;
   message: string;
   pageContext: string | null;
+  centralTicketNo: string | null;
+  centralStatus: string | null;
+  centralSyncError: string | null;
   createdAtUtc: string;
   submittedByDisplayName: string;
+}
+
+export interface MySupportRequestMessage {
+  direction: string;
+  authorName: string | null;
+  body: string;
+  createdAt: string;
+}
+
+export interface MySupportRequest {
+  supportRequestId: string;
+  subject: string;
+  message: string;
+  pageContext: string | null;
+  centralTicketNo: string | null;
+  centralStatus: string | null;
+  centralSyncError: string | null;
+  createdAtUtc: string;
+  messages: MySupportRequestMessage[];
 }
 
 export interface EntityAuditLogEntry {

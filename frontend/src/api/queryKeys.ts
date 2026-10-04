@@ -36,6 +36,7 @@ export const queryKeys = {
   supportRequests: {
     all: ['ccc', 'support-requests'] as const,
     list: () => ['ccc', 'support-requests', 'list'] as const,
+    mine: () => ['ccc', 'support-requests', 'mine'] as const,
   },
   auth: {
     all: ['ccc', 'auth'] as const,

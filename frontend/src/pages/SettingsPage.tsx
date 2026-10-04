@@ -5698,6 +5698,7 @@ export function SettingsPage() {
                   <tr>
                     <th>{t('settings.support.date', 'Tarih')}</th>
                     <th>{t('settings.support.submittedBy', 'Gönderen')}</th>
+                    <th>{t('settings.support.ticketNo', 'Takip No')}</th>
                     <th>{t('settings.support.subject', 'Konu')}</th>
                     <th>{t('settings.support.message', 'Mesaj')}</th>
                     <th>{t('settings.support.page', 'Sayfa')}</th>
@@ -5708,6 +5709,9 @@ export function SettingsPage() {
                     <tr key={item.supportRequestId}>
                       <td className="whitespace-nowrap">{new Date(item.createdAtUtc).toLocaleString('tr-TR')}</td>
                       <td className="whitespace-nowrap">{item.submittedByDisplayName}</td>
+                      <td className="whitespace-nowrap font-mono text-xs text-slate-600">
+                        {item.centralTicketNo ?? item.centralSyncError ?? '—'}
+                      </td>
                       <td className="font-semibold text-slate-800">{item.subject}</td>
                       <td className="max-w-md whitespace-pre-wrap text-slate-600">{item.message}</td>
                       <td className="font-mono text-xs text-slate-500">{item.pageContext ?? '—'}</td>

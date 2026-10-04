@@ -549,6 +549,9 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.Subject).HasMaxLength(200);
         builder.Property(entity => entity.Message).HasMaxLength(4000);
         builder.Property(entity => entity.PageContext).HasMaxLength(500);
+        builder.Property(entity => entity.CentralTicketNo).HasMaxLength(64);
+        builder.Property(entity => entity.CentralStatus).HasMaxLength(64);
+        builder.Property(entity => entity.CentralSyncError).HasMaxLength(500);
         ApplyLowerCaseColumnNames(builder);
     }
 

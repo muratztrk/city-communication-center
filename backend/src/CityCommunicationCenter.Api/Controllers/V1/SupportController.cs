@@ -33,6 +33,14 @@ public sealed class SupportController : ApiControllerBase
         var response = await _sender.Send(new GetSupportRequestsQuery(), cancellationToken);
         return Ok(response);
     }
+
+    [HttpGet("mine")]
+    [ProducesResponseType<IEnumerable<MySupportRequestResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<MySupportRequestResponse>>> GetMine(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetMySupportRequestsQuery(), cancellationToken);
+        return Ok(response);
+    }
 }
 
 public sealed record SubmitSupportRequestRequest(string Subject, string Message, string? PageContext);

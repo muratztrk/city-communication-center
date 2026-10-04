@@ -5,6 +5,9 @@ public sealed record SupportRequestResponse(
     string Subject,
     string Message,
     string? PageContext,
+    string? CentralTicketNo,
+    string? CentralStatus,
+    string? CentralSyncError,
     DateTimeOffset CreatedAtUtc,
     string SubmittedByDisplayName);
 
@@ -48,6 +51,9 @@ public sealed class GetSupportRequestsQueryHandler : IQueryHandler<GetSupportReq
             entity.Subject,
             entity.Message,
             entity.PageContext,
+            entity.CentralTicketNo,
+            entity.CentralStatus,
+            entity.CentralSyncError,
             entity.CreatedAtUtc,
             entity.CreatedByUserId.HasValue ? userNames.GetValueOrDefault(entity.CreatedByUserId.Value, "—") : "—"
         )).ToList();

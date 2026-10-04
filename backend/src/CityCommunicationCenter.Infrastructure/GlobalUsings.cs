@@ -4,6 +4,7 @@
 global using CityCommunicationCenter.Application.Abstractions;
 global using CityCommunicationCenter.Application.Abstractions.Identity;
 global using CityCommunicationCenter.Application.Abstractions.SocialMedia;
+global using CityCommunicationCenter.Application.Abstractions.Support;
 global using CityCommunicationCenter.Application.Services;
 global using CityCommunicationCenter.Domain.Entities;
 global using CityCommunicationCenter.Domain.Enums;

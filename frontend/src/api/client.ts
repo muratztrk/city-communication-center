@@ -30,6 +30,7 @@ import type {
   MailOutboundLogsResponse,
   WhatsAppMessageApprovalLogItem,
   SupportRequest,
+  MySupportRequest,
   Attachment,
   DashboardSnapshot,
   DashboardChartResponse,
@@ -2169,6 +2170,12 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/support-requests`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.supportRequestsLoadFailed', 'Destek talepleri alınamadı'))
     return response.json() as Promise<SupportRequest[]>
+  },
+
+  async getMySupportRequests(): Promise<MySupportRequest[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/support-requests/mine`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.supportRequestsLoadFailed', 'Destek talepleri alınamadı'))
+    return response.json() as Promise<MySupportRequest[]>
   },
 
   async markAllNotificationsRead(): Promise<void> {

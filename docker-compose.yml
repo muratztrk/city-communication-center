@@ -41,6 +41,10 @@ services:
       - GoogleMaps__ApiKey=${CCC_GOOGLE_MAPS_API_KEY:-}
       - Sms__LiveSendEnabled=${CCC_SMS_LIVE_SEND_ENABLED:-true}
       - Licensing__BundleIdPrefix=${CCC_LICENSE_BUNDLE_ID_PREFIX:-com.lumespec.ccc}
+      - LumespecSupport__Enabled=${CCC_LUMESPEC_SUPPORT_ENABLED:-false}
+      - LumespecSupport__BaseUrl=${CCC_LUMESPEC_SUPPORT_BASE_URL:-https://destek.lumespec.com}
+      - LumespecSupport__ServiceToken=${CCC_LUMESPEC_SUPPORT_SERVICE_TOKEN:-}
+      - LumespecSupport__TimeoutSeconds=${CCC_LUMESPEC_SUPPORT_TIMEOUT_SECONDS:-10}
       - ForwardedHeaders__KnownProxies__0=${CCC_KNOWN_PROXY_0:-}
       - ForwardedHeaders__KnownProxies__1=${CCC_KNOWN_PROXY_1:-}
       - ForwardedHeaders__KnownNetworks__0=${CCC_KNOWN_NETWORK_0:-172.16.0.0/12}

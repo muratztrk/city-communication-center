@@ -8,6 +8,7 @@ using CityCommunicationCenter.Infrastructure.Persistence.Interceptors;
 using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.Sms;
 using CityCommunicationCenter.Infrastructure.SocialMedia;
+using CityCommunicationCenter.Infrastructure.Support;
 using CityCommunicationCenter.Infrastructure.Security;
 using CityCommunicationCenter.Infrastructure.Options;
 using CityCommunicationCenter.Infrastructure.Tenancy;
@@ -31,6 +32,7 @@ public static class DependencyInjection
         services.Configure<RecaptchaOptions>(
             configuration.GetSection(RecaptchaOptions.SectionName));
         services.Configure<SmsOptions>(configuration.GetSection(SmsOptions.SectionName));
+        services.Configure<LumespecSupportOptions>(configuration.GetSection(LumespecSupportOptions.SectionName));
 
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
@@ -103,6 +105,14 @@ public static class DependencyInjection
         services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
         services.AddScoped<IAuthenticationModeProvider, UserAuthenticationService>();
         services.AddScoped<IUserManagementConfigurationProvider, UserAuthenticationService>();
+
+        services.AddHttpClient(LumespecSupportClient.HttpClientName, (serviceProvider, client) =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<LumespecSupportOptions>>().Value;
+            client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/'));
+            client.Timeout = TimeSpan.FromSeconds(Math.Max(1, options.TimeoutSeconds));
+        });
+        services.AddScoped<ILumespecSupportClient, LumespecSupportClient>();
 
         services.AddScoped<IBelediyeSoapOperations, BelediyeSoapOperations>();
 

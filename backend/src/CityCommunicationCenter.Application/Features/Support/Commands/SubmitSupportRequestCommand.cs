@@ -24,13 +24,16 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ILumespecSupportClient _lumespecSupportClient;
 
     public SubmitSupportRequestCommandHandler(
         IApplicationDbContext dbContext,
-        ITenantContextAccessor tenantContextAccessor)
+        ITenantContextAccessor tenantContextAccessor,
+        ILumespecSupportClient lumespecSupportClient)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _lumespecSupportClient = lumespecSupportClient;
     }
 
     public async ValueTask<Guid> Handle(SubmitSupportRequestCommand request, CancellationToken cancellationToken)
@@ -50,6 +53,45 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
 
         _dbContext.SupportRequests.Add(supportRequest);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var tenantName = await _dbContext.Tenants
+            .Where(tenant => tenant.TenantId == tenantId)
+            .Select(tenant => tenant.DisplayName != string.Empty ? tenant.DisplayName : tenant.MunicipalityName)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var requester = context.UserId.HasValue
+            ? await _dbContext.Users
+                .Where(user => user.UserId == context.UserId.Value)
+                .Select(user => new { user.DisplayName, user.Email })
+                .FirstOrDefaultAsync(cancellationToken)
+            : null;
+
+        var centralTicket = await _lumespecSupportClient.CreateTicketAsync(
+            new CreateCentralSupportTicketRequest(
+                supportRequest.SupportRequestId,
+                tenantId,
+                tenantName,
+                context.UserId,
+                requester?.DisplayName ?? "CCC Kullanıcısı",
+                requester?.Email,
+                supportRequest.Subject,
+                supportRequest.Message,
+                supportRequest.PageContext),
+            cancellationToken);
+
+        if (centralTicket is not null)
+        {
+            supportRequest.CentralTicketNo = centralTicket.TicketNo;
+            supportRequest.CentralStatus = centralTicket.Status;
+            supportRequest.CentralSyncedAtUtc = DateTimeOffset.UtcNow;
+            supportRequest.CentralSyncError = null;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        else
+        {
+            supportRequest.CentralSyncError = "Merkezi Lumespec destek sistemine gönderilemedi.";
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
 
         return supportRequest.SupportRequestId;
     }

@@ -1,0 +1,84 @@
+namespace CityCommunicationCenter.Application.Features.Support;
+
+public sealed record MySupportRequestMessageResponse(
+    string Direction,
+    string? AuthorName,
+    string Body,
+    DateTimeOffset CreatedAt);
+
+public sealed record MySupportRequestResponse(
+    Guid SupportRequestId,
+    string Subject,
+    string Message,
+    string? PageContext,
+    string? CentralTicketNo,
+    string? CentralStatus,
+    string? CentralSyncError,
+    DateTimeOffset CreatedAtUtc,
+    IReadOnlyList<MySupportRequestMessageResponse> Messages);
+
+public sealed record GetMySupportRequestsQuery() : IQuery<IReadOnlyList<MySupportRequestResponse>>;
+
+public sealed class GetMySupportRequestsQueryHandler : IQueryHandler<GetMySupportRequestsQuery, IReadOnlyList<MySupportRequestResponse>>
+{
+    private readonly IApplicationDbContext _dbContext;
+    private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly ILumespecSupportClient _lumespecSupportClient;
+
+    public GetMySupportRequestsQueryHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ILumespecSupportClient lumespecSupportClient)
+    {
+        _dbContext = dbContext;
+        _tenantContextAccessor = tenantContextAccessor;
+        _lumespecSupportClient = lumespecSupportClient;
+    }
+
+    public async ValueTask<IReadOnlyList<MySupportRequestResponse>> Handle(
+        GetMySupportRequestsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var context = _tenantContextAccessor.GetCurrent();
+        var tenantId = context.RequireTenantId();
+
+        var query = _dbContext.SupportRequests
+            .Where(entity => entity.TenantId == tenantId);
+
+        query = context.UserId.HasValue
+            ? query.Where(entity => entity.CreatedByUserId == context.UserId.Value)
+            : query.Where(entity => entity.CreatedByUserId == null);
+
+        var requests = await query
+            .OrderByDescending(entity => entity.CreatedAtUtc)
+            .Take(10)
+            .ToListAsync(cancellationToken);
+
+        var response = new List<MySupportRequestResponse>(requests.Count);
+        foreach (var entity in requests)
+        {
+            var centralMessages = await _lumespecSupportClient.GetTicketMessagesAsync(
+                entity.SupportRequestId,
+                cancellationToken);
+
+            response.Add(new MySupportRequestResponse(
+                entity.SupportRequestId,
+                entity.Subject,
+                entity.Message,
+                entity.PageContext,
+                centralMessages?.TicketNo ?? entity.CentralTicketNo,
+                centralMessages?.Status ?? entity.CentralStatus,
+                entity.CentralSyncError,
+                entity.CreatedAtUtc,
+                centralMessages?.Messages
+                    .Select(message => new MySupportRequestMessageResponse(
+                        message.Direction,
+                        message.AuthorName,
+                        message.Body,
+                        message.CreatedAt))
+                    .ToList() ?? []));
+        }
+
+        return response;
+    }
+}

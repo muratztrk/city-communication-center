@@ -1,3 +1,10 @@
+## Round 1423 — #6ac24605 / #6ac20f3b r3 / #6ac24d2d / #6ac24eb9
+
+- [x] #6ac24605 (yalnız mobil): e-Devlet plan detay popup'ı Taleplerim detay popup'ıyla aynı boyut (`calc(100vw - 0.5rem)` genişlik, `min(72.9dvh, 42.3rem)` yükseklik).
+- [x] #6ac20f3b r3 / #6ac24eb9: tarih-saat arası bullet artık küçük dairesel nokta (`size-[3.5px]`, yeni `ui/date-time-text.tsx`); popup'ta kullanılıyor. `DateCell` da aynı bileşeni kullanır → `DateCell` kullanan tüm gridlerde saatten önce bullet. `DateCell` kullanmayan, kendi tarih metnini basan hücreler değişmedi.
+- [x] #6ac24d2d: Planlar Listesi Adres Bilgisi boşsa tek `—`; yalnız dolu satır(lar) gösterilir.
+- [x] Doğrulama: `tsc -b` + lint (0 error). Görsel/mobil ölçüm yapılmadı.
+
 ## Round 1422 — #6ac21381 / #6ac20f3b r2 / #6ac2171f / #6ac2171e / #6ac217b1 / #6ac2171c / #6ac2187b
 
 - [x] #6ac21381 Düzenleyen: yeni tablo `edevletdailyactivityplanedits` (migration `AddEDevletDailyActivityPlanEdits`; kim, ne zaman, hangi alanlar). Güncellemede yalnız gerçekten değişen alanlar (Faaliyet Tipi/Durum/Mahalle/Cadde-Sokak/Açıklama) kaydedilir. Popup: düzenleme varsa Durum altında `Düzenleyen` + `Düzenleme Tarihi` (son düzenleme); 1'den fazla düzenleme varsa Düzenleyen yerine `Düzenleyenler` butonu → liste popup'ı (kişi, tarih, değişen alanlar). Dokunulmamış açıklama yeniden biçimlendirilmez (sahte değişiklik kaydı olmasın).

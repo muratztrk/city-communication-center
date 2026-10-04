@@ -1,5 +1,6 @@
 import { CalendarClock } from 'lucide-react'
 import { cn } from '../../lib/cn'
+import { DateTimeText } from './date-time-text'
 
 function formatDate(value: string | null | undefined, locale: string, emptyLabel?: string): string {
   if (!value) return emptyLabel ?? (locale.startsWith('tr') ? 'Belirsiz' : 'Unspecified')
@@ -25,6 +26,7 @@ type DateCellProps = {
 // Tüm gridview'larda tarih bilgisinin önünde takvim ikonu göstermek için ortak hücre.
 export function DateCell({ value, locale, highlight = false, tone = 'default', emptyLabel }: DateCellProps) {
   const label = formatDate(value, locale, emptyLabel)
+  const hasValidDate = !!value && !Number.isNaN(new Date(value).getTime())
   const pending = /onay bekleyen|pending approval/i.test(label)
   const toneClass = pending
     ? 'font-semibold text-sky-500'
@@ -49,7 +51,7 @@ export function DateCell({ value, locale, highlight = false, tone = 'default', e
   return (
     <span className={cn('date-cell', toneClass)}>
       <CalendarClock className={cn('size-3.5 shrink-0', iconClass)} />
-      {label}
+      {hasValidDate ? <DateTimeText value={value as string} locale={locale} /> : label}
     </span>
   )
 }

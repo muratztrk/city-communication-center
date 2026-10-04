@@ -10053,3 +10053,13 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   height: min(72dvh, 42rem);
   max-height: min(72dvh, 42rem);
 }
+
+/* e-Devlet plan detay popup mobil: Taleplerim detay popup'ı ile aynı boyut (#6ac24605). */
+@media (max-width: 767px) {
+  .detail-modal-shell.edevlet-plan-detail-shell {
+    width: calc(100vw - 0.5rem) !important;
+    max-width: calc(100vw - 0.5rem) !important;
+    height: min(72.9dvh, 42.3rem);
+    max-height: min(72.9dvh, 42.3rem);
+  }
+}

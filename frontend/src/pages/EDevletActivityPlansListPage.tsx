@@ -286,8 +286,12 @@ export function EDevletActivityPlansListPage() {
                       <td className="max-w-xs truncate" title={plan.description}>{plan.description}</td>
                       <td><DateCell value={plan.createdAtUtc} locale={locale} /></td>
                       <td>
-                        <div>{plan.neighborhood ?? '—'}</div>
-                        <div className="text-xs text-slate-500">{plan.street ?? '—'}</div>
+                        {plan.neighborhood || plan.street ? (
+                          <>
+                            {plan.neighborhood ? <div>{plan.neighborhood}</div> : null}
+                            {plan.street ? <div className="text-xs text-slate-500">{plan.street}</div> : null}
+                          </>
+                        ) : '—'}
                       </td>
                       <td>
                         <StatusPill className={getStatusPillClass(plan.status === 'Cancelled' ? 'cancelled' : 'completed')}>

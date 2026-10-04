@@ -9,6 +9,7 @@ import { printHtmlDocument } from '../utils/printDocument'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { toSentenceCaseTr } from '../utils/textNormalization'
 import { DetailModalTitle } from '../utils/detailModalTitle'
+import { DateTimeText } from './ui/date-time-text'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { CbsStreetNoDropdowns } from './address/CbsStreetNoDropdowns'
 import { MyRequestSectionHeading } from './jobs/my-request-detail/MyRequestSectionHeading'
@@ -183,7 +184,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
         </button>
       ) : (lastEdit.editedByDisplayName || '—'),
     ),
-    row(t('edevletActivityPlans.detail.editDate', 'Düzenleme Tarihi'), formatDateParts(lastEdit.editedAtUtc)),
+    row(t('edevletActivityPlans.detail.editDate', 'Düzenleme Tarihi'), <DateTimeText value={lastEdit.editedAtUtc} locale={locale} />),
   ] : []
 
   return createPortal(
@@ -292,12 +293,12 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                         placeholder={t('edevletActivityPlans.detail.status', 'Durum')}
                       />
                     </div>
-                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), dateText)}
+                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} /> : '')}
                   </>
                 ) : (
                   <>
                     {row(t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi'), detail.activityTypeName)}
-                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), dateText)}
+                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} /> : '')}
                     {row(t('edevletActivityPlans.detail.status', 'Durum'), (
                       <span className={detail.status === 'Active' ? 'font-semibold text-green-600' : undefined}>{statusLabel(detail.status)}</span>
                     ))}
@@ -384,7 +385,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                 <li key={`${edit.editedAtUtc}-${index}`} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold text-slate-900">{edit.editedByDisplayName || '—'}</span>
-                    <span className="shrink-0 text-xs text-slate-500">{formatDateParts(edit.editedAtUtc)}</span>
+                    <span className="shrink-0 text-xs text-slate-500"><DateTimeText value={edit.editedAtUtc} locale={locale} /></span>
                   </div>
                   <div className="mt-1 text-xs text-slate-600">
                     {t('edevletActivityPlans.detail.changedFields', 'Değiştirilen alanlar')}: {edit.changedFields.join(', ')}

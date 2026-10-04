@@ -4,7 +4,6 @@ import { ScrollFab } from '../components/layout/ScrollFab'
 import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
 import { WhatsAppDepartmentReviewFab } from '../components/layout/WhatsAppDepartmentReviewFab'
 import { InternalMessagesFab } from '../components/layout/InternalMessagesFab'
-import { SupportRequestDialog } from '../components/layout/SupportRequestDialog'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 import { SessionIdleWarning } from '../components/ui/session-idle-warning'
 import { SessionSupersededWarning } from '../components/ui/session-superseded-warning'
@@ -123,7 +122,7 @@ export function AppShell() {
   const [accessVersion, setAccessVersion] = useState(0)
   const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false)
+  const openLumespecSupport = () => navigate('/lumespec-support')
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [mobileNavDragX, setMobileNavDragX] = useState(0)
   const [mobileNavDragging, setMobileNavDragging] = useState(false)
@@ -920,7 +919,7 @@ export function AppShell() {
                   </a>
                   <button
                     type="button"
-                    onClick={() => setIsSupportDialogOpen(true)}
+                    onClick={openLumespecSupport}
                     title={t('support.dialogTitle', 'Lumespec Destek')}
                     aria-label={t('support.dialogTitle', 'Lumespec Destek')}
                     className="flex size-9 shrink-0 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white"
@@ -999,7 +998,7 @@ export function AppShell() {
                   </a>
                   <button
                     type="button"
-                    onClick={() => setIsSupportDialogOpen(true)}
+                    onClick={openLumespecSupport}
                     title={t('support.dialogTitle', 'Lumespec Destek')}
                     aria-label={t('support.dialogTitle', 'Lumespec Destek')}
                     className="flex size-7 shrink-0 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white"
@@ -1019,7 +1018,7 @@ export function AppShell() {
                 </a>
                 <button
                   type="button"
-                  onClick={() => setIsSupportDialogOpen(true)}
+                  onClick={openLumespecSupport}
                   title={t('support.dialogTitle', 'Lumespec Destek')}
                   aria-label={t('support.dialogTitle', 'Lumespec Destek')}
                   className="flex size-9 items-center justify-center rounded-xl text-white/60 transition-colors hover:bg-white/10 hover:text-white"
@@ -1197,7 +1196,6 @@ export function AppShell() {
         />
       ) : null}
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}
-      <SupportRequestDialog open={isSupportDialogOpen} onClose={() => setIsSupportDialogOpen(false)} />
       {notificationDetailTarget?.kind === 'task' && (
         notificationDetailTarget.scope === 'department' ? (
           <TasksPage

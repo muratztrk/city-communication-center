@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Shared.Contracts;
+
 namespace CityCommunicationCenter.Application.Features.Support;
 
 public sealed record MySupportRequestMessageResponse(
@@ -15,7 +17,8 @@ public sealed record MySupportRequestResponse(
     string? CentralStatus,
     string? CentralSyncError,
     DateTimeOffset CreatedAtUtc,
-    IReadOnlyList<MySupportRequestMessageResponse> Messages);
+    IReadOnlyList<MySupportRequestMessageResponse> Messages,
+    IReadOnlyList<AttachmentResponse> Attachments);
 
 public sealed record GetMySupportRequestsQuery() : IQuery<IReadOnlyList<MySupportRequestResponse>>;
 
@@ -51,8 +54,31 @@ public sealed class GetMySupportRequestsQueryHandler : IQueryHandler<GetMySuppor
 
         var requests = await query
             .OrderByDescending(entity => entity.CreatedAtUtc)
-            .Take(10)
             .ToListAsync(cancellationToken);
+
+        var requestIds = requests.Select(entity => entity.SupportRequestId).ToList();
+        var attachments = await _dbContext.Attachments
+            .AsNoTracking()
+            .Where(attachment =>
+                attachment.TenantId == tenantId
+                && attachment.EntityType == "SupportRequest"
+                && requestIds.Contains(attachment.EntityId))
+            .OrderBy(attachment => attachment.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        var attachmentsByRequest = attachments
+            .GroupBy(attachment => attachment.EntityId)
+            .ToDictionary(
+                group => group.Key,
+                group => (IReadOnlyList<AttachmentResponse>)group
+                    .Select(attachment => new AttachmentResponse(
+                        attachment.AttachmentId,
+                        attachment.FileName,
+                        attachment.ContentType,
+                        attachment.FileSizeBytes,
+                        attachment.RelativeUrl,
+                        attachment.CreatedAtUtc))
+                    .ToList());
 
         var response = new List<MySupportRequestResponse>(requests.Count);
         foreach (var entity in requests)
@@ -76,7 +102,8 @@ public sealed class GetMySupportRequestsQueryHandler : IQueryHandler<GetMySuppor
                         message.AuthorName,
                         message.Body,
                         message.CreatedAt))
-                    .ToList() ?? []));
+                    .ToList() ?? [],
+                attachmentsByRequest.GetValueOrDefault(entity.SupportRequestId) ?? []));
         }
 
         return response;

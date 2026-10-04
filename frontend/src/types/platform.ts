@@ -890,6 +890,7 @@ export interface MySupportRequest {
   centralSyncError: string | null;
   createdAtUtc: string;
   messages: MySupportRequestMessage[];
+  attachments: Attachment[];
 }
 
 export interface EntityAuditLogEntry {

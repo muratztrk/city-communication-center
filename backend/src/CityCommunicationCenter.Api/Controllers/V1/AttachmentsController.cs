@@ -52,6 +52,31 @@ public sealed class AttachmentsController : ApiControllerBase
         return StatusCode(StatusCodes.Status201Created, result);
     }
 
+    [HttpPost("support-requests/{supportRequestId:guid}")]
+    [RequestSizeLimit(6_000_000)]
+    public async Task<ActionResult<AttachmentResponse>> UploadSupportRequestAttachment(
+        Guid supportRequestId, IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file is null) return BadRequest("Dosya bulunamadi.");
+
+        var tenantId = CurrentContext.RequireTenantId();
+        var userId = CurrentContext.UserId;
+        var supportRequest = await _dbContext.SupportRequests
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                entity => entity.SupportRequestId == supportRequestId && entity.TenantId == tenantId,
+                cancellationToken);
+        if (supportRequest is null) return NotFound();
+        if (!userId.HasValue || supportRequest.CreatedByUserId != userId.Value) return Forbid();
+
+        var uploadFileName = NormalizeAttachmentFileName(file.FileName);
+        var command = new UploadAttachmentCommand(
+            "SupportRequest", supportRequestId, userId,
+            uploadFileName, file.ContentType, file.Length, file.OpenReadStream());
+        var result = await _sender.Send(command, cancellationToken);
+        return StatusCode(StatusCodes.Status201Created, result);
+    }
+
     [HttpPost("internal-messages/{messageId:guid}")]
     [RequestSizeLimit(6_000_000)]
     public async Task<ActionResult<AttachmentResponse>> UploadInternalMessageAttachment(
@@ -140,6 +165,17 @@ public sealed class AttachmentsController : ApiControllerBase
 
             var userId = CurrentContext.UserId;
             if (userId != conversation.UserAId && userId != conversation.UserBId) return Forbid();
+        }
+        else if (attachment.EntityType == "SupportRequest")
+        {
+            var supportRequest = await _dbContext.SupportRequests.AsNoTracking()
+                .FirstOrDefaultAsync(
+                    entity => entity.SupportRequestId == attachment.EntityId && entity.TenantId == tenantId,
+                    cancellationToken);
+            if (supportRequest is null) return NotFound();
+
+            var userId = CurrentContext.UserId;
+            if (!userId.HasValue || supportRequest.CreatedByUserId != userId.Value) return Forbid();
         }
 
         var openResult = await _attachmentContentProvider.OpenReadAsync(attachment, cancellationToken);

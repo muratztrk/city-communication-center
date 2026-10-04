@@ -2203,7 +2203,16 @@ export const api = {
   async getMySupportRequests(): Promise<MySupportRequest[]> {
     const response = await fetchWithCredentials(`${API_BASE}/support-requests/mine`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.supportRequestsLoadFailed', 'Destek talepleri alınamadı'))
-    return response.json() as Promise<MySupportRequest[]>
+    const rows = await response.json() as MySupportRequest[]
+    return rows.map(row => ({ ...row, attachments: row.attachments ?? [] }))
+  },
+
+  async uploadSupportRequestAttachment(
+    supportRequestId: string,
+    file: File,
+    onProgress?: (percent: number) => void,
+  ): Promise<Attachment> {
+    return uploadAttachmentWithProgress(`${API_BASE}/attachments/support-requests/${supportRequestId}`, file, onProgress)
   },
 
   async markAllNotificationsRead(): Promise<void> {

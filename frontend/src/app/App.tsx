@@ -29,6 +29,7 @@ const RoutineTaskPage = lazy(() => import('../pages/RoutineTaskPage').then(modul
 const CitizenDirectoryPage = lazy(() => import('../pages/CitizenDirectoryPage').then(module => ({ default: module.CitizenDirectoryPage })))
 const CitizenRequestMapPage = lazy(() => import('../pages/CitizenRequestMapPage').then(module => ({ default: module.CitizenRequestMapPage })))
 const WhatsAppConversationsPage = lazy(() => import('../pages/WhatsAppConversationsPage').then(module => ({ default: module.WhatsAppConversationsPage })))
+const LumespecSupportPage = lazy(() => import('../pages/LumespecSupportPage').then(module => ({ default: module.LumespecSupportPage })))
 
 function LoadingScreen() {
   const { t } = useTranslation()
@@ -131,6 +132,7 @@ export default function App() {
           <Route path="/departments" element={<PageAccessGate pageKey="departments" user={user}><DepartmentsPage /></PageAccessGate>} />
           <Route path="/users" element={<PageAccessGate pageKey="users" user={user}><UsersPage /></PageAccessGate>} />
           <Route path="/audit" element={<PageAccessGate pageKey="audit" user={user}><AuditLogsPage /></PageAccessGate>} />
+          <Route path="/lumespec-support" element={<LumespecSupportPage />} />
           <Route
             path="/settings"
             element={user?.role === 'SystemAdmin' && canAnyRoleAccessPage(getEffectiveUserRoles(user), 'settings') ? <SettingsPage /> : <Navigate to={getDefaultLandingPath(user)} replace />}

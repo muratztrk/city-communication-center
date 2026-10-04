@@ -10073,4 +10073,26 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 .edevlet-plan-detail-edit .field-select {
   min-height: 2.1rem;
   padding-block: 0.3rem;
+  font-size: 0.8125rem;
+}
+
+/* Düzenle modunda dropdown kapalı metin boyutu (#4082). */
+.edevlet-plan-detail-edit .field-select .truncate {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* Kaydet / Vazgeç aynı genişlik (#4100). */
+.edevlet-plan-detail-header-btn {
+  min-width: 7.25rem;
+}
+
+/* e-Devlet plan detay popup satırları zebra (#4087). */
+.edevlet-plan-detail-card .job-detail-field-row--request-info {
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+}
+
+.edevlet-plan-detail-card .job-detail-field-row--request-info:nth-child(even) {
+  background: #f8fafc;
 }

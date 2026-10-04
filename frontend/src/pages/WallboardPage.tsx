@@ -15,7 +15,12 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { JobSummary, SocialMessage, Task } from '../types/platform'
 import { isCitizenRequestJob } from '../utils/citizenRequests'
-import { muteNewRecordSoundWhileMounted, suppressNewRecordSound } from '../utils/newRecordSoundSuppress'
+import {
+  clearWallboardTabHeartbeat,
+  muteNewRecordSoundWhileMounted,
+  pulseWallboardTabHeartbeat,
+  suppressNewRecordSound,
+} from '../utils/newRecordSoundSuppress'
 import { getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridPrioritySubline } from '../utils/localization'
 
 type WallboardSource = 'internal' | 'external' | 'citizen'
@@ -168,10 +173,17 @@ export function WallboardPage() {
   const navigate = useNavigate()
   const locale = getLocale(i18n.language)
   const wallboardRef = useRef<HTMLElement>(null)
-  // Ekrana Yansıt açıkken ve açılırken bildirim sesi çalmaz (#6ac2796f).
+  // Ekrana Yansıt açıkken bu sekme ve diğer sekmelerde bildirim sesi çalmaz (#4103).
   useEffect(() => {
     suppressNewRecordSound()
-    return muteNewRecordSoundWhileMounted()
+    pulseWallboardTabHeartbeat()
+    const heartbeatId = window.setInterval(pulseWallboardTabHeartbeat, 2000)
+    const cleanupMute = muteNewRecordSoundWhileMounted()
+    return () => {
+      window.clearInterval(heartbeatId)
+      clearWallboardTabHeartbeat()
+      cleanupMute()
+    }
   }, [])
   const [items, setItems] = useState<WallboardItem[]>([])
   const [loading, setLoading] = useState(true)

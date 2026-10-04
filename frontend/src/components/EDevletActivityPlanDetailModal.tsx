@@ -207,14 +207,21 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                   type="button"
                   size="lg"
                   variant="success"
-                  className="inline-flex items-center gap-1.5"
+                  className="edevlet-plan-detail-header-btn inline-flex items-center justify-center gap-1.5"
                   disabled={!canSave}
                   onClick={() => void save()}
                 >
                   <Save className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.save', 'Kaydet')}
                 </Button>
-                <Button type="button" size="lg" variant="secondary" className="inline-flex items-center gap-1.5" disabled={saving} onClick={() => setEditing(false)}>
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="secondary"
+                  className="edevlet-plan-detail-header-btn inline-flex items-center justify-center gap-1.5"
+                  disabled={saving}
+                  onClick={() => setEditing(false)}
+                >
                   {t('common.cancel', 'Vazgeç')}
                 </Button>
               </>
@@ -395,7 +402,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                   </ul>
                 </li>
               ))}
-              {detail ? (
+              {detail && edits.length === 0 ? (
                 <li className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold text-slate-900">{detail.createdByDisplayName || '—'}</span>

@@ -220,6 +220,7 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
         planId={detailPlan.planId}
         planNoDisplay={detailPlan.planNoDisplay}
         locale={locale}
+        readOnly
         onClose={() => setDetailPlan(null)}
       />
     ) : null}

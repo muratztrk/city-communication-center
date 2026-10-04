@@ -27,6 +27,8 @@ interface Props {
   onClose: () => void
   /** Kaydedilince liste yenilensin. */
   onSaved?: () => void
+  /** Anasayfa-Birimler e-Devlet pie drilldown: salt okunur, Düzenle yok (#4111). */
+  readOnly?: boolean
 }
 
 interface EditForm {
@@ -43,7 +45,7 @@ function escHtml(value: string) {
 
 // e-Devlet faaliyet planı detay popup'ı: Talepler detay popup'ıyla aynı kabuk; 3 kart yan yana,
 // başlıkta Düzenle (koyu turkuaz) + Yazdır + kapat (#6ac0cd78 / #6ac20d67).
-export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, onClose, onSaved }: Props) {
+export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, onClose, onSaved, readOnly = false }: Props) {
   const { t } = useTranslation()
   const [detail, setDetail] = useState<PlanDetail | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -227,7 +229,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
               </>
             ) : (
               <>
-                {!isPastPlan ? (
+                {!readOnly && !isPastPlan ? (
                   <Button
                     type="button"
                     size="lg"

@@ -408,7 +408,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     ? null
     : (useFramedDestinationUnit
       ? t('social.destination', 'Gittiği Yer')
-      : isExternalUnitChart
+      : mixedNeighborhoodDrilldown || isExternalUnitChart
         ? t('jobs.columns.unitShort', 'Birim')
         : t('departments.name', 'Müdürlük'))
   const chartTitle = t(chartKey)
@@ -478,6 +478,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
         return (item.neighborhood ?? '').trim()
       }
       if (key === 'unitText') {
+        if (mixedNeighborhoodDrilldown) return (item.departmentName ?? '').trim()
         return (item.departmentName ?? item.neighborhood ?? '').trim()
       }
       if (key === 'statusSortText') {
@@ -490,9 +491,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     return sortItems(filtered.map(row => ({
       ...row,
       statusSortText: getDrilldownStatusLabel(t, row),
-      unitText: (row.departmentName ?? row.neighborhood ?? '').trim(),
+      unitText: mixedNeighborhoodDrilldown
+        ? (row.departmentName ?? '').trim()
+        : (row.departmentName ?? row.neighborhood ?? '').trim(),
     })))
-  }, [locale, matchesFilters, rowSearch, rows, sortItems, sortKey, t])
+  }, [locale, matchesFilters, mixedNeighborhoodDrilldown, rowSearch, rows, sortItems, sortKey, t])
 
   const maxPage = Math.max(1, Math.ceil(visibleRows.length / pageSize) || 1)
   const safePage = Math.min(page, maxPage)
@@ -775,10 +778,14 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                                 align="center"
                               />
                             ) : truncateUnitColumn ? (
-                              (row.departmentName ?? row.neighborhood) ? (
-                                <span className="block truncate">{row.departmentName ?? row.neighborhood}</span>
+                              (mixedNeighborhoodDrilldown ? row.departmentName : (row.departmentName ?? row.neighborhood)) ? (
+                                <span className="block truncate">
+                                  {mixedNeighborhoodDrilldown ? row.departmentName : (row.departmentName ?? row.neighborhood)}
+                                </span>
                               ) : '—'
-                            ) : (row.departmentName ?? row.neighborhood ?? '—')}
+                            ) : mixedNeighborhoodDrilldown
+                              ? (row.departmentName ?? '—')
+                              : (row.departmentName ?? row.neighborhood ?? '—')}
                           </td>
                         ) : null}
                         {showDestinationColumn ? (

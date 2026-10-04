@@ -291,8 +291,13 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
+                job.RequestType,
                 job.CitizenName,
                 job.CitizenPhone,
+                OwnerDepartmentName = _dbContext.Departments
+                    .Where(department => department.DepartmentId == job.OwnerDepartmentId)
+                    .Select(department => (string?)department.Name)
+                    .FirstOrDefault(),
                 TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
                     && task.CurrentStatus != WorkflowTaskStatus.Completed
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
@@ -368,7 +373,9 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Take(MaxRows)
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
-                row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
+                row.Status.ToString(),
+                ResolveNeighborhoodDrilldownDepartmentName(row.RequestType, row.OwnerDepartmentName, row.TargetDepartmentName),
+                row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
                 row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
@@ -376,6 +383,14 @@ public sealed class GetDashboardChartDrilldownQueryHandler
 
         return new DashboardChartDrilldownResponse(rows);
     }
+
+    private static string? ResolveNeighborhoodDrilldownDepartmentName(
+        JobRequestType requestType,
+        string? ownerDepartmentName,
+        string? targetDepartmentName) =>
+        requestType == JobRequestType.InternalUnit
+            ? ownerDepartmentName ?? targetDepartmentName
+            : targetDepartmentName;
 
     private static Guid? ParseSliceDepartmentId(string sliceKey)
     {

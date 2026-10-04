@@ -89,7 +89,7 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
   const safePage = Math.min(page, maxPage)
   const pageRows = rows.slice((safePage - 1) * pageSize, safePage * pageSize)
   const displayDepartment = data?.departmentName || departmentName
-  const columnCount = 7
+  const columnCount = 6
 
   const handleFilter = (key: string, value: string) => {
     setFilter(key, value)
@@ -143,7 +143,7 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
               <section className="section-card desktop-page-fill min-h-0">
               <div className="dashboard-drilldown-table-wrap table-wrap desktop-panel-scroll">
                 <div className="dashboard-drilldown-table-hscroll">
-                  <table className="data-table jobs-table data-table--zebra dashboard-drilldown-table edevlet-plans-table">
+                  <table className="data-table jobs-table data-table--zebra dashboard-drilldown-table">
                     <thead>
                       <tr>
                         <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -152,9 +152,6 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
                         </FilterableTh>
                         <FilterableTh filterKey="activityTypeName" filterValue={filters.activityTypeName ?? ''} onFilter={handleFilter} sortKey="activityTypeName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
                           {t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}
-                        </FilterableTh>
-                        <FilterableTh filterKey="description" filterValue={filters.description ?? ''} onFilter={handleFilter} sortKey="description" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
-                          {t('edevletActivityPlans.columns.description', 'Açıklama')}
                         </FilterableTh>
                         <FilterableTh filterKey="createdAtUtc" filterValue={filters.createdAtUtc ?? ''} onFilter={handleFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} allowLetters>
                           {t('edevletActivityPlans.columns.date', 'Tarih')}
@@ -173,7 +170,6 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
                             <div className="table-number-cell__value">{row.planNoDisplay}</div>
                           </td>
                           <td>{row.activityTypeName}</td>
-                          <td className="max-w-xs truncate" title={row.description}>{row.description}</td>
                           <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                           <td>
                             {row.neighborhood || row.street ? (

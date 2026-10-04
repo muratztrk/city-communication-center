@@ -359,6 +359,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         {
             charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
             charts.Add(await BuildEDevletPlanDepartmentChartAsync(tenantId, request, cancellationToken));
+            charts.Add(await BuildNeighborhoodAllRequestsChartTenantWideAsync(tenantId, request, cancellationToken));
         }
 
         return new DashboardStatusChartsResponse(charts);
@@ -885,19 +886,59 @@ public sealed class GetDashboardStatusChartsQueryHandler
                     && link.Role == JobDepartmentRole.Target
                     && link.ApprovalStatus != JobApprovalStatus.Rejected
                     && departmentIds.Contains(link.DepartmentId)))
-            .WhereHasCitizenRequestNumber(_dbContext)
-            .Select(job => new
-            {
-                Neighborhood = job.Neighborhood!,
+            .Select(job => new NeighborhoodAllRequestChartRow(
+                job.Neighborhood!,
                 job.Status,
                 job.DueDateUtc,
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                _dbContext.Tasks.Count(task => task.JobId == job.JobId
                     && task.CurrentStatus != WorkflowTaskStatus.Completed
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
-                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
-            })
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected)))
             .ToListAsync(cancellationToken);
 
+        return BuildNeighborhoodAllRequestsChartFromRows(rows, request, now);
+    }
+
+    /// <summary>
+    /// Üst Düzey Yönetici Anasayfa-Birimler: mahalledeki tüm talepler (VT + birim içi/dışı) (#6ac2799b).
+    /// </summary>
+    private async Task<DashboardChartResponse> BuildNeighborhoodAllRequestsChartTenantWideAsync(
+        Guid tenantId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var rows = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.SourceType != JobSourceType.Routine
+                && job.Neighborhood != null
+                && job.Neighborhood != ""
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .Select(job => new NeighborhoodAllRequestChartRow(
+                job.Neighborhood!,
+                job.Status,
+                job.DueDateUtc,
+                _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected)))
+            .ToListAsync(cancellationToken);
+
+        return BuildNeighborhoodAllRequestsChartFromRows(rows, request, now);
+    }
+
+    private sealed record NeighborhoodAllRequestChartRow(
+        string Neighborhood,
+        JobStatus Status,
+        DateTimeOffset? DueDateUtc,
+        int TaskCount);
+
+    private static DashboardChartResponse BuildNeighborhoodAllRequestsChartFromRows(
+        IReadOnlyList<NeighborhoodAllRequestChartRow> rows,
+        GetDashboardStatusChartsQuery request,
+        DateTimeOffset now)
+    {
         var counts = rows
             .Where(row =>
             {

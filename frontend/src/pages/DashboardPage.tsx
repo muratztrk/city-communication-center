@@ -765,16 +765,12 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   // kartlarının aynı dönem verisini kullanır. Böylece sayı ve görsel özet
   // birbirinden kopmaz.
   const statusCharts = statusChartsQuery.data?.charts ?? []
-  // Üst Düzey Yönetici Anasayfa-Birimler: Mahallelerdeki Tüm Talepler, Vatandaş Paneli ile aynı birleşik pie (#6ac2799b).
-  const reporterDepartmentsNeighborhoodChart = effectiveView === 'departments' && isReporter && isModuleUsable('citizen')
-    ? [buildCitizenEntityAggregateChart(
-        'dashboard.charts.neighborhoodAllRequests',
-        statusCharts,
-        CITIZEN_SOURCE_CHART_KEYS.neighborhoodAll,
-      )]
-    : []
+  // Vatandaş panelinde birleşik pie; Birimler'de API'den gelen mahalle-tüm talepler pie kullanılır (#6ac2799b).
+  const statusChartsForCards = effectiveView === 'citizen' && isReporter
+    ? statusCharts.filter(card => card.titleKey !== 'dashboard.charts.neighborhoodAllRequests')
+    : statusCharts
   const citizenAggregateCharts = effectiveView === 'departments'
-    ? reporterDepartmentsNeighborhoodChart
+    ? []
     : effectiveView === 'citizen'
     ? [
         buildCitizenEntityAggregateChart(
@@ -800,7 +796,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       ]
     : []
   const chartCards = [
-    ...statusCharts,
+    ...statusChartsForCards,
     ...citizenAggregateCharts,
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ].filter(card => {
@@ -1257,12 +1253,19 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           to={apiTo}
           overdueOnly={dashboardOverdueOnly}
           rowSearch={effectiveView === 'citizen' ? debouncedPanelSearch : undefined}
+          includeNonCitizenRequests={
+            chartDrilldown.chartKey === 'dashboard.charts.neighborhoodAllRequests'
+            && (effectiveView === 'departments' || role === 'Manager')
+          }
           jobDetailTitle={
-            effectiveView === 'citizen' || chartDrilldown.chartKey === 'dashboard.charts.neighborhoodAllRequests'
-              ? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')
-              : effectiveView === 'departments'
-                ? t('dashboard.pieJobDetailTitle', 'Birim Talebi')
-                : undefined
+            chartDrilldown.chartKey === 'dashboard.charts.neighborhoodAllRequests'
+              && (effectiveView === 'departments' || role === 'Manager')
+              ? t('dashboard.pieJobDetailTitle', 'Birim Talebi')
+              : effectiveView === 'citizen'
+                ? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')
+                : effectiveView === 'departments'
+                  ? t('dashboard.pieJobDetailTitle', 'Birim Talebi')
+                  : undefined
           }
           onClose={() => setChartDrilldown(null)}
         />

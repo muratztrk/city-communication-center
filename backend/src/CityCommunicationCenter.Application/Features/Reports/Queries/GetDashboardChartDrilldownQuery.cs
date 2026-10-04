@@ -14,7 +14,9 @@ public sealed record GetDashboardChartDrilldownQuery(
     DateTimeOffset? FromUtc,
     DateTimeOffset? ToUtc,
     RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All,
-    bool OverdueOnly = false) : IQuery<DashboardChartDrilldownResponse>;
+    bool OverdueOnly = false,
+    /// <summary>Anasayfa-Birimler / yönetici mahalle pie: VT dışı talepler de dahil (#6ac2799b).</summary>
+    bool IncludeNonCitizenRequests = false) : IQuery<DashboardChartDrilldownResponse>;
 
 public sealed class GetDashboardChartDrilldownQueryHandler
     : IQueryHandler<GetDashboardChartDrilldownQuery, DashboardChartDrilldownResponse>
@@ -103,7 +105,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "neighborhoodAllRequests" => await BuildCitizenScopedStatusRowsAsync(
                 tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
                 [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress, CitizenDepartmentDrilldownStatus.Completed],
-                cancellationToken, managerDepartmentScope),
+                cancellationToken, managerDepartmentScope,
+                citizenVtOnly: !(request.IncludeNonCitizenRequests || managerDepartmentScope is not null)),
             "neighborhoodOpenRequests" => await BuildCitizenScopedStatusRowsAsync(
                 tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
                 [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress],
@@ -241,7 +244,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         Guid? departmentId,
         CitizenDepartmentDrilldownStatus[] statuses,
         CancellationToken cancellationToken,
-        Guid[]? scopeDepartmentIds = null)
+        Guid[]? scopeDepartmentIds = null,
+        bool citizenVtOnly = true)
     {
         if (departmentId is null && string.IsNullOrWhiteSpace(neighborhood))
         {
@@ -249,7 +253,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         }
 
         var now = DateTimeOffset.UtcNow;
-        var candidates = await _dbContext.Jobs.AsNoTracking()
+        var jobQuery = _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
                 && job.SourceType != JobSourceType.Routine
                 && (neighborhood == null || job.Neighborhood == neighborhood)
@@ -260,8 +264,13 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                         && link.ApprovalStatus != JobApprovalStatus.Rejected
                         && scopeDepartmentIds.Contains(link.DepartmentId)))
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
-            .WhereHasCitizenRequestNumber(_dbContext)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
+        if (citizenVtOnly)
+        {
+            jobQuery = jobQuery.WhereHasCitizenRequestNumber(_dbContext);
+        }
+
+        var candidates = await jobQuery
             .OrderByDescending(job => job.CreatedAtUtc)
             .Select(job => new
             {

@@ -57,6 +57,7 @@ public sealed class ReportsController : ApiControllerBase
         [FromQuery] DateTimeOffset? to,
         [FromQuery] RequestTagDashboardFilter requestTagStatus = RequestTagDashboardFilter.All,
         [FromQuery] bool overdueOnly = false,
+        [FromQuery] bool includeNonCitizenRequests = false,
         CancellationToken cancellationToken = default)
     {
         var response = await _sender.Send(
@@ -66,7 +67,8 @@ public sealed class ReportsController : ApiControllerBase
                 from,
                 to,
                 requestTagStatus,
-                overdueOnly),
+                overdueOnly,
+                includeNonCitizenRequests),
             cancellationToken);
         return Ok(response);
     }

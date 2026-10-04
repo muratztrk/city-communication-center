@@ -355,6 +355,7 @@ export const api = {
     to?: string,
     requestTagStatus?: string,
     overdueOnly?: boolean,
+    includeNonCitizenRequests?: boolean,
   ): Promise<DashboardChartDrilldownResponse> {
     const params = new URLSearchParams()
     params.set('chartKey', chartKey)
@@ -363,6 +364,7 @@ export const api = {
     if (to) params.set('to', to)
     if (requestTagStatus) params.set('requestTagStatus', requestTagStatus)
     if (overdueOnly) params.set('overdueOnly', 'true')
+    if (includeNonCitizenRequests) params.set('includeNonCitizenRequests', 'true')
     const response = await fetchWithCredentials(`${API_BASE}/reports/dashboard-chart-drilldown?${params}`, {
       headers: await getAuthHeaders(),
     })

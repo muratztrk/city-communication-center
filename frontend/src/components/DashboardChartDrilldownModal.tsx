@@ -45,6 +45,8 @@ interface DashboardChartDrilldownModalProps {
   jobDetailTitle?: string
   /** Vatandaş Paneli dönem altı arama — ad/telefon/mahalle (#3087). */
   rowSearch?: string
+  /** Anasayfa-Birimler mahalle pie: VT dışı talepler + Talep No kolonu (#6ac2799b). */
+  includeNonCitizenRequests?: boolean
 }
 
 const PRINTABLE_CHART_KEYS = new Set([
@@ -340,7 +342,7 @@ export function printDrilldownRows(
  * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343 / #r542).
  * İçerik shell zoom stacking-context'inden kaçmak için body'ye portallanır.
  */
-export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, requestTagStatus, overdueOnly = false, onClose, jobDetailTitle, rowSearch }: DashboardChartDrilldownModalProps) {
+export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, requestTagStatus, overdueOnly = false, onClose, jobDetailTitle, rowSearch, includeNonCitizenRequests = false }: DashboardChartDrilldownModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const [rows, setRows] = useState<DashboardChartDrilldownRow[] | null>(null)
@@ -384,8 +386,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     || chartKey === 'dashboard.charts.externalRequestFulfillers'
   const showDestinationColumn = isCreatorsChart
   const truncateUnitColumn = TRUNCATE_UNIT_CHART_KEYS.has(chartKey)
+  const mixedNeighborhoodDrilldown = chartKey === 'dashboard.charts.neighborhoodAllRequests' && includeNonCitizenRequests
   // Anasayfa - Vatandaş pie popup'larında kolon başlığı her zaman VT (#6a6cff28).
-  const useCitizenRequestNoHeader = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
+  const useCitizenRequestNoHeader = isCitizenRequestsChart || isRequestTagsChart
+    || (isNeighborhoodChart && !mixedNeighborhoodDrilldown)
+    || isCitizenDepartmentChart
   const requestNoColumnLabel = useCitizenRequestNoHeader
     ? t('social.citizenRequestNo', 'Vatandaş Talep No')
     : t('jobs.columns.requestNo', 'Talep No')
@@ -491,7 +496,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
 
   useEffect(() => {
     let cancelled = false
-    api.getDashboardChartDrilldown(chartKey, sliceKey, from, to, requestTagStatus, overdueOnly)
+    api.getDashboardChartDrilldown(chartKey, sliceKey, from, to, requestTagStatus, overdueOnly, includeNonCitizenRequests)
       .then(response => {
         if (!cancelled) setRows(response.rows)
       })
@@ -501,7 +506,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     return () => {
       cancelled = true
     }
-  }, [chartKey, sliceKey, from, to, requestTagStatus, overdueOnly, t])
+  }, [chartKey, sliceKey, from, to, requestTagStatus, overdueOnly, includeNonCitizenRequests, t])
 
   const loadCitizenSourceMessage = async (jobDetail: JobDetail): Promise<SocialMessage | null> => {
     if (!isCitizenRequestJob(jobDetail)) return null

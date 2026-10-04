@@ -115,26 +115,25 @@ export function SupportRequestDetailModal({
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
-          <section className="my-request-detail-main form-card page-stack mb-5">
-            <MyRequestSectionHeading icon={FileText} tone="primary">
-              {t('support.detailInfoHeading', 'Talep Bilgileri')}
-            </MyRequestSectionHeading>
-            <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1fr)]">
-              <div className="my-request-detail-fields divide-y divide-slate-100">
-                <InfoRow label={t('support.columns.ticketNo', 'Destek No')} value={ticketDisplayNo} />
-                <InfoRow
-                  label={t('support.columns.requestDate', 'Talep Tarihi')}
-                  value={<DateTimeText value={item.createdAtUtc} locale={locale} />}
-                />
-                <InfoRow label={t('support.columns.userName', 'Kullanıcı Adı')} value={userDisplayName} />
-                <InfoRow label={t('support.columns.status', 'Talep Durumu')} value={statusLabel} />
-                <InfoRow label={t('support.subjectLabel', 'Konu')} value={item.subject} />
+          <div className="my-request-detail-bottom mb-5 grid gap-4 lg:grid-cols-3 my-request-detail-bottom--three-cards">
+            <section className="my-request-detail-main form-card page-stack min-w-0">
+              <MyRequestSectionHeading icon={FileText} tone="primary">
+                {t('support.detailInfoHeading', 'Talep Bilgileri')}
+              </MyRequestSectionHeading>
+              <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <div className="my-request-detail-fields divide-y divide-slate-100">
+                  <InfoRow label={t('support.columns.ticketNo', 'Destek No')} value={ticketDisplayNo} />
+                  <InfoRow
+                    label={t('support.columns.requestDate', 'Talep Tarihi')}
+                    value={<DateTimeText value={item.createdAtUtc} locale={locale} />}
+                  />
+                  <InfoRow label={t('support.columns.userName', 'Kullanıcı Adı')} value={userDisplayName} />
+                  <InfoRow label={t('support.columns.status', 'Talep Durumu')} value={statusLabel} />
+                  <InfoRow label={t('support.subjectLabel', 'Konu')} value={item.subject} />
+                </div>
               </div>
-            </div>
-          </section>
-
-          <div className="my-request-detail-bottom mb-5 grid gap-4 lg:grid-cols-2 my-request-detail-bottom--attachments-only">
-            <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
+            </section>
+            <section className="my-request-detail-card min-w-0 rounded-xl border border-slate-200 bg-white p-4">
               <MyRequestSectionHeading icon={MessageSquareText}>
                 {t('support.messageLabel', 'Mesaj')}
               </MyRequestSectionHeading>
@@ -143,9 +142,9 @@ export function SupportRequestDetailModal({
                 <p className="mt-2 text-xs font-semibold text-red-600">{item.centralSyncError}</p>
               ) : null}
             </section>
-            <section className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
+            <section className="my-request-detail-card my-request-detail-card--attachments min-w-0 rounded-xl border border-slate-200 bg-white p-4">
               <MyRequestSectionHeading icon={Paperclip}>
-                {t('attachments.sectionTitle', 'Talep Ekleri')}
+                {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
               </MyRequestSectionHeading>
               <div className="mt-3">
                 <AttachmentSection

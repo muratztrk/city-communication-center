@@ -10090,16 +10090,6 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   padding-bottom: 0.15rem;
 }
 
-/* Açıklama / Adres Bilgileri kart başlıkları biraz aşağı (#4087 r4). */
-.edevlet-plan-detail-shell .edevlet-plan-detail-card.page-stack:not(:first-child) > .job-detail-section-heading {
-  margin-top: 0.45rem;
-}
-
-/* Açıklama metni ve adres satırları başlığın altında biraz daha aşağı (#4087 r5). */
-.edevlet-plan-detail-shell .edevlet-plan-detail-card.page-stack:not(:first-child) > :not(.job-detail-section-heading) {
-  margin-top: 0.55rem;
-}
-
 /* Düzenleme modunda dropdown tetikleyicisi bir miktar daha alçak (#6ac20fb5). */
 .edevlet-plan-detail-edit .field-select {
   min-height: 2.1rem;
@@ -10116,17 +10106,22 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   gap: 0;
 }
 
-/* Düzenle modunda açılır liste satırları biraz daha kompakt (#4082; portal menü). */
+/* Düzenle modunda açılır liste satırları (#4082; portal menü). */
 .edevlet-plan-detail-edit-menu .dropdown-menu-scroll .dropdown-menu-item {
-  font-size: 0.72rem;
-  padding: 0.22rem 0.5rem;
-  min-height: 1.5rem;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.5rem;
+  min-height: 1.68rem;
 }
 
-/* Faaliyet Tipi / Durum: tetikleyici biraz dar, metin sağa (#4113). */
-.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .field-select {
-  max-width: 92%;
+/* Faaliyet Tipi / Durum: tetikleyici biraz dar, menü tetikleyici genişliği (#4113). */
+.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .edevlet-plan-detail-type-status-dropdown {
+  max-width: 86%;
   margin-left: auto;
+}
+
+.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .field-select {
+  max-width: 100%;
+  margin-left: 0;
 }
 
 .edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .field-select .truncate {

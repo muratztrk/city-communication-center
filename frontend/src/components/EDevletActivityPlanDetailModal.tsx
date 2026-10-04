@@ -289,8 +289,9 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                         <SingleSelectDropdown
                           searchable
                           menuPortal
+                          matchTriggerWidth
                           menuClassName={EDEVLET_PLAN_EDIT_DROPDOWN_MENU_ALIGN_END}
-                          className="w-full max-w-full"
+                          className="edevlet-plan-detail-type-status-dropdown w-full max-w-full"
                           options={typeOptions}
                           value={form.activityTypeId}
                           onChange={activityTypeId => setForm(current => current && ({ ...current, activityTypeId }))}
@@ -300,8 +301,9 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                       {row(t('edevletActivityPlans.detail.status', 'Durum'), (
                         <SingleSelectDropdown
                           menuPortal
+                          matchTriggerWidth
                           menuClassName={EDEVLET_PLAN_EDIT_DROPDOWN_MENU_ALIGN_END}
-                          className="w-full max-w-full"
+                          className="edevlet-plan-detail-type-status-dropdown w-full max-w-full"
                           options={statusOptions}
                           value={form.status}
                           onChange={status => setForm(current => current && ({ ...current, status }))}

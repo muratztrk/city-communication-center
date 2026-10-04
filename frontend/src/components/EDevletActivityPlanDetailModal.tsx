@@ -20,6 +20,9 @@ import { SingleSelectDropdown } from './ui/single-select-dropdown'
 type PlanDetail = Awaited<ReturnType<typeof api.getEDevletDailyActivityPlan>>
 type ActivityType = Awaited<ReturnType<typeof api.getEDevletActivityTypes>>[number]
 
+const EDEVLET_PLAN_EDIT_DROPDOWN_MENU_CLASS = 'edevlet-plan-detail-edit-menu'
+const EDEVLET_PLAN_EDIT_DROPDOWN_MENU_ALIGN_END = `${EDEVLET_PLAN_EDIT_DROPDOWN_MENU_CLASS} edevlet-plan-detail-edit-menu--align-end`
+
 interface Props {
   planId: string
   planNoDisplay: string
@@ -286,6 +289,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                         <SingleSelectDropdown
                           searchable
                           menuPortal
+                          menuClassName={EDEVLET_PLAN_EDIT_DROPDOWN_MENU_ALIGN_END}
                           className="w-full max-w-full"
                           options={typeOptions}
                           value={form.activityTypeId}
@@ -296,6 +300,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                       {row(t('edevletActivityPlans.detail.status', 'Durum'), (
                         <SingleSelectDropdown
                           menuPortal
+                          menuClassName={EDEVLET_PLAN_EDIT_DROPDOWN_MENU_ALIGN_END}
                           className="w-full max-w-full"
                           options={statusOptions}
                           value={form.status}
@@ -349,6 +354,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                           searchable
                           clearable
                           menuPortal
+                          menuClassName={EDEVLET_PLAN_EDIT_DROPDOWN_MENU_CLASS}
                           className="w-full max-w-full"
                           options={neighborhoodOptions}
                           value={form.neighborhood}
@@ -365,6 +371,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                         <CbsStreetNoDropdowns
                           hideStreetNo
                           hideStreetLabel
+                          menuClassName={EDEVLET_PLAN_EDIT_DROPDOWN_MENU_CLASS}
                           neighborhood={form.neighborhood}
                           street={form.street}
                           streetNo=""

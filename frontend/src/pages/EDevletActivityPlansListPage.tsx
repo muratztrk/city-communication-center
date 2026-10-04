@@ -15,6 +15,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import { getLocale, getStatusPillClass } from '../utils/localization'
+import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
 
 interface ActivityPlanRow {
   planId: string
@@ -89,6 +90,8 @@ export function EDevletActivityPlansListPage() {
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
   const [detailPlan, setDetailPlan] = useState<PlanRowView | null>(null)
+
+  useEffect(() => muteNewRecordSoundWhileMounted(), [])
 
   const { sortKey: plansSortKey, sortDir: plansSortDir, toggleSort: _togglePlansSort, sortItems: sortPlans } = useSortable()
   const { filters: planFilters, setFilter: setPlanFilter, clearFilters: clearPlanFilters, matchesFilters: planMatchesFilters, hasActiveFilters: hasActivePlanColumnFilters } = useColumnFilters()

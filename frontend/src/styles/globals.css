@@ -10095,6 +10095,11 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   margin-top: 0.45rem;
 }
 
+/* Açıklama metni ve adres satırları başlığın altında biraz daha aşağı (#4087 r5). */
+.edevlet-plan-detail-shell .edevlet-plan-detail-card.page-stack:not(:first-child) > :not(.job-detail-section-heading) {
+  margin-top: 0.55rem;
+}
+
 /* Düzenleme modunda dropdown tetikleyicisi bir miktar daha alçak (#6ac20fb5). */
 .edevlet-plan-detail-edit .field-select {
   min-height: 2.1rem;
@@ -10111,11 +10116,11 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   gap: 0;
 }
 
-/* Düzenle modunda açılır liste satırları biraz daha kompakt (#4082). */
-.edevlet-plan-detail-edit .dropdown-menu-scroll .dropdown-menu-item {
-  font-size: 0.75rem;
-  padding: 0.28rem 0.5rem;
-  min-height: 1.65rem;
+/* Düzenle modunda açılır liste satırları biraz daha kompakt (#4082; portal menü). */
+.edevlet-plan-detail-edit-menu .dropdown-menu-scroll .dropdown-menu-item {
+  font-size: 0.72rem;
+  padding: 0.22rem 0.5rem;
+  min-height: 1.5rem;
 }
 
 /* Faaliyet Tipi / Durum: tetikleyici biraz dar, metin sağa (#4113). */
@@ -10128,7 +10133,7 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   text-align: right;
 }
 
-.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .dropdown-menu-scroll .dropdown-menu-item {
+.edevlet-plan-detail-edit-menu--align-end .dropdown-menu-scroll .dropdown-menu-item {
   justify-content: flex-end;
   text-align: right;
 }

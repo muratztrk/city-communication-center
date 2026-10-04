@@ -10100,6 +10100,7 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 /* e-Devlet plan detay: Talep detayı ile aynı zebra (yalnız satır elemanları, üst boşluk yok) (#4087). */
 .edevlet-plan-detail-card .edevlet-plan-detail-fields {
   gap: 0;
+  margin-top: -0.35rem;
 }
 
 .edevlet-plan-detail-edit .dropdown-menu-scroll .dropdown-menu-item {

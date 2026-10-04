@@ -395,12 +395,15 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     ? t('social.citizenRequestNo', 'Vatandaş Talep No')
     : t('jobs.columns.requestNo', 'Talep No')
   // VT No sonrası Vatandaş Adı / Telefon No (#6a6d9411).
-  const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
+  const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart
+    || (isNeighborhoodChart && !mixedNeighborhoodDrilldown)
+    || isCitizenDepartmentChart
   const showNeighborhoodColumn = false
-  const showUnitColumn = !isRequestTagsChart
-    && !isNeighborhoodChart
-    && !isCitizenDepartmentChart
-    && !isCitizenRequestsChart
+  const showUnitColumn = mixedNeighborhoodDrilldown
+    || (!isRequestTagsChart
+      && !isNeighborhoodChart
+      && !isCitizenDepartmentChart
+      && !isCitizenRequestsChart)
   const unitColumnLabel = !showUnitColumn
     ? null
     : (useFramedDestinationUnit

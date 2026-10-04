@@ -98,7 +98,8 @@ public sealed class EDevletController : ApiControllerBase
                 request.Description,
                 request.Neighborhood,
                 request.Street,
-                request.OpenAddress),
+                request.OpenAddress,
+                request.Status),
             cancellationToken);
         return response is null ? NotFound() : Ok(response);
     }

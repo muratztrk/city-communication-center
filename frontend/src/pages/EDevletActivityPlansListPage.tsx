@@ -368,6 +368,7 @@ export function EDevletActivityPlansListPage() {
           planNoDisplay={detailPlan.planNoDisplay}
           locale={locale}
           onClose={() => setDetailPlan(null)}
+          onSaved={() => { void loadPlans() }}
         />
       ) : null}
 

@@ -1,3 +1,10 @@
+## Round 1419 — #3979 r5 / #4067 r6 / #4077 r2 / #6ac20d67 / #6ac20baf / #6ac20c40
+
+- [x] #3979 / #4067 — e-Devlet Planı Oluştur Düzenle simgesi biraz daha küçük (`size-4` → `0.9375rem`, masaüstü + mobil, `shrink-0`).
+- [x] #4077 r2 / #6ac20d67 — Planlar Listesi `Detaylar` popup'ı Talepler popup düzenine: 3 kart yan yana (Faaliyet Bilgileri / Adres / Açıklama), `Konum` → `Adres`, Açık Adres satırı kalktı, Faaliyet No satırı kalktı ve Faaliyet Bilgileri başlığının sağına yaslı. Başlıkta (X'in solu): Yazdır, onun solunda koyu turkuaz Düzenle. Düzenle: Faaliyet Tipi, Durum, Mahalle, Cadde/Sokak, Açıklama popup içinde değişir; Kaydet/Vazgeç. Backend: `UpdateEDevletDailyActivityPlanRequest.Status` (opsiyonel) — iptal plan yalnız Aktif'e döndürülürken düzenlenebilir.
+- [x] #6ac20baf / #6ac20c40 — Migration `NormalizeRequestTagAndTemplateNames` (yalnız veri): etiket adı ilk harf büyük (TR i/ı elle), aynı adlı etiketler birleşir (en eski kalır, `socialmessages.tags` içindeki adlar buna çevrilir, fazlalar silinir — eşleşmeyenler de), Kişisel şablon adının yalnız ilk harfi büyür. SQL geçici Postgres'te sahte veriyle denendi.
+- [x] Doğrulama: `tsc -b` + lint (0 error), `dotnet build` 0 error. Popup tarayıcıda görsel denenmedi (API yok).
+
 ## Round 1418 — #3985 r3 (Dosya ekle sonrası 5-10 sn kilitlenme)
 
 - [x] Kök neden: Windows Chrome'un klasik `<input type="file">` diyaloğu, belediye ağı dışındayken erişilemeyen ağ konumlarını/son klasörü çözerken sayfayı kilitliyor — JS tarafında düzeltilemez (r1 remount, r2 pointer unlock yetmedi). Çözüm: `showOpenFilePicker` (`utils/attachmentFilePicker.ts`): asenkron, `startIn: 'documents'`, uzantı filtresi korunur; desteklenmiyorsa (Safari/Firefox/http) eski input'a düşer. Uygulandı: Talep Oluştur (`CreateRequestPage`) ve `AttachmentSection`. Diğer input'lar (CitizenRequestModal, TasksPage, RoutineTask, ConversationPanel, FAB, Settings) değişmedi.

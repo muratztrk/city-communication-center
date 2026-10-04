@@ -85,7 +85,8 @@ public sealed record UpdateEDevletDailyActivityPlanCommand(
     string Description,
     string? Neighborhood,
     string? Street,
-    string? OpenAddress) : ICommand<EDevletDailyActivityPlanResponse?>;
+    string? OpenAddress,
+    string? Status = null) : ICommand<EDevletDailyActivityPlanResponse?>;
 
 public sealed class UpdateEDevletDailyActivityPlanCommandValidator : AbstractValidator<UpdateEDevletDailyActivityPlanCommand>
 {
@@ -98,6 +99,8 @@ public sealed class UpdateEDevletDailyActivityPlanCommandValidator : AbstractVal
         RuleFor(c => c.Street).NotEmpty().When(c => !string.IsNullOrWhiteSpace(c.Neighborhood))
             .WithMessage("Cadde / sokak zorunludur.");
         RuleFor(c => c.Street).MaximumLength(50).WithMessage("Cadde / sokak en fazla 50 karakter olabilir.");
+        RuleFor(c => c.Status).Must(status => string.IsNullOrWhiteSpace(status) || Enum.TryParse<EDevletDailyActivityPlanStatus>(status, true, out _))
+            .WithMessage("Gecersiz faaliyet plani durumu.");
     }
 }
 
@@ -127,7 +130,11 @@ public sealed class UpdateEDevletDailyActivityPlanCommandHandler : ICommandHandl
         if (plan is null) return null;
 
         EDevletDepartmentAccess.EnsureDepartmentAccess(plan.DepartmentId, departmentIds);
-        if (plan.Status == EDevletDailyActivityPlanStatus.Cancelled)
+        // Detay popup'ında Durum da değiştirilebilir (#6ac20d67): iptal edilmiş plan yalnız Aktif'e döndürülürken düzenlenebilir.
+        EDevletDailyActivityPlanStatus? requestedStatus = string.IsNullOrWhiteSpace(request.Status)
+            ? null
+            : Enum.Parse<EDevletDailyActivityPlanStatus>(request.Status, true);
+        if (plan.Status == EDevletDailyActivityPlanStatus.Cancelled && requestedStatus != EDevletDailyActivityPlanStatus.Active)
         {
             throw ValidationExceptionFactory.Field(nameof(request.PlanId), "Iptal edilmis faaliyet plani duzenlenemez.");
         }
@@ -143,6 +150,7 @@ public sealed class UpdateEDevletDailyActivityPlanCommandHandler : ICommandHandl
         plan.Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim();
         plan.Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim();
         plan.OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim();
+        if (requestedStatus.HasValue) plan.Status = requestedStatus.Value;
         plan.UpdatedAtUtc = DateTimeOffset.UtcNow;
         plan.UpdatedByUserId = context.UserId;
         await _dbContext.SaveChangesAsync(cancellationToken);

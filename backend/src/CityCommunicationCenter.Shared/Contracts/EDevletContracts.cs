@@ -34,7 +34,8 @@ public sealed record UpdateEDevletDailyActivityPlanRequest(
     string Description,
     string? Neighborhood,
     string? Street,
-    string? OpenAddress);
+    string? OpenAddress,
+    string? Status = null);
 
 public sealed record EDevletDailyActivityPlanListItemResponse(
     Guid PlanId,

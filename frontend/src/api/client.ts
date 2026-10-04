@@ -2360,6 +2360,7 @@ export const api = {
     street?: string | null
     streetNo?: string | null
     openAddress?: string | null
+    status?: string | null
   }): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}`, {
       method: 'PUT',

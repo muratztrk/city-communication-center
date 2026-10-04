@@ -123,6 +123,34 @@ if grep -q '^CCC_LICENSE_FORCE_USABLE_MODULES=' "${ENV_FILE}"; then
   sed -i '/^CCC_LICENSE_FORCE_USABLE_MODULES=/d' "${ENV_FILE}"
 fi
 echo "  CCC_LICENSE_BUNDLE_ID_PREFIX=com.lumespec.ccc.testtim"
+
+ensure_env() {
+  local key="\$1"
+  local value="\$2"
+  if grep -q "^\${key}=" "\${ENV_FILE}"; then
+    sed -i "s|^\${key}=.*|\${key}=\${value}|" "\${ENV_FILE}"
+  else
+    printf '\n%s=%s\n' "\${key}" "\${value}" >> "\${ENV_FILE}"
+  fi
+}
+
+echo "  Lumespec destek (testtim)..."
+ensure_env CCC_LUMESPEC_SUPPORT_ENABLED true
+ensure_env CCC_LUMESPEC_SUPPORT_BASE_URL https://destek.lumespec.com
+ensure_env CCC_LUMESPEC_SUPPORT_ENVIRONMENT Test
+if ! grep -q '^CCC_LUMESPEC_SUPPORT_SERVICE_TOKEN=' "\${ENV_FILE}"; then
+  printf '\n# Lumespec destek API — panelden alınan servis token (boşsa entegrasyon kapalı kalır)\nCCC_LUMESPEC_SUPPORT_SERVICE_TOKEN=\n' >> "\${ENV_FILE}"
+  echo "  CCC_LUMESPEC_SUPPORT_SERVICE_TOKEN=(boş — sunucu .env içine token yazın)"
+else
+  if grep -q '^CCC_LUMESPEC_SUPPORT_SERVICE_TOKEN=$' "\${ENV_FILE}"; then
+    echo "  CCC_LUMESPEC_SUPPORT_SERVICE_TOKEN=(boş — sunucu .env içine token yazın)"
+  else
+    echo "  CCC_LUMESPEC_SUPPORT_SERVICE_TOKEN=(mevcut, değiştirilmedi)"
+  fi
+fi
+echo "  CCC_LUMESPEC_SUPPORT_ENABLED=true"
+echo "  CCC_LUMESPEC_SUPPORT_BASE_URL=https://destek.lumespec.com"
+echo "  CCC_LUMESPEC_SUPPORT_ENVIRONMENT=Test"
 EOF
 
 info "Building and starting test containers..."

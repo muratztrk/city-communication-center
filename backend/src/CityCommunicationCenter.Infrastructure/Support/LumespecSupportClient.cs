@@ -35,11 +35,14 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
         try
         {
             var client = _httpClientFactory.CreateClient(HttpClientName);
+            var environmentName = string.IsNullOrWhiteSpace(_options.EnvironmentName)
+                ? "CCC"
+                : _options.EnvironmentName.Trim();
             using var message = new HttpRequestMessage(HttpMethod.Post, "/api/external/tickets")
             {
                 Content = JsonContent.Create(new
                 {
-                    externalSource = "city-communication-center",
+                    externalSource = ExternalSource,
                     externalId = request.SupportRequestId.ToString(),
                     tenantId = request.TenantId.ToString(),
                     tenantName = request.TenantName,
@@ -47,6 +50,7 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
                     requesterName = request.RequesterName,
                     organization = request.TenantName ?? "City Communication Center",
                     email = request.RequesterEmail ?? string.Empty,
+                    environment = environmentName,
                     pageContext = request.PageContext,
                     subject = request.Subject,
                     description = request.Message,

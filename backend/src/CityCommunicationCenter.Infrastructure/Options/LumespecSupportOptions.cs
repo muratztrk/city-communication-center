@@ -10,5 +10,7 @@ public sealed class LumespecSupportOptions
 
     public string ServiceToken { get; set; } = string.Empty;
 
+    public string EnvironmentName { get; set; } = string.Empty;
+
     public int TimeoutSeconds { get; set; } = 10;
 }

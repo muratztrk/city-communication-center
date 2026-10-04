@@ -86,3 +86,25 @@ Testtim `CCC_LICENSE_BUNDLE_ID_PREFIX=com.lumespec.ccc.testtim` kullanır (`depl
 
 Lumespec panelinde bu iki ürün **ayrı** tanımlanır ve aktif lisans verilir. Prod'daki askıya alınmış
 Kurum İçi satırı testtim'i kapatmaz; testte açmak da yenitim'i açmaz.
+
+## Lumespec destek entegrasyonu (destek.lumespec.com)
+
+API, ayarlar / destek talebi akışını merkezi Lumespec destek API'sine yollar (`LumespecSupport`).
+
+**Prod ve test** için `.env` (veya `docker-compose` ortamı):
+
+```bash
+CCC_LUMESPEC_SUPPORT_ENABLED=true
+CCC_LUMESPEC_SUPPORT_BASE_URL=https://destek.lumespec.com
+CCC_LUMESPEC_SUPPORT_SERVICE_TOKEN=<panelden servis token>
+```
+
+Ortam etiketi (Lumespec'te ticket `environment` alanı):
+
+| Ortam | `CCC_LUMESPEC_SUPPORT_ENVIRONMENT` |
+|-------|-----------------------------------|
+| yenitim (prod) | `Production` (docker-compose varsayılanı) |
+| testtim | `Test` (`deploy-test.sh` yazır) |
+
+`ServiceToken` boşsa API entegrasyonu çağrı yapmaz (`Enabled=true` olsa bile). Token'ı repoya commit etmeyin;
+sunucu `.env` üzerinde tanımlayın. Değişiklikten sonra API konteynerini yeniden başlatın (`docker compose up -d --build api`).

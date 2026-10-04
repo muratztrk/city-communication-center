@@ -44,6 +44,7 @@ services:
       - LumespecSupport__Enabled=${CCC_LUMESPEC_SUPPORT_ENABLED:-false}
       - LumespecSupport__BaseUrl=${CCC_LUMESPEC_SUPPORT_BASE_URL:-https://destek.lumespec.com}
       - LumespecSupport__ServiceToken=${CCC_LUMESPEC_SUPPORT_SERVICE_TOKEN:-}
+      - LumespecSupport__EnvironmentName=${CCC_LUMESPEC_SUPPORT_ENVIRONMENT:-Production}
       - LumespecSupport__TimeoutSeconds=${CCC_LUMESPEC_SUPPORT_TIMEOUT_SECONDS:-10}
       - ForwardedHeaders__KnownProxies__0=${CCC_KNOWN_PROXY_0:-}
       - ForwardedHeaders__KnownProxies__1=${CCC_KNOWN_PROXY_1:-}

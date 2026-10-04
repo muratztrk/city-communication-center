@@ -7,6 +7,7 @@ import { Button } from '../ui/button'
 import { ModalBackdrop } from '../ui/modal-backdrop'
 import { api } from '../../api/client'
 import { queryKeys } from '../../api/queryKeys'
+import { formatCentralSupportStatus } from '../../utils/centralSupportStatus'
 
 interface SupportRequestDialogProps {
   open: boolean
@@ -165,7 +166,9 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
               </p>
             ) : (
               <div className="mt-3 space-y-3">
-                {(myRequestsQuery.data ?? []).map(item => (
+                {(myRequestsQuery.data ?? []).map(item => {
+                  const centralStatusLabel = formatCentralSupportStatus(item.centralStatus, t)
+                  return (
                   <div key={item.supportRequestId} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -174,9 +177,9 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
                           {item.centralTicketNo ?? t('support.localTicket', 'Yerel kayıt')}
                         </p>
                       </div>
-                      {item.centralStatus ? (
+                      {centralStatusLabel ? (
                         <span className="rounded-full bg-white px-2 py-1 text-[0.68rem] font-semibold text-slate-600 ring-1 ring-slate-200">
-                          {item.centralStatus}
+                          {centralStatusLabel}
                         </span>
                       ) : null}
                     </div>
@@ -205,7 +208,8 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
                       <p className="mt-2 text-xs font-semibold text-red-600">{item.centralSyncError}</p>
                     ) : null}
                   </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

@@ -305,7 +305,18 @@
     "messagePlaceholder": "Destek talebinizi kısaca açıklayınız...",
     "send": "Gönder",
     "sentMessage": "Talebiniz alındı. Lumespec ekibi en kısa sürede sizinle iletişime geçecek.",
-    "sendError": "Talep gönderilemedi. Lütfen tekrar deneyin."
+    "sendError": "Talep gönderilemedi. Lütfen tekrar deneyin.",
+    "centralStatus": {
+      "new": "Yeni",
+      "open": "Açık",
+      "in_progress": "İşlemde",
+      "waiting_customer": "Sizden yanıt bekleniyor",
+      "waiting_support": "Destek yanıtı bekleniyor",
+      "pending": "Beklemede",
+      "resolved": "Çözüldü",
+      "closed": "Kapatıldı",
+      "cancelled": "İptal edildi"
+    }
   },
   "sessionIdle": {
     "title": "Oturum Süreniz Dolmak Üzere!",

@@ -305,7 +305,18 @@
     "messagePlaceholder": "Briefly describe the issue.",
     "send": "Send",
     "sentMessage": "Your request has been received. The Lumespec team will reach out shortly.",
-    "sendError": "Could not send the request. Please try again."
+    "sendError": "Could not send the request. Please try again.",
+    "centralStatus": {
+      "new": "New",
+      "open": "Open",
+      "in_progress": "In progress",
+      "waiting_customer": "Awaiting your reply",
+      "waiting_support": "Awaiting support reply",
+      "pending": "Pending",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    }
   },
   "sessionIdle": {
     "title": "Your Session Is About To Expire!",

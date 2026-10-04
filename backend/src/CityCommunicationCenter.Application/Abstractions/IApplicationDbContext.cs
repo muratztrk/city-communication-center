@@ -28,6 +28,7 @@ public interface IApplicationDbContext
     DbSet<UserDepartmentAssignment> UserDepartmentAssignments { get; }
     DbSet<EDevletActivityType> EDevletActivityTypes { get; }
     DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans { get; }
+    DbSet<EDevletDailyActivityPlanEdit> EDevletDailyActivityPlanEdits { get; }
     DbSet<EDevletBasvuru> EDevletBasvurular { get; }
     DbSet<InternalConversation> InternalConversations { get; }
     DbSet<InternalMessage> InternalMessages { get; }

@@ -1,3 +1,11 @@
+## Round 1422 — #6ac21381 / #6ac20f3b r2 / #6ac2171f / #6ac2171e / #6ac217b1 / #6ac2171c / #6ac2187b
+
+- [x] #6ac21381 Düzenleyen: yeni tablo `edevletdailyactivityplanedits` (migration `AddEDevletDailyActivityPlanEdits`; kim, ne zaman, hangi alanlar). Güncellemede yalnız gerçekten değişen alanlar (Faaliyet Tipi/Durum/Mahalle/Cadde-Sokak/Açıklama) kaydedilir. Popup: düzenleme varsa Durum altında `Düzenleyen` + `Düzenleme Tarihi` (son düzenleme); 1'den fazla düzenleme varsa Düzenleyen yerine `Düzenleyenler` butonu → liste popup'ı (kişi, tarih, değişen alanlar). Dokunulmamış açıklama yeniden biçimlendirilmez (sahte değişiklik kaydı olmasın).
+- [x] #6ac20f3b r2: Faaliyet Bilgileri: `Oluşturan Birim` (üstte), `Oluşturan` → `Oluşturan Personel`, Tarih'te `gg.aa.yyyy • ss:dd` bullet (backend `DepartmentName`).
+- [x] #6ac2171f: Adres Bilgileri satırları daha alçak (`.edevlet-plan-detail-address`). #6ac2171e: Kaydet butonu yeşil (`variant=success`). #6ac217b1: Kaydet ikonu zaten vardı (`Save`), değişiklik gerekmedi. #6ac2171c: popup çok az küçük (`.edevlet-plan-detail-shell` 63vw/72dvh).
+- [x] #6ac2187b: Planlar Listesi grid: Mahalle + Cadde/Sokak sütunları kalktı → `Adres Bilgisi` (Mahalle üstte, Cadde/Sokak altta) + sağında `Durum` pill'i (Aktif yeşil, Pasif kırmızı; Talepler `StatusPill` tasarımı). Durum etiketi `İptal Edildi` → `Pasif` (popup dahil).
+- [x] Doğrulama: `tsc -b` + lint (0 error), `dotnet build` 0 error. Görsel ölçüm yapılmadı.
+
 ## Round 1421 — #6ac212f9 / #6ac21373 / #6ac21383 (plan detay popup cilası)
 
 - [x] Durum `Aktif` metni yeşil (`text-green-600`, yalnız görüntüleme modunda; İptal Edildi renksiz).

@@ -1,4 +1,4 @@
-import { ClipboardList, Info, MapPin, PenLine, Printer, Save, X as XIcon } from 'lucide-react'
+import { ClipboardList, Info, MapPin, PenLine, Printer, Save, Users, X as XIcon } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
@@ -49,13 +49,14 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<EditForm | null>(null)
+  const [editorsOpen, setEditorsOpen] = useState(false)
   const [activityTypes, setActivityTypes] = useState<ActivityType[]>([])
   const districtId = useMunicipalityDistrictId()
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(getNeighborhoodsForDistrict(districtId)), [districtId])
   const typeOptions = useMemo(() => activityTypes.map(type => ({ value: type.activityTypeId, label: type.name })), [activityTypes])
   const statusOptions = useMemo(() => [
     { value: 'Active', label: t('edevletActivityPlans.detail.active', 'Aktif') },
-    { value: 'Cancelled', label: t('edevletActivityPlans.detail.cancelled', 'İptal Edildi') },
+    { value: 'Cancelled', label: t('edevletActivityPlans.detail.cancelled', 'Pasif') },
   ], [t])
 
   const load = useCallback(async () => {
@@ -69,9 +70,16 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
   useEffect(() => { void load() }, [load])
 
   const statusLabel = (status: string) => statusOptions.find(option => option.value === status)?.label ?? status
-  const dateText = detail
-    ? new Date(detail.createdAtUtc).toLocaleString(locale, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    : ''
+  // Tarih ile saat arasında küçük bullet (#6ac20f3b): "02.10.2026 • 19:01".
+  const formatDateParts = (value: string) => {
+    const date = new Date(value)
+    return `${date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })} \u2022 ${date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}`
+  }
+  const dateText = detail ? formatDateParts(detail.createdAtUtc) : ''
+  const edits = detail?.edits ?? []
+  const lastEdit = edits.length > 0 ? edits[edits.length - 1] : null
+  // Kaydedilmemiş (dokunulmamış) açıklama biçimlendirilmez; yalnız değiştirildiyse cümle düzeni uygulanır.
+  const descriptionToSave = (current: string) => (detail && current === detail.description ? current : toSentenceCaseTr(current))
 
   const startEdit = async () => {
     if (!detail) return
@@ -102,7 +110,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
     try {
       await api.updateEDevletDailyActivityPlan(planId, {
         activityTypeId: form.activityTypeId,
-        description: toSentenceCaseTr(form.description),
+        description: descriptionToSave(form.description),
         neighborhood: form.neighborhood || null,
         street: form.street.trim() || null,
         openAddress: detail?.openAddress ?? null,
@@ -157,12 +165,31 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
   const viewingEdit = editing && form !== null
   // Faaliyet tarihi bugünü geçmişse Düzenle görünmez (#6ac2121c).
   const isPastPlan = detail ? new Date(detail.createdAtUtc).toDateString() !== new Date().toDateString() : false
-  const creatorRow = row(t('edevletActivityPlans.detail.createdBy', 'Oluşturan'), detail?.createdByDisplayName || '—')
+  const creatorRows = [
+    row(t('edevletActivityPlans.detail.createdByDepartment', 'Oluşturan Birim'), detail?.departmentName || '—'),
+    row(t('edevletActivityPlans.detail.createdBy', 'Oluşturan Personel'), detail?.createdByDisplayName || '—'),
+  ]
+  const editorRows = lastEdit ? [
+    row(
+      t('edevletActivityPlans.detail.editor', 'Düzenleyen'),
+      edits.length > 1 ? (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+          onClick={() => setEditorsOpen(true)}
+        >
+          <Users className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+          {t('edevletActivityPlans.detail.editors', 'Düzenleyenler')}
+        </button>
+      ) : (lastEdit.editedByDisplayName || '—'),
+    ),
+    row(t('edevletActivityPlans.detail.editDate', 'Düzenleme Tarihi'), formatDateParts(lastEdit.editedAtUtc)),
+  ] : []
 
   return createPortal(
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4" role="presentation" onClick={onClose}>
       <section
-        className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+        className="detail-modal-shell edevlet-plan-detail-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         <div className="detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 border-b border-slate-100 px-4 py-2">
@@ -178,7 +205,8 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                 <Button
                   type="button"
                   size="lg"
-                  className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
+                  variant="success"
+                  className="inline-flex items-center gap-1.5"
                   disabled={!canSave}
                   onClick={() => void save()}
                 >
@@ -240,7 +268,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                     <span className="ml-auto shrink-0 font-mono text-xs font-semibold text-slate-500">{planNoDisplay}</span>
                   </span>
                 </MyRequestSectionHeading>
-                {creatorRow}
+                {creatorRows}
                 {viewingEdit ? (
                   <>
                     <div className="grid gap-1">
@@ -273,6 +301,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                     {row(t('edevletActivityPlans.detail.status', 'Durum'), (
                       <span className={detail.status === 'Active' ? 'font-semibold text-green-600' : undefined}>{statusLabel(detail.status)}</span>
                     ))}
+                    {editorRows}
                   </>
                 )}
               </section>
@@ -292,7 +321,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                   <div className="whitespace-pre-wrap text-sm leading-5 text-slate-900">{detail.description || '—'}</div>
                 )}
               </section>
-              <section className="form-card page-stack min-w-0">
+              <section className="form-card page-stack min-w-0 edevlet-plan-detail-address">
                 <MyRequestSectionHeading icon={MapPin} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">{t('edevletActivityPlans.detail.address', 'Adres Bilgileri')}</span>
                 </MyRequestSectionHeading>
@@ -336,6 +365,36 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
           ) : null}
         </div>
       </section>
+      {editorsOpen ? (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/30 p-4" role="presentation" onClick={event => { event.stopPropagation(); setEditorsOpen(false) }}>
+          <section className="flex max-h-[min(70dvh,32rem)] w-[min(30rem,100%)] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" onClick={event => event.stopPropagation()}>
+            <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-2">
+              <div className="text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600">{t('edevletActivityPlans.detail.editors', 'Düzenleyenler')}</div>
+              <button
+                type="button"
+                onClick={() => setEditorsOpen(false)}
+                className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                aria-label={t('common.close', 'Kapat')}
+              >
+                <XIcon className="size-4" />
+              </button>
+            </div>
+            <ul className="flex-1 space-y-2 overflow-y-auto p-4">
+              {[...edits].reverse().map((edit, index) => (
+                <li key={`${edit.editedAtUtc}-${index}`} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-900">{edit.editedByDisplayName || '—'}</span>
+                    <span className="shrink-0 text-xs text-slate-500">{formatDateParts(edit.editedAtUtc)}</span>
+                  </div>
+                  <div className="mt-1 text-xs text-slate-600">
+                    {t('edevletActivityPlans.detail.changedFields', 'Değiştirilen alanlar')}: {edit.changedFields.join(', ')}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      ) : null}
     </div>,
     document.body,
   )

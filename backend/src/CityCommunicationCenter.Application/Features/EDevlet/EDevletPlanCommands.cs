@@ -60,7 +60,7 @@ public sealed class GetEDevletDailyActivityPlanByIdQueryHandler : IQueryHandler<
         var (_, departmentIds) = await EDevletDepartmentAccess.RequireUserAndDepartmentsAsync(
             _dbContext, _tenantContextAccessor, cancellationToken);
 
-        return await _dbContext.EDevletDailyActivityPlans
+        var response = await _dbContext.EDevletDailyActivityPlans
             .AsNoTracking()
             .Where(plan => plan.PlanId == request.PlanId && plan.TenantId == tenantId && departmentIds.Contains(plan.DepartmentId))
             .Select(plan => new EDevletDailyActivityPlanResponse(
@@ -78,8 +78,30 @@ public sealed class GetEDevletDailyActivityPlanByIdQueryHandler : IQueryHandler<
                 _dbContext.Users
                     .Where(user => user.UserId == plan.CreatedByUserId)
                     .Select(user => user.DisplayName)
-                    .FirstOrDefault()))
+                    .FirstOrDefault(),
+                _dbContext.Departments
+                    .Where(department => department.DepartmentId == plan.DepartmentId)
+                    .Select(department => department.Name)
+                    .FirstOrDefault(),
+                null))
             .FirstOrDefaultAsync(cancellationToken);
+        if (response is null) return null;
+
+        var edits = await _dbContext.EDevletDailyActivityPlanEdits
+            .AsNoTracking()
+            .Where(edit => edit.PlanId == request.PlanId && edit.TenantId == tenantId)
+            .OrderBy(edit => edit.EditedAtUtc)
+            .Select(edit => new { edit.EditedByDisplayName, edit.EditedAtUtc, edit.ChangedFields })
+            .ToListAsync(cancellationToken);
+        return response with
+        {
+            Edits = edits
+                .Select(edit => new EDevletDailyActivityPlanEditResponse(
+                    edit.EditedByDisplayName,
+                    edit.EditedAtUtc,
+                    edit.ChangedFields.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)))
+                .ToList(),
+        };
     }
 }
 
@@ -149,10 +171,42 @@ public sealed class UpdateEDevletDailyActivityPlanCommandHandler : ICommandHandl
             ?? throw ValidationExceptionFactory.Field(nameof(request.ActivityTypeId), "Faaliyet tipi bulunamadi.");
         EDevletDepartmentAccess.EnsureDepartmentAccess(activityType.DepartmentId, departmentIds);
 
+        var newDescription = request.Description.Trim();
+        var newNeighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim();
+        var newStreet = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim();
+
+        // Düzenleme geçmişi (#6ac21381): yalnız gerçekten değişen alanlar kaydedilir.
+        var changedFields = new List<string>();
+        if (plan.ActivityTypeId != request.ActivityTypeId) changedFields.Add("Faaliyet Tipi");
+        if (requestedStatus.HasValue && requestedStatus.Value != plan.Status) changedFields.Add("Durum");
+        if (!string.Equals(plan.Neighborhood, newNeighborhood, StringComparison.Ordinal)) changedFields.Add("Mahalle");
+        if (!string.Equals(plan.Street, newStreet, StringComparison.Ordinal)) changedFields.Add("Cadde/Sokak");
+        if (!string.Equals(plan.Description, newDescription, StringComparison.Ordinal)) changedFields.Add("Açıklama");
+        if (changedFields.Count > 0)
+        {
+            var editorName = await _dbContext.Users
+                .AsNoTracking()
+                .Where(user => user.UserId == context.UserId)
+                .Select(user => user.DisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+            _dbContext.EDevletDailyActivityPlanEdits.Add(new EDevletDailyActivityPlanEdit
+            {
+                EditId = Guid.NewGuid(),
+                TenantId = tenantId,
+                PlanId = plan.PlanId,
+                EditedByUserId = context.UserId,
+                EditedByDisplayName = editorName,
+                EditedAtUtc = DateTimeOffset.UtcNow,
+                ChangedFields = string.Join(';', changedFields),
+                CreatedByUserId = context.UserId,
+                UpdatedByUserId = context.UserId,
+            });
+        }
+
         plan.ActivityTypeId = request.ActivityTypeId;
-        plan.Description = request.Description.Trim();
-        plan.Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim();
-        plan.Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim();
+        plan.Description = newDescription;
+        plan.Neighborhood = newNeighborhood;
+        plan.Street = newStreet;
         plan.OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim();
         if (requestedStatus.HasValue) plan.Status = requestedStatus.Value;
         plan.UpdatedAtUtc = DateTimeOffset.UtcNow;

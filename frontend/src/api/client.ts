@@ -2336,6 +2336,8 @@ export const api = {
     status: string
     createdAtUtc: string
     createdByDisplayName?: string | null
+    departmentName?: string | null
+    edits?: Array<{ editedByDisplayName: string | null; editedAtUtc: string; changedFields: string[] }> | null
   }> {
     const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.edevletDailyPlanLoadFailed', 'Faaliyet planı yüklenemedi.'))
@@ -2352,6 +2354,8 @@ export const api = {
       status: string
       createdAtUtc: string
       createdByDisplayName?: string | null
+      departmentName?: string | null
+      edits?: Array<{ editedByDisplayName: string | null; editedAtUtc: string; changedFields: string[] }> | null
     }>
   },
 

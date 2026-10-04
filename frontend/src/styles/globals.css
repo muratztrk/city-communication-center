@@ -10036,3 +10036,20 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   min-height: 2.3rem;
   padding-block: 0.4rem;
 }
+
+/* e-Devlet plan detay popup (#6ac2171f / #6ac2171c): Adres Bilgileri satırları daha alçak; popup çok az küçük. */
+.edevlet-plan-detail-address.page-stack {
+  gap: 0.2rem;
+}
+
+.edevlet-plan-detail-address .job-detail-field-row--request-info {
+  min-height: 1.9rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.detail-modal-shell.edevlet-plan-detail-shell {
+  width: min(63vw, 76rem);
+  height: min(72dvh, 42rem);
+  max-height: min(72dvh, 42rem);
+}

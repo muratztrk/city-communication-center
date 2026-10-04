@@ -7,13 +7,14 @@ import { Button } from '../components/ui/button'
 import { EDevletActivityPlanDetailModal } from '../components/EDevletActivityPlanDetailModal'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
+import { StatusPill } from '../components/ui/status-pill'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
-import { getLocale } from '../utils/localization'
+import { getLocale, getStatusPillClass } from '../utils/localization'
 
 interface ActivityPlanRow {
   planId: string
@@ -29,6 +30,8 @@ interface ActivityPlanRow {
 
 type PlanRowView = ActivityPlanRow & {
   planNoDisplay: string
+  addressDisplay: string
+  statusLabel: string
 }
 
 type PlanScope = 'daily' | 'past' | 'all'
@@ -108,6 +111,7 @@ export function EDevletActivityPlansListPage() {
 
   const getColumnValue = useCallback((key: string, plan: PlanRowView): string => {
     if (key === 'planNo') return plan.planNoDisplay
+    if (key === 'address') return plan.addressDisplay
     if (key === 'createdAtUtc') return formatDateTime(plan.createdAtUtc, locale)
     return String((plan as unknown as Record<string, unknown>)[key] ?? '')
   }, [locale])
@@ -118,8 +122,10 @@ export function EDevletActivityPlansListPage() {
       .map(plan => ({
         ...plan,
         planNoDisplay: formatPlanNumber(plan.planNumber, plan.planNumberYear),
+        addressDisplay: [plan.neighborhood, plan.street].filter(Boolean).join(' '),
+        statusLabel: plan.status === 'Cancelled' ? t('edevletActivityPlans.detail.cancelled', 'Pasif') : t('edevletActivityPlans.detail.active', 'Aktif'),
       })),
-    [plans, scope],
+    [plans, scope, t],
   )
 
   const visiblePlans = useMemo(() => {
@@ -263,8 +269,8 @@ export function EDevletActivityPlansListPage() {
                   <FilterableTh filterKey="activityTypeName" filterValue={planFilters['activityTypeName'] ?? ''} onFilter={setPlanFilter} sortKey="activityTypeName" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</FilterableTh>
                   <FilterableTh filterKey="description" filterValue={planFilters['description'] ?? ''} onFilter={setPlanFilter} sortKey="description" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.description', 'Açıklama')}</FilterableTh>
                   <FilterableTh filterKey="createdAtUtc" filterValue={planFilters['createdAtUtc'] ?? ''} onFilter={setPlanFilter} sortKey="createdAtUtc" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.date', 'Tarih')}</FilterableTh>
-                  <FilterableTh filterKey="neighborhood" filterValue={planFilters['neighborhood'] ?? ''} onFilter={setPlanFilter} sortKey="neighborhood" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.neighborhood', 'Mahalle')}</FilterableTh>
-                  <FilterableTh filterKey="street" filterValue={planFilters['street'] ?? ''} onFilter={setPlanFilter} sortKey="street" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.street', 'Cadde/Sokak')}</FilterableTh>
+                  <FilterableTh filterKey="address" filterValue={planFilters['address'] ?? ''} onFilter={setPlanFilter} sortKey="addressDisplay" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.address', 'Adres Bilgisi')}</FilterableTh>
+                  <FilterableTh filterKey="statusLabel" filterValue={planFilters['statusLabel'] ?? ''} onFilter={setPlanFilter} sortKey="statusLabel" currentSortKey={plansSortKey} sortDir={plansSortDir} onSort={togglePlansSort}>{t('edevletActivityPlans.columns.status', 'Durum')}</FilterableTh>
                   <th className="text-center">{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -279,8 +285,15 @@ export function EDevletActivityPlansListPage() {
                       <td>{plan.activityTypeName}</td>
                       <td className="max-w-xs truncate" title={plan.description}>{plan.description}</td>
                       <td><DateCell value={plan.createdAtUtc} locale={locale} /></td>
-                      <td>{plan.neighborhood ?? '—'}</td>
-                      <td>{plan.street ?? '—'}</td>
+                      <td>
+                        <div>{plan.neighborhood ?? '—'}</div>
+                        <div className="text-xs text-slate-500">{plan.street ?? '—'}</div>
+                      </td>
+                      <td>
+                        <StatusPill className={getStatusPillClass(plan.status === 'Cancelled' ? 'cancelled' : 'completed')}>
+                          {plan.statusLabel}
+                        </StatusPill>
+                      </td>
                       <td className="actions-cell">
                         <div className="flex flex-wrap justify-center gap-2">
                           <Button type="button" size="sm" variant="secondary" className="gap-1.5" onClick={() => setDetailPlan(plan)}>

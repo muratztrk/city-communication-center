@@ -51,6 +51,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<UserDepartmentAssignment> UserDepartmentAssignments => Set<UserDepartmentAssignment>();
     public DbSet<EDevletActivityType> EDevletActivityTypes => Set<EDevletActivityType>();
     public DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans => Set<EDevletDailyActivityPlan>();
+    public DbSet<EDevletDailyActivityPlanEdit> EDevletDailyActivityPlanEdits => Set<EDevletDailyActivityPlanEdit>();
     public DbSet<EDevletBasvuru> EDevletBasvurular => Set<EDevletBasvuru>();
     public DbSet<InternalConversation> InternalConversations => Set<InternalConversation>();
     public DbSet<InternalMessage> InternalMessages => Set<InternalMessage>();
@@ -124,6 +125,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureUserDepartmentAssignment(modelBuilder.Entity<UserDepartmentAssignment>());
         ConfigureEDevletActivityType(modelBuilder.Entity<EDevletActivityType>());
         ConfigureEDevletDailyActivityPlan(modelBuilder.Entity<EDevletDailyActivityPlan>());
+        ConfigureEDevletDailyActivityPlanEdit(modelBuilder.Entity<EDevletDailyActivityPlanEdit>());
         ConfigureEDevletBasvuru(modelBuilder.Entity<EDevletBasvuru>());
         ConfigureEDevletBasvuruAttachment(modelBuilder.Entity<EDevletBasvuruAttachment>());
         ConfigureInternalConversation(modelBuilder.Entity<InternalConversation>());
@@ -160,6 +162,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<UserDepartmentAssignment>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletActivityType>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletDailyActivityPlan>());
+        ApplyTenantFilter(modelBuilder.Entity<EDevletDailyActivityPlanEdit>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuru>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuruAttachment>());
         ApplyTenantFilter(modelBuilder.Entity<InternalConversation>());
@@ -505,6 +508,15 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.ProviderCode).HasMaxLength(64);
         builder.Property(entity => entity.ProviderMessage).HasMaxLength(500);
         builder.Property(entity => entity.BodyPreview).HasMaxLength(500);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureEDevletDailyActivityPlanEdit(EntityTypeBuilder<EDevletDailyActivityPlanEdit> builder)
+    {
+        builder.ToTable("edevletdailyactivityplanedits");
+        builder.HasKey(entity => entity.EditId);
+        builder.Property(entity => entity.EditedByDisplayName).HasMaxLength(200);
+        builder.Property(entity => entity.ChangedFields).HasMaxLength(300);
         ApplyLowerCaseColumnNames(builder);
     }
 

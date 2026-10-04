@@ -10090,11 +10090,6 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   padding-bottom: 0.15rem;
 }
 
-/* Açıklama / Adres başlıkları Faaliyet Bilgileri ile aynı hizada (#4121). */
-.edevlet-plan-detail-shell .edevlet-plan-detail-card.page-stack:not(:first-child) > .job-detail-section-heading {
-  margin-top: -0.4rem;
-}
-
 /* Düzenleme modunda dropdown tetikleyicisi bir miktar daha alçak (#6ac20fb5). */
 .edevlet-plan-detail-edit .field-select {
   min-height: 2.1rem;

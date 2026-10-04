@@ -168,7 +168,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">
-                  {t('support.messageLabel', 'Mesaj')}
+                  {t('support.columns.message', 'Açıklama')}
                 </label>
                 <textarea
                   className="field-textarea support-request-dialog-field w-full"

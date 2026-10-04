@@ -273,8 +273,9 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
           {error ? <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
           {!detail && !error ? <div className="loading">{t('common.loading')}</div> : null}
           {detail ? (
-            <div className={`grid gap-4 lg:grid-cols-3${viewingEdit ? ' edevlet-plan-detail-edit' : ''}`}>
-              <section className="form-card page-stack min-w-0 edevlet-plan-detail-card">
+            <section className={`my-request-detail-main form-card page-stack mb-5 edevlet-plan-detail-main${viewingEdit ? ' edevlet-plan-detail-edit' : ''}`}>
+              <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
+              <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">
                 <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
                     <span>{t('edevletActivityPlans.detail.info', 'Faaliyet Bilgileri')}</span>
@@ -323,9 +324,9 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                     </>
                   )}
                 </div>
-              </section>
+              </div>
 
-              <section className="form-card page-stack min-w-0 edevlet-plan-detail-card">
+              <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">
                 <MyRequestSectionHeading icon={ClipboardList} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">{t('edevletActivityPlans.columns.description', 'Açıklama')}</span>
                 </MyRequestSectionHeading>
@@ -339,8 +340,8 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                 ) : (
                   <div className="whitespace-pre-wrap text-sm leading-5 text-slate-900">{detail.description || '—'}</div>
                 )}
-              </section>
-              <section className="form-card page-stack min-w-0 edevlet-plan-detail-card edevlet-plan-detail-address">
+              </div>
+              <div className="min-w-0 p-4 edevlet-plan-detail-card page-stack edevlet-plan-detail-address">
                 <MyRequestSectionHeading icon={MapPin} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">{t('edevletActivityPlans.detail.address', 'Adres Bilgileri')}</span>
                 </MyRequestSectionHeading>
@@ -394,9 +395,10 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                     </>
                   )}
                 </div>
-              </section>
+              </div>
 
-            </div>
+              </div>
+            </section>
           ) : null}
         </div>
       </section>

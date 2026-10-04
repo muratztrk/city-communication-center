@@ -45,7 +45,7 @@ export function SupportRequestDetailModal({
       ? t('support.statusSyncFailed', 'Merkeze iletilemedi')
       : t('support.statusPending', 'İşleniyor'))
 
-  const modalTitle = `${ticketDisplayNo} ${item.subject}`.trim()
+  const modalTitle = ticketDisplayNo
 
   const handleDownload = (attachmentId: string, fileName: string) => {
     void api.downloadAttachment(attachmentId).then(blob => {
@@ -135,7 +135,7 @@ export function SupportRequestDetailModal({
             </section>
             <section className="my-request-detail-card min-w-0 rounded-xl border border-slate-200 bg-white p-4">
               <MyRequestSectionHeading icon={MessageSquareText}>
-                {t('support.messageLabel', 'Mesaj')}
+                {t('support.columns.message', 'Açıklama')}
               </MyRequestSectionHeading>
               <p className="mt-3 whitespace-pre-wrap text-sm text-slate-800">{item.message}</p>
               {item.centralSyncError ? (

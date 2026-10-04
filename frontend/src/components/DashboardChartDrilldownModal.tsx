@@ -817,7 +817,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                                 })}
                                 footer={statusDateText
                                   ? (
-                                    <span className={`text-[0.68rem] font-bold ${row.citizenRequestNumber != null ? getCitizenGridStatusDateFooterClass(row.status) : row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                    <span className={`text-[0.68rem] font-bold ${getCitizenGridStatusDateFooterClass(row.status)}`}>
                                       {statusDateText}
                                     </span>
                                   )

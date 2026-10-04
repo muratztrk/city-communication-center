@@ -1,3 +1,9 @@
+## Round 1425 — #6ac2a924 r2 (Birimler e-Devlet pie popup grid başlığı)
+
+- [x] Kök neden: popup gövdesi `overflow-y-auto` → `.detail-modal-shell > .overflow-y-auto { transform: translateZ(0) }` kuralına takılıyor; transform'lu kap içinde `thead th` gradyanı (`background-attachment: fixed`) her sütunda ayrı boyanıyor, başlık bloklu görünüyordu. Ayrıca `jobs-table` (min-width 82rem) + `table-wrap desktop-panel-scroll` gereksiz yatay kaydırma ve çerçeve farkı yaratıyordu.
+- [x] Düzeltme: `DashboardEDevletPlansModal` gövdesi ve tablo sınıfları diğer pie popup'larıyla (`DashboardChartDrilldownModal`) birebir: gövde `overflow-hidden px-4 pb-4 pt-4`, wrap yalnız `dashboard-drilldown-table-wrap`, tabloda `jobs-table` yok.
+- [x] Doğrulama: `tsc -b` + lint (0 error) + build; derlenmiş CSS ile deney sayfasında referans ve e-Devlet tablosu yan yana: transform'lu üst kap yok, yatay taşma yok, başlık yüksekliği (42px) ve çerçeve (1px) aynı.
+
 ## Round 1424 — 12 kart (e-Devlet popup cilası, Düzenleyenler işlem geçmişi, Birimler anasayfa pie'ları, Birim Talep Haritası kaldırıldı)
 
 - [x] #6ac20f3b r4: popup tarih bullet'ı bir önceki boyuta döndü (`DateTimeText dotClassName="size-[5px]"`; gridlerde 3.5px kalır).

@@ -135,14 +135,16 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col justify-start overflow-y-auto p-4">
+        {/* Gövde overflow-hidden: `.detail-modal-shell > .overflow-y-auto` transform alır ve başlık
+            gradyanı (background-attachment: fixed) her sütunda ayrı boyanır; diğer pie popup'larıyla aynı (#6ac2a924). */}
+        <div className="flex min-h-0 flex-1 flex-col justify-start overflow-hidden px-4 pb-4 pt-4">
           {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
           {!data && !error ? <div className="loading">{t('common.loading')}</div> : null}
           {data ? (
             <div className="dashboard-drilldown-grid-shell">
-              <div className="dashboard-drilldown-table-wrap table-wrap desktop-panel-scroll">
+              <div className="dashboard-drilldown-table-wrap">
                 <div className="dashboard-drilldown-table-hscroll">
-                  <table className="data-table jobs-table data-table--zebra dashboard-drilldown-table dashboard-edevlet-plans-table">
+                  <table className="data-table data-table--zebra dashboard-drilldown-table dashboard-edevlet-plans-table">
                     <thead>
                       <tr>
                         <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>

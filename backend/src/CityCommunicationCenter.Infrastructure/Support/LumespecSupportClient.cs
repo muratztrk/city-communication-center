@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using CityCommunicationCenter.Application.Abstractions.Support;
 
@@ -8,6 +9,11 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
 {
     public const string HttpClientName = nameof(LumespecSupportClient);
     private const string ExternalSource = "city-communication-center";
+
+    private static readonly JsonSerializerOptions JsonReadOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly LumespecSupportOptions _options;
@@ -38,6 +44,7 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
             var environmentName = string.IsNullOrWhiteSpace(_options.EnvironmentName)
                 ? "CCC"
                 : _options.EnvironmentName.Trim();
+            var requesterEmail = ResolveRequesterEmail(request);
             using var message = new HttpRequestMessage(HttpMethod.Post, "/api/external/tickets")
             {
                 Content = JsonContent.Create(new
@@ -49,7 +56,7 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
                     requesterUserId = request.RequesterUserId?.ToString(),
                     requesterName = request.RequesterName,
                     organization = request.TenantName ?? "City Communication Center",
-                    email = request.RequesterEmail ?? string.Empty,
+                    email = requesterEmail,
                     environment = environmentName,
                     pageContext = request.PageContext,
                     subject = request.Subject,
@@ -70,11 +77,16 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
             }
 
             var payload = await response.Content.ReadFromJsonAsync<CentralSupportTicketEnvelope>(
-                cancellationToken: cancellationToken);
+                JsonReadOptions,
+                cancellationToken);
 
-            return payload?.Ticket is null
-                ? null
-                : new CentralSupportTicketResult(payload.Ticket.TicketNo, payload.Ticket.Status);
+            if (payload?.Ticket is null || string.IsNullOrWhiteSpace(payload.Ticket.TicketNo))
+            {
+                _logger.LogWarning("Lumespec support ticket sync returned success without ticket payload.");
+                return null;
+            }
+
+            return new CentralSupportTicketResult(payload.Ticket.TicketNo, payload.Ticket.Status);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -113,7 +125,8 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
             }
 
             var payload = await response.Content.ReadFromJsonAsync<CentralSupportMessagesEnvelope>(
-                cancellationToken: cancellationToken);
+                JsonReadOptions,
+                cancellationToken);
 
             return payload?.Ticket is null
                 ? null
@@ -135,15 +148,27 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
         }
     }
 
-    private sealed record CentralSupportTicketEnvelope(CentralSupportTicketDto Ticket);
+    private static string ResolveRequesterEmail(CreateCentralSupportTicketRequest request)
+    {
+        if (!string.IsNullOrWhiteSpace(request.RequesterEmail))
+        {
+            return request.RequesterEmail.Trim();
+        }
+
+        var userPart = request.RequesterUserId?.ToString("N") ?? "anonymous";
+        return $"ccc-{userPart}@noemail.local";
+    }
+
+    private sealed record CentralSupportTicketEnvelope(
+        [property: JsonPropertyName("ticket")] CentralSupportTicketDto Ticket);
 
     private sealed record CentralSupportTicketDto(
         [property: JsonPropertyName("ticket_no")] string TicketNo,
         string Status);
 
     private sealed record CentralSupportMessagesEnvelope(
-        CentralSupportTicketDto Ticket,
-        IReadOnlyList<CentralSupportMessageDto> Messages);
+        [property: JsonPropertyName("ticket")] CentralSupportTicketDto Ticket,
+        [property: JsonPropertyName("messages")] IReadOnlyList<CentralSupportMessageDto> Messages);
 
     private sealed record CentralSupportMessageDto(
         string Direction,

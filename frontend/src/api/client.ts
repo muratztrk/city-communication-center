@@ -2157,13 +2157,18 @@ export const api = {
     return response.json() as Promise<AppNotification[]>
   },
 
-  async submitSupportRequest(subject: string, message: string, pageContext: string | null): Promise<void> {
+  async submitSupportRequest(subject: string, message: string, pageContext: string | null): Promise<string> {
     const response = await fetchWithCredentials(`${API_BASE}/support-requests`, {
       method: 'POST',
       headers: await getAuthHeaders(),
       body: JSON.stringify({ subject, message, pageContext }),
     })
     await ensureOk(response, i18n.t('errors.supportRequestSendFailed', 'Destek talebi gönderilemedi'))
+    const body = (await response.json()) as { supportRequestId?: string }
+    if (!body.supportRequestId) {
+      throw new Error(i18n.t('errors.supportRequestSendFailed', 'Destek talebi gönderilemedi'))
+    }
+    return body.supportRequestId
   },
 
   async getSupportRequests(): Promise<SupportRequest[]> {

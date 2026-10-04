@@ -11,9 +11,11 @@ public sealed class SubmitSupportRequestCommandValidator : AbstractValidator<Sub
     {
         RuleFor(command => command.Subject)
             .NotEmpty().WithMessage("Konu zorunludur.")
+            .MinimumLength(4).WithMessage("Konu en az 4 karakter olmalıdır.")
             .MaximumLength(200).WithMessage("Konu en fazla 200 karakter olabilir.");
         RuleFor(command => command.Message)
             .NotEmpty().WithMessage("Mesaj zorunludur.")
+            .MinimumLength(10).WithMessage("Mesaj en az 10 karakter olmalıdır.")
             .MaximumLength(4000).WithMessage("Mesaj en fazla 4000 karakter olabilir.");
         RuleFor(command => command.PageContext)
             .MaximumLength(500).WithMessage("Sayfa bilgisi en fazla 500 karakter olabilir.");

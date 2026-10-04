@@ -22,6 +22,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
+  const [centralSyncFailed, setCentralSyncFailed] = useState(false)
   const myRequestsQuery = useQuery({
     queryKey: queryKeys.supportRequests.mine(),
     queryFn: () => api.getMySupportRequests(),
@@ -31,13 +32,16 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
 
   if (!open) return null
 
-  const canSubmit = subject.trim().length > 0 && message.trim().length > 0 && !sending
+  const trimmedSubject = subject.trim()
+  const trimmedMessage = message.trim()
+  const canSubmit = trimmedSubject.length >= 4 && trimmedMessage.length >= 10 && !sending
 
   const handleClose = () => {
     setSubject('')
     setMessage('')
     setError(null)
     setSent(false)
+    setCentralSyncFailed(false)
     onClose()
   }
 
@@ -46,8 +50,14 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
     setSending(true)
     setError(null)
     try {
-      await api.submitSupportRequest(subject.trim(), message.trim(), location.pathname)
+      const supportRequestId = await api.submitSupportRequest(trimmedSubject, trimmedMessage, location.pathname)
       void queryClient.invalidateQueries({ queryKey: queryKeys.supportRequests.list() })
+      const mine = await queryClient.fetchQuery({
+        queryKey: queryKeys.supportRequests.mine(),
+        queryFn: () => api.getMySupportRequests(),
+      })
+      const created = mine.find(item => item.supportRequestId === supportRequestId)
+      setCentralSyncFailed(Boolean(created?.centralSyncError))
       void queryClient.invalidateQueries({ queryKey: queryKeys.supportRequests.mine() })
       setSent(true)
       setSubject('')
@@ -78,9 +88,18 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
         <div className="min-h-0 overflow-y-auto pr-1">
           {sent ? (
             <div className="space-y-4">
-              <p className="text-sm text-slate-600">
-                {t('support.sentMessage', 'Talebiniz alındı. Lumespec ekibi en kısa sürede sizinle iletişime geçecek.')}
-              </p>
+              {centralSyncFailed ? (
+                <p className="text-sm font-medium text-amber-800">
+                  {t(
+                    'support.sentLocalOnly',
+                    'Talebiniz kaydedildi ancak merkezi Lumespec destek sistemine iletilemedi. Lütfen konuyu ve mesajı biraz daha ayrıntılı yazarak tekrar deneyin veya destek@lumespec.com adresine yazın.',
+                  )}
+                </p>
+              ) : (
+                <p className="text-sm text-slate-600">
+                  {t('support.sentMessage', 'Talebiniz alındı. Lumespec ekibi en kısa sürede sizinle iletişime geçecek.')}
+                </p>
+              )}
               <div className="flex justify-end">
                 <Button type="button" variant="primary" onClick={handleClose}>
                   {t('common.close', 'Kapat')}
@@ -102,6 +121,9 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
                   maxLength={200}
                   autoFocus
                 />
+                <p className="mt-1 text-xs text-slate-500">
+                  {t('support.subjectHint', 'Konu en az 4 karakter olmalıdır.')}
+                </p>
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">
@@ -115,6 +137,9 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
                   onChange={e => setMessage(e.target.value)}
                   maxLength={4000}
                 />
+                <p className="mt-1 text-xs text-slate-500">
+                  {t('support.messageHint', 'Mesaj en az 10 karakter olmalıdır.')}
+                </p>
               </div>
               {error ? <p className="text-xs font-semibold text-red-600">{error}</p> : null}
               <div className="flex justify-end gap-2">

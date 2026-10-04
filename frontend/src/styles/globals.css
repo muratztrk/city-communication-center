@@ -10105,3 +10105,10 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 .edevlet-plan-detail-card .edevlet-plan-detail-fields {
   gap: 0;
 }
+
+/* Düzenle modunda açılır liste satırları biraz daha kompakt (#4082). */
+.edevlet-plan-detail-edit .dropdown-menu-scroll .dropdown-menu-item {
+  font-size: 0.75rem;
+  padding: 0.28rem 0.5rem;
+  min-height: 1.65rem;
+}

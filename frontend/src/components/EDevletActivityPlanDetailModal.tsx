@@ -357,18 +357,20 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                         />,
                         'address-neighborhood',
                       )}
-                      {row(t('edevletActivityPlans.columns.street', 'Cadde/Sokak'), (
-                        <CbsStreetNoDropdowns
-                          hideStreetNo
-                          neighborhood={form.neighborhood}
-                          street={form.street}
-                          streetNo=""
-                          required={Boolean(form.neighborhood)}
-                          className="grid min-w-0 w-full grid-cols-1 gap-2"
-                          onStreetChange={street => setForm(current => current && ({ ...current, street }))}
-                          onStreetNoChange={() => undefined}
-                        />
-                      ))}
+                      <div className="job-detail-field-row job-detail-field-row--request-info job-detail-field-row--full">
+                        <div className="job-detail-field-row__value min-w-0 w-full">
+                          <CbsStreetNoDropdowns
+                            hideStreetNo
+                            neighborhood={form.neighborhood}
+                            street={form.street}
+                            streetNo=""
+                            required={Boolean(form.neighborhood)}
+                            className="grid min-w-0 w-full grid-cols-1 gap-2"
+                            onStreetChange={street => setForm(current => current && ({ ...current, street }))}
+                            onStreetNoChange={() => undefined}
+                          />
+                        </div>
+                      </div>
                     </>
                   ) : (
                     <>

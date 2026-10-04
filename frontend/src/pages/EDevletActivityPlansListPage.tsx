@@ -1,11 +1,10 @@
-import { FileText, Search, PenLine, X } from 'lucide-react'
+import { FileText, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { EDevletActivityPlanDetailModal } from '../components/EDevletActivityPlanDetailModal'
-import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
@@ -74,7 +73,6 @@ function isPlanInScope(createdAtUtc: string, scope: PlanScope) {
 
 export function EDevletActivityPlansListPage() {
   const { t, i18n } = useTranslation()
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const locale = getLocale(i18n.language)
   const scopeParam = searchParams.get('view')
@@ -82,7 +80,6 @@ export function EDevletActivityPlansListPage() {
   const [plans, setPlans] = useState<ActivityPlanRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [filterFrom, setFilterFrom] = useState('')
@@ -194,27 +191,6 @@ export function EDevletActivityPlansListPage() {
     }, { replace: true })
   }
 
-  const handleCancel = (plan: ActivityPlanRow) => {
-    setConfirmDialog({
-      title: t('edevletActivityPlans.cancelTitle', 'Faaliyet Planını İptal Et'),
-      titleDivider: true,
-      message: t('edevletActivityPlans.cancelConfirm', 'Bu faaliyet planını iptal etmek istediğinize emin misiniz?'),
-      confirmLabel: t('edevletActivityPlans.cancelAction', 'İptal Et'),
-      cancelLabel: t('common.back', 'Geri'),
-      variant: 'destructive',
-      onConfirm: () => {
-        void (async () => {
-          try {
-            await api.cancelEDevletDailyActivityPlan(plan.planId)
-            await loadPlans()
-          } catch (err) {
-            setError(err instanceof Error ? err.message : t('common.error'))
-          }
-        })()
-      },
-    })
-  }
-
   return (
     <div className="page-stack desktop-page-shell">
       <header className="sticky-page-header">
@@ -294,7 +270,6 @@ export function EDevletActivityPlansListPage() {
               </thead>
               <tbody>
                 {paginatedPlans.map((plan, index) => {
-                  const isCancelled = plan.status === 'Cancelled'
                   return (
                     <tr key={plan.planId}>
                       <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(currentPage - 1) * pageSize + index + 1}</td>
@@ -311,26 +286,6 @@ export function EDevletActivityPlansListPage() {
                           <Button type="button" size="sm" variant="secondary" className="gap-1.5" onClick={() => setDetailPlan(plan)}>
                             <FileText className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.details', 'Detaylar')}
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            className="gap-1.5"
-                            disabled={isCancelled}
-                            onClick={() => navigate(`/edevlet/activity-plan?planId=${plan.planId}`)}
-                          >
-                            <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                            {t('common.edit', 'Düzenle')}
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="destructive"
-                            disabled={isCancelled}
-                            onClick={() => handleCancel(plan)}
-                          >
-                            {t('edevletActivityPlans.cancelAction', 'İptal Et')}
                           </Button>
                         </div>
                       </td>
@@ -372,7 +327,6 @@ export function EDevletActivityPlansListPage() {
         />
       ) : null}
 
-      {confirmDialog ? <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} /> : null}
     </div>
   )
 }

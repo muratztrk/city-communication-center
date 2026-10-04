@@ -74,7 +74,11 @@ public sealed class GetEDevletDailyActivityPlanByIdQueryHandler : IQueryHandler<
                 plan.PlanNumber,
                 plan.PlanNumberYear,
                 plan.Status.ToString(),
-                plan.CreatedAtUtc))
+                plan.CreatedAtUtc,
+                _dbContext.Users
+                    .Where(user => user.UserId == plan.CreatedByUserId)
+                    .Select(user => user.DisplayName)
+                    .FirstOrDefault()))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

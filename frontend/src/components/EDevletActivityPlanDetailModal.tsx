@@ -155,6 +155,9 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
   )
 
   const viewingEdit = editing && form !== null
+  // Faaliyet tarihi bugünü geçmişse Düzenle görünmez (#6ac2121c).
+  const isPastPlan = detail ? new Date(detail.createdAtUtc).toDateString() !== new Date().toDateString() : false
+  const creatorRow = row(t('edevletActivityPlans.detail.createdBy', 'Oluşturan'), detail?.createdByDisplayName || '—')
 
   return createPortal(
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4" role="presentation" onClick={onClose}>
@@ -188,16 +191,18 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
               </>
             ) : (
               <>
-                <Button
-                  type="button"
-                  size="lg"
-                  className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
-                  disabled={!detail}
-                  onClick={() => void startEdit()}
-                >
-                  <PenLine className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-                  {t('common.edit', 'Düzenle')}
-                </Button>
+                {!isPastPlan ? (
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
+                    disabled={!detail}
+                    onClick={() => void startEdit()}
+                  >
+                    <PenLine className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                    {t('common.edit', 'Düzenle')}
+                  </Button>
+                ) : null}
                 <Button
                   type="button"
                   size="lg"
@@ -235,6 +240,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                     <span className="ml-auto shrink-0 font-mono text-xs font-semibold text-slate-500">{planNoDisplay}</span>
                   </span>
                 </MyRequestSectionHeading>
+                {creatorRow}
                 {viewingEdit ? (
                   <>
                     <div className="grid gap-1">

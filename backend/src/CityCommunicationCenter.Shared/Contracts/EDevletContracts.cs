@@ -27,7 +27,8 @@ public sealed record EDevletDailyActivityPlanResponse(
     int? PlanNumber,
     int? PlanNumberYear,
     string Status,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    string? CreatedByDisplayName = null);
 
 public sealed record UpdateEDevletDailyActivityPlanRequest(
     Guid ActivityTypeId,

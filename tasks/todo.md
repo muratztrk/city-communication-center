@@ -1,3 +1,10 @@
+## Round 1420 — #6ac20f3b / #6ac2121c / #6ac21252
+
+- [x] Planlar Listesi grid İşlemler: Düzenle ve İptal Et kaldırıldı, yalnız Detaylar (kullanılmayan iptal/navigate kodu temizlendi; `/edevlet/activity-plan?planId=` rotası duruyor).
+- [x] Detaylar popup'ı: Faaliyet Bilgileri'nin ilk satırı `Oluşturan` (backend `EDevletDailyActivityPlanResponse.CreatedByDisplayName`, yalnız GetById'de dolar).
+- [x] Faaliyet tarihi bugünden önceyse popup'ta `Düzenle` görünmez (yerel gün karşılaştırması).
+- [x] Doğrulama: `tsc -b` + lint (0 error), `dotnet build` 0 error. Görsel/uçtan uca denenmedi.
+
 ## Round 1419 — #3979 r5 / #4067 r6 / #4077 r2 / #6ac20d67 / #6ac20baf / #6ac20c40
 
 - [x] #3979 / #4067 — e-Devlet Planı Oluştur Düzenle simgesi biraz daha küçük (`size-4` → `0.9375rem`, masaüstü + mobil, `shrink-0`).

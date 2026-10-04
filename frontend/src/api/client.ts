@@ -2335,6 +2335,7 @@ export const api = {
     planNumberYear: number | null
     status: string
     createdAtUtc: string
+    createdByDisplayName?: string | null
   }> {
     const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.edevletDailyPlanLoadFailed', 'Faaliyet planı yüklenemedi.'))
@@ -2350,6 +2351,7 @@ export const api = {
       planNumberYear: number | null
       status: string
       createdAtUtc: string
+      createdByDisplayName?: string | null
     }>
   },
 

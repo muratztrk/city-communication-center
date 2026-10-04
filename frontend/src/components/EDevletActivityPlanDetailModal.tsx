@@ -232,7 +232,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
           {error ? <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
           {!detail && !error ? <div className="loading">{t('common.loading')}</div> : null}
           {detail ? (
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className={`grid gap-4 lg:grid-cols-3${viewingEdit ? ' edevlet-plan-detail-edit' : ''}`}>
               <section className="form-card page-stack min-w-0">
                 <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
@@ -270,13 +270,32 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                   <>
                     {row(t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi'), detail.activityTypeName)}
                     {row(t('edevletActivityPlans.columns.date', 'Tarih'), dateText)}
-                    {row(t('edevletActivityPlans.detail.status', 'Durum'), statusLabel(detail.status))}
+                    {row(t('edevletActivityPlans.detail.status', 'Durum'), (
+                      <span className={detail.status === 'Active' ? 'font-semibold text-green-600' : undefined}>{statusLabel(detail.status)}</span>
+                    ))}
                   </>
                 )}
               </section>
 
               <section className="form-card page-stack min-w-0">
-                <MyRequestSectionHeading icon={MapPin}>{t('edevletActivityPlans.detail.address', 'Adres')}</MyRequestSectionHeading>
+                <MyRequestSectionHeading icon={ClipboardList} className="job-detail-card-title--spread">
+                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2">{t('edevletActivityPlans.columns.description', 'Açıklama')}</span>
+                </MyRequestSectionHeading>
+                {viewingEdit ? (
+                  <textarea
+                    className="min-h-32 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900"
+                    maxLength={400}
+                    value={form.description}
+                    onChange={event => setForm(current => current && ({ ...current, description: event.target.value }))}
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap text-sm leading-5 text-slate-900">{detail.description || '—'}</div>
+                )}
+              </section>
+              <section className="form-card page-stack min-w-0">
+                <MyRequestSectionHeading icon={MapPin} className="job-detail-card-title--spread">
+                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2">{t('edevletActivityPlans.detail.address', 'Adres Bilgileri')}</span>
+                </MyRequestSectionHeading>
                 {viewingEdit ? (
                   <>
                     <div className="grid gap-1">
@@ -313,19 +332,6 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                 )}
               </section>
 
-              <section className="form-card page-stack min-w-0">
-                <MyRequestSectionHeading icon={ClipboardList}>{t('edevletActivityPlans.columns.description', 'Açıklama')}</MyRequestSectionHeading>
-                {viewingEdit ? (
-                  <textarea
-                    className="min-h-32 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900"
-                    maxLength={400}
-                    value={form.description}
-                    onChange={event => setForm(current => current && ({ ...current, description: event.target.value }))}
-                  />
-                ) : (
-                  <div className="whitespace-pre-wrap text-sm leading-5 text-slate-900">{detail.description || '—'}</div>
-                )}
-              </section>
             </div>
           ) : null}
         </div>

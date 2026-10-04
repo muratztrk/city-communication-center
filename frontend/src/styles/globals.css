@@ -10030,3 +10030,9 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     min-height: 3.1rem !important;
   }
 }
+
+/* e-Devlet plan detay popup düzenleme: dropdown tetikleyicisi çok az alçak (#6ac21373). */
+.edevlet-plan-detail-edit .field-select {
+  min-height: 2.3rem;
+  padding-block: 0.4rem;
+}

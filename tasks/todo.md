@@ -1,3 +1,10 @@
+## Round 1421 — #6ac212f9 / #6ac21373 / #6ac21383 (plan detay popup cilası)
+
+- [x] Durum `Aktif` metni yeşil (`text-green-600`, yalnız görüntüleme modunda; İptal Edildi renksiz).
+- [x] Düzenle modunda dropdown tetikleyicisi çok az alçak (`.edevlet-plan-detail-edit .field-select` `2.6rem` → `2.3rem`).
+- [x] `Adres` → `Adres Bilgileri`; üç kartın başlıkları aynı `job-detail-card-title--spread` yapısı (başlık altı çizgiler hizalı); Açıklama ortada, Adres Bilgileri sağda (yer değişti).
+- [x] Doğrulama: `tsc -b` + lint (0 error). Çizgi hizası/ölçü tarayıcıda ölçülmedi.
+
 ## Round 1420 — #6ac20f3b / #6ac2121c / #6ac21252
 
 - [x] Planlar Listesi grid İşlemler: Düzenle ve İptal Et kaldırıldı, yalnız Detaylar (kullanılmayan iptal/navigate kodu temizlendi; `/edevlet/activity-plan?planId=` rotası duruyor).

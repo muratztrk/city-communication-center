@@ -153,7 +153,7 @@ export function LumespecSupportPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table jobs-table data-table--zebra">
+          <table className="data-table jobs-table data-table--zebra lumespec-support-table">
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>

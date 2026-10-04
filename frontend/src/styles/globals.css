@@ -3201,7 +3201,8 @@
   .audit-logs-table thead th,
   .whatsapp-message-logs-table thead th,
   .role-matrix-table thead th,
-  .edevlet-plans-table thead th {
+  .edevlet-plans-table thead th,
+  .lumespec-support-table thead th {
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     background-attachment: fixed;
@@ -3222,7 +3223,8 @@
   .audit-logs-table thead,
   .whatsapp-message-logs-table thead,
   .role-matrix-table thead,
-  .edevlet-plans-table thead {
+  .edevlet-plans-table thead,
+  .lumespec-support-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
@@ -5831,6 +5833,7 @@
     .whatsapp-message-logs-table thead,
     .role-matrix-table thead,
     .edevlet-plans-table thead,
+    .lumespec-support-table thead,
     .detail-modal-shell .dashboard-drilldown-table thead,
     .data-table.dashboard-drilldown-table thead {
       background-color: var(--color-header-from);
@@ -5852,6 +5855,7 @@
     .whatsapp-message-logs-table thead th,
     .role-matrix-table thead th,
     .edevlet-plans-table thead th,
+    .lumespec-support-table thead th,
     .detail-modal-shell .dashboard-drilldown-table thead th,
     .data-table.dashboard-drilldown-table thead th {
       background-color: transparent;
@@ -10083,13 +10087,6 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 .edevlet-plan-detail-edit .field-select {
   min-height: 2.1rem;
   padding-block: 0.3rem;
-  font-size: 0.8125rem;
-}
-
-/* Düzenle modunda dropdown kapalı metin boyutu (#4082). */
-.edevlet-plan-detail-edit .field-select .truncate {
-  font-size: 0.8125rem;
-  font-weight: 500;
 }
 
 /* Kaydet / Vazgeç aynı genişlik (#4100). */
@@ -10101,10 +10098,4 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 .edevlet-plan-detail-card .edevlet-plan-detail-fields {
   gap: 0;
   margin-top: -0.35rem;
-}
-
-.edevlet-plan-detail-edit .dropdown-menu-scroll .dropdown-menu-item {
-  font-size: 0.75rem;
-  padding: 0.28rem 0.5rem;
-  min-height: 1.65rem;
 }

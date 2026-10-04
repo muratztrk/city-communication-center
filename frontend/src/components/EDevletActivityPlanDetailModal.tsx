@@ -356,8 +356,9 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                           searchable
                           clearable
                           menuPortal
+                          matchTriggerWidth
                           menuClassName={EDEVLET_PLAN_EDIT_DROPDOWN_MENU_CLASS}
-                          className="w-full max-w-full"
+                          className="edevlet-plan-detail-address-dropdown w-full max-w-full"
                           options={neighborhoodOptions}
                           value={form.neighborhood}
                           onChange={neighborhood => setForm(current => current && ({ ...current, neighborhood, street: '' }))}
@@ -373,6 +374,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                         <CbsStreetNoDropdowns
                           hideStreetNo
                           hideStreetLabel
+                          matchTriggerWidth
                           menuClassName={EDEVLET_PLAN_EDIT_DROPDOWN_MENU_CLASS}
                           neighborhood={form.neighborhood}
                           street={form.street}

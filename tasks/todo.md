@@ -1,3 +1,8 @@
+## Round 1417 — #6ac0cd78 (e-Devlet Planları Listesi Detaylar)
+
+- [x] e-Devlet Günlük Faaliyet Planları Listesi gridinde İşlemler sütununa `Detaylar` butonu (FileText ikonu, Düzenle/İptal Et'in solunda). Tıklayınca Talepler detay popup'ıyla aynı kabukta (`detail-modal-shell`, başlık+marka+kırmızı kapat) `EDevletActivityPlanDetailModal`: Faaliyet Bilgileri (no, tip, tarih, durum), Konum (mahalle, cadde/sokak, açık adres), Açıklama. Veri `getEDevletDailyActivityPlan`; yeni backend yok. İptal edilmiş planda da Detaylar açılır.
+- [x] Doğrulama: `tsc -b` + lint (0 error, 13 mevcut warning). Görsel ölçüm yapılmadı.
+
 ## Round 1416 — #3979 r4 / #4067 r5 / #4075
 
 - [x] #3979 / #4067 — Düzenle simgesi bir miktar daha küçüldü (`1.05rem` → `size-4`, Ekle/Sil ikonlarıyla aynı; `shrink-0` korundu).

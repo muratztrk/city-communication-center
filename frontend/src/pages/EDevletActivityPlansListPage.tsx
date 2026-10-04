@@ -1,9 +1,10 @@
-import { Search, PenLine, X } from 'lucide-react'
+import { FileText, Search, PenLine, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
+import { EDevletActivityPlanDetailModal } from '../components/EDevletActivityPlanDetailModal'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
@@ -87,6 +88,7 @@ export function EDevletActivityPlansListPage() {
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [searchText, setSearchText] = useState('')
+  const [detailPlan, setDetailPlan] = useState<PlanRowView | null>(null)
 
   const { sortKey: plansSortKey, sortDir: plansSortDir, toggleSort: _togglePlansSort, sortItems: sortPlans } = useSortable()
   const { filters: planFilters, setFilter: setPlanFilter, clearFilters: clearPlanFilters, matchesFilters: planMatchesFilters, hasActiveFilters: hasActivePlanColumnFilters } = useColumnFilters()
@@ -306,6 +308,10 @@ export function EDevletActivityPlansListPage() {
                       <td>{plan.street ?? '—'}</td>
                       <td className="actions-cell">
                         <div className="flex flex-wrap justify-center gap-2">
+                          <Button type="button" size="sm" variant="secondary" className="gap-1.5" onClick={() => setDetailPlan(plan)}>
+                            <FileText className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                            {t('jobs.actions.details', 'Detaylar')}
+                          </Button>
                           <Button
                             type="button"
                             size="sm"
@@ -355,6 +361,15 @@ export function EDevletActivityPlansListPage() {
           />
         </section>
       )}
+
+      {detailPlan ? (
+        <EDevletActivityPlanDetailModal
+          planId={detailPlan.planId}
+          planNoDisplay={detailPlan.planNoDisplay}
+          locale={locale}
+          onClose={() => setDetailPlan(null)}
+        />
+      ) : null}
 
       {confirmDialog ? <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} /> : null}
     </div>

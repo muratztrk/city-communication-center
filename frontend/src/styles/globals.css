@@ -10112,3 +10112,18 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   padding: 0.28rem 0.5rem;
   min-height: 1.65rem;
 }
+
+/* Faaliyet Tipi / Durum: tetikleyici biraz dar, metin sağa (#4113). */
+.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .field-select {
+  max-width: 92%;
+  margin-left: auto;
+}
+
+.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .field-select .truncate {
+  text-align: right;
+}
+
+.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .dropdown-menu-scroll .dropdown-menu-item {
+  justify-content: flex-end;
+  text-align: right;
+}

@@ -91,6 +91,8 @@ interface CbsStreetNoDropdownsProps {
   splitMobileLayout?: boolean
   /** Yalnız Cadde / Sokak dropdown'u (e-Devlet faaliyet planı: No yok, #6abfab0e). */
   hideStreetNo?: boolean
+  /** Satır başlığı üst alanda verildiğinde CBS iç etiketini gizle (#4112). */
+  hideStreetLabel?: boolean
 }
 
 /** Cadde/Sokak + No: İzmir CBS kademeli dropdown (#2655). */
@@ -119,6 +121,7 @@ export function CbsStreetNoDropdowns({
   streetNoColumnClassName = 'lg:w-[8.25rem] lg:min-w-[8.25rem] lg:max-w-[8.25rem]',
   splitMobileLayout = false,
   hideStreetNo = false,
+  hideStreetLabel = false,
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
@@ -138,10 +141,12 @@ export function CbsStreetNoDropdowns({
   return (
     <div className={rowClassName}>
       <div className="grid min-w-0 gap-1">
-        <span className={`${labelClassName} whitespace-nowrap`}>
-          {t('address.streetLabel', 'Cadde / Sokak')}
-          {required && hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-        </span>
+        {hideStreetLabel ? null : (
+          <span className={`${labelClassName} whitespace-nowrap`}>
+            {t('address.streetLabel', 'Cadde / Sokak')}
+            {required && hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+          </span>
+        )}
         <SingleSelectDropdown
           searchable
           openUp={openUp}

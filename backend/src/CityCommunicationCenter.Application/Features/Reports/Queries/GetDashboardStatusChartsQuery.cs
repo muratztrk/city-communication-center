@@ -358,6 +358,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         if (roleCode is "Reporter")
         {
             charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
+            charts.Add(await BuildEDevletPlanDepartmentChartAsync(tenantId, request, cancellationToken));
         }
 
         return new DashboardStatusChartsResponse(charts);
@@ -637,6 +638,41 @@ public sealed class GetDashboardStatusChartsQueryHandler
             BuildDepartmentChart("dashboard.charts.externalProjectsInProgress", projectsInProgress, departmentNames),
             BuildDepartmentChart("dashboard.charts.externalProjectsCompleted", projectsCompleted, departmentNames),
         ];
+    }
+
+    /// <summary>
+    /// Üst Düzey Yönetici "e-Devlet Günlük Faaliyet Planları" pie'ı: dönem içinde oluşturulan planların birime göre
+    /// dağılımı (#6ac0ccf8). Gecikme kavramı yoktur; "Gecikti mi?" açıkken boş grafik döner.
+    /// </summary>
+    private async Task<DashboardChartResponse> BuildEDevletPlanDepartmentChartAsync(
+        Guid tenantId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        const string titleKey = "dashboard.charts.edevletActivityPlans";
+        if (request.OverdueOnly)
+        {
+            return new DashboardChartResponse(titleKey, []);
+        }
+
+        var counts = (await _dbContext.EDevletDailyActivityPlans.AsNoTracking()
+            .Where(plan => plan.TenantId == tenantId
+                && (!request.FromUtc.HasValue || plan.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || plan.CreatedAtUtc <= request.ToUtc.Value))
+            .GroupBy(plan => plan.DepartmentId)
+            .Select(group => new { DepartmentId = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken))
+            .Select(item => (item.DepartmentId, item.Count))
+            .ToList();
+
+        var departmentIds = counts.Select(entry => entry.DepartmentId).ToArray();
+        var departmentNames = departmentIds.Length == 0
+            ? new Dictionary<Guid, string>()
+            : await _dbContext.Departments.AsNoTracking()
+                .Where(department => department.TenantId == tenantId && departmentIds.Contains(department.DepartmentId))
+                .ToDictionaryAsync(department => department.DepartmentId, department => department.Name, cancellationToken);
+
+        return BuildDepartmentChart(titleKey, counts, departmentNames);
     }
 
     private async Task<IReadOnlyList<(Guid DepartmentId, int Count)>> CountProjectDepartmentsAsync(

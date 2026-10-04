@@ -307,6 +307,29 @@ export const api = {
     return response.json() as Promise<DashboardChartResponse>
   },
 
+  async getDashboardEDevletPlans(departmentId: string, from?: string, to?: string): Promise<{
+    departmentName: string
+    rows: Array<{
+      planId: string
+      planNumber: number | null
+      planNumberYear: number | null
+      createdAtUtc: string
+      activityTypeName: string
+      neighborhood: string | null
+      street: string | null
+      description: string
+      status: string
+      createdByDisplayName: string | null
+    }>
+  }> {
+    const params = new URLSearchParams({ departmentId })
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const response = await fetchWithCredentials(`${API_BASE}/reports/dashboard-edevlet-plans?${params.toString()}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
+    return response.json()
+  },
+
   async getDashboardStatusCharts(from?: string, to?: string, filters?: { staff: string; department?: string; mine: string; requestTagStatus?: string; overdueOnly?: boolean }): Promise<DashboardStatusChartsResponse> {
     const params = new URLSearchParams()
     if (from) params.set('from', from)
@@ -2349,7 +2372,7 @@ export const api = {
     createdAtUtc: string
     createdByDisplayName?: string | null
     departmentName?: string | null
-    edits?: Array<{ editedByDisplayName: string | null; editedAtUtc: string; changedFields: string[] }> | null
+    edits?: Array<{ editedByDisplayName: string | null; editedAtUtc: string; changedFields: string[]; action?: string | null; changes?: string[] | null }> | null
   }> {
     const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.edevletDailyPlanLoadFailed', 'Faaliyet planı yüklenemedi.'))
@@ -2367,7 +2390,7 @@ export const api = {
       createdAtUtc: string
       createdByDisplayName?: string | null
       departmentName?: string | null
-      edits?: Array<{ editedByDisplayName: string | null; editedAtUtc: string; changedFields: string[] }> | null
+      edits?: Array<{ editedByDisplayName: string | null; editedAtUtc: string; changedFields: string[]; action?: string | null; changes?: string[] | null }> | null
     }>
   },
 

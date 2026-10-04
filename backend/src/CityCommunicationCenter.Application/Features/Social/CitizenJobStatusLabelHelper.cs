@@ -22,6 +22,30 @@ public static class CitizenJobStatusLabelHelper
         return "İşleme Alındı";
     }
 
+    private static string CapitalizeWordsTr(string value)
+    {
+        var turkish = new System.Globalization.CultureInfo("tr-TR");
+        var chars = value.ToCharArray();
+        var startOfWord = true;
+        for (var i = 0; i < chars.Length; i++)
+        {
+            if (char.IsWhiteSpace(chars[i]))
+            {
+                startOfWord = true;
+                continue;
+            }
+
+            if (startOfWord && char.IsLetter(chars[i]))
+            {
+                chars[i] = char.ToUpper(chars[i], turkish);
+            }
+
+            startOfWord = false;
+        }
+
+        return new string(chars);
+    }
+
     public static string BuildStatusMessage(SocialMessage message, Job job, int taskCount, DateTimeOffset utcNow)
     {
         return BuildStatusMessage(message, job, taskCount, utcNow, null);
@@ -41,7 +65,8 @@ public static class CitizenJobStatusLabelHelper
             message.CitizenRequestNumberYear,
             message.ReceivedAtUtc);
         var statusLabel = GetCitizenAutoReplyStatusLabel(job, taskCount, utcNow);
-        var title = string.IsNullOrWhiteSpace(job.Title) ? "talebiniz" : job.Title.Trim();
+        // Vatandaşa giden mesajda talep başlığının her kelimesi büyük harfle başlar (#6ac27c9b).
+        var title = string.IsNullOrWhiteSpace(job.Title) ? "talebiniz" : CapitalizeWordsTr(job.Title.Trim());
         var targetDepartments = string.IsNullOrWhiteSpace(targetDepartmentNames)
             ? "İlgili birim"
             : targetDepartmentNames.Trim();

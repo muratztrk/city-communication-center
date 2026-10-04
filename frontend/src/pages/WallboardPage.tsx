@@ -15,6 +15,7 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { JobSummary, SocialMessage, Task } from '../types/platform'
 import { isCitizenRequestJob } from '../utils/citizenRequests'
+import { muteNewRecordSoundWhileMounted, suppressNewRecordSound } from '../utils/newRecordSoundSuppress'
 import { getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridPrioritySubline } from '../utils/localization'
 
 type WallboardSource = 'internal' | 'external' | 'citizen'
@@ -167,6 +168,11 @@ export function WallboardPage() {
   const navigate = useNavigate()
   const locale = getLocale(i18n.language)
   const wallboardRef = useRef<HTMLElement>(null)
+  // Ekrana Yansıt açıkken ve açılırken bildirim sesi çalmaz (#6ac2796f).
+  useEffect(() => {
+    suppressNewRecordSound()
+    return muteNewRecordSoundWhileMounted()
+  }, [])
   const [items, setItems] = useState<WallboardItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

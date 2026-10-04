@@ -517,6 +517,8 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.HasKey(entity => entity.EditId);
         builder.Property(entity => entity.EditedByDisplayName).HasMaxLength(200);
         builder.Property(entity => entity.ChangedFields).HasMaxLength(300);
+        builder.Property(entity => entity.Action).HasMaxLength(40);
+        builder.Property(entity => entity.ChangeSummary).HasMaxLength(1000);
         ApplyLowerCaseColumnNames(builder);
     }
 

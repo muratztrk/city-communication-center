@@ -487,7 +487,6 @@ export function AppShell() {
     ...(isOperatorNav
       ? [
           { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboard', 'Anasayfa'), icon: LayoutDashboard },
-          { pageKey: 'departmentRequestMap' as const, path: '/department-request-map', label: t('nav.departmentRequestMap', 'Birim Talep Haritası'), icon: MapPin },
           ...(showCitizenDashboard
             ? [{ pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.citizenPanel', 'Vatandaş Paneli'), icon: LayoutDashboard }]
             : []),
@@ -503,14 +502,12 @@ export function AppShell() {
             { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: !isInternalModuleUsable },
             ...(isInternalModuleUsable
               ? [
-                  { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorBefore: true },
-                  { pageKey: 'departmentRequestMap' as const, path: '/department-request-map', label: t('nav.departmentRequestMap', 'Birim Talep Haritası'), icon: MapPin, separatorAfter: true },
+                  { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorBefore: true, separatorAfter: true },
                 ]
               : []),
           ]
         : [
             { pageKey: 'dashboard' as const, path: showCitizenDashboard ? '/dashboard' : '/dashboard/birimler', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
-            { pageKey: 'departmentRequestMap' as const, path: '/department-request-map', label: t('nav.departmentRequestMap', 'Birim Talep Haritası'), icon: MapPin, separatorAfter: true },
           ]),
     { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'edevletActivityPlansList' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
@@ -592,7 +589,6 @@ export function AppShell() {
     [user, accessVersion],
   )
   const hideMapPageChatFabs = location.pathname === '/citizen-request-map'
-    || location.pathname === '/department-request-map'
   const hideWhatsAppFabOnMobile = hideMapPageChatFabs || location.pathname === '/whatsapp'
 
   const handleLogout = useCallback(() => {
@@ -727,7 +723,6 @@ export function AppShell() {
     social: t('nav.social'),
     whatsapp: 'WhatsApp',
     'citizen-request-map': t('nav.citizenRequestMap', 'Vatandaş Talep Haritası'),
-    'department-request-map': t('nav.departmentRequestMap', 'Birim Talep Haritası'),
     'citizen-directory': t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'),
     'citizen-message-approval': t('nav.citizenMessageApprovalBreadcrumb', 'Vatandaş Mesaj Onayı'),
     'sms-delivery-approval': t('nav.smsDeliveryApprovalBreadcrumb', 'Sms Onayı'),

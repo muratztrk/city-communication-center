@@ -35,7 +35,9 @@ public sealed record EDevletDailyActivityPlanResponse(
 public sealed record EDevletDailyActivityPlanEditResponse(
     string? EditedByDisplayName,
     DateTimeOffset EditedAtUtc,
-    IReadOnlyList<string> ChangedFields);
+    IReadOnlyList<string> ChangedFields,
+    string? Action = null,
+    IReadOnlyList<string>? Changes = null);
 
 public sealed record UpdateEDevletDailyActivityPlanRequest(
     Guid ActivityTypeId,

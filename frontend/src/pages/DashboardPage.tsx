@@ -9,6 +9,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
 import { PieChart, PieLegendSearch } from '../components/ui/PieChart'
 import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilldownModal'
+import { DashboardEDevletPlansModal } from '../components/DashboardEDevletPlansModal'
 import { CitizenChannelMessagesModal } from '../components/CitizenChannelMessagesModal'
 import { AllCitizenRequestsModal } from '../components/AllCitizenRequestsModal'
 import { AllDepartmentRequestsModal } from '../components/AllDepartmentRequestsModal'
@@ -252,7 +253,8 @@ const REPORTER_DEPARTMENT_CHART_ORDER = [
   'dashboard.charts.externalProjectsCompleted',
   'dashboard.charts.externalProjectsInProgress',
   'dashboard.charts.externalRequestCreators',
-  'dashboard.charts.myRequests',
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.edevletActivityPlans',
 ]
 
 function reporterDepartmentChartOrder(titleKey: string): number {
@@ -449,6 +451,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const [panelSearch, setPanelSearch] = useState('')
   const debouncedPanelSearch = useDebouncedValue(panelSearch, 300)
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
+  const [edevletPlansDepartment, setEdevletPlansDepartment] = useState<{ departmentId: string; departmentName: string } | null>(null)
   const [allCitizenRequestsOpen, setAllCitizenRequestsOpen] = useState(false)
   const [allDepartmentRequestsOpen, setAllDepartmentRequestsOpen] = useState(false)
   const [wasOverdueFilter, setWasOverdueFilter] = useState(false)
@@ -762,7 +765,17 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   // kartlarının aynı dönem verisini kullanır. Böylece sayı ve görsel özet
   // birbirinden kopmaz.
   const statusCharts = statusChartsQuery.data?.charts ?? []
-  const citizenAggregateCharts = effectiveView === 'citizen'
+  // Üst Düzey Yönetici Anasayfa-Birimler: Mahallelerdeki Tüm Talepler, Vatandaş Paneli ile aynı birleşik pie (#6ac2799b).
+  const reporterDepartmentsNeighborhoodChart = effectiveView === 'departments' && isReporter && isModuleUsable('citizen')
+    ? [buildCitizenEntityAggregateChart(
+        'dashboard.charts.neighborhoodAllRequests',
+        statusCharts,
+        CITIZEN_SOURCE_CHART_KEYS.neighborhoodAll,
+      )]
+    : []
+  const citizenAggregateCharts = effectiveView === 'departments'
+    ? reporterDepartmentsNeighborhoodChart
+    : effectiveView === 'citizen'
     ? [
         buildCitizenEntityAggregateChart(
           'dashboard.charts.neighborhoodAllRequests',
@@ -1108,6 +1121,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             // Operatör kanal pie → navigate /social?channel= (#6a6eeb56); diğer roller drilldown popup.
             const isManagerNeighborhoodDrilldown = role === 'Manager'
               && card.titleKey === 'dashboard.charts.neighborhoodAllRequests'
+            const isEDevletPlansChart = card.titleKey === 'dashboard.charts.edevletActivityPlans'
             const isDrilldownChart = (isCitizenDashboardDrilldownRole || isManagerNeighborhoodDrilldown)
               && DRILLDOWN_CHART_KEYS.has(card.titleKey)
               && !(role === 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')
@@ -1178,7 +1192,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                       : undefined)
                     : undefined
                 }
-                onSelect={isDrilldownChart ? slice => {
+                onSelect={isEDevletPlansChart ? slice => {
+                const [departmentId, ...nameParts] = slice.label.split('|')
+                if (departmentId) setEdevletPlansDepartment({ departmentId, departmentName: nameParts.join('|') })
+              } : isDrilldownChart ? slice => {
                 setChartDrilldown({ chartKey: card.titleKey, sliceKey: slice.label })
               } : isExternalDrilldownOnlyChart ? undefined : slice => {
                 const route = getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange, {
@@ -1188,7 +1205,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                   saveDashboardScroll()
                   navigate(route)
                 }
-              }} isSliceSelectable={isDrilldownChart || isExternalDrilldownOnlyChart
+              }} isSliceSelectable={isDrilldownChart || isExternalDrilldownOnlyChart || isEDevletPlansChart
                 ? undefined
                 // Rotası olmayan dilim (örn. Birimdeki Görevler) tıklanabilir görünmesin (card #1337).
                 : slice => Boolean(getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange, {
@@ -1212,6 +1229,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       {allDepartmentRequestsOpen ? (
         <AllDepartmentRequestsModal onClose={() => setAllDepartmentRequestsOpen(false)} wasOverdueFilter={wasOverdueFilter} />
       ) : null}
+      {edevletPlansDepartment ? (
+        <DashboardEDevletPlansModal
+          departmentId={edevletPlansDepartment.departmentId}
+          departmentName={edevletPlansDepartment.departmentName}
+          from={apiFrom}
+          to={apiTo}
+          onClose={() => setEdevletPlansDepartment(null)}
+        />
+      ) : null}
       {chartDrilldown?.chartKey === 'dashboard.citizenChannels.title' ? (
         <CitizenChannelMessagesModal
           key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}|${dashboardOverdueOnly ? 'overdue' : 'all'}`}
@@ -1232,7 +1258,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           overdueOnly={dashboardOverdueOnly}
           rowSearch={effectiveView === 'citizen' ? debouncedPanelSearch : undefined}
           jobDetailTitle={
-            effectiveView === 'citizen'
+            effectiveView === 'citizen' || chartDrilldown.chartKey === 'dashboard.charts.neighborhoodAllRequests'
               ? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')
               : effectiveView === 'departments'
                 ? t('dashboard.pieJobDetailTitle', 'Birim Talebi')

@@ -22,6 +22,7 @@ export function getDashboardChartTitleIcon(titleKey: string): LucideIcon | null 
   if (titleKey === 'dashboard.charts.departmentTasks') return SquareKanban
   if (titleKey === 'dashboard.charts.citizenRequests') return MessageSquareMore
   if (titleKey === 'dashboard.charts.requestTags') return Tag
+  if (titleKey === 'dashboard.charts.edevletActivityPlans') return ClipboardList
   if (titleKey.startsWith('dashboard.charts.externalRequest')) return ClipboardList
   if (
     titleKey.includes('neighborhood')

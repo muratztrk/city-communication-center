@@ -91,7 +91,7 @@ public sealed class GetEDevletDailyActivityPlanByIdQueryHandler : IQueryHandler<
             .AsNoTracking()
             .Where(edit => edit.PlanId == request.PlanId && edit.TenantId == tenantId)
             .OrderBy(edit => edit.EditedAtUtc)
-            .Select(edit => new { edit.EditedByDisplayName, edit.EditedAtUtc, edit.ChangedFields })
+            .Select(edit => new { edit.EditedByDisplayName, edit.EditedAtUtc, edit.ChangedFields, edit.Action, edit.ChangeSummary })
             .ToListAsync(cancellationToken);
         return response with
         {
@@ -99,7 +99,11 @@ public sealed class GetEDevletDailyActivityPlanByIdQueryHandler : IQueryHandler<
                 .Select(edit => new EDevletDailyActivityPlanEditResponse(
                     edit.EditedByDisplayName,
                     edit.EditedAtUtc,
-                    edit.ChangedFields.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)))
+                    edit.ChangedFields.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+                    edit.Action,
+                    string.IsNullOrWhiteSpace(edit.ChangeSummary)
+                        ? null
+                        : edit.ChangeSummary.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)))
                 .ToList(),
         };
     }
@@ -177,11 +181,43 @@ public sealed class UpdateEDevletDailyActivityPlanCommandHandler : ICommandHandl
 
         // Düzenleme geçmişi (#6ac21381): yalnız gerçekten değişen alanlar kaydedilir.
         var changedFields = new List<string>();
-        if (plan.ActivityTypeId != request.ActivityTypeId) changedFields.Add("Faaliyet Tipi");
-        if (requestedStatus.HasValue && requestedStatus.Value != plan.Status) changedFields.Add("Durum");
-        if (!string.Equals(plan.Neighborhood, newNeighborhood, StringComparison.Ordinal)) changedFields.Add("Mahalle");
-        if (!string.Equals(plan.Street, newStreet, StringComparison.Ordinal)) changedFields.Add("Cadde/Sokak");
-        if (!string.Equals(plan.Description, newDescription, StringComparison.Ordinal)) changedFields.Add("Açıklama");
+        var changeSummary = new List<string>();
+        static string Show(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
+        static string StatusLabel(EDevletDailyActivityPlanStatus status) => status == EDevletDailyActivityPlanStatus.Active ? "Aktif" : "Pasif";
+        var statusChanged = requestedStatus.HasValue && requestedStatus.Value != plan.Status;
+        if (plan.ActivityTypeId != request.ActivityTypeId)
+        {
+            changedFields.Add("Faaliyet Tipi");
+            changeSummary.Add($"Faaliyet Tipi: {Show(plan.ActivityType.Name)} → {Show(activityType.Name)}");
+        }
+
+        if (statusChanged)
+        {
+            changedFields.Add("Durum");
+            changeSummary.Add($"Durum: {StatusLabel(plan.Status)} → {StatusLabel(requestedStatus!.Value)}");
+        }
+
+        if (!string.Equals(plan.Neighborhood, newNeighborhood, StringComparison.Ordinal))
+        {
+            changedFields.Add("Mahalle");
+            changeSummary.Add($"Mahalle: {Show(plan.Neighborhood)} → {Show(newNeighborhood)}");
+        }
+
+        if (!string.Equals(plan.Street, newStreet, StringComparison.Ordinal))
+        {
+            changedFields.Add("Cadde/Sokak");
+            changeSummary.Add($"Cadde/Sokak: {Show(plan.Street)} → {Show(newStreet)}");
+        }
+
+        if (!string.Equals(plan.Description, newDescription, StringComparison.Ordinal))
+        {
+            changedFields.Add("Açıklama");
+            changeSummary.Add("Açıklama güncellendi");
+        }
+
+        var editAction = statusChanged && changedFields.Count == 1
+            ? (requestedStatus == EDevletDailyActivityPlanStatus.Cancelled ? "Pasife Alma" : "Aktife Alma")
+            : "Düzenleme";
         if (changedFields.Count > 0)
         {
             var editorName = await _dbContext.Users
@@ -198,6 +234,8 @@ public sealed class UpdateEDevletDailyActivityPlanCommandHandler : ICommandHandl
                 EditedByDisplayName = editorName,
                 EditedAtUtc = DateTimeOffset.UtcNow,
                 ChangedFields = string.Join(';', changedFields),
+                Action = editAction,
+                ChangeSummary = string.Join('\n', changeSummary),
                 CreatedByUserId = context.UserId,
                 UpdatedByUserId = context.UserId,
             });

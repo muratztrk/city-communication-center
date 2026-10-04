@@ -56,6 +56,22 @@ public sealed record DashboardChartDrilldownRow(
     /// <summary>Açık (terminal olmayan) görev sayısı — vatandaş İşleme Alındı / Yapılmakta (#2605).</summary>
     int? OpenTaskCount = null);
 
+public sealed record DashboardEDevletPlanRow(
+    Guid PlanId,
+    int? PlanNumber,
+    int? PlanNumberYear,
+    DateTimeOffset CreatedAtUtc,
+    string ActivityTypeName,
+    string? Neighborhood,
+    string? Street,
+    string Description,
+    string Status,
+    string? CreatedByDisplayName);
+
+public sealed record DashboardEDevletPlansResponse(
+    string DepartmentName,
+    IReadOnlyList<DashboardEDevletPlanRow> Rows);
+
 public sealed record DashboardChartDrilldownResponse(
     IReadOnlyList<DashboardChartDrilldownRow> Rows);
 

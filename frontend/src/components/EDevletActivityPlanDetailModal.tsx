@@ -173,7 +173,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
   const editorRows = lastEdit ? [
     row(
       t('edevletActivityPlans.detail.editor', 'Düzenleyen'),
-      edits.length > 1 ? (
+      (
         <button
           type="button"
           className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700 hover:bg-slate-200"
@@ -182,9 +182,9 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
           <Users className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
           {t('edevletActivityPlans.detail.editors', 'Düzenleyenler')}
         </button>
-      ) : (lastEdit.editedByDisplayName || '—'),
+      ),
     ),
-    row(t('edevletActivityPlans.detail.editDate', 'Düzenleme Tarihi'), <DateTimeText value={lastEdit.editedAtUtc} locale={locale} />),
+    row(t('edevletActivityPlans.detail.editDate', 'Düzenleme Tarihi'), <DateTimeText value={lastEdit.editedAtUtc} locale={locale} dotClassName="size-[5px]" />),
   ] : []
 
   return createPortal(
@@ -214,7 +214,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                   <Save className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
                   {t('common.save', 'Kaydet')}
                 </Button>
-                <Button type="button" size="lg" variant="ghost" className="inline-flex items-center gap-1.5 text-slate-700" disabled={saving} onClick={() => setEditing(false)}>
+                <Button type="button" size="lg" variant="secondary" className="inline-flex items-center gap-1.5" disabled={saving} onClick={() => setEditing(false)}>
                   {t('common.cancel', 'Vazgeç')}
                 </Button>
               </>
@@ -262,7 +262,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
           {!detail && !error ? <div className="loading">{t('common.loading')}</div> : null}
           {detail ? (
             <div className={`grid gap-4 lg:grid-cols-3${viewingEdit ? ' edevlet-plan-detail-edit' : ''}`}>
-              <section className="form-card page-stack min-w-0">
+              <section className="form-card page-stack min-w-0 edevlet-plan-detail-card">
                 <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
                     <span>{t('edevletActivityPlans.detail.info', 'Faaliyet Bilgileri')}</span>
@@ -293,12 +293,12 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                         placeholder={t('edevletActivityPlans.detail.status', 'Durum')}
                       />
                     </div>
-                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} /> : '')}
+                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} dotClassName="size-[5px]" /> : '')}
                   </>
                 ) : (
                   <>
                     {row(t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi'), detail.activityTypeName)}
-                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} /> : '')}
+                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} dotClassName="size-[5px]" /> : '')}
                     {row(t('edevletActivityPlans.detail.status', 'Durum'), (
                       <span className={detail.status === 'Active' ? 'font-semibold text-green-600' : undefined}>{statusLabel(detail.status)}</span>
                     ))}
@@ -307,7 +307,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                 )}
               </section>
 
-              <section className="form-card page-stack min-w-0">
+              <section className="form-card page-stack min-w-0 edevlet-plan-detail-card">
                 <MyRequestSectionHeading icon={ClipboardList} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">{t('edevletActivityPlans.columns.description', 'Açıklama')}</span>
                 </MyRequestSectionHeading>
@@ -322,7 +322,7 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                   <div className="whitespace-pre-wrap text-sm leading-5 text-slate-900">{detail.description || '—'}</div>
                 )}
               </section>
-              <section className="form-card page-stack min-w-0 edevlet-plan-detail-address">
+              <section className="form-card page-stack min-w-0 edevlet-plan-detail-card edevlet-plan-detail-address">
                 <MyRequestSectionHeading icon={MapPin} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">{t('edevletActivityPlans.detail.address', 'Adres Bilgileri')}</span>
                 </MyRequestSectionHeading>
@@ -385,13 +385,25 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                 <li key={`${edit.editedAtUtc}-${index}`} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-semibold text-slate-900">{edit.editedByDisplayName || '—'}</span>
-                    <span className="shrink-0 text-xs text-slate-500"><DateTimeText value={edit.editedAtUtc} locale={locale} /></span>
+                    <span className="shrink-0 text-xs text-slate-500"><DateTimeText value={edit.editedAtUtc} locale={locale} dotClassName="size-[5px]" /></span>
                   </div>
-                  <div className="mt-1 text-xs text-slate-600">
-                    {t('edevletActivityPlans.detail.changedFields', 'Değiştirilen alanlar')}: {edit.changedFields.join(', ')}
-                  </div>
+                  <div className="mt-1 text-xs font-semibold text-teal-700">{t('edevletActivityPlans.detail.action', 'İşlem')}: {edit.action || t('edevletActivityPlans.detail.actionEdit', 'Düzenleme')}</div>
+                  <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-slate-600">
+                    {(edit.changes && edit.changes.length > 0 ? edit.changes : edit.changedFields).map(change => (
+                      <li key={change}>{change}</li>
+                    ))}
+                  </ul>
                 </li>
               ))}
+              {detail ? (
+                <li className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-900">{detail.createdByDisplayName || '—'}</span>
+                    <span className="shrink-0 text-xs text-slate-500"><DateTimeText value={detail.createdAtUtc} locale={locale} dotClassName="size-[5px]" /></span>
+                  </div>
+                  <div className="mt-1 text-xs font-semibold text-teal-700">{t('edevletActivityPlans.detail.action', 'İşlem')}: {t('edevletActivityPlans.detail.actionCreate', 'Oluşturma')}</div>
+                </li>
+              ) : null}
             </ul>
           </section>
         </div>

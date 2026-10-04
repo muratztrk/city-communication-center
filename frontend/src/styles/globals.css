@@ -10063,3 +10063,14 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     max-height: min(72.9dvh, 42.3rem);
   }
 }
+
+/* e-Devlet plan detay popup: üç kartın başlık çizgileri aynı hizada (kart boyları eşitlenince satırlar yayılmasın) (#6ac21380). */
+.edevlet-plan-detail-card.page-stack {
+  align-content: start;
+}
+
+/* Düzenleme modunda dropdown tetikleyicisi bir miktar daha alçak (#6ac20fb5). */
+.edevlet-plan-detail-edit .field-select {
+  min-height: 2.1rem;
+  padding-block: 0.3rem;
+}

@@ -927,7 +927,7 @@ export function DepartmentsPage() {
                         <EmptyCell value={getDepartmentManagerName(department)} />
                       )}
                     </td>
-                    <td>
+                    <td className="text-center">
                       {isManagerAssigning ? (
                         <MultiSelectDropdown
                           options={getUserOptions(getDepartmentUsers(department.departmentId))}
@@ -943,7 +943,7 @@ export function DepartmentsPage() {
                           menuClassName="departments-manager-assign-menu users-edit-dropdown-menu-scroll"
                         />
                       ) : (
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap justify-center gap-1">
                           {(department.responsibleUserIds ?? []).length > 0
                             ? department.responsibleUserIds.map(responsibleUserId => (
                                 <StatusPill key={responsibleUserId} tone="info">{getUserName(responsibleUserId) ?? '—'}</StatusPill>

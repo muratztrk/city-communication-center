@@ -1,3 +1,15 @@
+## Round 1424 — 12 kart (e-Devlet popup cilası, Düzenleyenler işlem geçmişi, Birimler anasayfa pie'ları, Birim Talep Haritası kaldırıldı)
+
+- [x] #6ac20f3b r4: popup tarih bullet'ı bir önceki boyuta döndü (`DateTimeText dotClassName="size-[5px]"`; gridlerde 3.5px kalır).
+- [x] #6ac2138158 r2: `Düzenleyen` değeri 1 düzenlemede de `Düzenleyenler` butonu; popup'ta her düzenleme için kişi, tarih, `İşlem` (Düzenleme/Pasife Alma/Aktife Alma) ve değişiklik satırları (`Alan: eski → yeni`), en altta `Oluşturma`. Yeni kolonlar `action`, `changesummary` (migration `AddEDevletPlanEditActionAndSummary`); eski kayıtlarda yalnız alan adları görünür.
+- [x] #6ac21380 / #6ac20fb5 / #6ac27783: popup kartlarında başlık altı çizgileri hizalı (`align-content:start` — kart boyları eşitlenince satırlar yayılıyordu); edit dropdown `2.1rem`; İptal butonu `secondary` (çerçeveli).
+- [x] #6ac2765c: Birimler gridi Sorumlular hücresi ortalı.
+- [x] #6ac27946: Birim Talep Haritası kaldırıldı (rota, menü, sayfa dosyası, `departmentRequestMap` yetki anahtarı); `CitizenRequestMap` bileşeni ve `dashboard-department-map-pins` API'si duruyor.
+- [x] #6ac2796f: Ekrana Yansıt açıkken/açılırken bildirim sesi yok (`muteNewRecordSoundWhileMounted` + `suppressNewRecordSound`).
+- [x] #6ac27c9b: Vatandaşa giden durum mesajında `{VatandaşTalepBaşlığı}` her kelimenin ilk harfi büyük (`CitizenJobStatusLabelHelper`); SMS mesai-dışı şablonu değişmedi.
+- [x] Anasayfa - Birimler (Üst Düzey Yönetici): #6ac278bb Taleplerim pie'ı kalktı; #6ac2799b Mahallelerdeki Tüm Talepler (Vatandaş Paneli ile aynı birleşik pie, aynı veri); #6ac0ccf8 yeni `e-Devlet Günlük Faaliyet Planları` pie'ı (dönemdeki planlar birime göre) → birime tıklayınca o birimin planları popup'ı. Backend: `dashboard.charts.edevletActivityPlans` (yalnız Reporter), `GET /reports/dashboard-edevlet-plans` (Reporter/SystemAdmin).
+- [x] Doğrulama: `tsc -b` + lint (0 error), `dotnet build` 0 error. Görsel/uçtan uca denenmedi.
+
 ## Round 1423 — #6ac24605 / #6ac20f3b r3 / #6ac24d2d / #6ac24eb9
 
 - [x] #6ac24605 (yalnız mobil): e-Devlet plan detay popup'ı Taleplerim detay popup'ıyla aynı boyut (`calc(100vw - 0.5rem)` genişlik, `min(72.9dvh, 42.3rem)` yükseklik).

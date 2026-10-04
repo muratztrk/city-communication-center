@@ -156,8 +156,8 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
     </body></html>`)
   }
 
-  const row = (label: string, value: React.ReactNode) => (
-    <div key={label} className="job-detail-field-row job-detail-field-row--request-info">
+  const row = (label: React.ReactNode, value: React.ReactNode, rowKey?: string) => (
+    <div key={rowKey ?? (typeof label === 'string' ? label : undefined)} className="job-detail-field-row job-detail-field-row--request-info">
       <div className="job-detail-field-row__label">{label}</div>
       <div className="job-detail-field-row__value text-slate-900">{value}</div>
     </div>
@@ -276,42 +276,44 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                     <span className="ml-auto shrink-0 font-mono text-xs font-semibold text-slate-500">{planNoDisplay}</span>
                   </span>
                 </MyRequestSectionHeading>
-                {creatorRows}
-                {viewingEdit ? (
-                  <>
-                    <div className="grid gap-1">
-                      <span className="text-sm font-semibold text-slate-500">{t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi')}</span>
-                      <SingleSelectDropdown
-                        searchable
-                        menuPortal
-                        options={typeOptions}
-                        value={form.activityTypeId}
-                        onChange={activityTypeId => setForm(current => current && ({ ...current, activityTypeId }))}
-                        placeholder={t('edevletActivityPlan.typePlaceholder', 'Faaliyet tipi seçiniz')}
-                      />
-                    </div>
-                    <div className="grid gap-1">
-                      <span className="text-sm font-semibold text-slate-500">{t('edevletActivityPlans.detail.status', 'Durum')}</span>
-                      <SingleSelectDropdown
-                        menuPortal
-                        options={statusOptions}
-                        value={form.status}
-                        onChange={status => setForm(current => current && ({ ...current, status }))}
-                        placeholder={t('edevletActivityPlans.detail.status', 'Durum')}
-                      />
-                    </div>
-                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} dotClassName="size-[5px]" /> : '')}
-                  </>
-                ) : (
-                  <>
-                    {row(t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi'), detail.activityTypeName)}
-                    {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} dotClassName="size-[5px]" /> : '')}
-                    {row(t('edevletActivityPlans.detail.status', 'Durum'), (
-                      <span className={detail.status === 'Active' ? 'font-semibold text-green-600' : undefined}>{statusLabel(detail.status)}</span>
-                    ))}
-                    {editorRows}
-                  </>
-                )}
+                <div className="my-request-detail-fields page-stack edevlet-plan-detail-fields">
+                  {creatorRows}
+                  {viewingEdit ? (
+                    <>
+                      {row(t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi'), (
+                        <SingleSelectDropdown
+                          searchable
+                          menuPortal
+                          className="w-full max-w-full"
+                          options={typeOptions}
+                          value={form.activityTypeId}
+                          onChange={activityTypeId => setForm(current => current && ({ ...current, activityTypeId }))}
+                          placeholder={t('edevletActivityPlan.typePlaceholder', 'Faaliyet tipi seçiniz')}
+                        />
+                      ))}
+                      {row(t('edevletActivityPlans.detail.status', 'Durum'), (
+                        <SingleSelectDropdown
+                          menuPortal
+                          className="w-full max-w-full"
+                          options={statusOptions}
+                          value={form.status}
+                          onChange={status => setForm(current => current && ({ ...current, status }))}
+                          placeholder={t('edevletActivityPlans.detail.status', 'Durum')}
+                        />
+                      ))}
+                      {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} dotClassName="size-[5px]" /> : '')}
+                    </>
+                  ) : (
+                    <>
+                      {row(t('edevletActivityPlans.columns.activityType', 'Faaliyet Tipi'), detail.activityTypeName)}
+                      {row(t('edevletActivityPlans.columns.date', 'Tarih'), detail ? <DateTimeText value={detail.createdAtUtc} locale={locale} dotClassName="size-[5px]" /> : '')}
+                      {row(t('edevletActivityPlans.detail.status', 'Durum'), (
+                        <span className={detail.status === 'Active' ? 'font-semibold text-green-600' : undefined}>{statusLabel(detail.status)}</span>
+                      ))}
+                      {editorRows}
+                    </>
+                  )}
+                </div>
               </section>
 
               <section className="form-card page-stack min-w-0 edevlet-plan-detail-card">
@@ -333,40 +335,46 @@ export function EDevletActivityPlanDetailModal({ planId, planNoDisplay, locale, 
                 <MyRequestSectionHeading icon={MapPin} className="job-detail-card-title--spread">
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-2">{t('edevletActivityPlans.detail.address', 'Adres Bilgileri')}</span>
                 </MyRequestSectionHeading>
-                {viewingEdit ? (
-                  <>
-                    <div className="grid gap-1">
-                      <span className="text-sm font-semibold text-slate-500">
-                        {t('address.neighborhoodLabel', 'Mahalle')}
-                        {form.neighborhood ? <span className="text-red-500"> *</span> : null}
-                      </span>
-                      <SingleSelectDropdown
-                        searchable
-                        clearable
-                        menuPortal
-                        options={neighborhoodOptions}
-                        value={form.neighborhood}
-                        onChange={neighborhood => setForm(current => current && ({ ...current, neighborhood, street: '' }))}
-                        placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
-                      />
-                    </div>
-                    <CbsStreetNoDropdowns
-                      hideStreetNo
-                      neighborhood={form.neighborhood}
-                      street={form.street}
-                      streetNo=""
-                      required={Boolean(form.neighborhood)}
-                      className="grid min-w-0 grid-cols-1 gap-2"
-                      onStreetChange={street => setForm(current => current && ({ ...current, street }))}
-                      onStreetNoChange={() => undefined}
-                    />
-                  </>
-                ) : (
-                  <>
-                    {row(t('edevletActivityPlans.columns.neighborhood', 'Mahalle'), detail.neighborhood ?? '—')}
-                    {row(t('edevletActivityPlans.columns.street', 'Cadde/Sokak'), detail.street ?? '—')}
-                  </>
-                )}
+                <div className="my-request-detail-fields page-stack edevlet-plan-detail-fields">
+                  {viewingEdit ? (
+                    <>
+                      {row(
+                        <>
+                          {t('address.neighborhoodLabel', 'Mahalle')}
+                          {form.neighborhood ? <span className="text-red-500"> *</span> : null}
+                        </>,
+                        <SingleSelectDropdown
+                          searchable
+                          clearable
+                          menuPortal
+                          className="w-full max-w-full"
+                          options={neighborhoodOptions}
+                          value={form.neighborhood}
+                          onChange={neighborhood => setForm(current => current && ({ ...current, neighborhood, street: '' }))}
+                          placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+                        />,
+                        'address-neighborhood',
+                      )}
+                      {row(t('edevletActivityPlans.columns.street', 'Cadde/Sokak'), (
+                        <CbsStreetNoDropdowns
+                          hideStreetNo
+                          neighborhood={form.neighborhood}
+                          street={form.street}
+                          streetNo=""
+                          required={Boolean(form.neighborhood)}
+                          className="grid min-w-0 w-full grid-cols-1 gap-2"
+                          onStreetChange={street => setForm(current => current && ({ ...current, street }))}
+                          onStreetNoChange={() => undefined}
+                        />
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      {row(t('edevletActivityPlans.columns.neighborhood', 'Mahalle'), detail.neighborhood ?? '—')}
+                      {row(t('edevletActivityPlans.columns.street', 'Cadde/Sokak'), detail.street ?? '—')}
+                    </>
+                  )}
+                </div>
               </section>
 
             </div>

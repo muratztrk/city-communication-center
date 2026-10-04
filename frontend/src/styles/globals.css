@@ -10087,12 +10087,13 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   min-width: 7.25rem;
 }
 
-/* e-Devlet plan detay popup satırları zebra (#4087). */
-.edevlet-plan-detail-card .job-detail-field-row--request-info {
-  padding-left: 0.6rem;
-  padding-right: 0.6rem;
+/* e-Devlet plan detay: Talep detayı ile aynı zebra (yalnız satır elemanları, üst boşluk yok) (#4087). */
+.edevlet-plan-detail-card .edevlet-plan-detail-fields {
+  gap: 0;
 }
 
-.edevlet-plan-detail-card .job-detail-field-row--request-info:nth-child(even) {
-  background: #f8fafc;
+.edevlet-plan-detail-edit .dropdown-menu-scroll .dropdown-menu-item {
+  font-size: 0.75rem;
+  padding: 0.28rem 0.5rem;
+  min-height: 1.65rem;
 }

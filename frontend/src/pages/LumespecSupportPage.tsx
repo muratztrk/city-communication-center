@@ -30,7 +30,7 @@ const SCOPE_FILTERS: Array<{ value: SupportScope; labelKey: string; fallback: st
   { value: 'all', labelKey: 'support.scopes.all', fallback: 'Tümü', chipClass: 'scope-chip--all' },
 ]
 
-const COLUMN_COUNT = 8
+const COLUMN_COUNT = 7
 
 export function LumespecSupportPage() {
   const { t, i18n } = useTranslation()
@@ -85,7 +85,6 @@ export function LumespecSupportPage() {
       if (key === 'requestDate') return row.requestDateText
       if (key === 'userName') return row.userNameText
       if (key === 'subject') return row.subject
-      if (key === 'message') return row.message
       if (key === 'status') return row.statusLabel
       return ''
     }))
@@ -154,7 +153,7 @@ export function LumespecSupportPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table data-table--zebra">
+          <table className="data-table jobs-table data-table--zebra">
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -203,17 +202,6 @@ export function LumespecSupportPage() {
                   {t('support.columns.subject', 'Konu')}
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="message"
-                  filterValue={filters.message ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="message"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('support.columns.message', 'Açıklama')}
-                </FilterableTh>
-                <FilterableTh
                   filterKey="status"
                   filterValue={filters.status ?? ''}
                   onFilter={handleFilter}
@@ -224,7 +212,7 @@ export function LumespecSupportPage() {
                 >
                   {t('support.columns.status', 'Talep Durumu')}
                 </FilterableTh>
-                <th className="w-28 text-center">{t('common.actions', 'İşlemler')}</th>
+                <th className="text-center">{t('common.actions', 'İşlemler')}</th>
               </tr>
             </thead>
             <tbody>
@@ -235,17 +223,18 @@ export function LumespecSupportPage() {
               ) : (
                 pagedRows.map((row, index) => (
                   <tr key={row.supportRequestId}>
-                    <td className="text-center text-slate-500">{(safePage - 1) * pageSize + index + 1}</td>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
                     <td><TruncatedText text={row.ticketNoText} /></td>
                     <td>{row.requestDateText}</td>
                     <td><TruncatedText text={row.userNameText} /></td>
                     <td><TruncatedText text={row.subject} /></td>
-                    <td><TruncatedText text={row.message} /></td>
                     <td><TruncatedText text={row.statusLabel} /></td>
-                    <td className="text-center">
-                      <Button type="button" variant="secondary" size="sm" onClick={() => setDetailItem(row)}>
-                        {t('jobs.actions.details', 'Detaylar')}
-                      </Button>
+                    <td className="actions-cell">
+                      <div className="request-actions justify-center">
+                        <Button type="button" variant="secondary" size="sm" onClick={() => setDetailItem(row)}>
+                          {t('jobs.actions.details', 'Detaylar')}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))

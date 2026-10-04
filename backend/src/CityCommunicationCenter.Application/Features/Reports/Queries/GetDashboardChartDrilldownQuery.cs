@@ -106,7 +106,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
                 [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress, CitizenDepartmentDrilldownStatus.Completed],
                 cancellationToken, managerDepartmentScope,
-                citizenVtOnly: !(request.IncludeNonCitizenRequests || managerDepartmentScope is not null)),
+                citizenVtOnly: managerDepartmentScope is null && !request.IncludeNonCitizenRequests,
+                internalUnitOnly: managerDepartmentScope is null && request.IncludeNonCitizenRequests),
             "neighborhoodOpenRequests" => await BuildCitizenScopedStatusRowsAsync(
                 tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
                 [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress],
@@ -245,7 +246,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         CitizenDepartmentDrilldownStatus[] statuses,
         CancellationToken cancellationToken,
         Guid[]? scopeDepartmentIds = null,
-        bool citizenVtOnly = true)
+        bool citizenVtOnly = true,
+        bool internalUnitOnly = false)
     {
         if (departmentId is null && string.IsNullOrWhiteSpace(neighborhood))
         {
@@ -268,6 +270,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         if (citizenVtOnly)
         {
             jobQuery = jobQuery.WhereHasCitizenRequestNumber(_dbContext);
+        }
+        else if (internalUnitOnly)
+        {
+            jobQuery = jobQuery.WhereIsNotCitizenSourced(_dbContext);
         }
 
         var candidates = await jobQuery

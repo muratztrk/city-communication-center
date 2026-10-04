@@ -10081,6 +10081,7 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 /* e-Devlet plan detay popup: üç kartın başlık çizgileri aynı hizada (kart boyları eşitlenince satırlar yayılmasın) (#6ac21380). */
 .edevlet-plan-detail-card.page-stack {
   align-content: start;
+  gap: 0.35rem;
 }
 
 /* Düzenleme modunda dropdown tetikleyicisi bir miktar daha alçak (#6ac20fb5). */
@@ -10097,5 +10098,4 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 /* e-Devlet plan detay: Talep detayı ile aynı zebra (yalnız satır elemanları, üst boşluk yok) (#4087). */
 .edevlet-plan-detail-card .edevlet-plan-detail-fields {
   gap: 0;
-  margin-top: -0.35rem;
 }

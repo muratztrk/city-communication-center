@@ -715,7 +715,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             updatedAtUtc: isCancelledLike(row.status) ? row.terminalDateUtc : null,
                             createdAtUtc: row.createdAtUtc,
                           })
-                          : (row.status === 'Completed' || isCancelledLike(row.status) ? row.terminalDateUtc : null))
+                          : (row.status === 'Completed' || isCancelledLike(row.status)
+                            ? row.terminalDateUtc
+                            : row.dueDateUtc ?? row.createdAtUtc))
                         : null
                       const statusDateText = statusDate
                         ? new Date(statusDate).toLocaleString(locale, {

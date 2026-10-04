@@ -140,10 +140,9 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
           {!data && !error ? <div className="loading">{t('common.loading')}</div> : null}
           {data ? (
             <div className="dashboard-drilldown-grid-shell">
-              <section className="section-card desktop-page-fill min-h-0">
               <div className="dashboard-drilldown-table-wrap table-wrap desktop-panel-scroll">
                 <div className="dashboard-drilldown-table-hscroll">
-                  <table className="data-table jobs-table data-table--zebra dashboard-drilldown-table">
+                  <table className="data-table jobs-table data-table--zebra dashboard-drilldown-table dashboard-edevlet-plans-table">
                     <thead>
                       <tr>
                         <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -159,7 +158,7 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
                         <FilterableTh filterKey="address" filterValue={filters.address ?? ''} onFilter={handleFilter} sortKey="addressDisplay" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
                           {t('edevletActivityPlans.columns.address', 'Adres Bilgisi')}
                         </FilterableTh>
-                        <th className="text-center">{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
+                        <th className="dashboard-edevlet-plans-actions-th text-center">{t('edevletActivityPlans.columns.actions', 'İşlemler')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -179,7 +178,7 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
                               </>
                             ) : '—'}
                           </td>
-                          <td className="actions-cell">
+                          <td className="actions-cell dashboard-edevlet-plans-actions-cell">
                             <div className="flex flex-wrap justify-center gap-2">
                               <Button type="button" size="sm" variant="secondary" className="gap-1.5" onClick={() => setDetailPlan(row)}>
                                 <FileText className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
@@ -196,7 +195,6 @@ export function DashboardEDevletPlansModal({ departmentId, departmentName, from,
                   </table>
                 </div>
               </div>
-              </section>
               {rows.length > 0 ? (
                 <TablePagination
                   totalCount={rows.length}

@@ -10090,6 +10090,23 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   padding-bottom: 0.15rem;
 }
 
+/* Açıklama metni + Adres (Mahalle) satırları başlık altında biraz aşağı (#4087 r6). */
+.edevlet-plan-detail-main .my-request-detail-main__grid > div:nth-child(2) > :not(.job-detail-section-heading) {
+  margin-top: 0.5rem;
+}
+
+.edevlet-plan-detail-main .my-request-detail-main__grid > div:nth-child(3) > .my-request-detail-fields {
+  margin-top: 0.5rem;
+}
+
+/* Birimler e-Devlet plan pie drilldown: İşlemler kolonu dar (#4076). */
+.detail-modal-shell--chart-drilldown .dashboard-edevlet-plans-table .dashboard-edevlet-plans-actions-th,
+.detail-modal-shell--chart-drilldown .dashboard-edevlet-plans-table .dashboard-edevlet-plans-actions-cell {
+  width: 6.25rem;
+  max-width: 6.25rem;
+  padding-inline: 0.35rem;
+}
+
 /* Düzenleme modunda dropdown tetikleyicisi bir miktar daha alçak (#6ac20fb5). */
 .edevlet-plan-detail-edit .field-select {
   min-height: 2.1rem;

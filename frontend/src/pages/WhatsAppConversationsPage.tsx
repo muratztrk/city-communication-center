@@ -677,7 +677,7 @@ function OperatorLockControl({
 }) {
   const blocked = locked && !canReleaseLock
   const hoverTitle = blocked ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
-  const baseClass = 'inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors'
+  const baseClass = 'inline-flex shrink-0 items-center gap-1 rounded-full border px-3.5 py-0.5 text-[10px] font-semibold transition-colors'
   const colorClass = locked
     ? (canReleaseLock
       ? 'border-emerald-500 bg-emerald-600 text-white hover:bg-emerald-700'

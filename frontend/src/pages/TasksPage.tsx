@@ -3998,11 +3998,11 @@ const pageKicker = isMyTasksView
                 {pendingCompletionAttachments.map(item => {
                   const Icon = completionAttachmentIcon(item.fileName)
                   return (
-                  <li key={item.attachmentId} className="inline-flex min-w-0 items-center gap-2">
+                  <li key={item.attachmentId} className="flex w-full min-w-0 items-center gap-2">
                     <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                       <Icon className="size-3" aria-hidden="true" />
                     </span>
-                    <span className="min-w-0 flex-[2] break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
+                    <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
                     <AttachmentImagePreviewButton
                       attachmentId={item.attachmentId}
                       fileName={item.fileName}
@@ -4121,11 +4121,11 @@ const pageKicker = isMyTasksView
                     {pendingCancelAttachments.map(item => {
                       const Icon = completionAttachmentIcon(item.fileName)
                       return (
-                        <li key={item.attachmentId} className="inline-flex min-w-0 items-center gap-2">
+                        <li key={item.attachmentId} className="flex w-full min-w-0 items-center gap-2">
                           <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                             <Icon className="size-3" aria-hidden="true" />
                           </span>
-                          <span className="min-w-0 flex-[2] break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
+                          <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
                           <AttachmentImagePreviewButton
                             attachmentId={item.attachmentId}
                             fileName={item.fileName}

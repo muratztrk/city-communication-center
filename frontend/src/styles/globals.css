@@ -3862,7 +3862,9 @@
   }
 
   .completion-attachment-list > li {
-    max-width: calc(50% - 0.5rem);
+    display: flex;
+    width: 100%;
+    max-width: 100%;
   }
 
   .task-status-change-menu-scroll .dropdown-menu-item {

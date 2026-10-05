@@ -88,13 +88,17 @@ public sealed class GetMySupportRequestsQueryHandler : IQueryHandler<GetMySuppor
                 entity.SupportRequestId,
                 cancellationToken);
 
+            var displayStatus = string.Equals(entity.CentralStatus, "resolved", StringComparison.OrdinalIgnoreCase)
+                ? entity.CentralStatus
+                : centralMessages?.Status ?? entity.CentralStatus;
+
             response.Add(new MySupportRequestResponse(
                 entity.SupportRequestId,
                 entity.Subject,
                 entity.Message,
                 entity.PageContext,
                 centralMessages?.TicketNo ?? entity.CentralTicketNo,
-                centralMessages?.Status ?? entity.CentralStatus,
+                displayStatus,
                 entity.CentralSyncError,
                 entity.CreatedAtUtc,
                 string.IsNullOrWhiteSpace(entity.Priority) ? "Normal" : entity.Priority,

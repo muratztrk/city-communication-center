@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Paperclip, X } from 'lucide-react'
+import { Eye, Paperclip, X } from 'lucide-react'
 import { Button } from '../ui/button'
 import { ModalBackdrop } from '../ui/modal-backdrop'
 import { api } from '../../api/client'
@@ -15,6 +15,7 @@ import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 import { toSentenceCaseTr } from '../../utils/textNormalization'
 import { prioritySelectOptions } from '../../utils/formDropdownOptions'
 import { SingleSelectDropdown } from '../ui/single-select-dropdown'
+import { SocialConversationMediaPreview } from '../SocialConversationMediaPreview'
 
 interface SupportRequestDialogProps {
   open: boolean
@@ -36,6 +37,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
   const [sent, setSent] = useState(false)
   const [centralSyncFailed, setCentralSyncFailed] = useState(false)
   const [priority, setPriority] = useState('Normal')
+  const [localPreview, setLocalPreview] = useState<{ url: string; mime: string; fileName: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
 
@@ -62,6 +64,18 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
     setSent(false)
     setCentralSyncFailed(false)
     setPriority('Normal')
+    setLocalPreview(current => {
+      if (current?.url) URL.revokeObjectURL(current.url)
+      return null
+    })
+  }
+
+  const openLocalPreview = (file: File) => {
+    const url = URL.createObjectURL(file)
+    setLocalPreview(current => {
+      if (current?.url) URL.revokeObjectURL(current.url)
+      return { url, mime: file.type || 'application/octet-stream', fileName: file.name }
+    })
   }
 
   const handleClose = () => {
@@ -213,35 +227,50 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                   <label className="mb-1 block text-sm font-medium text-slate-700">
                     {t('attachments.addFile', 'Dosya ekle')}
                   </label>
-                  <div className="relative rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-4 text-center">
-                    <Paperclip className="mx-auto mb-1 size-4 text-slate-400" />
-                    <span className="text-xs font-medium text-slate-600">
-                      {t('attachments.uploadHint', 'JPG, PNG, PDF, Office — toplam max 5 MB')}
-                    </span>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept={ATTACHMENT_FILE_ACCEPT}
-                      multiple
-                      className="absolute inset-0 z-10 cursor-pointer opacity-0"
-                      disabled={sending}
-                      onClick={event => {
-                        if (supportsAttachmentFilePicker()) {
-                          event.preventDefault()
-                          void pickAttachmentFiles().then(addPickedFiles)
-                        }
-                      }}
-                      onChange={event => {
-                        addPickedFiles(Array.from(event.target.files ?? []))
-                        if (fileInputRef.current) fileInputRef.current.value = ''
-                      }}
-                    />
-                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="inline-flex items-center gap-1"
+                    disabled={sending}
+                    onClick={() => {
+                      if (supportsAttachmentFilePicker()) {
+                        void pickAttachmentFiles().then(addPickedFiles)
+                        return
+                      }
+                      fileInputRef.current?.click()
+                    }}
+                  >
+                    <Paperclip className="size-3.5" />
+                    {t('attachments.addFile', 'Dosya ekle')}
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ATTACHMENT_FILE_ACCEPT}
+                    multiple
+                    className="hidden"
+                    disabled={sending}
+                    onChange={event => {
+                      addPickedFiles(Array.from(event.target.files ?? []))
+                      if (fileInputRef.current) fileInputRef.current.value = ''
+                    }}
+                  />
                   {pendingFiles.length > 0 ? (
-                    <ul className="mt-2 space-y-1 text-xs text-slate-700">
+                    <ul className={`mt-2 space-y-1 text-xs text-slate-700 ${pendingFiles.length > 3 ? 'max-h-[5.25rem] overflow-y-auto pr-1' : ''}`}>
                       {pendingFiles.map((file, idx) => (
                         <li key={`${file.name}-${idx}`} className="flex items-center justify-between gap-2">
-                          <span className="min-w-0 truncate">{lowercaseFileExtension(file.name)}</span>
+                          <span className="min-w-0 flex-1 truncate">{lowercaseFileExtension(file.name)}</span>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="success"
+                            className="h-6 shrink-0 gap-0.5 px-1.5 text-[10px]"
+                            onClick={() => openLocalPreview(file)}
+                          >
+                            <Eye className="size-3" aria-hidden="true" />
+                            {t('attachments.preview', 'Ön İzle')}
+                          </Button>
                           <button
                             type="button"
                             className="shrink-0 font-medium text-red-500"
@@ -259,11 +288,10 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
               ) : null}
 
               {error ? <p className="text-xs font-semibold text-red-600">{error}</p> : null}
-              <div className={`flex justify-end gap-2 ${variant === 'createOnly' ? '-mt-1' : ''}`}>
+              <div className="flex justify-end gap-2">
                 <Button
                   type="button"
                   variant="secondary"
-                  size={variant === 'createOnly' ? 'sm' : 'default'}
                   onClick={handleClose}
                 >
                   {t('common.cancel', 'İptal')}
@@ -271,7 +299,6 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                 <Button
                   type="button"
                   variant="primary"
-                  size={variant === 'createOnly' ? 'sm' : 'default'}
                   disabled={!canSubmit}
                   onClick={() => void handleSubmit()}
                 >
@@ -344,6 +371,24 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
           ) : null}
         </div>
       </div>
+      {localPreview ? (
+        <SocialConversationMediaPreview
+          open
+          objectUrl={localPreview.url}
+          mime={localPreview.mime}
+          filename={localPreview.fileName}
+          onClose={() => setLocalPreview(current => {
+            if (current?.url) URL.revokeObjectURL(current.url)
+            return null
+          })}
+          onDownload={() => {
+            const link = document.createElement('a')
+            link.href = localPreview.url
+            link.download = localPreview.fileName
+            link.click()
+          }}
+        />
+      ) : null}
     </ModalBackdrop>
   )
 }

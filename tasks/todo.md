@@ -1,3 +1,7 @@
+## Round 1451 — gönderince mesaj kutusu temizlensin
+
+- [x] #4170: WhatsApp mesajı gönderilince textbox boşalır.
+
 ## Round 1450 — log tarih punto, yazışma kutusu beklemesi, tuş gecikmesi
 
 - [x] #4164: log grid Tarih yazısı biraz küçük.

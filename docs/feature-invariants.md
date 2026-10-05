@@ -785,7 +785,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açma uyarısı yeşil **Mesaj kilidi açılmıştır.** (#4167/#4168).
   Konuşma değişince şablon satırı ve mesaj kutusu detay gelene kadar yerinde kalır; `Bağlı talep yok`
   yalnız detay yüklendikten ve yanıt bileti yoksa görünür (#4158). Yazarken her tuşta okundu API'si
-  ve üst ağaç render'ı yok; metin ref'te tutulur (#4169).
+  ve üst ağaç render'ı yok; metin ref'te tutulur (#4169). Gönderim başarılı olunca kutu
+  `composerResetKey` ile yeniden kurulup boşalır (#4170).
   Detay header'ında telefon satırında **Yanıt Verildi Yap** (yanıt beklerken) veya **Yanıt Verildi**
   etiketi numaranın hemen sağında (#3403 / #3389).
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;

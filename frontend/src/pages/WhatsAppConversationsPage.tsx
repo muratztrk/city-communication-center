@@ -1025,6 +1025,9 @@ function ConversationDetail({
   const [replyText, setReplyText] = useState('')
   const replyTextRef = useRef('')
   const [replyHasText, setReplyHasText] = useState(false)
+  // Yazı ref'te durduğu için replyText çoğu zaman ''. Gönderince kutu ancak bu anahtar
+  // artınca yeniden kurulup boşalır (#4170).
+  const [composerResetKey, setComposerResetKey] = useState(0)
   const rememberReplyText = (value: string) => {
     replyTextRef.current = value
     const has = value.trim().length > 0
@@ -1335,6 +1338,7 @@ function ConversationDetail({
       if (latestConversationIdRef.current === sentForConversationId) {
         rememberReplyText('')
         setReplyText('')
+        setComposerResetKey(current => current + 1)
         setSelectedMetaTemplate(null)
         setPendingFile(null)
         setPendingFileEditing(false)
@@ -2003,6 +2007,7 @@ function ConversationDetail({
               </div>
               <div className="grid grid-cols-[1fr_auto] items-end gap-2">
                 <DeferredComposerTextarea
+                  key={composerResetKey}
                   rows={3}
                   value={replyText}
                   onChange={value => {

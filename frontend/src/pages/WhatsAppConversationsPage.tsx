@@ -33,7 +33,6 @@ import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries } from '../utils/socialConversationContent'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING } from '../utils/formatWhatsAppDeliveryError'
-import { WhatsAppDeliveryStatusIndicator } from '../components/WhatsAppDeliveryStatusIndicator'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { conversationHasCitizenRequest, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse, pickCreateRequestSocialMessageId, pickReplySocialMessageId, pickReplyTicket } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
@@ -274,8 +273,7 @@ function ConversationListItem({
       {t('whatsapp.blocked')}
     </span>
   ) : null
-  const showListDeliveryStatus = conv.lastMessageDirection === 'Outbound' && Boolean(conv.lastMessageDeliveryStatus)
-  const showListMetaRow = Boolean(conv.citizenName || responseStatus || showListDeliveryStatus)
+  const showListMetaRow = Boolean(conv.citizenName || responseStatus)
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
@@ -345,11 +343,6 @@ function ConversationListItem({
                 <p className="min-w-0 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
               ) : <span aria-hidden="true" />}
               <div className="flex shrink-0 items-center gap-1.5">
-                {showListDeliveryStatus ? (
-                  <span className="text-[10px]">
-                    <WhatsAppDeliveryStatusIndicator status={conv.lastMessageDeliveryStatus!} variant="light" />
-                  </span>
-                ) : null}
                 {responseStatus ? <div>{responseStatus}</div> : null}
               </div>
             </div>

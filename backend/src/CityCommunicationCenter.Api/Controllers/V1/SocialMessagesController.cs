@@ -318,7 +318,9 @@ public sealed class SocialMessagesController : ApiControllerBase
         var sourceMessageId = target.SocialMessageId ?? messageId;
         var sourceMessage = await _sender.Send(new GetSocialMessageByIdQuery(sourceMessageId), cancellationToken);
         var remoteChannel = sourceMessage?.Channel ?? SocialChannel.WhatsApp.ToString();
-        var citizenPhone = sourceMessage?.CitizenHandle;
+        var remoteFolderCandidates = ConversationMediaRemotePathHelper.BuildFolderCandidates(
+            sourceMessage?.CitizenHandle,
+            sourceMessage?.CitizenConversationPhone);
         var remoteFileNames = ConversationLocalMediaStore.BuildRemoteFileNameCandidates(
             originalFileName,
             entryId,
@@ -335,20 +337,23 @@ public sealed class SocialMessagesController : ApiControllerBase
         var localPath = ConversationLocalMediaStore.ResolveFullPath(uploadRoot, target.MediaId)
             ?? ConversationLocalMediaStore.ResolveEntryFullPath(uploadRoot, tenantId, entryId);
 
-        if (remoteEnabled && !string.IsNullOrWhiteSpace(citizenPhone))
+        if (remoteEnabled && remoteFolderCandidates.Count > 0)
         {
-            var remoteBytes = await _mediaRemoteArchive.TryReadAsync(
-                tenantId,
-                remoteChannel,
-                citizenPhone,
-                remoteFileNames,
-                cancellationToken);
-            if (remoteBytes is { Length: > 0 })
+            foreach (var remoteFolder in remoteFolderCandidates)
             {
-                ConversationLocalMediaStore.TryDelete(localPath);
-                var remoteContentType = target.MediaMimeType ?? "application/octet-stream";
-                SetOriginalFileNameHeader(Response, originalFileName ?? remoteFileName);
-                return File(remoteBytes, remoteContentType, fileDownloadName: originalFileName ?? remoteFileName);
+                var remoteBytes = await _mediaRemoteArchive.TryReadAsync(
+                    tenantId,
+                    remoteChannel,
+                    remoteFolder,
+                    remoteFileNames,
+                    cancellationToken);
+                if (remoteBytes is { Length: > 0 })
+                {
+                    ConversationLocalMediaStore.TryDelete(localPath);
+                    var remoteContentType = target.MediaMimeType ?? "application/octet-stream";
+                    SetOriginalFileNameHeader(Response, originalFileName ?? remoteFileName);
+                    return File(remoteBytes, remoteContentType, fileDownloadName: originalFileName ?? remoteFileName);
+                }
             }
         }
 
@@ -414,7 +419,7 @@ public sealed class SocialMessagesController : ApiControllerBase
                 content,
                 remoteEnabled,
                 remoteChannel,
-                citizenPhone,
+                remoteFolderCandidates.FirstOrDefault(),
                 remoteFileName,
                 cancellationToken);
 

@@ -467,6 +467,30 @@ public sealed class AdminController : ApiControllerBase
         return Ok(new TestFileStorageNasUserResponse(result.Success, result.Message));
     }
 
+    [HttpPost("tenants/{tenantId:guid}/social/conversation-media/probe")]
+    public async Task<ActionResult<IReadOnlyList<SocialConversationMediaStorageProbeItemResponse>>> ProbeSocialConversationMedia(
+        Guid tenantId,
+        [FromBody] SocialConversationMediaMaintenanceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new ProbeSocialConversationMediaStorageQuery(tenantId, request.EntryIds),
+            cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("tenants/{tenantId:guid}/social/conversation-media/rearchive")]
+    public async Task<ActionResult<IReadOnlyList<SocialConversationMediaRearchiveItemResponse>>> ReararchiveSocialConversationMedia(
+        Guid tenantId,
+        [FromBody] SocialConversationMediaMaintenanceRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new ReararchiveSocialConversationMediaCommand(tenantId, request.EntryIds),
+            cancellationToken);
+        return Ok(result);
+    }
+
     [HttpGet("tenants/{tenantId:guid}/database-backup-settings")]
     public async Task<ActionResult<DatabaseBackupSettingsResponse>> GetDatabaseBackupSettings(
         Guid tenantId,

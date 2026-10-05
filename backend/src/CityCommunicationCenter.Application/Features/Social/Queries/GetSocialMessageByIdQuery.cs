@@ -45,6 +45,18 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
+        string? citizenConversationPhone = null;
+        if (message.CitizenConversationId.HasValue)
+        {
+            citizenConversationPhone = await _dbContext.CitizenConversations
+                .AsNoTracking()
+                .Where(conversation =>
+                    conversation.CitizenConversationId == message.CitizenConversationId.Value &&
+                    conversation.TenantId == tenantId)
+                .Select(conversation => conversation.CitizenPhone)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         return new SocialMessageDetailResponse(
             message.SocialMessageId,
             message.TenantId,
@@ -66,6 +78,7 @@ public sealed class GetSocialMessageByIdQueryHandler : IQueryHandler<GetSocialMe
             string.IsNullOrWhiteSpace(message.Tags)
                 ? Array.Empty<string>()
                 : message.Tags.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
-            message.CitizenConversationId);
+            message.CitizenConversationId,
+            citizenConversationPhone);
     }
 }

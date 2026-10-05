@@ -94,7 +94,8 @@ public sealed record SocialMessageDetailResponse(
     double? Latitude,
     double? Longitude,
     IReadOnlyCollection<string> Tags,
-    Guid? CitizenConversationId = null);
+    Guid? CitizenConversationId = null,
+    string? CitizenConversationPhone = null);
 
 public sealed record SocialChannelStatusResponse(
     bool Configured,
@@ -421,3 +422,30 @@ public sealed record WhatsAppMessageApprovalLogItemResponse(
     Guid? SocialMessageId = null,
     string? DestinationName = null,
     string? ReviewerDisplayName = null);
+
+public sealed record SocialConversationMediaMaintenanceRequest(
+    IReadOnlyList<Guid> EntryIds);
+
+public sealed record SocialConversationMediaRemoteProbeResponse(
+    string RelativePath,
+    bool Found,
+    int? ByteLength);
+
+public sealed record SocialConversationMediaStorageProbeItemResponse(
+    Guid EntryId,
+    Guid SocialMessageId,
+    string MetaMediaId,
+    string? MediaMimeType,
+    string CitizenHandle,
+    string? CitizenPhone,
+    bool RemoteArchiveEnabled,
+    bool LocalExists,
+    string? LocalPath,
+    IReadOnlyList<SocialConversationMediaRemoteProbeResponse> RemoteChecks);
+
+public sealed record SocialConversationMediaRearchiveItemResponse(
+    Guid EntryId,
+    bool Success,
+    bool SavedLocal,
+    bool EnqueuedRemoteArchive,
+    string Message);

@@ -1938,6 +1938,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başarılı yüklemeden sonra uygulama sunucusundaki `conversation-media` kopyası silinir. Uzak
   hata webhook'u bozmaz ve yerel düşüşü bırakır. NAS/FTP boşsa davranış #6aac5ca5 yerel arşivdir.
   `GetMedia` uzak etkinse NAS/FTP veya yerel evreden okur, Graph'a düşmez. Talep/görev eki NAS yolu (`{talepNo}/{dosya}`) değişmez.
+  WhatsApp sosyal medya NAS yolu `WhatsApp/{citizenHandle}/{dosya}`; `CitizenHandle` profil adına dönmüşse
+  okuma sırasında `CitizenConversation.CitizenPhone` klasörü de denenir (webhook anında numara ile yazılmış arşiv).
 - **NAS kök klasör (testtim, card #3384):** Ayarlar'da opsiyonel `Kök Klasör` (`NasRootFolder`) paylaşım
   altındaki hedef dizini belirler (ör. `testtim` → `\\host\share\testtim\VT-…`). Prod boş;
   testtim ortamında prod NAS kimlik bilgileri + `testtim` kök klasörü kullanılır.

@@ -1,4 +1,8 @@
-## Round 1448 — destek detay Önizle sağa
+## Round 1448 — destek detay Önizle sağa, gönder ipucu
+
+- [x] #4162: Lumespec destek detayında ek satırı tek kolon; dosya adı genişler, Önizle sağda.
+- [x] #4158: yapılan işlem Trello kartına yorum olarak yazıldı (kod değişmedi).
+- [x] #4163: Mesajı İlet hover'ında kilit yoksa "Mesaj Gönder".
 
 - [x] #4162: Lumespec destek detayında ek satırı tek kolon; dosya adı genişler, Önizle sağda.
 - [x] #4158: yapılan işlem Trello kartına yorum olarak yazıldı (kod değişmedi).

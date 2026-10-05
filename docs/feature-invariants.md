@@ -778,7 +778,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kilitliyken Kilidi Aç / Talep Oluştur / Mesaj İlet hover'ında ikon değişmez (Ban overlay yok).
   `Kilitleyen: {ad}` yalnız kilidi açamayan kullanıcıda görünür: Mesajı İlet yukarı ve diğer
   bileşenin üstünde (portal, z-index 10060); Kilidi Aç ve Talep Oluştur aşağı. Kilidi açabilen
-  kullanıcıda tooltip yok. Kilit butonu renk geçişi yapmaz; kilitlenince hemen Kilidi Aç olur (#4150).
+  kullanıcıda kilit tooltip'i yok. Mesajı İlet (gönder) hover'ında kilit yoksa **Mesaj Gönder**
+  yukarı açılır (#4163). Kilit butonu renk geçişi yapmaz; kilitlenince hemen Kilidi Aç olur (#4150).
   Detay header'ında telefon satırında **Yanıt Verildi Yap** (yanıt beklerken) veya **Yanıt Verildi**
   etiketi numaranın hemen sağında (#3403 / #3389).
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;

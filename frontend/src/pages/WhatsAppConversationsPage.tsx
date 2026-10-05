@@ -659,10 +659,13 @@ function OperatorLockHoverTip({
   text,
   placement,
   children,
+  blocked = true,
 }: {
   text?: string
   placement: 'up' | 'down'
   children: ReactNode
+  /** Kilit engelinde imleç yasak; gönder ipucunda normal. */
+  blocked?: boolean
 }) {
   const anchorRef = useRef<HTMLSpanElement>(null)
   const [open, setOpen] = useState(false)
@@ -693,7 +696,7 @@ function OperatorLockHoverTip({
   return (
     <span
       ref={anchorRef}
-      className="relative z-[70] inline-flex max-w-full cursor-not-allowed"
+      className={`relative z-[70] inline-flex max-w-full${blocked ? ' cursor-not-allowed' : ''}`}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => {
         setOpen(false)
@@ -1991,16 +1994,22 @@ function ConversationDetail({
                   tooltip="up"
                   t={t}
                 >
-                  <button
-                    type="button"
-                    aria-label={t('common.send', 'Gönder')}
-                    onClick={() => void handleSend()}
-                    disabled={(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther}
-                    className={`flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50${operatorLockedByOther ? ' pointer-events-none' : ''}`}
-                    style={{ backgroundColor: 'var(--color-header-from)' }}
+                  <OperatorLockHoverTip
+                    text={operatorLockedByOther ? undefined : t('whatsapp.sendMessage', 'Mesaj Gönder')}
+                    placement="up"
+                    blocked={false}
                   >
-                    {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                  </button>
+                    <button
+                      type="button"
+                      aria-label={t('whatsapp.sendMessage', 'Mesaj Gönder')}
+                      onClick={() => void handleSend()}
+                      disabled={(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther}
+                      className={`flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50${(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther ? ' pointer-events-none' : ''}`}
+                      style={{ backgroundColor: 'var(--color-header-from)' }}
+                    >
+                      {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                    </button>
+                  </OperatorLockHoverTip>
                 </OperatorLockBlockedOverlay>
               </div>
             </footer>

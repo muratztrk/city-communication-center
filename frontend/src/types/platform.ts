@@ -612,6 +612,9 @@ export interface CitizenConversationSummary {
   blockedAtUtc?: string | null;
   /** Konuşmada görünen son balonun saati (gelen veya giden) — liste sırası ve saati. */
   lastVisibleMessageAt?: string | null;
+  lastMessageDeliveryStatus?: string | null;
+  operatorLockedByUserId?: string | null;
+  operatorLockedByDisplayName?: string | null;
 }
 
 // Kurum içi (personel-arası) mesajlaşma — card #1539.
@@ -734,6 +737,8 @@ export interface CitizenConversationDetail {
   tickets: CitizenConversationTicket[];
   pendingDepartmentReviewCount?: number;
   pendingDepartmentReviewDepartmentIds?: string[];
+  operatorLockedByUserId?: string | null;
+  operatorLockedByDisplayName?: string | null;
 }
 
 export interface WhatsAppMessageTemplate {
@@ -889,6 +894,7 @@ export interface MySupportRequest {
   centralStatus: string | null;
   centralSyncError: string | null;
   createdAtUtc: string;
+  priority?: string | null;
   messages: MySupportRequestMessage[];
   attachments: Attachment[];
 }

@@ -46,7 +46,6 @@ export function WhatsAppDepartmentReviewFab() {
   })
 
   const reviews = reviewsQuery.data ?? []
-  const dismissOnly = reviews.length > 0 && reviews.every(review => review.dismissOnly)
   const reviewQueryKey = ['ccc', 'citizen-conversations', 'department-reviews', 'pending', user?.userId ?? 'anonymous'] as const
 
   const clearReviewSession = useCallback(() => {
@@ -60,20 +59,26 @@ export function WhatsAppDepartmentReviewFab() {
     setIsOpen(false)
   }, [])
 
-  const markReviewsDone = useCallback(async () => {
-    const results = await Promise.all(
-      reviews.map(review => api.acknowledgeCitizenConversationDepartmentReview(review.reviewId).then(() => true).catch(() => false)),
-    )
-    queryClient.setQueryData<CitizenConversationDepartmentReview[]>(reviewQueryKey, [])
-    setIsOpen(false)
-    clearReviewSession()
-    void reviewsQuery.refetch()
-    if (results.some(Boolean)) {
+  const acknowledgeReview = useCallback(async (reviewId: string) => {
+    const ok = await api.acknowledgeCitizenConversationDepartmentReview(reviewId).then(() => true).catch(() => false)
+    if (ok) {
+      queryClient.setQueryData<CitizenConversationDepartmentReview[]>(
+        reviewQueryKey,
+        current => (current ?? []).filter(review => review.reviewId !== reviewId),
+      )
       invalidateNotifications(queryClient)
     }
-  }, [clearReviewSession, queryClient, reviewQueryKey, reviews, reviewsQuery])
+    void reviewsQuery.refetch()
+    if ((reviewsQuery.data ?? []).filter(review => review.reviewId !== reviewId).length === 0) {
+      setIsOpen(false)
+    }
+  }, [queryClient, reviewQueryKey, reviewsQuery])
 
-  const requestMarkReviewsDone = useCallback(() => {
+  const requestAcknowledgeReview = useCallback((review: CitizenConversationDepartmentReview) => {
+    if (review.dismissOnly) {
+      void acknowledgeReview(review.reviewId)
+      return
+    }
     setConfirmDialog({
       title: t('whatsapp.departmentReviewMarkDoneConfirmTitle', 'İncelemeyi Onayla'),
       titleDivider: true,
@@ -83,9 +88,9 @@ export function WhatsAppDepartmentReviewFab() {
       ),
       confirmLabel: t('common.confirm', 'Onayla'),
       variant: 'success',
-      onConfirm: () => markReviewsDone(),
+      onConfirm: () => { void acknowledgeReview(review.reviewId) },
     })
-  }, [markReviewsDone, t])
+  }, [acknowledgeReview, t])
 
   if (!canSeeReviews || reviews.length === 0) {
     return null
@@ -109,35 +114,26 @@ export function WhatsAppDepartmentReviewFab() {
                     : t('whatsapp.departmentReviewPanelEmptyHint', 'Yeni inceleme talebi geldiğinde burada görünür.')}
                 </p>
               </div>
-              <div className="flex shrink-0 flex-col items-end gap-1">
-                <button
-                  type="button"
-                  className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-black/5 hover:text-[color:var(--color-foreground)]"
-                  aria-label={t('common.close', 'Kapat')}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <X className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  className="text-xs font-semibold leading-tight text-orange-600 hover:text-orange-700 hover:underline"
-                  onClick={dismissOnly ? () => { void markReviewsDone() } : requestMarkReviewsDone}
-                >
-                  {dismissOnly
-                    ? t('whatsapp.departmentReviewDismiss', 'Bildirimi Temizle')
-                    : t('whatsapp.departmentReviewMarkDone', 'İncelendi Yap')}
-                </button>
-              </div>
+              <button
+                type="button"
+                className="shrink-0 rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-black/5 hover:text-[color:var(--color-foreground)]"
+                aria-label={t('common.close', 'Kapat')}
+                onClick={() => setIsOpen(false)}
+              >
+                <X className="size-4" />
+              </button>
             </div>
 
             <div className="max-h-80 overflow-y-auto">
-              {reviews.map(review => {
-                return (
+              {reviews.map(review => (
+                <div
+                  key={review.reviewId}
+                  className="flex items-start gap-2 border-b border-[var(--color-border)]/70 px-4 py-3"
+                >
                   <button
-                    key={review.reviewId}
                     type="button"
                     onClick={() => openReviewForReading(review)}
-                    className="flex w-full items-start gap-3 border-b border-[var(--color-border)]/70 px-4 py-3 text-left transition-colors hover:bg-slate-50"
+                    className="flex min-w-0 flex-1 items-start gap-3 text-left transition-colors hover:opacity-90"
                   >
                     <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25D366]/15">
                       <img src="/icons/whatsapp.webp" alt="" className="size-5" aria-hidden="true" />
@@ -156,8 +152,17 @@ export function WhatsAppDepartmentReviewFab() {
                       ) : null}
                     </div>
                   </button>
-                )
-              })}
+                  <button
+                    type="button"
+                    className="shrink-0 self-center text-xs font-semibold leading-tight text-orange-600 hover:text-orange-700 hover:underline"
+                    onClick={() => requestAcknowledgeReview(review)}
+                  >
+                    {review.dismissOnly
+                      ? t('whatsapp.departmentReviewDismiss', 'Bildirimi Temizle')
+                      : t('whatsapp.departmentReviewMarkDone', 'İncelendi Yap')}
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         ) : null}

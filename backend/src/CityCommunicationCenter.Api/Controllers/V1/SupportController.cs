@@ -41,6 +41,15 @@ public sealed class SupportController : ApiControllerBase
         var response = await _sender.Send(new GetMySupportRequestsQuery(), cancellationToken);
         return Ok(response);
     }
+
+    [HttpPost("mine/{supportRequestId:guid}/confirm-resolved")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ConfirmResolved(Guid supportRequestId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new ConfirmSupportRequestResolvedCommand(supportRequestId), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
 }
 
 public sealed record SubmitSupportRequestRequest(string Subject, string Message, string? PageContext);

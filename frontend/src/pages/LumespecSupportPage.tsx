@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
@@ -34,6 +35,12 @@ const SCOPE_FILTERS: Array<{ value: SupportScope; labelKey: string; fallback: st
 
 const COLUMN_COUNT = 7
 
+function defaultSupportStatusLabel(t: TFunction, centralStatus: string | null | undefined): string {
+  const formatted = formatCentralSupportStatus(centralStatus, t)
+  if (formatted) return formatted
+  return t('support.scopes.waiting', 'Çözüm Bekleyen')
+}
+
 export function LumespecSupportPage() {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -62,10 +69,9 @@ export function LumespecSupportPage() {
 
   const rows = useMemo(() => {
     const source = (requestsQuery.data ?? []).map(item => {
-      const statusLabel = formatCentralSupportStatus(item.centralStatus, t)
-        ?? (item.centralSyncError
-          ? t('support.statusSyncFailed', 'Merkeze iletilemedi')
-          : t('support.statusPending', 'İşleniyor'))
+      const statusLabel = item.centralSyncError
+        ? t('support.statusSyncFailed', 'Merkeze iletilemedi')
+        : defaultSupportStatusLabel(t, item.centralStatus)
       return {
         ...item,
         ticketNoText: formatLumespecSupportTicketNo(item, ticketDisplayMap),
@@ -76,7 +82,7 @@ export function LumespecSupportPage() {
           hour: '2-digit',
           minute: '2-digit',
         }),
-        userNameText: userDisplayName,
+        descriptionText: item.message,
         statusLabel,
       }
     })
@@ -90,8 +96,8 @@ export function LumespecSupportPage() {
     const filtered = scoped.filter(item => matchesFilters(item, (key, row) => {
       if (key === 'ticketNo') return row.ticketNoText
       if (key === 'requestDate') return row.requestDateText
-      if (key === 'userName') return row.userNameText
       if (key === 'subject') return row.subject
+      if (key === 'description') return row.descriptionText
       if (key === 'status') return row.statusLabel
       return ''
     }))
@@ -100,7 +106,7 @@ export function LumespecSupportPage() {
       return [...filtered].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc))
     }
     return sortItems(filtered)
-  }, [locale, matchesFilters, requestsQuery.data, scope, sortItems, sortKey, t, ticketDisplayMap, userDisplayName])
+  }, [locale, matchesFilters, requestsQuery.data, scope, sortItems, sortKey, t, ticketDisplayMap])
 
   const totalCount = rows.length
   const safePage = Math.min(currentPage, Math.max(1, Math.ceil(totalCount / pageSize) || 1))
@@ -187,17 +193,6 @@ export function LumespecSupportPage() {
                   {t('support.columns.requestDate', 'Talep Tarihi')}
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="userName"
-                  filterValue={filters.userName ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="userNameText"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('support.columns.userName', 'Kullanıcı Adı')}
-                </FilterableTh>
-                <FilterableTh
                   filterKey="subject"
                   filterValue={filters.subject ?? ''}
                   onFilter={handleFilter}
@@ -207,6 +202,17 @@ export function LumespecSupportPage() {
                   onSort={handleSort}
                 >
                   {t('support.columns.subject', 'Konu')}
+                </FilterableTh>
+                <FilterableTh
+                  filterKey="description"
+                  filterValue={filters.description ?? ''}
+                  onFilter={handleFilter}
+                  sortKey="descriptionText"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={handleSort}
+                >
+                  {t('support.columns.message', 'Açıklama')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="status"
@@ -233,8 +239,8 @@ export function LumespecSupportPage() {
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
                     <td><TruncatedText text={row.ticketNoText} /></td>
                     <td><DateTimeText value={row.createdAtUtc} locale={locale} /></td>
-                    <td><TruncatedText text={row.userNameText} /></td>
                     <td><TruncatedText text={row.subject} /></td>
+                    <td><TruncatedText text={row.descriptionText} /></td>
                     <td><TruncatedText text={row.statusLabel} /></td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">

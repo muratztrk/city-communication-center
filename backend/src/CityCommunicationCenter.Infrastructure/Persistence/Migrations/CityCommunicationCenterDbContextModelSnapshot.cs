@@ -413,6 +413,18 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("openaddress");
 
+                    b.Property<DateTimeOffset?>("OperatorLockedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("operatorlockedatutc");
+
+                    b.Property<string>("OperatorLockedByDisplayName")
+                        .HasColumnType("text")
+                        .HasColumnName("operatorlockedbydisplayname");
+
+                    b.Property<Guid?>("OperatorLockedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("operatorlockedbyuserid");
+
                     b.Property<DateTimeOffset?>("PendingApprovalClearedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("pendingapprovalclearedatutc");
@@ -2256,6 +2268,12 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("pagecontext");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("priority");
 
                     b.Property<string>("Subject")
                         .IsRequired()

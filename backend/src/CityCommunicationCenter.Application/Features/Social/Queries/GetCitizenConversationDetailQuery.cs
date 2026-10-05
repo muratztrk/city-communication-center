@@ -42,7 +42,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 c.OpenAddress,
                 c.LastMessageAt,
                 c.UnreadCount,
-                c.IsBlocked
+                c.IsBlocked,
+                c.OperatorLockedByUserId,
+                c.OperatorLockedByDisplayName,
             })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -409,7 +411,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
             timeline,
             tickets,
             pendingDepartmentReviewDepartmentIds.Count,
-            pendingDepartmentReviewDepartmentIds);
+            pendingDepartmentReviewDepartmentIds,
+            conversation.OperatorLockedByUserId,
+            conversation.OperatorLockedByDisplayName);
     }
 
     /// <summary>

@@ -248,7 +248,10 @@ public sealed record CitizenConversationSummaryDto(
     string? BlockedByDisplayName = null,
     DateTimeOffset? BlockedAtUtc = null,
     /// <summary>Konuşmada görünen son balonun saati (gelen veya giden; gizli terminal onay balonu hariç) — liste sırası ve saati.</summary>
-    DateTimeOffset? LastVisibleMessageAt = null);
+    DateTimeOffset? LastVisibleMessageAt = null,
+    string? LastMessageDeliveryStatus = null,
+    Guid? OperatorLockedByUserId = null,
+    string? OperatorLockedByDisplayName = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,
@@ -271,7 +274,9 @@ public sealed record CitizenConversationDetailDto(
     IReadOnlyList<CitizenConversationTimelineEntryDto> Timeline,
     IReadOnlyList<CitizenConversationTicketDto> Tickets,
     int PendingDepartmentReviewCount = 0,
-    IReadOnlyList<Guid>? PendingDepartmentReviewDepartmentIds = null);
+    IReadOnlyList<Guid>? PendingDepartmentReviewDepartmentIds = null,
+    Guid? OperatorLockedByUserId = null,
+    string? OperatorLockedByDisplayName = null);
 
 public sealed record UpdateCitizenConversationProfileRequest(
     string? CitizenName,

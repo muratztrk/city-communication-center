@@ -13,9 +13,7 @@ export const MOBILE_PAGE_ACCESS_ITEMS = [
   { key: 'citizenCitizens', module: 'citizen', labelKey: 'settings.roles.mobilePageCitizens', fallback: 'Vatandaşlar' },
   { key: 'citizenSettings', module: 'citizen', labelKey: 'nav.settings', fallback: 'Ayarlar' },
   { key: 'internalHome', module: 'internal', labelKey: 'nav.dashboard', fallback: 'Anasayfa' },
-  { key: 'internalDepartment', module: 'internal', labelKey: 'settings.roles.mobilePageDepartment', fallback: 'Birim' },
-  { key: 'internalMap', module: 'internal', labelKey: 'settings.roles.mobilePageMap', fallback: 'Harita' },
-  { key: 'internalCitizens', module: 'internal', labelKey: 'settings.roles.mobilePageCitizens', fallback: 'Vatandaşlar' },
+  { key: 'internalDepartments', module: 'internal', labelKey: 'nav.departments', fallback: 'Birimler' },
   { key: 'internalSettings', module: 'internal', labelKey: 'nav.settings', fallback: 'Ayarlar' },
 ] as const satisfies readonly { key: string; module: LicenseModuleKey; labelKey: string; fallback: string }[]
 
@@ -59,6 +57,10 @@ export const DEFAULT_MOBILE_ROLE_PAGE_ACCESS: MobileRolePageAccessMatrix = MOBIL
   return matrix
 }, {} as MobileRolePageAccessMatrix)
 
+const LEGACY_MOBILE_PAGE_KEY_ALIASES: Partial<Record<string, MobilePageAccessKey>> = {
+  internalDepartment: 'internalDepartments',
+}
+
 export function normalizeMobileRolePageAccessMatrix(input: unknown): MobileRolePageAccessMatrix {
   const source = input && typeof input === 'object' ? input as Partial<MobileRolePageAccessMatrix> : {}
   return MOBILE_ROLE_CODES.reduce((matrix, role) => {
@@ -67,7 +69,14 @@ export function normalizeMobileRolePageAccessMatrix(input: unknown): MobileRoleP
         pages[page.key] = false
         return pages
       }
-      const configured = source[role]?.[page.key]
+      const roleSource = source[role] as Record<string, boolean | undefined> | undefined
+      let configured = roleSource?.[page.key]
+      if (typeof configured !== 'boolean' && roleSource) {
+        const legacyKey = Object.entries(LEGACY_MOBILE_PAGE_KEY_ALIASES).find(([, next]) => next === page.key)?.[0]
+        if (legacyKey && typeof roleSource[legacyKey] === 'boolean') {
+          configured = roleSource[legacyKey]
+        }
+      }
       pages[page.key] = typeof configured === 'boolean'
         ? configured
         : DEFAULT_MOBILE_ROLE_PAGE_ACCESS[role][page.key]

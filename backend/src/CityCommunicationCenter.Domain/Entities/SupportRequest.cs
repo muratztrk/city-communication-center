@@ -20,4 +20,7 @@ public sealed class SupportRequest : AuditableTenantEntity
     public DateTimeOffset? CentralSyncedAtUtc { get; set; }
 
     public string? CentralSyncError { get; set; }
+
+    /// <summary>Lumespec destek önceliği (UI; varsayılan Normal).</summary>
+    public string Priority { get; set; } = "Normal";
 }

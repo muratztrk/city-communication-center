@@ -52,6 +52,13 @@ public sealed class CitizenConversation : AuditableTenantEntity, IHasDatabaseInd
     /// </summary>
     public DateTimeOffset? PendingApprovalClearedAtUtc { get; set; }
 
+    /// <summary>Operatör kilidi — yalnız kilitleyen yazıp talep açabilir (#4131).</summary>
+    public Guid? OperatorLockedByUserId { get; set; }
+
+    public string? OperatorLockedByDisplayName { get; set; }
+
+    public DateTimeOffset? OperatorLockedAtUtc { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 
     public ICollection<SocialMessage> SocialMessages { get; set; } = [];

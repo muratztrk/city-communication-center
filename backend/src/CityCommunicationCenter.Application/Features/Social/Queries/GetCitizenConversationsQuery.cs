@@ -61,6 +61,8 @@ public sealed class GetCitizenConversationsQueryHandler
                 c.BlockedAtUtc,
                 c.WaitingReplyClearedAtUtc,
                 c.PendingApprovalClearedAtUtc,
+                c.OperatorLockedByUserId,
+                c.OperatorLockedByDisplayName,
                 OpenTicketCount = _dbContext.SocialMessages
                     .Count(m => m.CitizenConversationId == c.CitizenConversationId
                                 && m.Status != SocialMessageStatus.Closed),
@@ -524,7 +526,10 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.BlockedAtUtc,
                     lastVisibleAtByConversation.TryGetValue(c.CitizenConversationId, out var lastVisibleAt)
                         ? lastVisibleAt
-                        : null);
+                        : null,
+                    c.LastMessageDeliveryStatus?.ToString(),
+                    c.OperatorLockedByUserId,
+                    c.OperatorLockedByDisplayName);
 
                 return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);
             })

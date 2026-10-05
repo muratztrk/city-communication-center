@@ -154,6 +154,26 @@ public sealed class CitizenConversationsController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("{conversationId:guid}/operator-lock")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> OperatorLock(Guid conversationId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new SetConversationOperatorLockCommand(conversationId, true), cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
+    [HttpPost("{conversationId:guid}/operator-unlock")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> OperatorUnlock(Guid conversationId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new SetConversationOperatorLockCommand(conversationId, false), cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     [HttpGet("message-approval-logs")]
     [ProducesResponseType<IReadOnlyList<WhatsAppMessageApprovalLogItemResponse>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<WhatsAppMessageApprovalLogItemResponse>>> GetMessageApprovalLogs(

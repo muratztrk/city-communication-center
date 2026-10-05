@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo, lazy, Suspense } from 'react'
-import { Ban, Check, ClipboardList, ClipboardPlus, Eye, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
+import { Ban, Check, ClipboardList, ClipboardPlus, Eye, Loader2, Lock, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -32,6 +32,7 @@ import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries } from '../utils/socialConversationContent'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING } from '../utils/formatWhatsAppDeliveryError'
+import { WhatsAppDeliveryStatusIndicator } from '../components/WhatsAppDeliveryStatusIndicator'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { conversationHasCitizenRequest, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse, pickCreateRequestSocialMessageId, pickReplySocialMessageId, pickReplyTicket } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
@@ -340,9 +341,14 @@ function ConversationListItem({
               {conv.citizenName ? (
                 <p className="min-w-0 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
               ) : <span aria-hidden="true" />}
-              {responseStatus ? (
-                <div className="shrink-0">{responseStatus}</div>
-              ) : null}
+              <div className="flex shrink-0 items-center gap-1.5">
+                {conv.lastMessageDirection === 'Outbound' && conv.lastMessageDeliveryStatus ? (
+                  <span className="text-[10px]">
+                    <WhatsAppDeliveryStatusIndicator status={conv.lastMessageDeliveryStatus} variant="light" />
+                  </span>
+                ) : null}
+                {responseStatus ? <div>{responseStatus}</div> : null}
+              </div>
             </div>
           ) : null}
 
@@ -815,6 +821,7 @@ function ConversationDetail({
   onVisibleEntryAt,
   onMarkWaitingReplied,
   onMarkPendingApprovalCleared,
+  onToggleOperatorLock,
 }: {
   conversationId: string
   citizenName?: string | null
@@ -840,6 +847,7 @@ function ConversationDetail({
   onMarkWaitingReplied?: () => void
   /** Mesaj Onayı Bekleyen listesinden manuel çıkar (#3446). */
   onMarkPendingApprovalCleared?: () => void
+  onToggleOperatorLock?: (nextLocked: boolean) => void
 }) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -1395,6 +1403,12 @@ function ConversationDetail({
       ? formatPhone(phoneForHeader)
       : null
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
+  const canManageOperatorLock = user?.role === 'Operator' || user?.role === 'SystemAdmin'
+  const operatorLockedByUserId = activeDetail?.operatorLockedByUserId ?? null
+  const operatorLockedByOther = Boolean(
+    operatorLockedByUserId && user?.userId && operatorLockedByUserId !== user.userId,
+  )
+  const operatorLocked = Boolean(operatorLockedByUserId)
   const pendingBadgeSearchLabel = useMemo(
     () => t('whatsapp.pendingBadge', 'Beklemede'),
     [t],
@@ -1435,6 +1449,22 @@ function ConversationDetail({
               <p className={`min-w-0 truncate leading-tight ${headerTitleIsPhoneOnly ? 'text-[13px] font-bold text-slate-600' : 'text-[11px] text-slate-500'}`}>
                 {formatPhone(phoneForHeader)}
               </p>
+              {headerTitleIsPhoneOnly && canManageOperatorLock && onToggleOperatorLock ? (
+                <button
+                  type="button"
+                  className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                    operatorLocked
+                      ? 'border-amber-300 bg-amber-50 text-amber-800'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                  }`}
+                  onClick={() => onToggleOperatorLock(!operatorLocked)}
+                >
+                  <Lock className="size-3" aria-hidden="true" />
+                  {operatorLocked
+                    ? t('whatsapp.operatorUnlock', 'Kilidi Aç')
+                    : t('whatsapp.operatorLock', 'Kilitle')}
+                </button>
+              ) : null}
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
                 lastInboundAt={activeDetail?.lastInboundAt ?? null}
@@ -1491,6 +1521,7 @@ function ConversationDetail({
                     <button
                       type="button"
                       className="dropdown-menu-item !justify-start gap-2.5"
+                      disabled={operatorLockedByOther}
                       onClick={() => {
                         setMenuOpen(false)
                         onOpenCreateRequest(createRequestSocialMessageId, { hasExistingRequest: hasExistingCitizenRequest })
@@ -1796,7 +1827,7 @@ function ConversationDetail({
                   type="button"
                   aria-label={t('common.send', 'Gönder')}
                   onClick={() => void handleSend()}
-                  disabled={(!replyText.trim() && !pendingFile) || sending}
+                  disabled={(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther}
                   className="flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ backgroundColor: 'var(--color-header-from)' }}
                 >
@@ -1824,7 +1855,7 @@ function ConversationDetail({
             })
           }}
           onSave={() => { void handleProfileSave() }}
-          canCreateRequest={Boolean(activeDetail)}
+          canCreateRequest={Boolean(activeDetail) && !operatorLockedByOther}
           onCreateRequest={activeDetail
             ? () => onOpenCreateRequest(createRequestSocialMessageId, { hasExistingRequest: hasExistingCitizenRequest })
             : undefined}
@@ -2280,6 +2311,28 @@ export function WhatsAppConversationsPage() {
     await handleSetBlocked(selectedId, nextBlocked)
   }, [handleSetBlocked, selectedId])
 
+  const handleToggleOperatorLock = useCallback(async (nextLocked: boolean) => {
+    if (!selectedId) return
+    try {
+      await api.setCitizenConversationOperatorLock(selectedId, nextLocked)
+      setConversations(prev => prev.map(item =>
+        item.citizenConversationId === selectedId
+          ? {
+              ...item,
+              operatorLockedByUserId: nextLocked ? user?.userId ?? null : null,
+              operatorLockedByDisplayName: nextLocked ? user?.displayName ?? null : null,
+            }
+          : item,
+      ))
+      setDetailRefreshKey(key => key + 1)
+      emitPageToast(nextLocked
+        ? t('whatsapp.operatorLock', 'Kilitle')
+        : t('whatsapp.operatorUnlock', 'Kilidi Aç'))
+    } catch (error) {
+      emitPageToast(error instanceof Error ? error.message : t('common.error'), 'error')
+    }
+  }, [selectedId, t, user?.displayName, user?.userId])
+
   const handleOpenStatusRequests = useCallback((status: ConversationStatusFilter) => {
     const params = new URLSearchParams()
     params.set('channel', 'WhatsApp')
@@ -2364,6 +2417,7 @@ export function WhatsAppConversationsPage() {
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={(socialMessageId, options) => { void handleOpenCreateRequest(socialMessageId, options) }}
               onToggleBlocked={nextBlocked => { void handleToggleBlocked(nextBlocked) }}
+              onToggleOperatorLock={nextLocked => { void handleToggleOperatorLock(nextLocked) }}
               onOpenViewRequests={handleOpenViewRequests}
               onProfileSaved={() => { void silentRefreshConversations() }}
               onOutboundSent={() => {

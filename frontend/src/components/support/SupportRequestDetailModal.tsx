@@ -1,17 +1,25 @@
 import type { ReactNode } from 'react'
+import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FileText, MessageSquareText, Paperclip, X as XIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AttachmentSection } from '../ui/AttachmentSection'
 import { DateTimeText } from '../ui/date-time-text'
-import { formatCentralSupportStatus } from '../../utils/centralSupportStatus'
+import { Button } from '../ui/button'
+import { ConfirmDialog, type ConfirmDialogState } from '../ui/confirm-dialog'
+import { isCentralSupportStatusWaiting } from '../../utils/centralSupportStatus'
 import type { MySupportRequest } from '../../types/platform'
 import { api } from '../../api/client'
+import { queryKeys } from '../../api/queryKeys'
 import { getLocale } from '../../utils/localization'
+import { prioritySelectOptions } from '../../utils/formDropdownOptions'
+import { SingleSelectDropdown } from '../ui/single-select-dropdown'
 import { DetailModalHeaderBrand } from '../branding/DetailModalHeaderBrand'
 import { DetailModalTitle } from '../../utils/detailModalTitle'
 import { MyRequestSectionHeading } from '../jobs/my-request-detail/MyRequestSectionHeading'
 import { useEscapeKey } from '../../hooks/useEscapeKey'
+import { toSentenceCaseTr } from '../../utils/textNormalization'
 
 interface SupportRequestDetailModalProps {
   item: MySupportRequest
@@ -37,14 +45,25 @@ export function SupportRequestDetailModal({
 }: SupportRequestDetailModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
+  const queryClient = useQueryClient()
   useEscapeKey(onClose)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
-  const statusLabel = formatCentralSupportStatus(item.centralStatus, t)
-    ?? (item.centralSyncError
-      ? t('support.statusSyncFailed', 'Merkeze iletilemedi')
-      : t('support.statusPending', 'İşleniyor'))
+  const priority = item.priority ?? 'Normal'
+  const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
+
+  const showConfirmResolved = isCentralSupportStatusWaiting(item.centralStatus) && !item.centralSyncError
+
+  const confirmMutation = useMutation({
+    mutationFn: () => api.confirmSupportRequestResolved(item.supportRequestId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.supportRequests.mine() })
+      onClose()
+    },
+  })
 
   const modalTitle = ticketDisplayNo
+  const messageDisplay = toSentenceCaseTr(item.message)
 
   const handleDownload = (attachmentId: string, fileName: string) => {
     void api.downloadAttachment(attachmentId).then(blob => {
@@ -54,6 +73,17 @@ export function SupportRequestDetailModal({
       link.download = fileName
       link.click()
       URL.revokeObjectURL(url)
+    })
+  }
+
+  const requestConfirmResolved = () => {
+    setConfirmDialog({
+      title: t('support.confirmResolvedTitle', 'Çözümü Onayla'),
+      titleDivider: true,
+      message: t('support.confirmResolvedMessage', 'Destek talebinin çözüldüğünü onaylıyor musunuz?'),
+      confirmLabel: t('common.confirm', 'Onayla'),
+      variant: 'success',
+      onConfirm: () => { void confirmMutation.mutateAsync() },
     })
   }
 
@@ -76,6 +106,17 @@ export function SupportRequestDetailModal({
           </div>
           <DetailModalHeaderBrand />
           <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+            {showConfirmResolved ? (
+              <Button
+                type="button"
+                size="sm"
+                className="bg-emerald-600 text-white hover:bg-emerald-700"
+                disabled={confirmMutation.isPending}
+                onClick={requestConfirmResolved}
+              >
+                {t('support.confirmResolvedAction', 'Çözümü Onayla')}
+              </Button>
+            ) : null}
             <button
               type="button"
               onClick={onClose}
@@ -92,7 +133,23 @@ export function SupportRequestDetailModal({
             <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
               <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">
                 <MyRequestSectionHeading icon={FileText} className="job-detail-card-title--spread">
-                  {t('support.detailInfoHeading', 'Talep Bilgileri')}
+                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                    <span>{t('support.detailSupportInfoHeading', 'Destek Bilgileri')}</span>
+                    <span className="lumespec-support-detail-priority ml-auto w-[9.5rem] shrink-0">
+                      <SingleSelectDropdown
+                        menuPortal
+                        matchTriggerWidth
+                        className="w-full"
+                        options={priorityOptions}
+                        value={priority}
+                        onChange={() => {}}
+                        disabled
+                        placeholder={t('jobs.columns.priority', 'Öncelik')}
+                        aria-label={t('jobs.columns.priority', 'Öncelik')}
+                        triggerClassName="h-8 text-[11px]"
+                      />
+                    </span>
+                  </span>
                 </MyRequestSectionHeading>
                 <div className="my-request-detail-fields page-stack edevlet-plan-detail-fields">
                   <InfoRow label={t('support.columns.ticketNo', 'Destek No')} value={ticketDisplayNo} />
@@ -101,7 +158,6 @@ export function SupportRequestDetailModal({
                     value={<DateTimeText value={item.createdAtUtc} locale={locale} />}
                   />
                   <InfoRow label={t('support.columns.userName', 'Kullanıcı Adı')} value={userDisplayName} />
-                  <InfoRow label={t('support.columns.status', 'Talep Durumu')} value={statusLabel} />
                   <InfoRow label={t('support.subjectLabel', 'Konu')} value={item.subject} />
                 </div>
               </div>
@@ -109,7 +165,7 @@ export function SupportRequestDetailModal({
                 <MyRequestSectionHeading icon={MessageSquareText} className="job-detail-card-title--spread">
                   {t('support.columns.message', 'Açıklama')}
                 </MyRequestSectionHeading>
-                <p className="whitespace-pre-wrap text-sm leading-5 text-slate-900">{item.message}</p>
+                <p className="whitespace-pre-wrap text-sm leading-5 text-slate-900">{messageDisplay}</p>
                 {item.centralSyncError ? (
                   <p className="mt-2 text-xs font-semibold text-red-600">{item.centralSyncError}</p>
                 ) : null}
@@ -159,6 +215,7 @@ export function SupportRequestDetailModal({
           ) : null}
         </div>
       </section>
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>,
     document.body,
   )

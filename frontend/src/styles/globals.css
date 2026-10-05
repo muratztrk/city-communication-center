@@ -9842,7 +9842,12 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     line-height: 1.15;
   }
 
+  .lumespec-support-page .scope-chips {
+    align-items: flex-end;
+  }
+
   .lumespec-support-page .scope-chips > .lumespec-support-create-btn {
+    margin-top: 0.15rem;
     grid-column: 1 / -1;
     min-height: 1.85rem;
     padding: 0.3rem 0.55rem;
@@ -10170,6 +10175,12 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 
 /* Faaliyet Tipi / Durum: aynı tetikleyici ve menü genişliği (#4113, #4128). */
 .edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .edevlet-plan-detail-type-status-dropdown {
+  width: 86%;
+  max-width: 86%;
+  margin-left: auto;
+}
+
+.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row:has(.edevlet-plan-detail-type-status-dropdown) .job-detail-field-row__value {
   width: 86%;
   max-width: 86%;
   margin-left: auto;

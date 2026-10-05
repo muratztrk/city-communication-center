@@ -2209,6 +2209,23 @@ export const api = {
     return rows.map(row => ({ ...row, attachments: row.attachments ?? [] }))
   },
 
+  async confirmSupportRequestResolved(supportRequestId: string): Promise<void> {
+    const response = await fetchWithCredentials(
+      `${API_BASE}/support-requests/mine/${supportRequestId}/confirm-resolved`,
+      { method: 'POST', headers: await getAuthHeaders() },
+    )
+    await ensureOk(response, i18n.t('errors.supportConfirmResolvedFailed', 'Çözüm onayı kaydedilemedi'))
+  },
+
+  async setCitizenConversationOperatorLock(conversationId: string, isLocked: boolean): Promise<void> {
+    await fetchWithCredentials(
+      `${API_BASE}/citizen-conversations/${conversationId}/${isLocked ? 'operator-lock' : 'operator-unlock'}`,
+      { method: 'POST', headers: await getAuthHeaders() },
+    ).then(async response => {
+      await ensureOk(response, i18n.t('errors.conversationLockFailed', 'Kilitleme işlemi başarısız'))
+    })
+  },
+
   async uploadSupportRequestAttachment(
     supportRequestId: string,
     file: File,

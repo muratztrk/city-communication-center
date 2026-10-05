@@ -50,6 +50,7 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
             Subject = request.Subject.Trim(),
             Message = request.Message.Trim(),
             PageContext = request.PageContext?.Trim(),
+            Priority = "Normal",
             CreatedByUserId = context.UserId,
         };
 

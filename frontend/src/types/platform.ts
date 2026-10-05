@@ -894,6 +894,7 @@ export interface MySupportRequest {
   centralStatus: string | null;
   centralSyncError: string | null;
   createdAtUtc: string;
+  resolvedAtUtc?: string | null;
   priority?: string | null;
   messages: MySupportRequestMessage[];
   attachments: Attachment[];

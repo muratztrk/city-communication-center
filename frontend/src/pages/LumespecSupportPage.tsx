@@ -33,7 +33,7 @@ const SCOPE_FILTERS: Array<{ value: SupportScope; labelKey: string; fallback: st
   { value: 'all', labelKey: 'support.scopes.all', fallback: 'Tümü', chipClass: 'scope-chip--all' },
 ]
 
-const COLUMN_COUNT = 7
+const BASE_COLUMN_COUNT = 7
 
 export function LumespecSupportPage() {
   const { t, i18n } = useTranslation()
@@ -74,6 +74,15 @@ export function LumespecSupportPage() {
           hour: '2-digit',
           minute: '2-digit',
         }),
+        resolvedAtText: item.resolvedAtUtc
+          ? new Date(item.resolvedAtUtc).toLocaleString(locale, {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+          : '-',
         descriptionText: item.message,
         statusLabel,
       }
@@ -88,6 +97,7 @@ export function LumespecSupportPage() {
     const filtered = scoped.filter(item => matchesFilters(item, (key, row) => {
       if (key === 'ticketNo') return row.ticketNoText
       if (key === 'requestDate') return row.requestDateText
+      if (key === 'resolvedAt') return row.resolvedAtText
       if (key === 'subject') return row.subject
       if (key === 'description') return row.descriptionText
       if (key === 'status') return row.statusLabel
@@ -100,6 +110,8 @@ export function LumespecSupportPage() {
     return sortItems(filtered)
   }, [locale, matchesFilters, requestsQuery.data, scope, sortItems, sortKey, t, ticketDisplayMap])
 
+  const showResolvedAt = scope === 'resolved' || scope === 'all'
+  const columnCount = BASE_COLUMN_COUNT + (showResolvedAt ? 1 : 0)
   const totalCount = rows.length
   const safePage = Math.min(currentPage, Math.max(1, Math.ceil(totalCount / pageSize) || 1))
   const pagedRows = rows.slice((safePage - 1) * pageSize, safePage * pageSize)
@@ -182,7 +194,7 @@ export function LumespecSupportPage() {
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('support.columns.requestDate', 'Talep Tarihi')}
+                  {t('support.columns.supportDate', 'Destek Tarihi')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="subject"
@@ -217,14 +229,27 @@ export function LumespecSupportPage() {
                 >
                   {t('support.columns.status', 'Talep Durumu')}
                 </FilterableTh>
+                {showResolvedAt ? (
+                  <FilterableTh
+                    filterKey="resolvedAt"
+                    filterValue={filters.resolvedAt ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="resolvedAtText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('support.columns.resolvedAt', 'Çözümlenme Tarihi')}
+                  </FilterableTh>
+                ) : null}
                 <th className="text-center">{t('common.actions', 'İşlemler')}</th>
               </tr>
             </thead>
             <tbody>
               {requestsQuery.isLoading ? (
-                <TableEmptyStateRows columnCount={COLUMN_COUNT} message={t('common.loading', 'Yükleniyor...')} />
+                <TableEmptyStateRows columnCount={columnCount} message={t('common.loading', 'Yükleniyor...')} />
               ) : pagedRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={COLUMN_COUNT} message={t('support.empty', 'Kayıt bulunamadı.')} />
+                <TableEmptyStateRows columnCount={columnCount} message={t('support.empty', 'Kayıt bulunamadı.')} />
               ) : (
                 pagedRows.map((row, index) => (
                   <tr key={row.supportRequestId}>
@@ -241,6 +266,11 @@ export function LumespecSupportPage() {
                         {row.statusLabel}
                       </StatusPill>
                     </td>
+                    {showResolvedAt ? (
+                      <td className="whitespace-nowrap">
+                        {row.resolvedAtUtc ? <DateTimeText value={row.resolvedAtUtc} locale={locale} /> : '-'}
+                      </td>
+                    ) : null}
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
                         <Button type="button" variant="secondary" size="sm" onClick={() => setDetailItem(row)}>

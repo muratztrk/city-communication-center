@@ -318,6 +318,8 @@
     "columns": {
       "ticketNo": "Ticket No",
       "requestDate": "Request date",
+      "supportDate": "Support date",
+      "resolvedAt": "Resolved at",
       "userName": "User name",
       "subject": "Subject",
       "message": "Description",

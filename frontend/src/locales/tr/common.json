@@ -318,6 +318,8 @@
     "columns": {
       "ticketNo": "Destek No",
       "requestDate": "Talep Tarihi",
+      "supportDate": "Destek Tarihi",
+      "resolvedAt": "Çözümlenme Tarihi",
       "userName": "Kullanıcı Adı",
       "subject": "Konu",
       "message": "Açıklama",

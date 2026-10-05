@@ -8,7 +8,7 @@ import { AttachmentSection } from '../ui/AttachmentSection'
 import { DateTimeText } from '../ui/date-time-text'
 import { Button } from '../ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../ui/confirm-dialog'
-import { isCentralSupportStatusWaiting } from '../../utils/centralSupportStatus'
+import { isCentralSupportStatusResolved, isCentralSupportStatusWaiting } from '../../utils/centralSupportStatus'
 import type { MySupportRequest } from '../../types/platform'
 import { api } from '../../api/client'
 import { queryKeys } from '../../api/queryKeys'
@@ -158,6 +158,12 @@ export function SupportRequestDetailModal({
                     label={t('support.columns.status', 'Talep Durumu')}
                     value={<span className={`text-xs ${statusClass}`}>{statusLabel}</span>}
                   />
+                  {isCentralSupportStatusResolved(item.centralStatus) ? (
+                    <InfoRow
+                      label={t('support.columns.resolvedAt', 'Çözümlenme Tarihi')}
+                      value={item.resolvedAtUtc ? <DateTimeText value={item.resolvedAtUtc} locale={locale} /> : '-'}
+                    />
+                  ) : null}
                 </div>
               </div>
               <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">

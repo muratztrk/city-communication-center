@@ -2279,6 +2279,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(32)")
                         .HasColumnName("priority");
 
+                    b.Property<DateTimeOffset?>("ResolvedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolvedatutc");
+
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasMaxLength(200)

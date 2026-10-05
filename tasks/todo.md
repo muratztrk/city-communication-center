@@ -1,3 +1,9 @@
+## Round 1446 — Destek Tarihi ve Çözümlenme Tarihi
+
+- [x] Grid Talep Tarihi başlığı Destek Tarihi.
+- [x] Çözümlendi ve Tümü: İşlemler solunda Çözümlenme Tarihi; bekleyende `-`.
+- [x] Detayda Çözümlendi ise Talep Durumu altında Çözümlenme Tarihi. `ResolvedAtUtc`.
+
 ## Round 1445 — çerçeve kalınlığı, gönder tooltip, ad kolonu
 
 - [x] Dosya Ekle / İptal çerçevesi tek çizgi (`ring-0`).

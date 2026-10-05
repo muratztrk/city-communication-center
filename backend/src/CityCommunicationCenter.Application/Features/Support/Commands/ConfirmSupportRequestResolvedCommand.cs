@@ -50,6 +50,7 @@ public sealed class ConfirmSupportRequestResolvedCommandHandler
         }
 
         entity.CentralStatus = "resolved";
+        entity.ResolvedAtUtc = DateTimeOffset.UtcNow;
         entity.CentralSyncedAtUtc = DateTimeOffset.UtcNow;
         entity.CentralSyncError = null;
         await _dbContext.SaveChangesAsync(cancellationToken);

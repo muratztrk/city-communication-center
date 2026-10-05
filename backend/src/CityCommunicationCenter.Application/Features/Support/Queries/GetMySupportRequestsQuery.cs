@@ -17,6 +17,7 @@ public sealed record MySupportRequestResponse(
     string? CentralStatus,
     string? CentralSyncError,
     DateTimeOffset CreatedAtUtc,
+    DateTimeOffset? ResolvedAtUtc,
     string Priority,
     IReadOnlyList<MySupportRequestMessageResponse> Messages,
     IReadOnlyList<AttachmentResponse> Attachments);
@@ -101,6 +102,9 @@ public sealed class GetMySupportRequestsQueryHandler : IQueryHandler<GetMySuppor
                 displayStatus,
                 entity.CentralSyncError,
                 entity.CreatedAtUtc,
+                string.Equals(displayStatus, "resolved", StringComparison.OrdinalIgnoreCase)
+                    ? entity.ResolvedAtUtc
+                    : null,
                 string.IsNullOrWhiteSpace(entity.Priority) ? "Normal" : entity.Priority,
                 centralMessages?.Messages
                     .Select(message => new MySupportRequestMessageResponse(

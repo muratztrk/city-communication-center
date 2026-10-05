@@ -3819,7 +3819,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Lumespec Destek detay (#4117/#4116):** Destek Bilgileri başlığının sağında etiket yok;
   üstte Destek No, altında biraz daha küçük öncelik metni, sağa yaslı. Talep Durumu değeri `text-xs`.
 - **Lumespec Destek grid Talep Durumu (#4154):** `StatusPill` (Çözüm Bekleyen açık mavi `sky-100`,
-  çözümlenen success, senkron hatası danger).
+  çözümlenen success, senkron hatası danger). Grid tarih başlığı **Destek Tarihi**.
+  Çözümlendi ve Tümü kapsamlarında İşlemler solunda **Çözümlenme Tarihi** (`ResolvedAtUtc`,
+  onay anı; bekleyende `-`). Detayda yalnız Çözümlendi satırının altında (#6ac3dd76).
 - **Lumespec Destek oluştur (#6ac3be8a / #6ac3d0fd):** Dosya Ekle ve İptal çerçevesi tek çizgi
   (`border-slate-300 ring-0`). Dosya adları butonun sağında; 3. ekte düşey scroll.
   İade grid Vatandaş Adı kolonu `12.5rem` (#4151 r3).

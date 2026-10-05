@@ -1721,7 +1721,6 @@ function ConversationDetail({
                         entry={entry}
                         theme="light"
                         highlightOutboundPhrases
-                        hideDeliveryStatus
                         inboundSenderLabel={inboundSenderLabel}
                         canSendPending={canSendPending}
                         suppressPendingUi={suppressedPendingEntryIds.has(entry.entryId)}

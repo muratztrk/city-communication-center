@@ -20,7 +20,7 @@ public sealed class SupportController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var supportRequestId = await _sender.Send(
-            new SubmitSupportRequestCommand(request.Subject, request.Message, request.PageContext),
+            new SubmitSupportRequestCommand(request.Subject, request.Message, request.PageContext, request.Priority),
             cancellationToken);
         return StatusCode(StatusCodes.Status201Created, new { supportRequestId });
     }
@@ -52,4 +52,4 @@ public sealed class SupportController : ApiControllerBase
     }
 }
 
-public sealed record SubmitSupportRequestRequest(string Subject, string Message, string? PageContext);
+public sealed record SubmitSupportRequestRequest(string Subject, string Message, string? PageContext, string? Priority);

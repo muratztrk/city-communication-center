@@ -2193,11 +2193,16 @@ export const api = {
     return response.json() as Promise<AppNotification[]>
   },
 
-  async submitSupportRequest(subject: string, message: string, pageContext: string | null): Promise<string> {
+  async submitSupportRequest(
+    subject: string,
+    message: string,
+    pageContext: string | null,
+    priority: string = 'Normal',
+  ): Promise<string> {
     const response = await fetchWithCredentials(`${API_BASE}/support-requests`, {
       method: 'POST',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ subject, message, pageContext }),
+      body: JSON.stringify({ subject, message, pageContext, priority }),
     })
     await ensureOk(response, i18n.t('errors.supportRequestSendFailed', 'Destek talebi gönderilemedi'))
     const body = (await response.json()) as { supportRequestId?: string }

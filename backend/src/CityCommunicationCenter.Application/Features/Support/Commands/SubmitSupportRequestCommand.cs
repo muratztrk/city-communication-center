@@ -3,7 +3,8 @@ namespace CityCommunicationCenter.Application.Features.Support;
 public sealed record SubmitSupportRequestCommand(
     string Subject,
     string Message,
-    string? PageContext) : ICommand<Guid>;
+    string? PageContext,
+    string? Priority) : ICommand<Guid>;
 
 public sealed class SubmitSupportRequestCommandValidator : AbstractValidator<SubmitSupportRequestCommand>
 {
@@ -19,6 +20,10 @@ public sealed class SubmitSupportRequestCommandValidator : AbstractValidator<Sub
             .MaximumLength(4000).WithMessage("Mesaj en fazla 4000 karakter olabilir.");
         RuleFor(command => command.PageContext)
             .MaximumLength(500).WithMessage("Sayfa bilgisi en fazla 500 karakter olabilir.");
+        RuleFor(command => command.Priority)
+            .Must(priority => string.IsNullOrWhiteSpace(priority)
+                || priority is "Normal" or "High" or "VeryHigh")
+            .WithMessage("Geçersiz öncelik değeri.");
     }
 }
 
@@ -50,7 +55,7 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
             Subject = request.Subject.Trim(),
             Message = request.Message.Trim(),
             PageContext = request.PageContext?.Trim(),
-            Priority = "Normal",
+            Priority = string.IsNullOrWhiteSpace(request.Priority) ? "Normal" : request.Priority.Trim(),
             CreatedByUserId = context.UserId,
         };
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -13,6 +13,8 @@ import { exceedsAttachmentTotalLimit, sumFileSizes } from '../../utils/attachmen
 import { pickAttachmentFiles, supportsAttachmentFilePicker } from '../../utils/attachmentFilePicker'
 import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 import { toSentenceCaseTr } from '../../utils/textNormalization'
+import { prioritySelectOptions } from '../../utils/formDropdownOptions'
+import { SingleSelectDropdown } from '../ui/single-select-dropdown'
 
 interface SupportRequestDialogProps {
   open: boolean
@@ -33,7 +35,9 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
   const [centralSyncFailed, setCentralSyncFailed] = useState(false)
+  const [priority, setPriority] = useState('Normal')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
 
   const showHistory = variant === 'default'
   const myRequestsQuery = useQuery({
@@ -57,6 +61,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
     setError(null)
     setSent(false)
     setCentralSyncFailed(false)
+    setPriority('Normal')
   }
 
   const handleClose = () => {
@@ -88,7 +93,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
     setError(null)
     try {
       const pageContext = variant === 'createOnly' ? '/lumespec-support' : location.pathname
-      const supportRequestId = await api.submitSupportRequest(trimmedSubject, trimmedMessage, pageContext)
+      const supportRequestId = await api.submitSupportRequest(trimmedSubject, trimmedMessage, pageContext, priority)
       for (const file of pendingFiles) {
         await api.uploadSupportRequestAttachment(supportRequestId, file)
       }
@@ -187,6 +192,23 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
               </div>
 
               {variant === 'createOnly' ? (
+                <>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">
+                    {t('jobs.columns.priority', 'Öncelik')}
+                  </label>
+                  <SingleSelectDropdown
+                    menuPortal
+                    matchTriggerWidth
+                    className="w-full"
+                    options={priorityOptions}
+                    value={priority}
+                    onChange={setPriority}
+                    placeholder={t('jobs.columns.priority', 'Öncelik')}
+                    aria-label={t('jobs.columns.priority', 'Öncelik')}
+                    triggerClassName="h-9 text-sm"
+                  />
+                </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
                     {t('attachments.addFile', 'Dosya ekle')}
@@ -233,14 +255,26 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                   ) : null}
                   {fileError ? <p className="mt-1 text-xs font-semibold text-red-600">{fileError}</p> : null}
                 </div>
+                </>
               ) : null}
 
               {error ? <p className="text-xs font-semibold text-red-600">{error}</p> : null}
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={handleClose}>
+              <div className={`flex justify-end gap-2 ${variant === 'createOnly' ? '-mt-1' : ''}`}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size={variant === 'createOnly' ? 'sm' : 'default'}
+                  onClick={handleClose}
+                >
                   {t('common.cancel', 'İptal')}
                 </Button>
-                <Button type="button" variant="primary" disabled={!canSubmit} onClick={() => void handleSubmit()}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size={variant === 'createOnly' ? 'sm' : 'default'}
+                  disabled={!canSubmit}
+                  onClick={() => void handleSubmit()}
+                >
                   {sending ? t('common.sending', 'Gönderiliyor...') : t('support.send', 'Gönder')}
                 </Button>
               </div>

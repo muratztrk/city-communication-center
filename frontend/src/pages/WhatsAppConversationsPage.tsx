@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo, lazy, Suspense } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo, lazy, Suspense, type ReactNode } from 'react'
+import type { TFunction } from 'i18next'
 import { Ban, Check, ClipboardList, ClipboardPlus, Eye, Loader2, Lock, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
@@ -655,6 +656,83 @@ function createProfileDraft(detail: CitizenConversationDetail | null, fallbackPh
   }
 }
 
+function operatorLockHoverTitle(lockerDisplayName: string | null | undefined, t: TFunction): string | undefined {
+  const name = lockerDisplayName?.trim()
+  if (!name) return undefined
+  return t('whatsapp.lockedByPerson', 'Kilitleyen: {{name}}', { name })
+}
+
+function OperatorLockControl({
+  locked,
+  canReleaseLock,
+  lockerDisplayName,
+  onToggle,
+  t,
+}: {
+  locked: boolean
+  canReleaseLock: boolean
+  lockerDisplayName: string | null | undefined
+  onToggle: () => void
+  t: TFunction
+}) {
+  const blocked = locked && !canReleaseLock
+  const hoverTitle = blocked ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
+  const baseClass = 'inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors'
+  const colorClass = locked
+    ? (canReleaseLock
+      ? 'border-emerald-500 bg-emerald-600 text-white hover:bg-emerald-700'
+      : 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400')
+    : 'border-red-400 bg-red-600 text-white hover:bg-red-700'
+
+  return (
+    <span className={`relative inline-flex ${blocked ? 'group' : ''}`} title={hoverTitle}>
+      <button
+        type="button"
+        className={`${baseClass} ${colorClass}`}
+        disabled={blocked}
+        onClick={() => { if (!blocked) onToggle() }}
+      >
+        <Lock className="size-3" aria-hidden="true" />
+        {locked ? t('whatsapp.operatorUnlock', 'Kilidi Aç') : t('whatsapp.operatorLock', 'Kilitle')}
+      </button>
+      {blocked ? (
+        <span
+          className="pointer-events-none absolute inset-0 hidden items-center justify-center rounded-full bg-white/80 group-hover:flex"
+          aria-hidden="true"
+        >
+          <Ban className="size-3.5 text-red-600" />
+        </span>
+      ) : null}
+    </span>
+  )
+}
+
+function OperatorLockBlockedOverlay({
+  active,
+  lockerDisplayName,
+  children,
+  t,
+}: {
+  active: boolean
+  lockerDisplayName: string | null | undefined
+  children: ReactNode
+  t: TFunction
+}) {
+  if (!active) return <>{children}</>
+  const hoverTitle = operatorLockHoverTitle(lockerDisplayName, t)
+  return (
+    <span className="group relative inline-flex max-w-full" title={hoverTitle}>
+      {children}
+      <span
+        className="pointer-events-none absolute inset-0 hidden items-center justify-center rounded-lg bg-white/75 group-hover:flex"
+        aria-hidden="true"
+      >
+        <Ban className="size-4 text-red-600" />
+      </span>
+    </span>
+  )
+}
+
 function ConversationProfilePanel({
   detail,
   draft,
@@ -700,15 +778,21 @@ function ConversationProfilePanel({
         className="flex justify-center rounded-t-xl border-b border-slate-200 p-4"
         style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
       >
-        <button
-          type="button"
-          onClick={onCreateRequest}
-          disabled={!detail || !canCreateRequest}
-          className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+        <OperatorLockBlockedOverlay
+          active={Boolean(detail && !canCreateRequest && detail.operatorLockedByUserId)}
+          lockerDisplayName={detail?.operatorLockedByDisplayName}
+          t={t}
         >
-          <ClipboardPlus className="size-4" aria-hidden="true" />
-          {t('nav.createRequest', 'Talep Oluştur')}
-        </button>
+          <button
+            type="button"
+            onClick={onCreateRequest}
+            disabled={!detail || !canCreateRequest}
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ClipboardPlus className="size-4" aria-hidden="true" />
+            {t('nav.createRequest', 'Talep Oluştur')}
+          </button>
+        </OperatorLockBlockedOverlay>
       </div>
 
       <div className="overflow-y-auto p-4">
@@ -1411,6 +1495,12 @@ function ConversationDetail({
     operatorLockedByUserId && user?.userId && operatorLockedByUserId !== user.userId,
   )
   const operatorLocked = Boolean(operatorLockedByUserId)
+  const operatorLockedByDisplayName = activeDetail?.operatorLockedByDisplayName ?? null
+  const canReleaseOperatorLock = Boolean(
+    operatorLocked
+    && user
+    && (user.role === 'SystemAdmin' || (user.userId && user.userId === operatorLockedByUserId)),
+  )
   const pendingBadgeSearchLabel = useMemo(
     () => t('whatsapp.pendingBadge', 'Beklemede'),
     [t],
@@ -1440,20 +1530,13 @@ function ConversationDetail({
             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
               <p className="truncate leading-tight text-[15px] font-semibold text-slate-900">{headerTitle}</p>
               {canManageOperatorLock && onToggleOperatorLock ? (
-                <button
-                  type="button"
-                  className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-                    operatorLocked
-                      ? 'border-amber-300 bg-amber-50 text-amber-800'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                  }`}
-                  onClick={() => onToggleOperatorLock(!operatorLocked)}
-                >
-                  <Lock className="size-3" aria-hidden="true" />
-                  {operatorLocked
-                    ? t('whatsapp.operatorUnlock', 'Kilidi Aç')
-                    : t('whatsapp.operatorLock', 'Kilitle')}
-                </button>
+                <OperatorLockControl
+                  locked={operatorLocked}
+                  canReleaseLock={canReleaseOperatorLock}
+                  lockerDisplayName={operatorLockedByDisplayName}
+                  onToggle={() => onToggleOperatorLock(!operatorLocked)}
+                  t={t}
+                />
               ) : null}
               {showUrgentBadge ? (
                 <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
@@ -1468,20 +1551,13 @@ function ConversationDetail({
                 {formatPhone(phoneForHeader)}
               </p>
               {headerTitleIsPhoneOnly && canManageOperatorLock && onToggleOperatorLock ? (
-                <button
-                  type="button"
-                  className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-                    operatorLocked
-                      ? 'border-amber-300 bg-amber-50 text-amber-800'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                  }`}
-                  onClick={() => onToggleOperatorLock(!operatorLocked)}
-                >
-                  <Lock className="size-3" aria-hidden="true" />
-                  {operatorLocked
-                    ? t('whatsapp.operatorUnlock', 'Kilidi Aç')
-                    : t('whatsapp.operatorLock', 'Kilitle')}
-                </button>
+                <OperatorLockControl
+                  locked={operatorLocked}
+                  canReleaseLock={canReleaseOperatorLock}
+                  lockerDisplayName={operatorLockedByDisplayName}
+                  onToggle={() => onToggleOperatorLock(!operatorLocked)}
+                  t={t}
+                />
               ) : null}
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
@@ -1842,16 +1918,22 @@ function ConversationDetail({
                   disabled={!windowOpen && !hasSelectableTemplates}
                   className="field-input min-h-[4.25rem] max-h-28 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
                 />
-                <button
-                  type="button"
-                  aria-label={t('common.send', 'Gönder')}
-                  onClick={() => void handleSend()}
-                  disabled={(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther}
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
-                  style={{ backgroundColor: 'var(--color-header-from)' }}
+                <OperatorLockBlockedOverlay
+                  active={operatorLockedByOther}
+                  lockerDisplayName={operatorLockedByDisplayName}
+                  t={t}
                 >
-                  {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                </button>
+                  <button
+                    type="button"
+                    aria-label={t('common.send', 'Gönder')}
+                    onClick={() => void handleSend()}
+                    disabled={(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther}
+                    className="flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+                    style={{ backgroundColor: 'var(--color-header-from)' }}
+                  >
+                    {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+                  </button>
+                </OperatorLockBlockedOverlay>
               </div>
             </footer>
           ) : (

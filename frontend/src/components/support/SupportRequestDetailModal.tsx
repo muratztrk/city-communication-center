@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FileText, MessageSquareText, Paperclip, X as XIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -12,14 +12,16 @@ import { isCentralSupportStatusWaiting } from '../../utils/centralSupportStatus'
 import type { MySupportRequest } from '../../types/platform'
 import { api } from '../../api/client'
 import { queryKeys } from '../../api/queryKeys'
-import { getLocale } from '../../utils/localization'
-import { prioritySelectOptions } from '../../utils/formDropdownOptions'
-import { SingleSelectDropdown } from '../ui/single-select-dropdown'
+import { getLocale, getPriorityColorClass, getPriorityLabel } from '../../utils/localization'
 import { DetailModalHeaderBrand } from '../branding/DetailModalHeaderBrand'
 import { DetailModalTitle } from '../../utils/detailModalTitle'
 import { MyRequestSectionHeading } from '../jobs/my-request-detail/MyRequestSectionHeading'
 import { useEscapeKey } from '../../hooks/useEscapeKey'
 import { toSentenceCaseTr } from '../../utils/textNormalization'
+import {
+  resolveSupportRequestStatusLabel,
+  supportRequestStatusTextClass,
+} from '../../utils/supportRequestStatus'
 
 interface SupportRequestDetailModalProps {
   item: MySupportRequest
@@ -50,7 +52,8 @@ export function SupportRequestDetailModal({
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   const priority = item.priority ?? 'Normal'
-  const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
+  const statusLabel = resolveSupportRequestStatusLabel(t, item.centralStatus, item.centralSyncError)
+  const statusClass = supportRequestStatusTextClass(item.centralStatus, item.centralSyncError)
 
   const showConfirmResolved = isCentralSupportStatusWaiting(item.centralStatus) && !item.centralSyncError
 
@@ -82,6 +85,7 @@ export function SupportRequestDetailModal({
       titleDivider: true,
       message: t('support.confirmResolvedMessage', 'Destek talebinin çözüldüğünü onaylıyor musunuz?'),
       confirmLabel: t('common.confirm', 'Onayla'),
+      cancelLabel: t('common.cancel', 'İptal'),
       variant: 'success',
       onConfirm: () => { void confirmMutation.mutateAsync() },
     })
@@ -133,23 +137,7 @@ export function SupportRequestDetailModal({
             <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
               <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">
                 <MyRequestSectionHeading icon={FileText} className="job-detail-card-title--spread">
-                  <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <span>{t('support.detailSupportInfoHeading', 'Destek Bilgileri')}</span>
-                    <span className="lumespec-support-detail-priority ml-auto w-[9.5rem] shrink-0">
-                      <SingleSelectDropdown
-                        menuPortal
-                        matchTriggerWidth
-                        className="w-full"
-                        options={priorityOptions}
-                        value={priority}
-                        onChange={() => {}}
-                        disabled
-                        placeholder={t('jobs.columns.priority', 'Öncelik')}
-                        aria-label={t('jobs.columns.priority', 'Öncelik')}
-                        triggerClassName="h-8 text-[11px]"
-                      />
-                    </span>
-                  </span>
+                  {t('support.detailSupportInfoHeading', 'Destek Bilgileri')}
                 </MyRequestSectionHeading>
                 <div className="my-request-detail-fields page-stack edevlet-plan-detail-fields">
                   <InfoRow label={t('support.columns.ticketNo', 'Destek No')} value={ticketDisplayNo} />
@@ -159,6 +147,18 @@ export function SupportRequestDetailModal({
                   />
                   <InfoRow label={t('support.columns.userName', 'Kullanıcı Adı')} value={userDisplayName} />
                   <InfoRow label={t('support.subjectLabel', 'Konu')} value={item.subject} />
+                  <InfoRow
+                    label={t('jobs.columns.priority', 'Öncelik')}
+                    value={(
+                      <span className={`text-sm ${getPriorityColorClass(priority)} ${priority === 'High' || priority === 'VeryHigh' ? 'font-extrabold' : 'font-semibold'}`}>
+                        {getPriorityLabel(t, priority)}
+                      </span>
+                    )}
+                  />
+                  <InfoRow
+                    label={t('support.columns.status', 'Talep Durumu')}
+                    value={<span className={`text-sm ${statusClass}`}>{statusLabel}</span>}
+                  />
                 </div>
               </div>
               <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">

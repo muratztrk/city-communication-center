@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { TFunction } from 'i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
@@ -19,10 +18,13 @@ import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
 import { DateTimeText } from '../components/ui/date-time-text'
 import { buildLumespecSupportTicketDisplayMap, formatLumespecSupportTicketNo } from '../utils/lumespecSupportTicket'
 import {
-  formatCentralSupportStatus,
   isCentralSupportStatusResolved,
   isCentralSupportStatusWaiting,
 } from '../utils/centralSupportStatus'
+import {
+  resolveSupportRequestStatusLabel,
+  supportRequestStatusTextClass,
+} from '../utils/supportRequestStatus'
 import type { MySupportRequest } from '../types/platform'
 
 type SupportScope = 'waiting' | 'resolved' | 'all'
@@ -34,12 +36,6 @@ const SCOPE_FILTERS: Array<{ value: SupportScope; labelKey: string; fallback: st
 ]
 
 const COLUMN_COUNT = 7
-
-function defaultSupportStatusLabel(t: TFunction, centralStatus: string | null | undefined): string {
-  const formatted = formatCentralSupportStatus(centralStatus, t)
-  if (formatted) return formatted
-  return t('support.scopes.waiting', 'Çözüm Bekleyen')
-}
 
 export function LumespecSupportPage() {
   const { t, i18n } = useTranslation()
@@ -69,9 +65,8 @@ export function LumespecSupportPage() {
 
   const rows = useMemo(() => {
     const source = (requestsQuery.data ?? []).map(item => {
-      const statusLabel = item.centralSyncError
-        ? t('support.statusSyncFailed', 'Merkeze iletilemedi')
-        : defaultSupportStatusLabel(t, item.centralStatus)
+      const statusLabel = resolveSupportRequestStatusLabel(t, item.centralStatus, item.centralSyncError)
+      const statusClass = supportRequestStatusTextClass(item.centralStatus, item.centralSyncError)
       return {
         ...item,
         ticketNoText: formatLumespecSupportTicketNo(item, ticketDisplayMap),
@@ -84,6 +79,7 @@ export function LumespecSupportPage() {
         }),
         descriptionText: item.message,
         statusLabel,
+        statusClass,
       }
     })
 
@@ -241,7 +237,11 @@ export function LumespecSupportPage() {
                     <td><DateTimeText value={row.createdAtUtc} locale={locale} /></td>
                     <td><TruncatedText text={row.subject} /></td>
                     <td><TruncatedText text={row.descriptionText} /></td>
-                    <td><TruncatedText text={row.statusLabel} /></td>
+                    <td>
+                      <span className={row.statusClass}>
+                        <TruncatedText text={row.statusLabel} />
+                      </span>
+                    </td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
                         <Button type="button" variant="secondary" size="sm" onClick={() => setDetailItem(row)}>

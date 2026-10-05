@@ -1,3 +1,11 @@
+## Round 1449 — kilit anında, uyarı rengi, gönder imleci, log tarih genişliği
+
+- [x] #4158: başka konuşmaya geçince kilit butonu liste bilgisinden hemen görünür.
+- [x] #4166: kilit yokken Mesajı İlet imleci el.
+- [x] #4163: Mesaj Gönder ipucu 250ms sonra.
+- [x] #4167/#4168: kilit uyarısı kırmızı "Mesaj kilitlenmiştir."; açma yeşil "Mesaj kilidi açılmıştır."
+- [x] #4164: Vatandaşa Giden SMS ve Mail Log Tarih kolonu biraz geniş.
+
 ## Round 1448 — destek detay Önizle sağa, gönder ipucu
 
 - [x] #4162: Lumespec destek detayında ek satırı tek kolon; dosya adı genişler, Önizle sağda.

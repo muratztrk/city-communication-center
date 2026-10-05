@@ -779,7 +779,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Kilitleyen: {ad}` yalnız kilidi açamayan kullanıcıda görünür: Mesajı İlet yukarı ve diğer
   bileşenin üstünde (portal, z-index 10060); Kilidi Aç ve Talep Oluştur aşağı. Kilidi açabilen
   kullanıcıda kilit tooltip'i yok. Mesajı İlet (gönder) hover'ında kilit yoksa **Mesaj Gönder**
-  yukarı açılır (#4163). Kilit butonu renk geçişi yapmaz; kilitlenince hemen Kilidi Aç olur (#4150).
+  250ms sonra yukarı açılır (#4163). Kilit yokken imleç eldir (`cursor-pointer`), yasak imleç yok (#4166).
+  Kilit butonu renk geçişi yapmaz. Başka konuşmaya geçince buton liste kilit bilgisinden hemen
+  Kilidi Aç / Kilitle olur, detay beklenmez (#4158). Kilit uyarısı kırmızı **Mesaj kilitlenmiştir.**;
+  açma uyarısı yeşil **Mesaj kilidi açılmıştır.** (#4167/#4168).
   Detay header'ında telefon satırında **Yanıt Verildi Yap** (yanıt beklerken) veya **Yanıt Verildi**
   etiketi numaranın hemen sağında (#3403 / #3389).
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;
@@ -1651,6 +1654,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Detay sütunu bildirim `FormatNote` ile aynı sadeleştirme: teknik `Status=/Targets=/CreatedTasks=`
   ham dump yok; varsa yalnızca lokalize durum (card #1713 Detay).
   Tarih hücresi `DateTimeText`: saat önünde küçük dairesel bullet (#4164). Sistem, talep, görev, SMS ve e-posta log gridleri aynı.
+  Vatandaşa Giden SMS ve Mail Log Tarih kolonu `min-w-[9.5rem]` ve tek satır (#4164 r2).
 - **Nav/UI “Birimler”:** `nav.departments` ve departments.* metinleri “Birimler/Birim”dir;
   “Departman(lar)” kullanılmaz (card #1487). Sol menü yönetim bloğu sırası: Ayarlar → Log →
   Kullanıcılar → Birimler (#3939; Birimler ile Log yer değiştirdi). Sayfa Yetkileri yönetim satırları

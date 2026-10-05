@@ -660,16 +660,24 @@ function OperatorLockHoverTip({
   placement,
   children,
   blocked = true,
+  delayMs = 0,
 }: {
   text?: string
   placement: 'up' | 'down'
   children: ReactNode
-  /** Kilit engelinde imleç yasak; gönder ipucunda normal. */
+  /** Kilit engelinde imleç yasak; gönder ipucunda el. */
   blocked?: boolean
+  /** Mesaj Gönder, Onaylayan Personel ile aynı 250ms (#4163). */
+  delayMs?: number
 }) {
   const anchorRef = useRef<HTMLSpanElement>(null)
+  const timerRef = useRef<number | null>(null)
   const [open, setOpen] = useState(false)
   const [box, setBox] = useState<{ top: number; left: number } | null>(null)
+
+  useEffect(() => () => {
+    if (timerRef.current != null) window.clearTimeout(timerRef.current)
+  }, [])
 
   useLayoutEffect(() => {
     if (!open) return
@@ -696,9 +704,15 @@ function OperatorLockHoverTip({
   return (
     <span
       ref={anchorRef}
-      className={`relative z-[70] inline-flex max-w-full${blocked ? ' cursor-not-allowed' : ''}`}
-      onMouseEnter={() => setOpen(true)}
+      className={`relative z-[70] inline-flex max-w-full ${blocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+      onMouseEnter={() => {
+        if (timerRef.current != null) window.clearTimeout(timerRef.current)
+        if (delayMs > 0) timerRef.current = window.setTimeout(() => setOpen(true), delayMs)
+        else setOpen(true)
+      }}
       onMouseLeave={() => {
+        if (timerRef.current != null) window.clearTimeout(timerRef.current)
+        timerRef.current = null
         setOpen(false)
         setBox(null)
       }}
@@ -957,6 +971,8 @@ function ConversationDetail({
   onMarkWaitingReplied,
   onMarkPendingApprovalCleared,
   onToggleOperatorLock,
+  lockedByUserId = null,
+  lockedByDisplayName = null,
 }: {
   conversationId: string
   citizenName?: string | null
@@ -983,6 +999,9 @@ function ConversationDetail({
   /** Mesaj Onayı Bekleyen listesinden manuel çıkar (#3446). */
   onMarkPendingApprovalCleared?: () => void
   onToggleOperatorLock?: (nextLocked: boolean) => void | Promise<void>
+  /** Liste satırındaki kilit; detay gelmeden buton hemen Kilidi Aç olur (#4158). */
+  lockedByUserId?: string | null
+  lockedByDisplayName?: string | null
 }) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -1539,12 +1558,17 @@ function ConversationDetail({
       : null
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
   const canManageOperatorLock = user?.role === 'Operator' || user?.role === 'SystemAdmin'
-  const operatorLockedByUserId = activeDetail?.operatorLockedByUserId ?? null
+  const detailMatchesConversation = activeDetail?.citizenConversationId === conversationId
+  const operatorLockedByUserId = detailMatchesConversation
+    ? (activeDetail?.operatorLockedByUserId ?? null)
+    : (lockedByUserId ?? null)
   const operatorLockedByOther = Boolean(
     operatorLockedByUserId && user?.userId && operatorLockedByUserId !== user.userId,
   )
   const operatorLocked = Boolean(operatorLockedByUserId)
-  const operatorLockedByDisplayName = activeDetail?.operatorLockedByDisplayName ?? null
+  const operatorLockedByDisplayName = detailMatchesConversation
+    ? (activeDetail?.operatorLockedByDisplayName ?? null)
+    : (lockedByDisplayName ?? null)
   const canReleaseOperatorLock = Boolean(
     operatorLocked
     && user
@@ -1998,13 +2022,14 @@ function ConversationDetail({
                     text={operatorLockedByOther ? undefined : t('whatsapp.sendMessage', 'Mesaj Gönder')}
                     placement="up"
                     blocked={false}
+                    delayMs={250}
                   >
                     <button
                       type="button"
                       aria-label={t('whatsapp.sendMessage', 'Mesaj Gönder')}
                       onClick={() => void handleSend()}
                       disabled={(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther}
-                      className={`flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50${(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther ? ' pointer-events-none' : ''}`}
+                      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:opacity-50 ${operatorLockedByOther ? 'disabled:cursor-not-allowed' : 'disabled:cursor-pointer'}${(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther ? ' pointer-events-none' : ''}`}
                       style={{ backgroundColor: 'var(--color-header-from)' }}
                     >
                       {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
@@ -2503,9 +2528,12 @@ export function WhatsAppConversationsPage() {
           : item,
       ))
       setDetailRefreshKey(key => key + 1)
-      emitPageToast(nextLocked
-        ? t('whatsapp.operatorLock', 'Kilitle')
-        : t('whatsapp.operatorUnlock', 'Kilidi Aç'))
+      emitPageToast(
+        nextLocked
+          ? t('whatsapp.operatorLockedNotice', 'Mesaj kilitlenmiştir.')
+          : t('whatsapp.operatorUnlockedNotice', 'Mesaj kilidi açılmıştır.'),
+        nextLocked ? 'error' : 'success',
+      )
     } catch (error) {
       emitPageToast(error instanceof Error ? error.message : t('common.error'), 'error')
       throw error
@@ -2597,6 +2625,8 @@ export function WhatsAppConversationsPage() {
               onOpenCreateRequest={(socialMessageId, options) => { void handleOpenCreateRequest(socialMessageId, options) }}
               onToggleBlocked={nextBlocked => { void handleToggleBlocked(nextBlocked) }}
               onToggleOperatorLock={handleToggleOperatorLock}
+              lockedByUserId={selectedConv?.operatorLockedByUserId ?? null}
+              lockedByDisplayName={selectedConv?.operatorLockedByDisplayName ?? null}
               onOpenViewRequests={handleOpenViewRequests}
               onProfileSaved={() => { void silentRefreshConversations() }}
               onOutboundSent={() => {

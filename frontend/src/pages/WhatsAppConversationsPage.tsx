@@ -273,6 +273,8 @@ function ConversationListItem({
       {t('whatsapp.blocked')}
     </span>
   ) : null
+  const showListDeliveryStatus = conv.lastMessageDirection === 'Outbound' && Boolean(conv.lastMessageDeliveryStatus)
+  const showListMetaRow = Boolean(conv.citizenName || responseStatus || showListDeliveryStatus)
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
@@ -336,15 +338,15 @@ function ConversationListItem({
             </div>
           </div>
 
-          {(conv.citizenName || responseStatus) ? (
+          {showListMetaRow ? (
             <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
               {conv.citizenName ? (
                 <p className="min-w-0 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
               ) : <span aria-hidden="true" />}
               <div className="flex shrink-0 items-center gap-1.5">
-                {conv.lastMessageDirection === 'Outbound' && conv.lastMessageDeliveryStatus ? (
+                {showListDeliveryStatus ? (
                   <span className="text-[10px]">
-                    <WhatsAppDeliveryStatusIndicator status={conv.lastMessageDeliveryStatus} variant="light" />
+                    <WhatsAppDeliveryStatusIndicator status={conv.lastMessageDeliveryStatus!} variant="light" />
                   </span>
                 ) : null}
                 {responseStatus ? <div>{responseStatus}</div> : null}
@@ -1437,6 +1439,22 @@ function ConversationDetail({
           {!headerTitleIsPhoneOnly ? (
             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
               <p className="truncate leading-tight text-[15px] font-semibold text-slate-900">{headerTitle}</p>
+              {canManageOperatorLock && onToggleOperatorLock ? (
+                <button
+                  type="button"
+                  className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                    operatorLocked
+                      ? 'border-amber-300 bg-amber-50 text-amber-800'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                  }`}
+                  onClick={() => onToggleOperatorLock(!operatorLocked)}
+                >
+                  <Lock className="size-3" aria-hidden="true" />
+                  {operatorLocked
+                    ? t('whatsapp.operatorUnlock', 'Kilidi Aç')
+                    : t('whatsapp.operatorLock', 'Kilitle')}
+                </button>
+              ) : null}
               {showUrgentBadge ? (
                 <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
                   ACİL
@@ -1627,6 +1645,7 @@ function ConversationDetail({
                         entry={entry}
                         theme="light"
                         highlightOutboundPhrases
+                        hideDeliveryStatus
                         inboundSenderLabel={inboundSenderLabel}
                         canSendPending={canSendPending}
                         suppressPendingUi={suppressedPendingEntryIds.has(entry.entryId)}

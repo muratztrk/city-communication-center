@@ -110,6 +110,18 @@ public sealed class CitizenConversationsController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("department-reviews/{reviewId:guid}/open-for-reading")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> OpenDepartmentReviewForReading(Guid reviewId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new OpenCitizenConversationDepartmentReviewCommand(reviewId, CurrentContext.UserId),
+            cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     [HttpPut("{conversationId:guid}/profile")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

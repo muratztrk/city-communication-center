@@ -386,7 +386,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
             .AsNoTracking()
             .Where(review => review.TenantId == tenantId
                 && review.CitizenConversationId == request.CitizenConversationId
-                && review.AcknowledgedAtUtc == null)
+                && review.AcknowledgedAtUtc == null
+                && review.TargetDepartmentOpenedAtUtc == null)
             .Select(review => review.DepartmentId)
             .Distinct()
             .ToListAsync(cancellationToken);

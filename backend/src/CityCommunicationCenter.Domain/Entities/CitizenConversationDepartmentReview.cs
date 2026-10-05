@@ -21,6 +21,12 @@ public sealed class CitizenConversationDepartmentReview : AuditableTenantEntity,
     public DateTimeOffset? AcknowledgedAtUtc { get; set; }
 
     /// <summary>
+    /// Hedef birim yöneticisi FAB üzerinden «İncelenmesi Gereken Mesajı Oku» ile açtığında
+    /// operatörün WA «incelemeye gönder» rozetini düşürür (aynı operatör + birim, çoklu numara).
+    /// </summary>
+    public DateTimeOffset? TargetDepartmentOpenedAtUtc { get; set; }
+
+    /// <summary>
     /// Sorumlu veya vatandaş talep yöneticisinin kişisel kapatması. Müdür onayı
     /// <see cref="AcknowledgedAtUtc"/> ile herkesten düşürür.
     /// </summary>

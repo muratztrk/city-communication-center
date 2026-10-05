@@ -4003,6 +4003,12 @@ const pageKicker = isMyTasksView
                       <Icon className="size-3" aria-hidden="true" />
                     </span>
                     <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
+                    <AttachmentImagePreviewButton
+                      attachmentId={item.attachmentId}
+                      fileName={item.fileName}
+                      ownerKind="task"
+                      className="shrink-0 self-center h-6 px-1.5 text-[10px]"
+                    />
                     <button
                       type="button"
                       className="shrink-0 self-center text-[11px] font-medium leading-5 text-red-500 hover:text-red-600"
@@ -4120,6 +4126,12 @@ const pageKicker = isMyTasksView
                             <Icon className="size-3" aria-hidden="true" />
                           </span>
                           <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
+                          <AttachmentImagePreviewButton
+                            attachmentId={item.attachmentId}
+                            fileName={item.fileName}
+                            ownerKind="task"
+                            className="shrink-0 self-center h-6 px-1.5 text-[10px]"
+                          />
                           <button
                             type="button"
                             className="shrink-0 self-center text-[11px] font-medium leading-5 text-red-500 hover:text-red-600"

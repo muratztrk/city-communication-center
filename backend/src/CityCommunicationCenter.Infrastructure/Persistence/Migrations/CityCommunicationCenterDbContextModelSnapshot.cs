@@ -491,6 +491,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("acknowledgedatutc");
 
+                    b.Property<DateTimeOffset?>("TargetDepartmentOpenedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("targetdepartmentopenedatutc");
+
                     b.Property<Guid>("CitizenConversationId")
                         .HasColumnType("uuid")
                         .HasColumnName("citizenconversationid");

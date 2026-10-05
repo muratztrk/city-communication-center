@@ -562,8 +562,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   onay metni: `Bu mesaj incelenmek üzere seçim yapılan "{Birim}" birimine gönderilecek…`; balon yalnız seçilen hedef birimin **müdürü**
   (`ManagerUserId` / vekil), **sorumlusu** (`ResponsibleUserIdsJson`) ve o birimdeki **Vatandaş Talep Yöneticisi**nde görünür (#6ab25e9f);
   `İncelenmesi Gereken Mesajı Oku` altındaki ad ve birim, incelemeye gönderen operatöründür (hedef birim / vatandaş değil, #6ab23754);
-  satır talep Detaylar popup + üstte Yazışmaya Git açar. FAB yalnız panelde turuncu `İncelendi Yap`
-  ile kapanır (okuma FAB'ı düşürmez). Müdür, sorumlu ve o birimdeki VTY için düğme `İncelendi Yap`tır;
+  satır talep Detaylar popup + üstte Yazışmaya Git açar. FAB `İncelenmesi Gereken Mesajı Oku` hedef birimde
+  `open-for-reading` ile aynı gönderen operatörün o birime bekleyen tüm inceleme kayıtlarında
+  `TargetDepartmentOpenedAtUtc` yazır; `/whatsapp` inceleme rozeti o birim için düşer (#4132).
+  FAB yalnız panelde turuncu `İncelendi Yap` ile kapanır (`AcknowledgedAtUtc`; okuma tek başına onay değildir).
+  Müdür, sorumlu ve o birimdeki VTY için düğme `İncelendi Yap`tır;
   `Bildirimi Temizle` bu üçünde kullanılmaz (#6ab25af6). Onay `AcknowledgedAtUtc` yazar ve üçünün balonundan da düşer.
   Aynı onay, bu üç kişinin ve incelemeye gönderen Vatandaş Talep Operatörünün zil listesine `Mesaj incelendi` yazar (#6ab2627f);
   metin `{Birim} {{onaylayan}} tarafından {operatör} personelinin ilettiği mesaj incelendi.`;

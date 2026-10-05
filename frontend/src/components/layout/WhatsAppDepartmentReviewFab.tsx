@@ -54,6 +54,7 @@ export function WhatsAppDepartmentReviewFab() {
   }, [])
 
   const openReviewForReading = useCallback((review: CitizenConversationDepartmentReview) => {
+    void api.openCitizenConversationDepartmentReviewForReading(review.reviewId).catch(() => {})
     setActiveReview(review)
     setDetailJobId(review.jobId)
     setIsOpen(false)

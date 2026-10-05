@@ -39,11 +39,11 @@ public partial class AddSupportPriorityAndConversationOperatorLock : Migration
                 maxLength: 32,
                 nullable: false,
                 defaultValue: "Normal");
-        }
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
             migrationBuilder.DropColumn(
                 name: "operatorlockedatutc",
                 table: "citizenconversations");
@@ -59,5 +59,5 @@ public partial class AddSupportPriorityAndConversationOperatorLock : Migration
             migrationBuilder.DropColumn(
                 name: "priority",
                 table: "supportrequests");
-        }
     }
+}

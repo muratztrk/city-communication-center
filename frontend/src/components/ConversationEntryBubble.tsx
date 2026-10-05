@@ -71,6 +71,8 @@ interface ConversationEntryBubbleProps {
   suppressPendingUi?: boolean
   /** /whatsapp giden balonda durum ve Yapılan İş / Not etiketlerini boya. */
   highlightOutboundPhrases?: boolean
+  /** Teslimat durumu göstergesini balon meta satırından gizle (liste satırında gösterilir). */
+  hideDeliveryStatus?: boolean
 }
 
 const conversationEntryMetaBadgeClass =
@@ -160,6 +162,7 @@ export function ConversationEntryBubble({
   compact = false,
   suppressPendingUi = false,
   highlightOutboundPhrases = false,
+  hideDeliveryStatus = false,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { t, i18n } = useTranslation()
@@ -481,14 +484,14 @@ export function ConversationEntryBubble({
             ) : null}
             {isQueuedForOperator ? (
               <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
-            ) : !isInbound && entry.deliveryStatus ? (
+            ) : !hideDeliveryStatus && !isInbound && entry.deliveryStatus ? (
               <WhatsAppDeliveryStatusIndicator
                 status={entry.deliveryStatus}
                 error={entry.deliveryError}
                 variant="dark"
               />
             ) : null}
-            {!isInbound && entry.deliveryStatus ? <span data-meta-sep aria-hidden="true">·</span> : null}
+            {!hideDeliveryStatus && !isInbound && entry.deliveryStatus ? <span data-meta-sep aria-hidden="true">·</span> : null}
             <span title={queuedTimeTitle}>{sentTime}</span>
           </p>
           {!isInbound && !isQueuedForOperator && entry.deliveryStatus === 'Failed' && deliveryErrorMessage ? (

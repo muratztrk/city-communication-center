@@ -12,6 +12,7 @@ import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../../utils
 import { exceedsAttachmentTotalLimit, sumFileSizes } from '../../utils/attachmentLimits'
 import { pickAttachmentFiles, supportsAttachmentFilePicker } from '../../utils/attachmentFilePicker'
 import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
+import { toSentenceCaseTr } from '../../utils/textNormalization'
 
 interface SupportRequestDialogProps {
   open: boolean
@@ -159,6 +160,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                   placeholder={t('support.subjectPlaceholder', 'Konu başlığı')}
                   value={subject}
                   onChange={e => setSubject(e.target.value)}
+                  onBlur={() => setSubject(current => toSentenceCaseTr(current))}
                   maxLength={200}
                   autoFocus
                 />
@@ -176,6 +178,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                   placeholder={t('support.messagePlaceholder', 'Destek talebinizi kısaca açıklayınız...')}
                   value={message}
                   onChange={e => setMessage(e.target.value)}
+                  onBlur={() => setMessage(current => toSentenceCaseTr(current))}
                   maxLength={4000}
                 />
                 <p className="mt-1 text-xs text-slate-500">

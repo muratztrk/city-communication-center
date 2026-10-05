@@ -10168,13 +10168,15 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   min-height: 1.68rem;
 }
 
-/* Faaliyet Tipi / Durum: tetikleyici biraz dar, menü tetikleyici genişliği (#4113). */
+/* Faaliyet Tipi / Durum: aynı tetikleyici ve menü genişliği (#4113, #4128). */
 .edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .edevlet-plan-detail-type-status-dropdown {
+  width: 86%;
   max-width: 86%;
   margin-left: auto;
 }
 
-.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .field-select {
+.edevlet-plan-detail-edit .edevlet-plan-detail-card:first-child .job-detail-field-row__value .edevlet-plan-detail-type-status-dropdown .field-select {
+  width: 100%;
   max-width: 100%;
   margin-left: 0;
 }

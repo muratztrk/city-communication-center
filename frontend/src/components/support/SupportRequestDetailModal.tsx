@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { FileText, MessageSquareText, Paperclip, Printer, X as XIcon } from 'lucide-react'
+import { FileText, MessageSquareText, Paperclip, X as XIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AttachmentSection } from '../ui/AttachmentSection'
 import { DateTimeText } from '../ui/date-time-text'
@@ -11,7 +11,6 @@ import { getLocale } from '../../utils/localization'
 import { DetailModalHeaderBrand } from '../branding/DetailModalHeaderBrand'
 import { DetailModalTitle } from '../../utils/detailModalTitle'
 import { MyRequestSectionHeading } from '../jobs/my-request-detail/MyRequestSectionHeading'
-import { Button } from '../ui/button'
 import { useEscapeKey } from '../../hooks/useEscapeKey'
 
 interface SupportRequestDetailModalProps {
@@ -58,21 +57,6 @@ export function SupportRequestDetailModal({
     })
   }
 
-  const handlePrint = () => {
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${ticketDisplayNo}</title></head><body>
-      <h1>${ticketDisplayNo}</h1>
-      <p><strong>${t('support.subjectLabel', 'Konu')}:</strong> ${item.subject}</p>
-      <p><strong>${t('support.messageLabel', 'Mesaj')}:</strong></p>
-      <pre>${item.message}</pre>
-    </body></html>`
-    const w = window.open('', '_blank')
-    if (w) {
-      w.document.write(html)
-      w.document.close()
-      w.print()
-    }
-  }
-
   return createPortal(
     <div
       className="fixed inset-0 z-[210] flex items-center justify-center bg-black/40 p-4"
@@ -92,17 +76,6 @@ export function SupportRequestDetailModal({
           </div>
           <DetailModalHeaderBrand />
           <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
-            <Button
-              type="button"
-              size="lg"
-              variant="ghost"
-              className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
-              onClick={handlePrint}
-              aria-label={t('common.print', 'Yazdır')}
-            >
-              <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-              {t('common.print', 'Yazdır')}
-            </Button>
             <button
               type="button"
               onClick={onClose}

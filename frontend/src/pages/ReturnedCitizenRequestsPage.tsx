@@ -324,6 +324,7 @@ export function ReturnedCitizenRequestsPage() {
                   </span>
                 </FilterableTh>
                 <FilterableTh
+                  className="returned-citizen-name-col"
                   filterKey="citizenName"
                   filterValue={filters.citizenName ?? ''}
                   onFilter={handleFilter}
@@ -421,7 +422,7 @@ export function ReturnedCitizenRequestsPage() {
                       <span>{row.displayNumber}</span>
                     </div>
                   </td>
-                  <td className="citizen-message-approval-citizen-cell">
+                  <td className="citizen-message-approval-citizen-cell returned-citizen-name-col">
                     <div className="font-semibold">{row.citizenName}</div>
                     <div className="citizen-message-approval-phone-value font-medium text-slate-600">{row.citizenPhone}</div>
                   </td>

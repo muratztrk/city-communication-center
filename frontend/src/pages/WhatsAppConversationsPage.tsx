@@ -658,7 +658,6 @@ function operatorLockHoverTitle(lockerDisplayName: string | null | undefined, t:
 function OperatorLockControl({
   locked,
   canReleaseLock,
-  lockerDisplayName,
   onToggle,
   t,
 }: {
@@ -669,7 +668,6 @@ function OperatorLockControl({
   t: TFunction
 }) {
   const blocked = locked && !canReleaseLock
-  const hoverTitle = blocked ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
   const baseClass = 'inline-flex shrink-0 items-center gap-1 rounded-full border px-3.5 py-0.5 text-[10px] font-semibold transition-colors'
   const colorClass = locked
     ? (canReleaseLock
@@ -678,7 +676,7 @@ function OperatorLockControl({
     : 'border-red-400 bg-red-600 text-white hover:bg-red-700'
 
   return (
-    <span className="group relative z-30 inline-flex">
+    <span className="relative inline-flex">
       <button
         type="button"
         className={`${baseClass} ${colorClass}`}
@@ -688,11 +686,6 @@ function OperatorLockControl({
         <Lock className="size-3" aria-hidden="true" />
         {locked ? t('whatsapp.operatorUnlock', 'Kilidi Aç') : t('whatsapp.operatorLock', 'Kilitle')}
       </button>
-      {hoverTitle ? (
-        <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow-lg group-hover:block">
-          {hoverTitle}
-        </span>
-      ) : null}
     </span>
   )
 }
@@ -702,19 +695,22 @@ function OperatorLockBlockedOverlay({
   lockerDisplayName,
   children,
   t,
+  tooltip,
 }: {
   active: boolean
   lockerDisplayName: string | null | undefined
   children: ReactNode
   t: TFunction
+  /** Yalnız Mesajı İlet (gönder) butonunda, yukarı açılır. */
+  tooltip?: 'up'
 }) {
   if (!active) return <>{children}</>
-  const hoverTitle = operatorLockHoverTitle(lockerDisplayName, t)
+  const hoverTitle = tooltip ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
   return (
     <span className="group relative z-30 inline-flex max-w-full">
       {children}
       {hoverTitle ? (
-        <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow-lg group-hover:block">
+        <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow-lg group-hover:block">
           {hoverTitle}
         </span>
       ) : null}
@@ -1792,7 +1788,7 @@ function ConversationDetail({
           </div>
 
           {replySocialMessageId ? (
-            <footer className="whatsapp-conversation-footer shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
+            <footer className="whatsapp-conversation-footer relative z-20 shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
               <div className="space-y-2">
                 <div className="whatsapp-composer-top-row grid grid-cols-[1fr_auto] items-center gap-2">
                   <div className="flex min-w-0 flex-wrap items-center gap-2 whatsapp-composer-toolbar">
@@ -1909,6 +1905,7 @@ function ConversationDetail({
                 <OperatorLockBlockedOverlay
                   active={operatorLockedByOther}
                   lockerDisplayName={operatorLockedByDisplayName}
+                  tooltip="up"
                   t={t}
                 >
                   <button

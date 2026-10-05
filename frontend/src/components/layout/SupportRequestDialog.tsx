@@ -232,7 +232,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                     type="button"
                     variant="secondary"
                     size="sm"
-                    className="inline-flex shrink-0 items-center gap-1 border border-slate-300"
+                    className="inline-flex shrink-0 items-center gap-1 border border-slate-300 ring-0"
                     disabled={sending}
                     onClick={() => {
                       if (supportsAttachmentFilePicker()) {
@@ -294,7 +294,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                 <Button
                   type="button"
                   variant="secondary"
-                  className="border border-slate-300"
+                  className="border border-slate-300 ring-0"
                   onClick={handleClose}
                 >
                   {t('common.cancel', 'İptal')}

@@ -1,3 +1,9 @@
+## Round 1445 — çerçeve kalınlığı, gönder tooltip, ad kolonu
+
+- [x] Dosya Ekle / İptal çerçevesi tek çizgi (`ring-0`).
+- [x] Kilitleyen tooltip yalnız gönder butonunda, yukarı.
+- [x] İade grid Vatandaş Adı kolonu `12.5rem`.
+
 ## Round 1444 — destek oluştur, iade kolonu, kilit tooltip, durum rengi
 
 - [x] Oluştur popup: Dosya Ekle sol ve İptal alt çerçevesi görünür; dosya adları butonun sağında; 3. ekte scroll.

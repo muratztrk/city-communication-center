@@ -7890,6 +7890,11 @@
     line-height: 1.25;
   }
 
+  .returned-citizen-requests-table .returned-citizen-name-col {
+    width: 12.5rem;
+    max-width: 12.5rem;
+  }
+
   .citizen-message-approval-table .citizen-message-approval-phone-value,
   .returned-citizen-requests-table .citizen-message-approval-phone-value {
     font-size: 0.7rem !important;

@@ -1,3 +1,8 @@
+## Round 1448 — destek detay Önizle sağa
+
+- [x] #4162: Lumespec destek detayında ek satırı tek kolon; dosya adı genişler, Önizle sağda.
+- [x] #4158: yapılan işlem Trello kartına yorum olarak yazıldı (kod değişmedi).
+
 ## Round 1447 — Talep Tarihi, grid punto, kilit butonu, tooltip yönü
 
 - [x] Lumespec grid başlığı yeniden Talep Tarihi.

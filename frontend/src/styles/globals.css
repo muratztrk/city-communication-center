@@ -9885,6 +9885,21 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   margin-top: 0.5rem;
 }
 
+/* Destek detay ek satırı: ad kalan genişliği kullanır, Önizle kartın sağında (#4162). */
+.lumespec-support-detail-main .my-request-detail-card--attachments .attachment-rich-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lumespec-support-detail-main .my-request-detail-card--attachments .attachment-rich-list > li > button:first-of-type {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none !important;
+}
+
+.lumespec-support-detail-main .my-request-detail-card--attachments .attachment-rich-list > li > button:not(:first-of-type) {
+  margin-left: auto;
+}
+
 /* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */
 .social-messages-table thead th:nth-child(8),
 .social-messages-table tbody td:nth-child(8) {

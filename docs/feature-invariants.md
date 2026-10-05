@@ -1650,6 +1650,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`Görev atandı`, `Görev İptal Edildi`, `Rutin görev oluşturuldu` — ham action kodu yok).
   Detay sütunu bildirim `FormatNote` ile aynı sadeleştirme: teknik `Status=/Targets=/CreatedTasks=`
   ham dump yok; varsa yalnızca lokalize durum (card #1713 Detay).
+  Tarih hücresi `DateTimeText`: saat önünde küçük dairesel bullet (#4164). Sistem, talep, görev, SMS ve e-posta log gridleri aynı.
 - **Nav/UI “Birimler”:** `nav.departments` ve departments.* metinleri “Birimler/Birim”dir;
   “Departman(lar)” kullanılmaz (card #1487). Sol menü yönetim bloğu sırası: Ayarlar → Log →
   Kullanıcılar → Birimler (#3939; Birimler ile Log yer değiştirdi). Sayfa Yetkileri yönetim satırları

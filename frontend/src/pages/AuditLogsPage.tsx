@@ -11,6 +11,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TruncatedText } from '../components/ui/TruncatedText'
+import { DateTimeText } from '../components/ui/date-time-text'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { AuditLog, MailOutboundLogItem, SmsOutboundLogItem } from '../types/platform'
@@ -702,7 +703,7 @@ export function AuditLogsPage() {
                   <tr key={log.mailOutboundLogId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(mailSafePage - 1) * pageSize + index + 1}</td>
                     <td>{log.requestNumber?.trim() || '—'}</td>
-                    <td>{log.dateText}</td>
+                    <td><DateTimeText value={log.createdAtUtc} locale={locale} /></td>
                     <td>
                       <div className="grid gap-0.5">
                         <span>{log.recipientStaffName}</span>
@@ -874,11 +875,11 @@ export function AuditLogsPage() {
                         </div>
                       </td>
                     )}
-                    {activeScope === 'citizenSms' ? <td>{log.dateText}</td> : null}
+                    {activeScope === 'citizenSms' ? <td><DateTimeText value={log.createdAtUtc} locale={locale} /></td> : null}
                     {activeScope === 'citizenSms' ? (
                       <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
                     ) : null}
-                    {activeScope === 'internalSms' ? <td>{log.dateText}</td> : null}
+                    {activeScope === 'internalSms' ? <td><DateTimeText value={log.createdAtUtc} locale={locale} /></td> : null}
                     <td>{log.kindLabel}</td>
                     <td className="max-w-[18rem] text-left text-sm text-slate-700">
                       <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body break-words" />
@@ -979,7 +980,7 @@ export function AuditLogsPage() {
                         <td>{log.entityTitle?.trim() || '—'}</td>
                       </>
                     ) : null}
-                    <td>{log.dateText}</td>
+                    <td><DateTimeText value={log.eventTimeUtc} locale={locale} /></td>
                     <td>
                       <StatusPill tone={getActionTone(log.action)}>{log.actionLabel}</StatusPill>
                     </td>

@@ -9848,7 +9848,21 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
     padding: 0.3rem 0.55rem;
     font-size: 0.68rem;
     white-space: nowrap;
+    margin-top: 0.2rem;
   }
+
+  .lumespec-support-page > .section-card.desktop-page-fill {
+    margin-top: -0.25rem;
+  }
+}
+
+/* Lumespec destek detay: VT talep popup ile aynı 3 sütun çerçeve (#4120). */
+.lumespec-support-detail-main .my-request-detail-main__grid > div:nth-child(2) > :not(.job-detail-section-heading) {
+  margin-top: 0.5rem;
+}
+
+.lumespec-support-detail-main .my-request-detail-main__grid > div:nth-child(3) > :not(.job-detail-section-heading) {
+  margin-top: 0.5rem;
 }
 
 /* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */
@@ -10081,9 +10095,9 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 }
 
 .edevlet-plan-detail-address .job-detail-field-row--request-info {
-  min-height: 2.2rem;
-  padding-top: 0.35rem;
-  padding-bottom: 0.35rem;
+  min-height: auto;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
 }
 
 .detail-modal-shell.edevlet-plan-detail-shell {

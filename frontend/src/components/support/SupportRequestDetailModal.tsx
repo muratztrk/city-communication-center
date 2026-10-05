@@ -115,13 +115,13 @@ export function SupportRequestDetailModal({
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="my-request-detail-bottom mb-5 grid gap-4 lg:grid-cols-3 my-request-detail-bottom--three-cards">
-            <section className="my-request-detail-main form-card page-stack min-w-0">
-              <MyRequestSectionHeading icon={FileText} tone="primary">
-                {t('support.detailInfoHeading', 'Talep Bilgileri')}
-              </MyRequestSectionHeading>
-              <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white">
-                <div className="my-request-detail-fields divide-y divide-slate-100">
+          <section className="my-request-detail-main form-card page-stack mb-5 lumespec-support-detail-main">
+            <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
+              <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">
+                <MyRequestSectionHeading icon={FileText} className="job-detail-card-title--spread">
+                  {t('support.detailInfoHeading', 'Talep Bilgileri')}
+                </MyRequestSectionHeading>
+                <div className="my-request-detail-fields page-stack edevlet-plan-detail-fields">
                   <InfoRow label={t('support.columns.ticketNo', 'Destek No')} value={ticketDisplayNo} />
                   <InfoRow
                     label={t('support.columns.requestDate', 'Talep Tarihi')}
@@ -132,21 +132,19 @@ export function SupportRequestDetailModal({
                   <InfoRow label={t('support.subjectLabel', 'Konu')} value={item.subject} />
                 </div>
               </div>
-            </section>
-            <section className="my-request-detail-card min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-              <MyRequestSectionHeading icon={MessageSquareText}>
-                {t('support.columns.message', 'Açıklama')}
-              </MyRequestSectionHeading>
-              <p className="mt-3 whitespace-pre-wrap text-sm text-slate-800">{item.message}</p>
-              {item.centralSyncError ? (
-                <p className="mt-2 text-xs font-semibold text-red-600">{item.centralSyncError}</p>
-              ) : null}
-            </section>
-            <section className="my-request-detail-card my-request-detail-card--attachments min-w-0 rounded-xl border border-slate-200 bg-white p-4">
-              <MyRequestSectionHeading icon={Paperclip}>
-                {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
-              </MyRequestSectionHeading>
-              <div className="mt-3">
+              <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">
+                <MyRequestSectionHeading icon={MessageSquareText} className="job-detail-card-title--spread">
+                  {t('support.columns.message', 'Açıklama')}
+                </MyRequestSectionHeading>
+                <p className="whitespace-pre-wrap text-sm leading-5 text-slate-900">{item.message}</p>
+                {item.centralSyncError ? (
+                  <p className="mt-2 text-xs font-semibold text-red-600">{item.centralSyncError}</p>
+                ) : null}
+              </div>
+              <div className="min-w-0 p-4 edevlet-plan-detail-card page-stack my-request-detail-card--attachments">
+                <MyRequestSectionHeading icon={Paperclip} className="job-detail-card-title--spread">
+                  {t('attachments.sectionTitle', 'Ekler / Fotoğraflar')}
+                </MyRequestSectionHeading>
                 <AttachmentSection
                   attachments={item.attachments}
                   readOnly
@@ -155,8 +153,8 @@ export function SupportRequestDetailModal({
                   emptyText={t('attachments.empty', 'Ek dosya yok.')}
                 />
               </div>
-            </section>
-          </div>
+            </div>
+          </section>
 
           {item.messages.length > 0 ? (
             <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">

@@ -1,3 +1,10 @@
+## Round 1447 — Talep Tarihi, grid punto, kilit butonu, tooltip yönü
+
+- [x] Lumespec grid başlığı yeniden Talep Tarihi.
+- [x] Grid hücre verisi Vatandaş Talepleri ile aynı: numara, DateCell, semibold konu/açıklama.
+- [x] Kilitlenince buton renk animasyonu olmadan hemen Kilidi Aç.
+- [x] Kilidi açamayan kullanıcı: Mesajı İlet tooltip yukarı ve üstte; Kilidi Aç ve Talep Oluştur aşağı.
+
 ## Round 1446 — Destek Tarihi ve Çözümlenme Tarihi
 
 - [x] Grid Talep Tarihi başlığı Destek Tarihi.

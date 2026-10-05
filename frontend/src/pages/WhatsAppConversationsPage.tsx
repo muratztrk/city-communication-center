@@ -655,9 +655,73 @@ function operatorLockHoverTitle(lockerDisplayName: string | null | undefined, t:
   return t('whatsapp.lockedByPerson', 'Kilitleyen: {{name}}', { name })
 }
 
+function OperatorLockHoverTip({
+  text,
+  placement,
+  children,
+}: {
+  text?: string
+  placement: 'up' | 'down'
+  children: ReactNode
+}) {
+  const anchorRef = useRef<HTMLSpanElement>(null)
+  const [open, setOpen] = useState(false)
+  const [box, setBox] = useState<{ top: number; left: number } | null>(null)
+
+  useLayoutEffect(() => {
+    if (!open) return
+    const el = anchorRef.current
+    if (!el) return
+    const place = () => {
+      const rect = el.getBoundingClientRect()
+      setBox({
+        top: placement === 'up' ? rect.top : rect.bottom,
+        left: rect.left + rect.width / 2,
+      })
+    }
+    place()
+    window.addEventListener('scroll', place, true)
+    window.addEventListener('resize', place)
+    return () => {
+      window.removeEventListener('scroll', place, true)
+      window.removeEventListener('resize', place)
+    }
+  }, [open, placement])
+
+  if (!text) return <>{children}</>
+
+  return (
+    <span
+      ref={anchorRef}
+      className="relative z-[70] inline-flex max-w-full cursor-not-allowed"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => {
+        setOpen(false)
+        setBox(null)
+      }}
+    >
+      {children}
+      {open && box ? createPortal(
+        <span
+          className="pointer-events-none fixed z-[10060] whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow-lg"
+          style={{
+            top: box.top,
+            left: box.left,
+            transform: placement === 'up' ? 'translate(-50%, calc(-100% - 4px))' : 'translate(-50%, 4px)',
+          }}
+        >
+          {text}
+        </span>,
+        document.body,
+      ) : null}
+    </span>
+  )
+}
+
 function OperatorLockControl({
   locked,
   canReleaseLock,
+  lockerDisplayName,
   onToggle,
   t,
 }: {
@@ -668,25 +732,26 @@ function OperatorLockControl({
   t: TFunction
 }) {
   const blocked = locked && !canReleaseLock
-  const baseClass = 'inline-flex shrink-0 items-center gap-1 rounded-full border px-3.5 py-0.5 text-[10px] font-semibold transition-colors'
+  const baseClass = 'inline-flex shrink-0 items-center gap-1 rounded-full border px-3.5 py-0.5 text-[10px] font-semibold'
   const colorClass = locked
     ? (canReleaseLock
       ? 'border-emerald-500 bg-emerald-600 text-white hover:bg-emerald-700'
       : 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400')
     : 'border-red-400 bg-red-600 text-white hover:bg-red-700'
+  const hoverTitle = blocked ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
 
   return (
-    <span className="relative inline-flex">
+    <OperatorLockHoverTip text={hoverTitle} placement="down">
       <button
         type="button"
-        className={`${baseClass} ${colorClass}`}
+        className={`${baseClass} ${colorClass}${blocked ? ' pointer-events-none' : ''}`}
         disabled={blocked}
         onClick={() => { if (!blocked) onToggle() }}
       >
         <Lock className="size-3" aria-hidden="true" />
         {locked ? t('whatsapp.operatorUnlock', 'Kilidi Aç') : t('whatsapp.operatorLock', 'Kilitle')}
       </button>
-    </span>
+    </OperatorLockHoverTip>
   )
 }
 
@@ -701,20 +766,15 @@ function OperatorLockBlockedOverlay({
   lockerDisplayName: string | null | undefined
   children: ReactNode
   t: TFunction
-  /** Yalnız Mesajı İlet (gönder) butonunda, yukarı açılır. */
-  tooltip?: 'up'
+  /** Kilidi açamayan kullanıcı: gönder yukarı, Talep Oluştur aşağı. */
+  tooltip?: 'up' | 'down'
 }) {
   if (!active) return <>{children}</>
   const hoverTitle = tooltip ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
   return (
-    <span className="group relative z-30 inline-flex max-w-full">
+    <OperatorLockHoverTip text={hoverTitle} placement={tooltip === 'up' ? 'up' : 'down'}>
       {children}
-      {hoverTitle ? (
-        <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow-lg group-hover:block">
-          {hoverTitle}
-        </span>
-      ) : null}
-    </span>
+    </OperatorLockHoverTip>
   )
 }
 
@@ -766,13 +826,14 @@ function ConversationProfilePanel({
         <OperatorLockBlockedOverlay
           active={Boolean(detail && !canCreateRequest && detail.operatorLockedByUserId)}
           lockerDisplayName={detail?.operatorLockedByDisplayName}
+          tooltip="down"
           t={t}
         >
           <button
             type="button"
             onClick={onCreateRequest}
             disabled={!detail || !canCreateRequest}
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50${detail && !canCreateRequest && detail.operatorLockedByUserId ? ' pointer-events-none' : ''}`}
           >
             <ClipboardPlus className="size-4" aria-hidden="true" />
             {t('nav.createRequest', 'Talep Oluştur')}
@@ -918,7 +979,7 @@ function ConversationDetail({
   onMarkWaitingReplied?: () => void
   /** Mesaj Onayı Bekleyen listesinden manuel çıkar (#3446). */
   onMarkPendingApprovalCleared?: () => void
-  onToggleOperatorLock?: (nextLocked: boolean) => void
+  onToggleOperatorLock?: (nextLocked: boolean) => void | Promise<void>
 }) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -1486,6 +1547,28 @@ function ConversationDetail({
     && user
     && (user.role === 'SystemAdmin' || (user.userId && user.userId === operatorLockedByUserId)),
   )
+  const toggleOperatorLock = (nextLocked: boolean) => {
+    const previousId = activeDetail?.operatorLockedByUserId ?? null
+    const previousName = activeDetail?.operatorLockedByDisplayName ?? null
+    setDetail(current => {
+      if (!current || current.citizenConversationId !== conversationId) return current
+      return {
+        ...current,
+        operatorLockedByUserId: nextLocked ? user?.userId ?? null : null,
+        operatorLockedByDisplayName: nextLocked ? user?.displayName ?? null : null,
+      }
+    })
+    void Promise.resolve(onToggleOperatorLock?.(nextLocked)).catch(() => {
+      setDetail(current => {
+        if (!current || current.citizenConversationId !== conversationId) return current
+        return {
+          ...current,
+          operatorLockedByUserId: previousId,
+          operatorLockedByDisplayName: previousName,
+        }
+      })
+    })
+  }
   const pendingBadgeSearchLabel = useMemo(
     () => t('whatsapp.pendingBadge', 'Beklemede'),
     [t],
@@ -1519,7 +1602,7 @@ function ConversationDetail({
                   locked={operatorLocked}
                   canReleaseLock={canReleaseOperatorLock}
                   lockerDisplayName={operatorLockedByDisplayName}
-                  onToggle={() => onToggleOperatorLock(!operatorLocked)}
+                  onToggle={() => toggleOperatorLock(!operatorLocked)}
                   t={t}
                 />
               ) : null}
@@ -1540,7 +1623,7 @@ function ConversationDetail({
                   locked={operatorLocked}
                   canReleaseLock={canReleaseOperatorLock}
                   lockerDisplayName={operatorLockedByDisplayName}
-                  onToggle={() => onToggleOperatorLock(!operatorLocked)}
+                  onToggle={() => toggleOperatorLock(!operatorLocked)}
                   t={t}
                 />
               ) : null}
@@ -1913,7 +1996,7 @@ function ConversationDetail({
                     aria-label={t('common.send', 'Gönder')}
                     onClick={() => void handleSend()}
                     disabled={(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther}
-                    className="flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50${operatorLockedByOther ? ' pointer-events-none' : ''}`}
                     style={{ backgroundColor: 'var(--color-header-from)' }}
                   >
                     {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
@@ -2416,6 +2499,7 @@ export function WhatsAppConversationsPage() {
         : t('whatsapp.operatorUnlock', 'Kilidi Aç'))
     } catch (error) {
       emitPageToast(error instanceof Error ? error.message : t('common.error'), 'error')
+      throw error
     }
   }, [selectedId, t, user?.displayName, user?.userId])
 
@@ -2503,7 +2587,7 @@ export function WhatsAppConversationsPage() {
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={(socialMessageId, options) => { void handleOpenCreateRequest(socialMessageId, options) }}
               onToggleBlocked={nextBlocked => { void handleToggleBlocked(nextBlocked) }}
-              onToggleOperatorLock={nextLocked => { void handleToggleOperatorLock(nextLocked) }}
+              onToggleOperatorLock={handleToggleOperatorLock}
               onOpenViewRequests={handleOpenViewRequests}
               onProfileSaved={() => { void silentRefreshConversations() }}
               onOutboundSent={() => {

@@ -776,8 +776,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   numarası ismin alt satırında, yanıt durumu (`Yanıt Verildi` vb.) ile aynı yatay satırda görünür.
   Bu satırda Okundu / İletildi / Gönderildi teslimat durumu gösterilmez; o bilgi yalnız yazışma balonundadır.
   Kilitliyken Kilidi Aç / Talep Oluştur / Mesaj İlet hover'ında ikon değişmez (Ban overlay yok).
-  `Kilitleyen: {ad}` yalnız kilidi açamayan kullanıcıda ve yalnız Mesajı İlet (gönder) butonunda,
-  yukarı doğru görünür. Kilitle / Talep Oluştur hover'ında tooltip yok (#4150).
+  `Kilitleyen: {ad}` yalnız kilidi açamayan kullanıcıda görünür: Mesajı İlet yukarı ve diğer
+  bileşenin üstünde (portal, z-index 10060); Kilidi Aç ve Talep Oluştur aşağı. Kilidi açabilen
+  kullanıcıda tooltip yok. Kilit butonu renk geçişi yapmaz; kilitlenince hemen Kilidi Aç olur (#4150).
   Detay header'ında telefon satırında **Yanıt Verildi Yap** (yanıt beklerken) veya **Yanıt Verildi**
   etiketi numaranın hemen sağında (#3403 / #3389).
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;
@@ -3819,7 +3820,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Lumespec Destek detay (#4117/#4116):** Destek Bilgileri başlığının sağında etiket yok;
   üstte Destek No, altında biraz daha küçük öncelik metni, sağa yaslı. Talep Durumu değeri `text-xs`.
 - **Lumespec Destek grid Talep Durumu (#4154):** `StatusPill` (Çözüm Bekleyen açık mavi `sky-100`,
-  çözümlenen success, senkron hatası danger). Grid tarih başlığı **Destek Tarihi**.
+  çözümlenen success, senkron hatası danger). Grid tarih başlığı **Talep Tarihi**.
+  Hücre verisi Vatandaş Talepleri ile aynı: numara `table-number-cell`, tarihler `DateCell`,
+  konu/açıklama `font-semibold`.
   Çözümlendi ve Tümü kapsamlarında İşlemler solunda **Çözümlenme Tarihi** (`ResolvedAtUtc`,
   onay anı; bekleyende `-`). Detayda yalnız Çözümlendi satırının altında (#6ac3dd76).
 - **Lumespec Destek oluştur (#6ac3be8a / #6ac3d0fd):** Dosya Ekle ve İptal çerçevesi tek çizgi

@@ -7455,7 +7455,8 @@
 
     /* Vatandaş Talepleri + harita Talepleri Listele numara verisi biraz daha küçük (#3252). */
     .social-messages-table .table-number-cell__value,
-    .citizen-map-requests-table .table-number-cell__value {
+    .citizen-map-requests-table .table-number-cell__value,
+    .lumespec-support-table .table-number-cell__value {
       font-size: 0.52rem !important;
     }
 

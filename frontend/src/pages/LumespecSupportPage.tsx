@@ -15,7 +15,7 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import { getLocale } from '../utils/localization'
 import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
-import { DateTimeText } from '../components/ui/date-time-text'
+import { DateCell } from '../components/ui/date-cell'
 import { StatusPill } from '../components/ui/status-pill'
 import { buildLumespecSupportTicketDisplayMap, formatLumespecSupportTicketNo } from '../utils/lumespecSupportTicket'
 import {
@@ -194,7 +194,7 @@ export function LumespecSupportPage() {
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('support.columns.supportDate', 'Destek Tarihi')}
+                  {t('support.columns.requestDate', 'Talep Tarihi')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="subject"
@@ -254,10 +254,12 @@ export function LumespecSupportPage() {
                 pagedRows.map((row, index) => (
                   <tr key={row.supportRequestId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
-                    <td><TruncatedText text={row.ticketNoText} /></td>
-                    <td><DateTimeText value={row.createdAtUtc} locale={locale} /></td>
-                    <td><TruncatedText text={row.subject} /></td>
-                    <td><TruncatedText text={row.descriptionText} /></td>
+                    <td className="table-number-cell font-mono text-xs text-slate-500">
+                      <div className="table-number-cell__value">{row.ticketNoText}</div>
+                    </td>
+                    <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
+                    <td className="font-semibold"><TruncatedText text={row.subject} /></td>
+                    <td className="font-semibold"><TruncatedText text={row.descriptionText} /></td>
                     <td>
                       <StatusPill
                         tone={row.centralSyncError ? 'danger' : isCentralSupportStatusResolved(row.centralStatus) ? 'success' : 'info'}
@@ -268,7 +270,7 @@ export function LumespecSupportPage() {
                     </td>
                     {showResolvedAt ? (
                       <td className="whitespace-nowrap">
-                        {row.resolvedAtUtc ? <DateTimeText value={row.resolvedAtUtc} locale={locale} /> : '-'}
+                        {row.resolvedAtUtc ? <DateCell value={row.resolvedAtUtc} locale={locale} /> : '-'}
                       </td>
                     ) : null}
                     <td className="actions-cell">

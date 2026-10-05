@@ -1,3 +1,9 @@
+## Round 1450 — log tarih punto, yazışma kutusu beklemesi, tuş gecikmesi
+
+- [x] #4164: log grid Tarih yazısı biraz küçük.
+- [x] #4158: kilitli konuşmaya geçince şablon satırı ve mesaj kutusu hemen durur; Bağlı talep yok yalnız detay sonrası.
+- [x] #4169: yazarken tuş başına okundu çağrısı ve sayfa render'ı yok.
+
 ## Round 1449 — kilit anında, uyarı rengi, gönder imleci, log tarih genişliği
 
 - [x] #4158: başka konuşmaya geçince kilit butonu liste bilgisinden hemen görünür.

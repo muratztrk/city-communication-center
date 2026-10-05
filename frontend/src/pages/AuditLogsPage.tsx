@@ -704,7 +704,7 @@ export function AuditLogsPage() {
                   <tr key={log.mailOutboundLogId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(mailSafePage - 1) * pageSize + index + 1}</td>
                     <td>{log.requestNumber?.trim() || '—'}</td>
-                    <td className="whitespace-nowrap"><DateTimeText value={log.createdAtUtc} locale={locale} /></td>
+                    <td className="audit-log-date whitespace-nowrap"><DateTimeText value={log.createdAtUtc} locale={locale} /></td>
                     <td>
                       <div className="grid gap-0.5">
                         <span>{log.recipientStaffName}</span>
@@ -877,11 +877,11 @@ export function AuditLogsPage() {
                         </div>
                       </td>
                     )}
-                    {activeScope === 'citizenSms' ? <td className="whitespace-nowrap"><DateTimeText value={log.createdAtUtc} locale={locale} /></td> : null}
+                    {activeScope === 'citizenSms' ? <td className="audit-log-date whitespace-nowrap"><DateTimeText value={log.createdAtUtc} locale={locale} /></td> : null}
                     {activeScope === 'citizenSms' ? (
                       <td className="font-mono text-sm text-slate-700">{log.recipientPhoneDisplay}</td>
                     ) : null}
-                    {activeScope === 'internalSms' ? <td><DateTimeText value={log.createdAtUtc} locale={locale} /></td> : null}
+                    {activeScope === 'internalSms' ? <td className="audit-log-date whitespace-nowrap"><DateTimeText value={log.createdAtUtc} locale={locale} /></td> : null}
                     <td>{log.kindLabel}</td>
                     <td className="max-w-[18rem] text-left text-sm text-slate-700">
                       <TruncatedText as="div" text={log.bodyPreview} className="cell-sms-body break-words" />
@@ -982,7 +982,7 @@ export function AuditLogsPage() {
                         <td>{log.entityTitle?.trim() || '—'}</td>
                       </>
                     ) : null}
-                    <td><DateTimeText value={log.eventTimeUtc} locale={locale} /></td>
+                    <td className="audit-log-date whitespace-nowrap"><DateTimeText value={log.eventTimeUtc} locale={locale} /></td>
                     <td>
                       <StatusPill tone={getActionTone(log.action)}>{log.actionLabel}</StatusPill>
                     </td>

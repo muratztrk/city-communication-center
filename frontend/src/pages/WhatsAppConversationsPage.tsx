@@ -1023,6 +1023,13 @@ function ConversationDetail({
   }, [])
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
+  const replyTextRef = useRef('')
+  const [replyHasText, setReplyHasText] = useState(false)
+  const rememberReplyText = (value: string) => {
+    replyTextRef.current = value
+    const has = value.trim().length > 0
+    setReplyHasText(current => (current === has ? current : has))
+  }
   const [selectedMetaTemplate, setSelectedMetaTemplate] = useState<{ name: string; language: string; templateId?: string } | null>(null)
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [suppressedPendingEntryIds, setSuppressedPendingEntryIds] = useState<Set<string>>(() => new Set())
@@ -1281,7 +1288,7 @@ function ConversationDetail({
   }, [pendingFile])
 
   const handleSend = async () => {
-    const text = replyText.trim()
+    const text = replyTextRef.current.trim()
     if ((!text && !pendingFile) || sending || !detail) return
 
     const usingMetaTemplate = Boolean(selectedMetaTemplate)
@@ -1326,6 +1333,7 @@ function ConversationDetail({
         )
       }
       if (latestConversationIdRef.current === sentForConversationId) {
+        rememberReplyText('')
         setReplyText('')
         setSelectedMetaTemplate(null)
         setPendingFile(null)
@@ -1858,7 +1866,7 @@ function ConversationDetail({
                       rows={2}
                       value={replyText}
                       onChange={value => {
-                        handleComposerEngaged()
+                        rememberReplyText(value)
                         setReplyText(value)
                       }}
                       onFocus={() => handleComposerEngaged()}
@@ -1897,7 +1905,7 @@ function ConversationDetail({
             <div ref={bottomRef} />
           </div>
 
-          {replySocialMessageId ? (
+          {(loading || replySocialMessageId) ? (
             <footer className="whatsapp-conversation-footer relative z-20 shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
               <div className="space-y-2">
                 <div className="whatsapp-composer-top-row grid grid-cols-[1fr_auto] items-center gap-2">
@@ -1935,6 +1943,7 @@ function ConversationDetail({
                   userQuickReplies={userQuickReplies}
                   menuAlign="start"
                   onSelect={template => {
+                    rememberReplyText(template.content)
                     setReplyText(template.content)
                     if (template.source === 'meta') {
                       setSelectedMetaTemplate({
@@ -1997,9 +2006,8 @@ function ConversationDetail({
                   rows={3}
                   value={replyText}
                   onChange={value => {
-                    handleComposerEngaged()
-                    setReplyText(value)
-                    setSelectedMetaTemplate(null)
+                    rememberReplyText(value)
+                    setSelectedMetaTemplate(current => (current ? null : current))
                   }}
                   onFocus={() => handleComposerEngaged()}
                   onKeyDown={e => {
@@ -2028,8 +2036,8 @@ function ConversationDetail({
                       type="button"
                       aria-label={t('whatsapp.sendMessage', 'Mesaj Gönder')}
                       onClick={() => void handleSend()}
-                      disabled={(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther}
-                      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:opacity-50 ${operatorLockedByOther ? 'disabled:cursor-not-allowed' : 'disabled:cursor-pointer'}${(!replyText.trim() && !pendingFile) || sending || operatorLockedByOther ? ' pointer-events-none' : ''}`}
+                      disabled={(!replyHasText && !pendingFile) || sending || operatorLockedByOther}
+                      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:opacity-50 ${operatorLockedByOther ? 'disabled:cursor-not-allowed' : 'disabled:cursor-pointer'}${(!replyHasText && !pendingFile) || sending || operatorLockedByOther ? ' pointer-events-none' : ''}`}
                       style={{ backgroundColor: 'var(--color-header-from)' }}
                     >
                       {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}

@@ -9900,6 +9900,10 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   margin-left: auto;
 }
 
+.audit-logs-table .audit-log-date {
+  font-size: 0.8rem;
+}
+
 /* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */
 .social-messages-table thead th:nth-child(8),
 .social-messages-table tbody td:nth-child(8) {

@@ -107,10 +107,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
     setError(null)
     try {
       const pageContext = variant === 'createOnly' ? '/lumespec-support' : location.pathname
-      const supportRequestId = await api.submitSupportRequest(trimmedSubject, trimmedMessage, pageContext, priority)
-      for (const file of pendingFiles) {
-        await api.uploadSupportRequestAttachment(supportRequestId, file)
-      }
+      const supportRequestId = await api.submitSupportRequest(trimmedSubject, trimmedMessage, pageContext, priority, pendingFiles)
       void queryClient.invalidateQueries({ queryKey: queryKeys.supportRequests.list() })
       const mine = await queryClient.fetchQuery({
         queryKey: queryKeys.supportRequests.mine(),

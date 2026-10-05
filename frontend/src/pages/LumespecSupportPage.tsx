@@ -23,7 +23,6 @@ import {
   isCentralSupportStatusWaiting,
 } from '../utils/centralSupportStatus'
 import { resolveSupportRequestStatusLabel } from '../utils/supportRequestStatus'
-import type { MySupportRequest } from '../types/platform'
 
 type SupportScope = 'waiting' | 'resolved' | 'all'
 
@@ -43,7 +42,7 @@ export function LumespecSupportPage() {
 
   const [scope, setScope] = useState<SupportScope>('waiting')
   const [createOpen, setCreateOpen] = useState(false)
-  const [detailItem, setDetailItem] = useState<MySupportRequest | null>(null)
+  const [detailId, setDetailId] = useState<string | null>(null)
   const [pageSize, setPageSize] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
   const { filters, setFilter, matchesFilters } = useColumnFilters()
@@ -54,7 +53,10 @@ export function LumespecSupportPage() {
   const requestsQuery = useQuery({
     queryKey: queryKeys.supportRequests.mine(),
     queryFn: () => api.getMySupportRequests(),
+    refetchInterval: 15000,
   })
+
+  const detailItem = (requestsQuery.data ?? []).find(item => item.supportRequestId === detailId) ?? null
 
   const ticketDisplayMap = useMemo(
     () => buildLumespecSupportTicketDisplayMap(requestsQuery.data ?? []),
@@ -275,7 +277,7 @@ export function LumespecSupportPage() {
                     ) : null}
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
-                        <Button type="button" variant="secondary" size="sm" onClick={() => setDetailItem(row)}>
+                        <Button type="button" variant="secondary" size="sm" onClick={() => setDetailId(row.supportRequestId)}>
                           {t('jobs.actions.details', 'Detaylar')}
                         </Button>
                       </div>
@@ -308,7 +310,7 @@ export function LumespecSupportPage() {
           item={detailItem}
           userDisplayName={userDisplayName}
           ticketDisplayNo={formatLumespecSupportTicketNo(detailItem, ticketDisplayMap)}
-          onClose={() => setDetailItem(null)}
+          onClose={() => setDetailId(null)}
         />
       ) : null}
     </div>

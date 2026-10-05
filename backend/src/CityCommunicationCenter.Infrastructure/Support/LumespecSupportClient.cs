@@ -57,10 +57,20 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
                     requesterName = request.RequesterName,
                     organization = request.TenantName ?? "City Communication Center",
                     email = requesterEmail,
+                    phone = request.RequesterPhone,
+                    departmentName = request.DepartmentName,
                     environment = environmentName,
                     pageContext = request.PageContext,
+                    priority = request.PriorityLabel ?? request.Priority,
+                    priorityCode = request.Priority,
                     subject = request.Subject,
                     description = request.Message,
+                    attachments = request.Attachments.Select(file => new
+                    {
+                        fileName = file.FileName,
+                        contentType = file.ContentType,
+                        contentBase64 = file.ContentBase64,
+                    }),
                 })
             };
             message.Headers.Authorization = new("Bearer", _options.ServiceToken);
@@ -133,7 +143,8 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
                 : new CentralSupportTicketMessagesResult(
                     payload.Ticket.TicketNo,
                     payload.Ticket.Status,
-                    payload.Messages
+                    payload.Ticket.UpdatedAt,
+                    (payload.Messages ?? [])
                         .Select(message => new CentralSupportTicketMessage(
                             message.Direction,
                             message.AuthorName,
@@ -164,7 +175,8 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
 
     private sealed record CentralSupportTicketDto(
         [property: JsonPropertyName("ticket_no")] string TicketNo,
-        string Status);
+        string Status,
+        [property: JsonPropertyName("updated_at")] DateTimeOffset? UpdatedAt);
 
     private sealed record CentralSupportMessagesEnvelope(
         [property: JsonPropertyName("ticket")] CentralSupportTicketDto Ticket,

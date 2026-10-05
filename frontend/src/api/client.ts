@@ -2198,11 +2198,17 @@ export const api = {
     message: string,
     pageContext: string | null,
     priority: string = 'Normal',
+    files: File[] = [],
   ): Promise<string> {
+    const encodedFiles = await Promise.all(files.map(async file => ({
+      fileName: file.name,
+      contentType: file.type || 'application/octet-stream',
+      contentBase64: await fileToBase64(file),
+    })))
     const response = await fetchWithCredentials(`${API_BASE}/support-requests`, {
       method: 'POST',
       headers: await getAuthHeaders(),
-      body: JSON.stringify({ subject, message, pageContext, priority }),
+      body: JSON.stringify({ subject, message, pageContext, priority, files: encodedFiles }),
     })
     await ensureOk(response, i18n.t('errors.supportRequestSendFailed', 'Destek talebi gönderilemedi'))
     const body = (await response.json()) as { supportRequestId?: string }
@@ -2544,4 +2550,14 @@ export const api = {
     })
     await ensureOk(response, i18n.t('errors.citizenMessageApprovalReopenFailed', 'Talep durumu değiştirilemedi.'))
   },
+}
+
+async function fileToBase64(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  let binary = ''
+  const chunkSize = 0x8000
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize))
+  }
+  return btoa(binary)
 }

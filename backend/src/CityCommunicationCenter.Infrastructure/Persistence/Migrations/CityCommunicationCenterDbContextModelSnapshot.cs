@@ -2249,6 +2249,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("centralsyncedatutc");
 
+                    b.Property<string>("CentralThreadJson")
+                        .HasColumnType("text")
+                        .HasColumnName("centralthreadjson");
+
                     b.Property<string>("CentralTicketNo")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")

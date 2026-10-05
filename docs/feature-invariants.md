@@ -3841,6 +3841,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`border-slate-300 ring-0`). Dosya adları butonun sağında; 3. ekte düşey scroll.
   İade grid Vatandaş Adı kolonu `12.5rem` (#4151 r3).
   Detay kart başlık çizgisi `.lumespec-support-detail-main` içinde biraz yukarıda (`min-height: 2.35rem`).
+  Gönder, öncelik, talep eden, birim ve ek dosyaları `destek.lumespec.com` bileti açıklamasına ve gövdeye yazar (#4165).
+  Lumespec durum ve yazışması liste yenilenince (`15 sn`) detay Yazışma alanına gelir; `resolved` Çözümlendi olur.
   Detay Ekler satırı tek kolon: dosya adı kalan genişliği kullanır, Önizle kartın sağ kenarındadır (#4162).
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).
 - **Ayarlar önizleme (#2305 reopen):** logo dış oval çerçeve yüksekliği `h-22 w-36` (logo ~%88).

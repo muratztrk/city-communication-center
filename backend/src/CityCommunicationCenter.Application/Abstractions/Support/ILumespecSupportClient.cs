@@ -1,5 +1,10 @@
 namespace CityCommunicationCenter.Application.Abstractions.Support;
 
+public sealed record CentralSupportAttachmentPayload(
+    string FileName,
+    string ContentType,
+    string ContentBase64);
+
 public sealed record CreateCentralSupportTicketRequest(
     Guid SupportRequestId,
     Guid TenantId,
@@ -7,9 +12,14 @@ public sealed record CreateCentralSupportTicketRequest(
     Guid? RequesterUserId,
     string RequesterName,
     string? RequesterEmail,
+    string? RequesterPhone,
+    string? DepartmentName,
     string Subject,
     string Message,
-    string? PageContext);
+    string? PageContext,
+    string? Priority,
+    string? PriorityLabel,
+    IReadOnlyList<CentralSupportAttachmentPayload> Attachments);
 
 public sealed record CentralSupportTicketResult(
     string TicketNo,
@@ -18,6 +28,7 @@ public sealed record CentralSupportTicketResult(
 public sealed record CentralSupportTicketMessagesResult(
     string TicketNo,
     string Status,
+    DateTimeOffset? UpdatedAt,
     IReadOnlyList<CentralSupportTicketMessage> Messages);
 
 public sealed record CentralSupportTicketMessage(

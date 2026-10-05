@@ -1,3 +1,7 @@
+## Round 1453 — Lumespec destek alanları, durum ve yazışma
+
+- [x] #4165: Gönder öncelik, kişi, birim ve ekleri destek.lumespec.com'a yollar. Cevap ve Çözümlendi durumu detay Yazışma / grid'e gelir.
+
 ## Round 1452 — kilitliyken gönder kapalı
 
 - [x] #4170: konuşma kilitliyken Mesaj Gönder butonu (metin olsa da) kapalı.

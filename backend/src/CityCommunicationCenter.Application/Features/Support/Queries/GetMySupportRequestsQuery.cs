@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CityCommunicationCenter.Shared.Contracts;
 
 namespace CityCommunicationCenter.Application.Features.Support;
@@ -83,39 +84,119 @@ public sealed class GetMySupportRequestsQueryHandler : IQueryHandler<GetMySuppor
                     .ToList());
 
         var response = new List<MySupportRequestResponse>(requests.Count);
+        var changed = false;
         foreach (var entity in requests)
         {
             var centralMessages = await _lumespecSupportClient.GetTicketMessagesAsync(
                 entity.SupportRequestId,
                 cancellationToken);
 
-            var displayStatus = string.Equals(entity.CentralStatus, "resolved", StringComparison.OrdinalIgnoreCase)
-                ? entity.CentralStatus
-                : centralMessages?.Status ?? entity.CentralStatus;
+            var messages = centralMessages?.Messages
+                .Select(message => new MySupportRequestMessageResponse(
+                    message.Direction,
+                    message.AuthorName,
+                    message.Body,
+                    message.CreatedAt))
+                .ToList();
 
+            if (messages is not null)
+            {
+                var threadJson = JsonSerializer.Serialize(messages);
+                if (!string.Equals(entity.CentralThreadJson, threadJson, StringComparison.Ordinal))
+                {
+                    entity.CentralThreadJson = threadJson;
+                    changed = true;
+                }
+
+                if (!string.IsNullOrWhiteSpace(centralMessages!.TicketNo)
+                    && !string.Equals(entity.CentralTicketNo, centralMessages.TicketNo, StringComparison.Ordinal))
+                {
+                    entity.CentralTicketNo = centralMessages.TicketNo;
+                    changed = true;
+                }
+
+                changed |= ApplyCentralStatus(entity, centralMessages.Status, centralMessages.UpdatedAt);
+            }
+            else
+            {
+                messages = ReadCachedMessages(entity.CentralThreadJson);
+            }
+
+            var displayStatus = entity.CentralStatus;
             response.Add(new MySupportRequestResponse(
                 entity.SupportRequestId,
                 entity.Subject,
                 entity.Message,
                 entity.PageContext,
-                centralMessages?.TicketNo ?? entity.CentralTicketNo,
+                entity.CentralTicketNo,
                 displayStatus,
                 entity.CentralSyncError,
                 entity.CreatedAtUtc,
-                string.Equals(displayStatus, "resolved", StringComparison.OrdinalIgnoreCase)
-                    ? entity.ResolvedAtUtc
-                    : null,
+                IsResolvedStatus(displayStatus) ? entity.ResolvedAtUtc : null,
                 string.IsNullOrWhiteSpace(entity.Priority) ? "Normal" : entity.Priority,
-                centralMessages?.Messages
-                    .Select(message => new MySupportRequestMessageResponse(
-                        message.Direction,
-                        message.AuthorName,
-                        message.Body,
-                        message.CreatedAt))
-                    .ToList() ?? [],
+                messages,
                 attachmentsByRequest.GetValueOrDefault(entity.SupportRequestId) ?? []));
         }
 
+        if (changed)
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
         return response;
+    }
+
+    private static bool ApplyCentralStatus(SupportRequest entity, string? liveStatus, DateTimeOffset? updatedAt)
+    {
+        var live = liveStatus?.Trim();
+        if (string.IsNullOrWhiteSpace(live))
+        {
+            return false;
+        }
+
+        var localResolved = IsResolvedStatus(entity.CentralStatus);
+        if (localResolved && !IsResolvedStatus(live))
+        {
+            return false;
+        }
+
+        var changed = false;
+        if (!string.Equals(entity.CentralStatus, live, StringComparison.OrdinalIgnoreCase))
+        {
+            entity.CentralStatus = live;
+            entity.CentralSyncedAtUtc = DateTimeOffset.UtcNow;
+            changed = true;
+        }
+
+        if (IsResolvedStatus(live) && entity.ResolvedAtUtc is null)
+        {
+            entity.ResolvedAtUtc = updatedAt ?? DateTimeOffset.UtcNow;
+            changed = true;
+        }
+
+        return changed;
+    }
+
+    private static bool IsResolvedStatus(string? status)
+    {
+        var key = status?.Trim().ToLowerInvariant().Replace(' ', '_').Replace('-', '_') ?? string.Empty;
+        return key is "resolved" or "closed" or "cancelled" or "canceled" or "solved" or "done" or "completed";
+    }
+
+    private static List<MySupportRequestMessageResponse> ReadCachedMessages(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return [];
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<MySupportRequestMessageResponse>>(json) ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 }

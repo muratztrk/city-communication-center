@@ -20,7 +20,12 @@ public sealed class SupportController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var supportRequestId = await _sender.Send(
-            new SubmitSupportRequestCommand(request.Subject, request.Message, request.PageContext, request.Priority),
+            new SubmitSupportRequestCommand(
+                request.Subject,
+                request.Message,
+                request.PageContext,
+                request.Priority,
+                request.Files?.Select(file => new SubmitSupportRequestFile(file.FileName, file.ContentType, file.ContentBase64)).ToList()),
             cancellationToken);
         return StatusCode(StatusCodes.Status201Created, new { supportRequestId });
     }
@@ -52,4 +57,11 @@ public sealed class SupportController : ApiControllerBase
     }
 }
 
-public sealed record SubmitSupportRequestRequest(string Subject, string Message, string? PageContext, string? Priority);
+public sealed record SubmitSupportRequestFileRequest(string FileName, string ContentType, string ContentBase64);
+
+public sealed record SubmitSupportRequestRequest(
+    string Subject,
+    string Message,
+    string? PageContext,
+    string? Priority,
+    IReadOnlyList<SubmitSupportRequestFileRequest>? Files);

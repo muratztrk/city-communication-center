@@ -24,6 +24,9 @@ public sealed class SupportRequest : AuditableTenantEntity
 
     public string? CentralSyncError { get; set; }
 
+    /// <summary>Lumespec yazışmasının son başarılı kopyası. Canlı çağrı düşerse detay bunu gösterir.</summary>
+    public string? CentralThreadJson { get; set; }
+
     /// <summary>Lumespec destek önceliği (UI; varsayılan Normal).</summary>
     public string Priority { get; set; } = "Normal";
 }

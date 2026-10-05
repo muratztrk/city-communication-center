@@ -669,7 +669,7 @@ function OperatorLockControl({
   t: TFunction
 }) {
   const blocked = locked && !canReleaseLock
-  const hoverTitle = blocked ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
+  const hoverTitle = locked ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
   const baseClass = 'inline-flex shrink-0 items-center gap-1 rounded-full border px-3.5 py-0.5 text-[10px] font-semibold transition-colors'
   const colorClass = locked
     ? (canReleaseLock
@@ -678,7 +678,7 @@ function OperatorLockControl({
     : 'border-red-400 bg-red-600 text-white hover:bg-red-700'
 
   return (
-    <span className={`relative inline-flex ${blocked ? 'group' : ''}`} title={hoverTitle}>
+    <span className="group relative inline-flex">
       <button
         type="button"
         className={`${baseClass} ${colorClass}`}
@@ -688,12 +688,9 @@ function OperatorLockControl({
         <Lock className="size-3" aria-hidden="true" />
         {locked ? t('whatsapp.operatorUnlock', 'Kilidi Aç') : t('whatsapp.operatorLock', 'Kilitle')}
       </button>
-      {blocked ? (
-        <span
-          className="pointer-events-none absolute inset-0 hidden items-center justify-center rounded-full bg-white/80 group-hover:flex"
-          aria-hidden="true"
-        >
-          <Ban className="size-3.5 text-red-600" />
+      {hoverTitle ? (
+        <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow group-hover:block">
+          {hoverTitle}
         </span>
       ) : null}
     </span>
@@ -714,14 +711,13 @@ function OperatorLockBlockedOverlay({
   if (!active) return <>{children}</>
   const hoverTitle = operatorLockHoverTitle(lockerDisplayName, t)
   return (
-    <span className="group relative inline-flex max-w-full" title={hoverTitle}>
+    <span className="group relative inline-flex max-w-full">
       {children}
-      <span
-        className="pointer-events-none absolute inset-0 hidden items-center justify-center rounded-lg bg-white/75 group-hover:flex"
-        aria-hidden="true"
-      >
-        <Ban className="size-4 text-red-600" />
-      </span>
+      {hoverTitle ? (
+        <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow group-hover:block">
+          {hoverTitle}
+        </span>
+      ) : null}
     </span>
   )
 }

@@ -16,15 +16,13 @@ import { useSortable } from '../hooks/useSortable'
 import { getLocale } from '../utils/localization'
 import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
 import { DateTimeText } from '../components/ui/date-time-text'
+import { StatusPill } from '../components/ui/status-pill'
 import { buildLumespecSupportTicketDisplayMap, formatLumespecSupportTicketNo } from '../utils/lumespecSupportTicket'
 import {
   isCentralSupportStatusResolved,
   isCentralSupportStatusWaiting,
 } from '../utils/centralSupportStatus'
-import {
-  resolveSupportRequestStatusLabel,
-  supportRequestStatusTextClass,
-} from '../utils/supportRequestStatus'
+import { resolveSupportRequestStatusLabel } from '../utils/supportRequestStatus'
 import type { MySupportRequest } from '../types/platform'
 
 type SupportScope = 'waiting' | 'resolved' | 'all'
@@ -66,7 +64,6 @@ export function LumespecSupportPage() {
   const rows = useMemo(() => {
     const source = (requestsQuery.data ?? []).map(item => {
       const statusLabel = resolveSupportRequestStatusLabel(t, item.centralStatus, item.centralSyncError)
-      const statusClass = supportRequestStatusTextClass(item.centralStatus, item.centralSyncError)
       return {
         ...item,
         ticketNoText: formatLumespecSupportTicketNo(item, ticketDisplayMap),
@@ -79,7 +76,6 @@ export function LumespecSupportPage() {
         }),
         descriptionText: item.message,
         statusLabel,
-        statusClass,
       }
     })
 
@@ -238,9 +234,9 @@ export function LumespecSupportPage() {
                     <td><TruncatedText text={row.subject} /></td>
                     <td><TruncatedText text={row.descriptionText} /></td>
                     <td>
-                      <span className={row.statusClass}>
-                        <TruncatedText text={row.statusLabel} />
-                      </span>
+                      <StatusPill tone={row.centralSyncError ? 'danger' : isCentralSupportStatusResolved(row.centralStatus) ? 'success' : 'info'}>
+                        {row.statusLabel}
+                      </StatusPill>
                     </td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">

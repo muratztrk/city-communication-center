@@ -43,8 +43,8 @@ type ReturnedCitizenRequestRow = {
   citizenName: string
   citizenPhone: string
   title: string
-  requestDateUtc: string
-  requestDateText: string
+  returnDateUtc: string
+  returnDateText: string
   destinationName: string
   forwardedDepartmentName: string
   forwardNote: string
@@ -85,7 +85,7 @@ function toReturnedRow(
   socialByJobId: Map<string, SocialMessage>,
 ): ReturnedCitizenRequestRow {
   const linkedMessage = socialByJobId.get(job.jobId)
-  const requestDateUtc = linkedMessage?.receivedAtUtc ?? job.createdAtUtc ?? ''
+  const returnDateUtc = job.returnedToOperatorAtUtc ?? ''
   const citizenName = job.citizenName?.trim()
     || (linkedMessage ? getSocialMessageCitizenName(linkedMessage) : '—')
   const citizenPhone = job.citizenPhone?.trim()
@@ -101,8 +101,8 @@ function toReturnedRow(
     citizenName,
     citizenPhone,
     title: job.title?.trim() || '—',
-    requestDateUtc,
-    requestDateText: requestDateUtc ? new Date(requestDateUtc).toLocaleString(locale) : '—',
+    returnDateUtc,
+    returnDateText: returnDateUtc ? new Date(returnDateUtc).toLocaleString(locale) : '—',
     destinationName: resolveDestinationName(job),
     forwardedDepartmentName: forwardedTarget.departmentName,
     forwardNote: forwardedTarget.notes,
@@ -172,7 +172,7 @@ export function ReturnedCitizenRequestsPage() {
     if (key === 'citizenName') return row.citizenName
     if (key === 'citizenPhone') return row.citizenPhone
     if (key === 'title') return row.title
-    if (key === 'requestDateUtc') return row.requestDateText
+    if (key === 'returnDateUtc') return row.returnDateText
     if (key === 'destinationName') return row.destinationName
     if (key === 'forwardedDepartmentName') return row.forwardedDepartmentName
     if (key === 'forwardNote') return row.forwardNote
@@ -182,9 +182,9 @@ export function ReturnedCitizenRequestsPage() {
 
   const filteredRows = useMemo(() => rows.filter(row => {
     if (filterFrom || filterTo) {
-      const requestDate = row.requestDateUtc ? row.requestDateUtc.slice(0, 10) : ''
-      if (filterFrom && requestDate && requestDate < filterFrom.slice(0, 10)) return false
-      if (filterTo && requestDate && requestDate > filterTo.slice(0, 10)) return false
+      const returnDate = row.returnDateUtc ? row.returnDateUtc.slice(0, 10) : ''
+      if (filterFrom && returnDate && returnDate < filterFrom.slice(0, 10)) return false
+      if (filterTo && returnDate && returnDate > filterTo.slice(0, 10)) return false
     }
     if (!matchesBannerSearch(searchText, [
       row.displayNumber,
@@ -195,7 +195,7 @@ export function ReturnedCitizenRequestsPage() {
       row.forwardedDepartmentName,
       row.forwardNote,
       row.returnedReason,
-      row.requestDateText,
+      row.returnDateText,
     ])) {
       return false
     }
@@ -204,7 +204,7 @@ export function ReturnedCitizenRequestsPage() {
 
   const sortedRows = useMemo(() => {
     if (!sortKey) {
-      return [...filteredRows].sort((a, b) => b.requestDateUtc.localeCompare(a.requestDateUtc))
+      return [...filteredRows].sort((a, b) => b.returnDateUtc.localeCompare(a.returnDateUtc))
     }
     return sortItems(filteredRows)
   }, [filteredRows, sortItems, sortKey])
@@ -349,15 +349,15 @@ export function ReturnedCitizenRequestsPage() {
                   {t('returnedCitizenRequests.columns.title', 'Başlık')}
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="requestDateUtc"
-                  filterValue={filters.requestDateUtc ?? ''}
+                  filterKey="returnDateUtc"
+                  filterValue={filters.returnDateUtc ?? ''}
                   onFilter={handleFilter}
-                  sortKey="requestDateUtc"
+                  sortKey="returnDateUtc"
                   currentSortKey={sortKey}
                   sortDir={sortDir}
                   onSort={handleSort}
                 >
-                  {t('returnedCitizenRequests.columns.requestDateShort', 'Talep Tarihi')}
+                  {t('returnedCitizenRequests.columns.returnDate', 'İade Tarihi')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="destinationName"
@@ -427,7 +427,7 @@ export function ReturnedCitizenRequestsPage() {
                   <td className="font-semibold">
                     <TruncatedText text={row.title} className="cell-title" />
                   </td>
-                  <td><DateCell value={row.requestDateUtc} locale={locale} /></td>
+                  <td><DateCell value={row.returnDateUtc} locale={locale} /></td>
                   <td><span className="font-semibold text-slate-700">{row.destinationName}</span></td>
                   <td>
                     <TruncatedText text={row.returnedReason} className="cell-title" />

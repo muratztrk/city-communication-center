@@ -137,10 +137,17 @@ export function SupportRequestDetailModal({
             <div className="my-request-detail-main__grid overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)]">
               <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r edevlet-plan-detail-card page-stack">
                 <MyRequestSectionHeading icon={FileText} className="job-detail-card-title--spread">
-                  {t('support.detailSupportInfoHeading', 'Destek Bilgileri')}
+                  <span className="flex min-w-0 flex-1 items-start justify-between gap-3">
+                    <span>{t('support.detailSupportInfoHeading', 'Destek Bilgileri')}</span>
+                    <span className="ml-auto flex shrink-0 flex-col items-end gap-0.5 text-right">
+                      <span className="text-xs font-semibold text-slate-800">{ticketDisplayNo}</span>
+                      <span className={`text-[11px] leading-4 ${getPriorityColorClass(priority)} ${priority === 'High' || priority === 'VeryHigh' ? 'font-extrabold' : 'font-semibold'}`}>
+                        {getPriorityLabel(t, priority)}
+                      </span>
+                    </span>
+                  </span>
                 </MyRequestSectionHeading>
                 <div className="my-request-detail-fields page-stack edevlet-plan-detail-fields">
-                  <InfoRow label={t('support.columns.ticketNo', 'Destek No')} value={ticketDisplayNo} />
                   <InfoRow
                     label={t('support.columns.requestDate', 'Talep Tarihi')}
                     value={<DateTimeText value={item.createdAtUtc} locale={locale} />}
@@ -148,16 +155,8 @@ export function SupportRequestDetailModal({
                   <InfoRow label={t('support.columns.userName', 'Kullanıcı Adı')} value={userDisplayName} />
                   <InfoRow label={t('support.subjectLabel', 'Konu')} value={item.subject} />
                   <InfoRow
-                    label={t('jobs.columns.priority', 'Öncelik')}
-                    value={(
-                      <span className={`text-sm ${getPriorityColorClass(priority)} ${priority === 'High' || priority === 'VeryHigh' ? 'font-extrabold' : 'font-semibold'}`}>
-                        {getPriorityLabel(t, priority)}
-                      </span>
-                    )}
-                  />
-                  <InfoRow
                     label={t('support.columns.status', 'Talep Durumu')}
-                    value={<span className={`text-sm ${statusClass}`}>{statusLabel}</span>}
+                    value={<span className={`text-xs ${statusClass}`}>{statusLabel}</span>}
                   />
                 </div>
               </div>

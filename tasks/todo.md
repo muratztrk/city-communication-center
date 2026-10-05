@@ -1,3 +1,11 @@
+## Round 1443 — #4117 / #4151 / #4150 / #4154 / #4116
+
+- [x] #4117/#4116: Destek detayında Destek No ve öncelik etiketiz, sağa yaslı (numara üstte); Talep Durumu `text-xs`.
+- [x] #4154: Lumespec grid Talep Durumu `StatusPill`.
+- [x] #4151: İade Edilen Talepler kolonu `returnedToOperatorAtUtc` (İade Tarihi); filtre/arama/sıra aynı alan.
+- [x] #4150: kilitliyken hover Ban overlay yok; `Kilitleyen` CSS tooltip hemen görünür.
+- [x] Doğrulama: frontend build + lint (0 error, 12 mevcut uyarı).
+
 ## Round 1425 — #6ac2a924 r2 (Birimler e-Devlet pie popup grid başlığı)
 
 - [x] Kök neden: popup gövdesi `overflow-y-auto` → `.detail-modal-shell > .overflow-y-auto { transform: translateZ(0) }` kuralına takılıyor; transform'lu kap içinde `thead th` gradyanı (`background-attachment: fixed`) her sütunda ayrı boyanıyor, başlık bloklu görünüyordu. Ayrıca `jobs-table` (min-width 82rem) + `table-wrap desktop-panel-scroll` gereksiz yatay kaydırma ve çerçeve farkı yaratıyordu.

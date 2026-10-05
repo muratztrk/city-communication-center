@@ -235,6 +235,8 @@ interface RequestTagPickerProps {
   emptyLabel?: string
   /** Açık menü tetikleyici ile aynı genişlikte (#3597). */
   matchTriggerWidth?: boolean
+  /** Vatandaş Talepleri grid: yalnız İşleme Alındı (#4127). */
+  disabled?: boolean
 }
 
 function computeTagMenuStyle(button: HTMLDivElement, matchTriggerWidth = false) {
@@ -266,6 +268,7 @@ export function RequestTagPicker({
   showSelectedOnButton = true,
   emptyLabel,
   matchTriggerWidth = false,
+  disabled = false,
 }: RequestTagPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -313,7 +316,7 @@ export function RequestTagPicker({
   const isEmpty = sorted.length === 0
 
   const toggleOpen = () => {
-    if (isEmpty) return
+    if (disabled || isEmpty) return
     if (open) {
       setOpen(false)
       setMenuStyle(null)
@@ -370,7 +373,7 @@ export function RequestTagPicker({
         size="sm"
         variant="secondary"
         onClick={toggleOpen}
-        disabled={isEmpty}
+        disabled={disabled || isEmpty}
         title={trimmedSelected || buttonLabel}
         className={`w-full justify-between gap-1 disabled:opacity-50 ${largeText ? (smallButtonText ? 'h-9 text-xs' : compactMenuText ? 'h-9 text-[13px]' : 'h-9 text-sm') : 'h-8 px-2.5 text-[11px]'}`}
       >

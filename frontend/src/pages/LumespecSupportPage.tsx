@@ -119,7 +119,7 @@ export function LumespecSupportPage() {
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className="page-stack desktop-page-shell lumespec-support-page">
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -149,7 +149,7 @@ export function LumespecSupportPage() {
         <Button
           type="button"
           variant="primary"
-          className="ml-auto shrink-0"
+          className="lumespec-support-create-btn ml-auto shrink-0"
           onClick={() => setCreateOpen(true)}
         >
           {t('support.createRequest', 'Destek Talebi Oluştur')}

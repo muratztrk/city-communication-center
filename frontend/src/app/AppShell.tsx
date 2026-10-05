@@ -919,7 +919,10 @@ export function AppShell() {
                   </a>
                   <button
                     type="button"
-                    onClick={openLumespecSupport}
+                    onClick={() => {
+                      closeMobileNav()
+                      openLumespecSupport()
+                    }}
                     title={t('support.dialogTitle', 'Lumespec Destek')}
                     aria-label={t('support.dialogTitle', 'Lumespec Destek')}
                     className="flex size-9 shrink-0 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white"

@@ -9827,6 +9827,30 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
   right: -3.5rem !important;
 }
 
+/* Lumespec Destek mobil: banner altı filtre + oluştur butonları küçük; Çözüm Bekleyen tek satır (#4124). */
+@media (max-width: 767px) {
+  .lumespec-support-page .scope-chips {
+    gap: 0.35rem;
+    padding-block: 0.35rem;
+  }
+
+  .lumespec-support-page .scope-chips > .scope-chip {
+    min-height: 1.85rem;
+    padding: 0.3rem 0.45rem;
+    font-size: 0.68rem;
+    white-space: nowrap;
+    line-height: 1.15;
+  }
+
+  .lumespec-support-page .scope-chips > .lumespec-support-create-btn {
+    grid-column: 1 / -1;
+    min-height: 1.85rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.68rem;
+    white-space: nowrap;
+  }
+}
+
 /* Vatandaş Talepleri — Talep Etiketi sütunu (#3640). */
 .social-messages-table thead th:nth-child(8),
 .social-messages-table tbody td:nth-child(8) {
@@ -10057,9 +10081,9 @@ body:has(.dashboard-page-shell--citizen) .fixed-fab-stack:has(.scroll-fab-button
 }
 
 .edevlet-plan-detail-address .job-detail-field-row--request-info {
-  min-height: 1.9rem;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+  min-height: 2.2rem;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
 }
 
 .detail-modal-shell.edevlet-plan-detail-shell {

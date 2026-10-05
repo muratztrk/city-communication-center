@@ -875,6 +875,11 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                           selectedName={message.category}
                           emptyLabel={t('whatsapp.requestTagsGridEmpty', 'Etiketler')}
                           matchTriggerWidth
+                          disabled={linkedJob != null && !isCitizenProcessingReceivedState({
+                            status: linkedJob.status,
+                            dueDateUtc: message.dueDateUtc ?? linkedJob.dueDateUtc ?? null,
+                            taskCount: linkedJob.taskCount ?? 0,
+                          })}
                           onSelect={name => { void handleCategorySelect(message, name) }}
                           onClear={() => { void handleCategoryClear(message) }}
                         />

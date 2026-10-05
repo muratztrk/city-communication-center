@@ -780,6 +780,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bileşenin üstünde (portal, z-index 10060); Kilidi Aç ve Talep Oluştur aşağı. Kilidi açabilen
   kullanıcıda kilit tooltip'i yok. Mesajı İlet (gönder) hover'ında kilit yoksa **Mesaj Gönder**
   250ms sonra yukarı açılır (#4163). Kilit yokken imleç eldir (`cursor-pointer`), yasak imleç yok (#4166).
+  Konuşma kilitliyken (kilidi tutan kişi dahil) Mesaj Gönder soluk ve kapalıdır; Enter da göndermez (#4170).
   Kilit butonu renk geçişi yapmaz. Başka konuşmaya geçince buton liste kilit bilgisinden hemen
   Kilidi Aç / Kilitle olur, detay beklenmez (#4158).   Kilit uyarısı kırmızı **Mesaj kilitlenmiştir.**;
   açma uyarısı yeşil **Mesaj kilidi açılmıştır.** (#4167/#4168).

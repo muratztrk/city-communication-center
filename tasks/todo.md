@@ -1,3 +1,7 @@
+## Round 1452 — kilitliyken gönder kapalı
+
+- [x] #4170: konuşma kilitliyken Mesaj Gönder butonu (metin olsa da) kapalı.
+
 ## Round 1451 — gönderince mesaj kutusu temizlensin
 
 - [x] #4170: WhatsApp mesajı gönderilince textbox boşalır.

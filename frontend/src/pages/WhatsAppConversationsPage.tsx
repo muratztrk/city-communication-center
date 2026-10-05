@@ -1292,7 +1292,7 @@ function ConversationDetail({
 
   const handleSend = async () => {
     const text = replyTextRef.current.trim()
-    if ((!text && !pendingFile) || sending || !detail) return
+    if ((!text && !pendingFile) || sending || !detail || operatorLocked) return
 
     const usingMetaTemplate = Boolean(selectedMetaTemplate)
     if (!isWhatsApp24hWindowOpen(detail.lastInboundAt ?? null) && !usingMetaTemplate) {
@@ -1897,7 +1897,7 @@ function ConversationDetail({
                   <button
                     type="button"
                     onClick={() => void handleSend()}
-                    disabled={sending}
+                    disabled={sending || operatorLocked}
                     className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {sending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
@@ -2032,21 +2032,23 @@ function ConversationDetail({
                   t={t}
                 >
                   <OperatorLockHoverTip
-                    text={operatorLockedByOther ? undefined : t('whatsapp.sendMessage', 'Mesaj Gönder')}
+                    text={operatorLocked ? undefined : t('whatsapp.sendMessage', 'Mesaj Gönder')}
                     placement="up"
                     blocked={false}
                     delayMs={250}
                   >
+                    <span className={operatorLocked && !operatorLockedByOther ? 'inline-flex cursor-not-allowed' : 'inline-flex'}>
                     <button
                       type="button"
                       aria-label={t('whatsapp.sendMessage', 'Mesaj Gönder')}
                       onClick={() => void handleSend()}
-                      disabled={(!replyHasText && !pendingFile) || sending || operatorLockedByOther}
-                      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:opacity-50 ${operatorLockedByOther ? 'disabled:cursor-not-allowed' : 'disabled:cursor-pointer'}${(!replyHasText && !pendingFile) || sending || operatorLockedByOther ? ' pointer-events-none' : ''}`}
+                      disabled={(!replyHasText && !pendingFile) || sending || operatorLocked}
+                      className={`flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:opacity-50 ${operatorLocked ? 'disabled:cursor-not-allowed' : 'disabled:cursor-pointer'}${(!replyHasText && !pendingFile) || sending || operatorLocked ? ' pointer-events-none' : ''}`}
                       style={{ backgroundColor: 'var(--color-header-from)' }}
                     >
                       {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
                     </button>
+                    </span>
                   </OperatorLockHoverTip>
                 </OperatorLockBlockedOverlay>
               </div>

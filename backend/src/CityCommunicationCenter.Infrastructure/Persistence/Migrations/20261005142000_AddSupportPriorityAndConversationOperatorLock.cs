@@ -1,15 +1,18 @@
 using System;
+using CityCommunicationCenter.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
+namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations;
+
+[DbContext(typeof(CityCommunicationCenterDbContext))]
+[Migration("20261005142000_AddSupportPriorityAndConversationOperatorLock")]
+public partial class AddSupportPriorityAndConversationOperatorLock : Migration
 {
     /// <inheritdoc />
-    public partial class AddSupportPriorityAndConversationOperatorLock : Migration
-    {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+    protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<DateTimeOffset>(
                 name: "operatorlockedatutc",
@@ -58,4 +61,3 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                 table: "supportrequests");
         }
     }
-}

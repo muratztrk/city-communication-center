@@ -349,6 +349,7 @@ export function ReturnedCitizenRequestsPage() {
                   {t('returnedCitizenRequests.columns.title', 'Başlık')}
                 </FilterableTh>
                 <FilterableTh
+                  className="min-w-[11.5rem] whitespace-nowrap"
                   filterKey="returnDateUtc"
                   filterValue={filters.returnDateUtc ?? ''}
                   onFilter={handleFilter}
@@ -427,7 +428,7 @@ export function ReturnedCitizenRequestsPage() {
                   <td className="font-semibold">
                     <TruncatedText text={row.title} className="cell-title" />
                   </td>
-                  <td><DateCell value={row.returnDateUtc} locale={locale} /></td>
+                  <td className="whitespace-nowrap"><DateCell value={row.returnDateUtc} locale={locale} /></td>
                   <td><span className="font-semibold text-slate-700">{row.destinationName}</span></td>
                   <td>
                     <TruncatedText text={row.returnedReason} className="cell-title" />

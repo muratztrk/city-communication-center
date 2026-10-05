@@ -669,7 +669,7 @@ function OperatorLockControl({
   t: TFunction
 }) {
   const blocked = locked && !canReleaseLock
-  const hoverTitle = locked ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
+  const hoverTitle = blocked ? operatorLockHoverTitle(lockerDisplayName, t) : undefined
   const baseClass = 'inline-flex shrink-0 items-center gap-1 rounded-full border px-3.5 py-0.5 text-[10px] font-semibold transition-colors'
   const colorClass = locked
     ? (canReleaseLock
@@ -678,7 +678,7 @@ function OperatorLockControl({
     : 'border-red-400 bg-red-600 text-white hover:bg-red-700'
 
   return (
-    <span className="group relative inline-flex">
+    <span className="group relative z-30 inline-flex">
       <button
         type="button"
         className={`${baseClass} ${colorClass}`}
@@ -689,7 +689,7 @@ function OperatorLockControl({
         {locked ? t('whatsapp.operatorUnlock', 'Kilidi Aç') : t('whatsapp.operatorLock', 'Kilitle')}
       </button>
       {hoverTitle ? (
-        <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow group-hover:block">
+        <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow-lg group-hover:block">
           {hoverTitle}
         </span>
       ) : null}
@@ -711,10 +711,10 @@ function OperatorLockBlockedOverlay({
   if (!active) return <>{children}</>
   const hoverTitle = operatorLockHoverTitle(lockerDisplayName, t)
   return (
-    <span className="group relative inline-flex max-w-full">
+    <span className="group relative z-30 inline-flex max-w-full">
       {children}
       {hoverTitle ? (
-        <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow group-hover:block">
+        <span className="pointer-events-none absolute left-1/2 top-full z-50 mt-1 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-[10px] font-semibold text-white shadow-lg group-hover:block">
           {hoverTitle}
         </span>
       ) : null}
@@ -1510,7 +1510,7 @@ function ConversationDetail({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
-      <header className={`whatsapp-conversation-detail-header flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${headerTitleIsPhoneOnly ? 'items-center' : 'items-start'}`}>
+      <header className={`whatsapp-conversation-detail-header relative z-20 flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${headerTitleIsPhoneOnly ? 'items-center' : 'items-start'}`}>
         <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-200 text-sm font-bold text-emerald-800">
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>

@@ -146,7 +146,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
           {t('support.dialogTitle', 'Lumespec Destek')}
         </h3>
 
-        <div className="min-h-0 overflow-y-auto pr-1">
+        <div className="min-h-0 overflow-y-auto px-1 pb-1">
           {sent ? (
             <div className="space-y-4">
               {centralSyncFailed ? (
@@ -227,11 +227,12 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                   <label className="mb-1 block text-sm font-medium text-slate-700">
                     {t('attachments.addFile', 'Dosya ekle')}
                   </label>
+                  <div className="flex items-start gap-3">
                   <Button
                     type="button"
                     variant="secondary"
                     size="sm"
-                    className="inline-flex items-center gap-1"
+                    className="inline-flex shrink-0 items-center gap-1 border border-slate-300"
                     disabled={sending}
                     onClick={() => {
                       if (supportsAttachmentFilePicker()) {
@@ -257,7 +258,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                     }}
                   />
                   {pendingFiles.length > 0 ? (
-                    <ul className={`mt-2 space-y-1 text-xs text-slate-700 ${pendingFiles.length > 3 ? 'max-h-[5.25rem] overflow-y-auto pr-1' : ''}`}>
+                    <ul className={`min-w-0 flex-1 space-y-1 text-xs text-slate-700 ${pendingFiles.length >= 3 ? 'max-h-[3.25rem] overflow-y-auto pr-1' : ''}`}>
                       {pendingFiles.map((file, idx) => (
                         <li key={`${file.name}-${idx}`} className="flex items-center justify-between gap-2">
                           <span className="min-w-0 flex-1 truncate">{lowercaseFileExtension(file.name)}</span>
@@ -282,6 +283,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                       ))}
                     </ul>
                   ) : null}
+                  </div>
                   {fileError ? <p className="mt-1 text-xs font-semibold text-red-600">{fileError}</p> : null}
                 </div>
                 </>
@@ -292,6 +294,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                 <Button
                   type="button"
                   variant="secondary"
+                  className="border border-slate-300"
                   onClick={handleClose}
                 >
                   {t('common.cancel', 'İptal')}

@@ -775,8 +775,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sol konuşma kartında isim varsa telefon
   numarası ismin alt satırında, yanıt durumu (`Yanıt Verildi` vb.) ile aynı yatay satırda görünür.
   Bu satırda Okundu / İletildi / Gönderildi teslimat durumu gösterilmez; o bilgi yalnız yazışma balonundadır.
-  Kilitliyken Kilidi Aç / Talep Oluştur / Mesaj İlet hover'ında ikon değişmez (Ban overlay yok);
-  `Kilitleyen: {ad}` native `title` gecikmesi olmadan hemen CSS tooltip olarak görünür (#4150).
+  Kilitliyken Kilidi Aç / Talep Oluştur / Mesaj İlet hover'ında ikon değişmez (Ban overlay yok).
+  `Kilitleyen: {ad}` yalnız kilidi açamayan kullanıcıda, hemen ve aşağı doğru, diğer bileşenin üstünde görünür;
+  kilidi açabilen kullanıcıda tooltip yok (#4150).
   Detay header'ında telefon satırında **Yanıt Verildi Yap** (yanıt beklerken) veya **Yanıt Verildi**
   etiketi numaranın hemen sağında (#3403 / #3389).
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;
@@ -3282,7 +3283,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **İade Edilen Talepler grid (#3688/#3689):** banner'da Vatandaş Talepleri ile aynı arama +
   başlangıç/bitiş tarihi; gridde **Talep Etiketi** sütunu yok.
   Tarih kolonu, tarih filtresi, arama ve varsayılan sıralama `returnedToOperatorAtUtc`
-  (**İade Tarihi**, #4151); talep geliş tarihi bu kolonda yok.
+  (**İade Tarihi**, #4151); talep geliş tarihi bu kolonda yok. Kolon `min-w-[11.5rem]` (#4151 r2).
 - **Operatöre iade edilen VT (#3675–#3678):** Birime Gelen detayda yalnız **İşleme Alındı**
   (görevsiz `Active`) durumda turuncu **Operatöre İade Et** — Talep Detayları başlığı ile
   aynı satırda sağa yaslı; hedef birim `Pending` veya `Approved` olabilir (#3675 reopen).
@@ -3817,8 +3818,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `max-w-[26rem]`; Konu/Mesaj alanları ~0.875rem.
 - **Lumespec Destek detay (#4117/#4116):** Destek Bilgileri başlığının sağında etiket yok;
   üstte Destek No, altında biraz daha küçük öncelik metni, sağa yaslı. Talep Durumu değeri `text-xs`.
-- **Lumespec Destek grid Talep Durumu (#4154):** `StatusPill` (bekleyen info, çözümlenen success,
-  senkron hatası danger).
+- **Lumespec Destek grid Talep Durumu (#4154):** `StatusPill` (Çözüm Bekleyen açık mavi `sky-100`,
+  çözümlenen success, senkron hatası danger).
+- **Lumespec Destek oluştur (#6ac3be8a / #6ac3d0fd):** Dosya Ekle ve İptal çerçevesi görünür
+  (`border-slate-300`, scroll kırpmasın). Dosya adları butonun sağında; 3. ekte düşey scroll.
+  Detay kart başlık çizgisi `.lumespec-support-detail-main` içinde biraz yukarıda (`min-height: 2.35rem`).
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).
 - **Ayarlar önizleme (#2305 reopen):** logo dış oval çerçeve yüksekliği `h-22 w-36` (logo ~%88).
 - **Kullanıcı düzenle Ek birimler (#2308 reopen):** birincil birim hücresi gri; ek birimler dropdown

@@ -1,3 +1,10 @@
+## Round 1444 — destek oluştur, iade kolonu, kilit tooltip, durum rengi
+
+- [x] Oluştur popup: Dosya Ekle sol ve İptal alt çerçevesi görünür; dosya adları butonun sağında; 3. ekte scroll.
+- [x] İade Tarihi kolonu biraz geniş (`min-w-[11.5rem]`).
+- [x] Kilit tooltip yalnız açamayan kullanıcıda, aşağı, diğerinin üstünde.
+- [x] Çözüm Bekleyen pill açık mavi. Destek detay başlık çizgisi biraz yukarı.
+
 ## Round 1443 — #4117 / #4151 / #4150 / #4154 / #4116
 
 - [x] #4117/#4116: Destek detayında Destek No ve öncelik etiketiz, sağa yaslı (numara üstte); Talep Durumu `text-xs`.

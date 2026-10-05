@@ -234,7 +234,10 @@ export function LumespecSupportPage() {
                     <td><TruncatedText text={row.subject} /></td>
                     <td><TruncatedText text={row.descriptionText} /></td>
                     <td>
-                      <StatusPill tone={row.centralSyncError ? 'danger' : isCentralSupportStatusResolved(row.centralStatus) ? 'success' : 'info'}>
+                      <StatusPill
+                        tone={row.centralSyncError ? 'danger' : isCentralSupportStatusResolved(row.centralStatus) ? 'success' : 'info'}
+                        className={!row.centralSyncError && !isCentralSupportStatusResolved(row.centralStatus) ? '!bg-sky-100 !text-sky-700 !ring-sky-200' : undefined}
+                      >
                         {row.statusLabel}
                       </StatusPill>
                     </td>

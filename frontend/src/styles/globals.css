@@ -494,6 +494,13 @@
     box-sizing: border-box;
   }
 
+  /* Lumespec destek detay: üç kartın yeşil başlık çizgisi başlığa biraz daha yakın (#6ac3d800). */
+  .detail-modal-shell .lumespec-support-detail-main .my-request-detail-main__grid > * > .job-detail-section-heading {
+    min-height: 2.35rem;
+    padding-bottom: 0.12rem;
+    margin-bottom: 0.4rem;
+  }
+
   /* İlgili görev kartları: Süreç ve Görev Bilgileri aynı başlık yüksekliğini kullanır (#4013). */
   .detail-modal-shell .my-request-task-details .job-detail-section-heading:has(> .job-detail-card-title) {
     min-height: 3rem;

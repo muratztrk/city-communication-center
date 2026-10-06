@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
+import { ChannelIcon } from '../components/ui/channel-icon'
 import { Button } from '../components/ui/button'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -322,13 +323,18 @@ export function WhatsAppMessageApprovalLogsPage() {
                 showRequestCreator ? (
                 <tr key={row.jobId ?? row.auditLogId}>
                   <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
-                  <td className="table-number-cell font-mono text-xs text-slate-500">{row.requestNoText}</td>
+                  <td className="table-number-cell font-mono text-[0.8125rem] text-slate-500">
+                    <div className="table-number-cell__value inline-flex items-center gap-1.5">
+                      <ChannelIcon channel="WhatsApp" className="size-3.5 shrink-0" />
+                      <span>{row.requestNoText}</span>
+                    </div>
+                  </td>
                   <td>
                     <span className="block">{row.citizenNameText}</span>
                     {row.citizenPhoneText ? <span className="block text-slate-600">{row.citizenPhoneText}</span> : null}
                   </td>
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
-                  <td>{row.actorText}</td>
+                  <td className="font-medium text-sky-500">{row.actorText}</td>
                   <td className="actions-cell">
                     <div className="flex justify-center">
                       <Button

@@ -1,3 +1,8 @@
+## Round 1459 — zoom ipucu ve talep no
+
+- [x] #4176: Görsel önizlemede İndir'in solunda beyaz zoom ipucu.
+- [x] #4182: Talep Oluşturan gridinde VT no biraz büyük, kanal ikonu solda, oluşturan açık mavi.
+
 ## Round 1458 — zoom tavanı ve talep oluşturan logu
 
 - [x] #4181: Fotoğraf önizleme tavanı 2x’ten 2.25x’e çıktı.

@@ -38,7 +38,12 @@ export function SocialConversationMediaPreview({
       >
         <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
           <p className="min-w-0 truncate text-sm font-semibold text-white">{filename}</p>
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-3">
+            {isImage ? (
+              <p className="text-xs font-normal text-white">
+                {t('attachments.zoomHint', 'CTRL+Mouse Orta Tuş ile zoom yapabilirsiniz.')}
+              </p>
+            ) : null}
             <Button type="button" size="sm" variant="secondary" className="h-8 px-2.5 text-xs" onClick={onDownload}>
               <Download className="size-3.5" />
               {t('attachments.download', 'İndir')}

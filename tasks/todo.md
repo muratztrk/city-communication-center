@@ -1,3 +1,7 @@
+## Round 1456 — önizleme büyütmesi azaltıldı
+
+- [x] #4175: Fotoğraf büyütmesi görünen boyuta göre; tıklama 1.5x, adım 0.25, tavan 2x.
+
 ## Round 1455 — fotoğraf önizlemede büyüt
 
 - [x] #4175: WhatsApp fotoğraf önizlemesinde üzerine gelince büyüteç; büyüt ve küçült.

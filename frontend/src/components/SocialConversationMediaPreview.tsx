@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Download, ZoomIn, ZoomOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -64,20 +64,42 @@ export function SocialConversationMediaPreview({
   )
 }
 
+const MIN_ZOOM = 1
+const MAX_ZOOM = 2
+const ZOOM_STEP = 0.25
+const CLICK_ZOOM = 1.5
+
 function PreviewZoomImage({ objectUrl, filename }: { objectUrl: string; filename: string }) {
   const { t } = useTranslation()
+  const imageRef = useRef<HTMLImageElement>(null)
   const [scale, setScale] = useState(1)
-  const zoomIn = () => setScale(current => Math.min(3, Math.round((current + 0.5) * 10) / 10))
-  const zoomOut = () => setScale(current => Math.max(1, Math.round((current - 0.5) * 10) / 10))
+  const [fittedWidth, setFittedWidth] = useState<number | null>(null)
+
+  const applyScale = (next: number) => {
+    const clamped = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(next * 100) / 100))
+    if (clamped <= MIN_ZOOM) {
+      setScale(MIN_ZOOM)
+      return
+    }
+    if (scale <= MIN_ZOOM) {
+      const width = imageRef.current?.clientWidth ?? 0
+      if (width <= 0) return
+      setFittedWidth(width)
+    }
+    setScale(clamped)
+  }
+
+  const zoomed = scale > MIN_ZOOM && fittedWidth != null
 
   return (
     <>
       <img
+        ref={imageRef}
         src={objectUrl}
         alt={filename}
-        onClick={() => setScale(current => (current === 1 ? 2 : 1))}
-        className={`rounded-xl object-contain ${scale === 1 ? 'max-h-[56vh] max-w-full cursor-zoom-in' : 'h-auto max-w-none cursor-zoom-out'}`}
-        style={scale === 1 ? undefined : { width: `${scale * 100}%` }}
+        onClick={() => applyScale(scale === MIN_ZOOM ? CLICK_ZOOM : MIN_ZOOM)}
+        className={`rounded-xl object-contain ${scale === MIN_ZOOM ? 'max-h-[56vh] max-w-full cursor-zoom-in' : 'h-auto max-w-none cursor-zoom-out'}`}
+        style={zoomed ? { width: Math.round(fittedWidth * scale) } : undefined}
       />
       <div className="pointer-events-none sticky bottom-2 z-10 -mt-11 flex h-0 w-full shrink-0 justify-center self-stretch overflow-visible opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
         <div className="flex gap-2 rounded-full bg-black/70 p-1 shadow-lg ring-1 ring-white/15">
@@ -85,8 +107,8 @@ function PreviewZoomImage({ objectUrl, filename }: { objectUrl: string; filename
             type="button"
             className="flex size-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label={t('attachments.zoomOut', 'Küçült')}
-            disabled={scale <= 1}
-            onClick={zoomOut}
+            disabled={scale <= MIN_ZOOM}
+            onClick={() => applyScale(scale - ZOOM_STEP)}
           >
             <ZoomOut className="size-4" aria-hidden="true" />
           </button>
@@ -94,8 +116,8 @@ function PreviewZoomImage({ objectUrl, filename }: { objectUrl: string; filename
             type="button"
             className="flex size-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label={t('attachments.zoomIn', 'Büyüt')}
-            disabled={scale >= 3}
-            onClick={zoomIn}
+            disabled={scale >= MAX_ZOOM}
+            onClick={() => applyScale(scale + ZOOM_STEP)}
           >
             <ZoomIn className="size-4" aria-hidden="true" />
           </button>

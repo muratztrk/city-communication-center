@@ -28,6 +28,7 @@ import { useNewRecordIdsSound } from '../hooks/useNewRecordIdsSound'
 import { AttachmentImagePreviewButton } from '../components/ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
+import { ManagerNoteCombinedView } from '../components/jobs/ManagerNotesSection'
 import { displayMapsLink } from '../utils/coordinates'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
@@ -2463,7 +2464,7 @@ const pageKicker = isMyTasksView
                             ...(taskDetail.jobSourceType !== 'Routine' && parentJobDetail?.managerNote?.trim()
                               ? [{
                                   label: t('jobs.managerNote.title', 'Yönetici Notu'),
-                                  value: <span className="whitespace-pre-wrap">{parentJobDetail.managerNote}</span>,
+                                  value: <ManagerNoteCombinedView text={parentJobDetail.managerNote} className="whitespace-pre-wrap" />,
                                 }]
                               : []),
                             // Görev yönlendirilince sahibi artık güncel atanan kullanıcıdır;
@@ -3412,7 +3413,7 @@ const pageKicker = isMyTasksView
                             ...(!isCitizenParentJob && !isSelfAssignedManagerTask && parentJobDetail.managerNote?.trim()
                               ? [{
                                   label: t('jobs.managerNote.title', 'Yönetici Notu'),
-                                  value: <span className="whitespace-pre-wrap text-right">{parentJobDetail.managerNote}</span>,
+                                  value: <ManagerNoteCombinedView text={parentJobDetail.managerNote} className="whitespace-pre-wrap text-right" />,
                                 }]
                               : []),
                           ]}

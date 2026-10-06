@@ -28,6 +28,49 @@ function formatNoteDate(value: string): string {
   return date.toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
+/** Not gövdesinin yalnız ilk harfi büyük (#4178). Kalan harfler yazıldığı gibi kalır. */
+function capitalizeManagerNoteText(value: string): string {
+  const leading = value.match(/^\s*/)?.[0] ?? ''
+  const body = value.slice(leading.length)
+  if (!body) return value
+  return leading + body.charAt(0).toLocaleUpperCase('tr-TR') + body.slice(1)
+}
+
+const managerNoteDateClass = 'text-[0.7rem] font-semibold text-emerald-600'
+const managerNoteCombinedDateClass = 'text-[0.75rem] font-semibold text-emerald-600'
+
+/** "Ad · tarih / not" birleşik metninde tarihi biraz küçültür ve yeşil yapar (#4177). */
+export function ManagerNoteCombinedView({ text, className }: { text: string; className?: string }) {
+  const blocks = text.split(/\n\n+/)
+  return (
+    <div className={className}>
+      {blocks.map((block, index) => {
+        const newline = block.indexOf('\n')
+        const head = newline === -1 ? block : block.slice(0, newline)
+        const body = newline === -1 ? '' : block.slice(newline + 1)
+        const dated = head.match(/^(.*)\s·\s(\d{2}\.\d{2}\.\d{4}\s\d{2}:\d{2})$/)
+        return (
+          <div key={index} className={index > 0 ? 'mt-2' : undefined}>
+            {dated ? (
+              <span>
+                {dated[1]}
+                {' · '}
+                <span className={managerNoteCombinedDateClass}>{dated[2]}</span>
+              </span>
+            ) : capitalizeManagerNoteText(head)}
+            {body ? (
+              <>
+                {'\n'}
+                {capitalizeManagerNoteText(body)}
+              </>
+            ) : null}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 /** Yönetici Notu kartının içeriği: yazar + tarih satırı, altında not; her yönetici yalnız kendi notunu değiştirir/siler. */
 export function ManagerNotesSection({
   notes,
@@ -80,9 +123,9 @@ export function ManagerNotesSection({
         <p className="text-xs font-semibold text-slate-500">
           {note.authorDisplayName?.trim() || t('jobs.managerNote.unknownAuthor', 'Yönetici')}
           {' · '}
-          {formatNoteDate(note.updatedAtUtc ?? note.createdAtUtc)}
+          <span className={managerNoteDateClass}>{formatNoteDate(note.updatedAtUtc ?? note.createdAtUtc)}</span>
         </p>
-        <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800">{note.text}</p>
+        <p className="mt-1 whitespace-pre-wrap text-sm text-slate-800">{capitalizeManagerNoteText(note.text)}</p>
         {isOwn && canEdit ? (
           <div className="mt-3 flex justify-end gap-2">
             <Button
@@ -106,7 +149,7 @@ export function ManagerNotesSection({
   return (
     <div className="grid gap-3">
       {list.length === 0 && legacyText?.trim() ? (
-        <p className="whitespace-pre-wrap text-sm text-slate-800">{legacyText}</p>
+        <ManagerNoteCombinedView text={legacyText} className="whitespace-pre-wrap text-sm text-slate-800" />
       ) : null}
       {list.length === 0 && !legacyText?.trim() && !showAddForm ? (
         <p className="text-sm text-slate-400">{t('jobs.managerNote.empty', 'Talep için yönetici notu bulunmamaktadır.')}</p>

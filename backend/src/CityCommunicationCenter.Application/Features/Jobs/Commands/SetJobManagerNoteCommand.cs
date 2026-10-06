@@ -1,3 +1,4 @@
+using System.Globalization;
 using CityCommunicationCenter.Application.Abstractions;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
@@ -64,7 +65,7 @@ public sealed class SetJobManagerNoteCommandHandler : ICommandHandler<SetJobMana
             ]);
         }
 
-        var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+        var note = string.IsNullOrWhiteSpace(request.Note) ? null : JobManagerNoteFormatter.CapitalizeFirstTr(request.Note.Trim());
         var utcNow = DateTimeOffset.UtcNow;
 
         var allNotes = await _dbContext.JobManagerNotes
@@ -136,6 +137,18 @@ public sealed class SetJobManagerNoteCommandHandler : ICommandHandler<SetJobMana
 public static class JobManagerNoteFormatter
 {
     private static readonly TimeSpan TurkeyOffset = TimeSpan.FromHours(3);
+    private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
+
+    /// <summary>Not metninin yalnız ilk harfi büyük kalır (#4178).</summary>
+    public static string CapitalizeFirstTr(string value)
+    {
+        if (value.Length == 0)
+        {
+            return value;
+        }
+
+        return char.ToUpper(value[0], Turkish) + value[1..];
+    }
 
     public static string? Combine(IReadOnlyCollection<JobManagerNote> notes)
     {

@@ -1,3 +1,11 @@
+## Round 1457 — yönetici notu ve önizleme zoom
+
+- [x] #4179: Birime Gelen vatandaş detayında Yönetici Notu kartı kurum içi ile aynı.
+- [x] #4178: Yönetici notunun yalnız ilk harfi büyük.
+- [x] #4177: Yönetici notu tarihi biraz küçük ve yeşil.
+- [x] #4175: Ctrl+tekerlek ve Ctrl+artı/eksi ile zoom.
+- [x] #4180: Önizleme alt çubuğu zoom seviyesine göre dolar.
+
 ## Round 1456 — önizleme büyütmesi azaltıldı
 
 - [x] #4175: Fotoğraf büyütmesi görünen boyuta göre; tıklama 1.5x, adım 0.25, tavan 2x.

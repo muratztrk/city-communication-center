@@ -1091,7 +1091,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `max-h-[70vh]`, görsel/video `max-h-[56vh]` (WA + kurum içi — #6a75848c / #6a75722a).
   Fotoğrafın üzerine gelince büyüteç (büyüt/küçült) çıkar. Ölçek, pencere genişliğine değil
   1x’te görünen fotoğraf genişliğine uygulanır. Tıklama 1x↔1.5x, düğmeler 0.25 adım,
-  en fazla 2x (#4175). 1x ölçüsü değişmez.
+  en fazla 2x (#4175). Ctrl+tekerlek ve Ctrl+artı/eksi aynı adımı uygular. Önizlemenin
+  altındaki çubuk zoom seviyesine göre dolar (#4180). 1x ölçüsü değişmez.
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal
@@ -2134,6 +2135,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yönetici Notu limiti (card #1585 / #2809 reopen):** textarea ve komut en fazla 100 karakter;
   başlıkta zorunluluk yıldızı ve `(max 100 karakter)` gösterilmez (#2809). `JobManagerNoteAdded`
   `Talep No: T-…` (yoksa `T-{yıl}-Onay Bekleyen`) içerir; audit `ActorDisplayName` yazılır.
+  Birime Gelen vatandaş detayında Yönetici Notu kartı kurum içi ile aynı yerde ve aynı düzenleme
+  mantığındadır (#4179). Not gövdesinin yalnız ilk harfi büyük yazılır (#4178). Yazar satırındaki
+  tarih biraz daha küçük ve yeşildir (#4177).
 - **Terminal işlem notları:** Görevi Tamamla `Tamamlama Notu` ve Görevi İptal Et
   `İptal Nedeni` en fazla **500** karakter (frontend `maxLength` + backend FluentValidation).
   Talebi İptal Et `İptal Nedeni` ve Görev Durum Değişikliği nedeni **100** karakter sınırında kalır

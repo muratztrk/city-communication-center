@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Download, ZoomIn, ZoomOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -75,7 +75,7 @@ function PreviewZoomImage({ objectUrl, filename }: { objectUrl: string; filename
   const [scale, setScale] = useState(1)
   const [fittedWidth, setFittedWidth] = useState<number | null>(null)
 
-  const applyScale = (next: number) => {
+  const applyScale = useCallback((next: number) => {
     const clamped = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(next * 100) / 100))
     if (clamped <= MIN_ZOOM) {
       setScale(MIN_ZOOM)
@@ -87,9 +87,33 @@ function PreviewZoomImage({ objectUrl, filename }: { objectUrl: string; filename
       setFittedWidth(width)
     }
     setScale(clamped)
-  }
+  }, [scale])
+
+  useEffect(() => {
+    const onWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey && !event.metaKey) return
+      event.preventDefault()
+      const direction = event.deltaY < 0 ? 1 : -1
+      applyScale(scale + direction * ZOOM_STEP)
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return
+      const zoomInKey = event.key === '+' || event.key === '=' || event.key === 'Add'
+      const zoomOutKey = event.key === '-' || event.key === '_' || event.key === 'Subtract'
+      if (!zoomInKey && !zoomOutKey) return
+      event.preventDefault()
+      applyScale(scale + (zoomInKey ? ZOOM_STEP : -ZOOM_STEP))
+    }
+    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [applyScale, scale])
 
   const zoomed = scale > MIN_ZOOM && fittedWidth != null
+  const zoomFill = ((scale - MIN_ZOOM) / (MAX_ZOOM - MIN_ZOOM)) * 100
 
   return (
     <>
@@ -122,6 +146,9 @@ function PreviewZoomImage({ objectUrl, filename }: { objectUrl: string; filename
             <ZoomIn className="size-4" aria-hidden="true" />
           </button>
         </div>
+      </div>
+      <div className="sticky bottom-0 z-10 mt-3 h-1.5 w-full shrink-0 self-stretch overflow-hidden rounded-full bg-white/20" aria-hidden="true">
+        <div className="h-full rounded-full bg-emerald-400 transition-[width]" style={{ width: `${zoomFill}%` }} />
       </div>
     </>
   )

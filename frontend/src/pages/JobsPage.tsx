@@ -1087,7 +1087,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail.status !== 'Completed' && detail.status !== 'Cancelled'
   // Her yönetici yalnız kendi notunu yönetir; taslak/düzenleme bu nota bağlanır (#6abf44d1).
   const ownManagerNoteText = detail?.managerNotes?.find(note => note.authorUserId === user?.userId)?.text ?? ''
-  // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468); vatandaş talebinde gizlenir (#895).
+  // Yönetici Notu sütunu tüm talep detaylarında görünür (card 468).
+  // Vatandaş talebinde gizlenir (#895); Birime Gelen vatandaş detayında kurum içi ile aynı kart (#4179).
   const isCitizenRequestDetail = detail != null && isCitizenRequestJob(detail)
   const incomingReturnTargetDepartment = activeIncomingTarget ?? jobTargetDepartment
   const returnToOperatorDepartmentId = incomingReturnTargetDepartment?.departmentId ?? activeDeptId
@@ -1104,7 +1105,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     || (detailContextOverride === 'social'
       && detail != null
       && (detail.status === 'Cancelled' || detail.status === 'Rejected'))
-  const showManagerNoteColumn = isRequestDetailContext && !isCitizenRequestDetail
+  const showManagerNoteColumn = isRequestDetailContext
+    && (!isCitizenRequestDetail || isIncomingRequestDetail)
   const currentDepartmentOutgoingView = getDepartmentOutgoingView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   const rawMyRequestsView = getMyRequestsView(searchParams.get('view'), isManagerLike, isReporter)
@@ -3669,14 +3671,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
                   : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
               return (
-                <div className={`my-request-detail-bottom mb-5 grid gap-4 ${isIncomingRequestDetail ? 'my-request-detail-bottom--incoming ' : ''}${isCitizenRequestDetail ? 'lg:grid-cols-2 my-request-detail-bottom--attachments-only' : 'lg:grid-cols-3 my-request-detail-bottom--three-cards'}`}>
+                <div className={`my-request-detail-bottom mb-5 grid gap-4 ${isIncomingRequestDetail ? 'my-request-detail-bottom--incoming ' : ''}${showManagerNoteColumn ? 'lg:grid-cols-3 my-request-detail-bottom--three-cards' : 'lg:grid-cols-2 my-request-detail-bottom--attachments-only'}`}>
                   <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
                     <MyRequestSectionHeading icon={MapPin}>
                       {t('address.detailSectionTitle', 'Adres Bilgileri')}
                     </MyRequestSectionHeading>
                     {renderJobAddressInfo(detail)}
                   </section>
-                  {!isCitizenRequestDetail ? (
+                  {showManagerNoteColumn ? (
                   <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
                     <MyRequestSectionHeading icon={NotebookPen}>
                       {t('jobs.managerNote.title', 'Yönetici Notu')}

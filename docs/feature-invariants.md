@@ -3490,6 +3490,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Adı / Telefon No, Vatandaş Talep Tarihi, Talebi Oluşturan, İşlemler. İşlemler `Detaylar`
   ile vatandaş talep detayını açar. Tümü listesine karışmaz. VT no biraz büyük (`0.8125rem`) ve
   solunda Vatandaş Talepleri ile aynı kanal ikonu vardır. Talebi Oluşturan diğer log satırlarıyla aynı yazı rengindedir (#4182).
+  Talebi Oluşturan ardından Gittiği Yer gelir; veri hedefin birim adıdır (`JobDepartment` Target, #4183).
   İşlem Tarihi takvim ikonlu, saniyesiz; ad, durum ve yapan sütunları biraz dar, tarih sütunu daha geniş
   (masaüstü `table-layout: fixed` + yüzde). ≤1023px'de sabit yüzde yok: sütunlar içeriğe açılır, tablo
   `.table-wrap` içinde yatay kayar — başlıklar üst üste binmez (#6ab94034).
@@ -3622,8 +3623,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (chart ile aynı); `?? WhatsApp` varsayımı yok. `citizen=1` tüm VT; `channel=` alias eşleşmeli.
 - **Operator Taleplerim dilimi (#r545):** Staff gibi `Onaylanmış/Yapılmakta`.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
-  açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
-  başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
+  açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş kanal ikonu Talep No'nun
+  solundadır; Oluşturan satırında ikon yoktur (#4184). Vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
 - **Wallboard Talep No (#3984):** `Sıra` sağında, `Görev No` solunda; VT/T formatı job numarasıdır.
 - **Wallboard Görev No alt öncelik (#2122):** Normal öncelik gösterilmez; yalnız Yüksek / Çok Yüksek /
   Kritik (`shouldShowGridPrioritySubline` ile grid ile aynı kural).
@@ -3846,7 +3847,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yerel birim oluşturma (#2303/#2310):** başarı `ConfirmDialog` popup'ıdır; başlık altında ayraç
   çizgisi (`titleDivider`) ve `Tamam` butonu yeşil (`variant: success`).
 - **Lumespec Destek popup (#3404/#3405):** `SupportRequestDialog` başlık altı `border-b`; genişlik
-  `max-w-[26rem]`; Konu/Mesaj alanları ~0.875rem.
+  `max-w-[26rem]`; Konu/Mesaj alanları ~0.875rem. Konu ve Açıklama başlıklarının sonunda kırmızı
+  `*`; altındaki karakter uyarıları yoktur (#4147). Gönder, konu 4 ve açıklama 10 karakterden kısa olunca kapalı kalır.
 - **Lumespec Destek detay (#4117/#4116):** Destek Bilgileri başlığının sağında etiket yok;
   üstte Destek No, altında biraz daha küçük öncelik metni, sağa yaslı. Talep Durumu değeri `text-xs`.
 - **Lumespec Destek grid Talep Durumu (#4154):** `StatusPill` (Çözüm Bekleyen açık mavi `sky-100`,

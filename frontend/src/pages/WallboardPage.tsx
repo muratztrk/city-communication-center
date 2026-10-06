@@ -407,7 +407,10 @@ export function WallboardPage() {
                     <tr key={item.id} className={`wallboard-row ${item.source}`}>
                       <td className="wallboard-number-cell">{(page - 1) * pageSize + index + 1}</td>
                       <td>
-                        <div className={item.isReporterRequest && hasConcreteNumberDisplay(item.requestNo ?? '') ? reporterGridValueClass(true) : ''}>{item.requestNo ?? '—'}</div>
+                        <div className={`inline-flex items-center justify-center gap-1.5 ${item.isReporterRequest && hasConcreteNumberDisplay(item.requestNo ?? '') ? reporterGridValueClass(true) : ''}`}>
+                          {item.sourceChannel ? <ChannelIcon channel={item.sourceChannel} className="size-4 shrink-0" /> : null}
+                          <span>{item.requestNo ?? '—'}</span>
+                        </div>
                       </td>
                       <td>
                         <div className={reporterNumberClass}>{item.taskNumber ?? '—'}</div>
@@ -428,7 +431,6 @@ export function WallboardPage() {
                           className={item.isReporterRequest ? 'wallboard-request-location--reporter' : 'wallboard-request-location'}
                         />
                         <div className={`wallboard-creator-line wallboard-creator-line--task-meta ${item.isReporterRequest ? 'wallboard-creator-line--reporter' : ''}`}>
-                          {item.sourceChannel ? <ChannelIcon channel={item.sourceChannel} className="size-4 shrink-0" /> : null}
                           <span>{item.requestCreator ?? '—'}</span>
                         </div>
                       </td>

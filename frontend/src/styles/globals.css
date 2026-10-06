@@ -3697,6 +3697,10 @@
     width: 8.5rem;
   }
 
+  .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-destination-col {
+    width: 16%;
+  }
+
   .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-status-col,
   .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-actor-col {
     width: 16%;
@@ -3722,7 +3726,8 @@
     .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-status-col,
     .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-actor-col,
     .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-request-no-col,
-    .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-actions-col {
+    .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-actions-col,
+    .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-destination-col {
       width: auto;
     }
 

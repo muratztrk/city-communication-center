@@ -138,7 +138,7 @@ export function WhatsAppMessageApprovalLogsPage() {
   const selectedFilter = KIND_FILTERS.find(filter => filter.value === kind) ?? KIND_FILTERS[0]
   const showReviewColumns = kind === 'reviewRequested'
   const showRequestCreator = kind === 'requestCreated'
-  const columnCount = showRequestCreator ? 6 : showReviewColumns ? BASE_COLUMN_COUNT + 2 : BASE_COLUMN_COUNT
+  const columnCount = showRequestCreator ? 7 : showReviewColumns ? BASE_COLUMN_COUNT + 2 : BASE_COLUMN_COUNT
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -228,6 +228,18 @@ export function WhatsAppMessageApprovalLogsPage() {
                     onSort={handleSort}
                   >
                     {t('whatsappMessageApprovalLogs.columns.creator', 'Talebi Oluşturan')}
+                  </FilterableTh>
+                  <FilterableTh
+                    className="whatsapp-log-destination-col"
+                    filterKey="destination"
+                    filterValue={filters['destination'] ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="destinationText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('whatsappMessageApprovalLogs.columns.destination', 'Gittiği Yer')}
                   </FilterableTh>
                   <th className="whatsapp-log-actions-col text-center">{t('common.actions', 'İşlemler')}</th>
                 </tr>
@@ -335,6 +347,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   </td>
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
                   <td>{row.actorText}</td>
+                  <td>{row.destinationText}</td>
                   <td className="actions-cell">
                     <div className="flex justify-center">
                       <Button

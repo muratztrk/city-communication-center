@@ -161,7 +161,14 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 "WhatsAppRequestCreated",
                 creator != null ? creator.DisplayName : null,
                 message.SocialMessageId,
-                null,
+                _dbContext.JobDepartments
+                    .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+                    .Join(
+                        _dbContext.Departments,
+                        link => link.DepartmentId,
+                        department => department.DepartmentId,
+                        (_, department) => (string?)department.Name)
+                    .FirstOrDefault(),
                 null,
                 message.CitizenRequestNumber,
                 message.CitizenRequestNumberYear,

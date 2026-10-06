@@ -1,3 +1,9 @@
+## Round 1461 — gittiği yer, kanal ikonu, destek yıldızı
+
+- [x] #4183: Talep Oluşturan gridinde Talebi Oluşturan ardından Gittiği Yer (hedef birim).
+- [x] #4184: Ekrana Yansıt'ta vatandaş kanal ikonu Talep No'nun solunda.
+- [x] #4147: Destek popup'ında karakter uyarıları kalktı; Konu ve Açıklama kırmızı yıldızlı.
+
 ## Round 1460 — zoom ipucu satırı ve oluşturan rengi
 
 - [x] #4176: Zoom ipucu iki satır: CTRL+Mouse Orta Tuş / zoom yapabilirsiniz.

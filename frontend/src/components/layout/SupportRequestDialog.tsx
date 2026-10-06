@@ -168,7 +168,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
             <div className="space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">
-                  {t('support.subjectLabel', 'Konu')}
+                  {t('support.subjectLabel', 'Konu')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -180,13 +180,10 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                   maxLength={200}
                   autoFocus
                 />
-                <p className="mt-1 text-xs text-slate-500">
-                  {t('support.subjectHint', 'Konu en az 4 karakter olmalıdır.')}
-                </p>
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-slate-700">
-                  {t('support.columns.message', 'Açıklama')}
+                  {t('support.columns.message', 'Açıklama')} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   className="field-textarea support-request-dialog-field w-full"
@@ -197,9 +194,6 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                   onBlur={() => setMessage(current => toSentenceCaseTr(current))}
                   maxLength={4000}
                 />
-                <p className="mt-1 text-xs text-slate-500">
-                  {t('support.messageHint', 'Mesaj en az 10 karakter olmalıdır.')}
-                </p>
               </div>
 
               {variant === 'createOnly' ? (

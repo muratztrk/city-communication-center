@@ -24,6 +24,11 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var kind = request.Kind?.Trim();
+        if (string.Equals(kind, "requestCreated", StringComparison.OrdinalIgnoreCase))
+        {
+            return await LoadRequestCreatorsAsync(tenantId, cancellationToken);
+        }
+
         var includeWaiting = kind is null or "" or "all" or "waitingReplied";
         var includeCleared = kind is null or "" or "all" or "pendingApprovalCleared";
         var includeRelayed = kind is null or "" or "all" or "messageRelayed";
@@ -129,6 +134,38 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 review.SocialMessageId,
                 department.Name,
                 review.AcknowledgedAtUtc != null && reviewer != null ? reviewer.DisplayName : null))
+            .Take(MaxItems)
+            .ToListAsync(cancellationToken);
+    }
+
+    private async Task<List<WhatsAppMessageApprovalLogItemResponse>> LoadRequestCreatorsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        return await (
+            from job in _dbContext.Jobs.AsNoTracking()
+            join message in _dbContext.SocialMessages.AsNoTracking()
+                on job.JobId equals message.JobId
+            where job.TenantId == tenantId
+                && message.Channel == SocialChannel.WhatsApp
+                && message.CitizenRequestNumber != null
+            join creator in _dbContext.Users.AsNoTracking()
+                on job.CreatedByUserId equals (Guid?)creator.UserId into creators
+            from creator in creators.DefaultIfEmpty()
+            orderby message.ReceivedAtUtc descending
+            select new WhatsAppMessageApprovalLogItemResponse(
+                job.JobId,
+                job.CitizenName ?? message.CitizenHandle,
+                job.CitizenPhone ?? message.CitizenHandle,
+                message.ReceivedAtUtc,
+                "WhatsAppRequestCreated",
+                creator != null ? creator.DisplayName : null,
+                message.SocialMessageId,
+                null,
+                null,
+                message.CitizenRequestNumber,
+                message.CitizenRequestNumberYear,
+                job.JobId))
             .Take(MaxItems)
             .ToListAsync(cancellationToken);
     }

@@ -1,3 +1,8 @@
+## Round 1458 — zoom tavanı ve talep oluşturan logu
+
+- [x] #4181: Fotoğraf önizleme tavanı 2x’ten 2.25x’e çıktı.
+- [x] #4182: Whatsapp Mesaj Logları sonunda Talep Oluşturan; Tümü tablosu tasarımında VT listesi.
+
 ## Round 1457 — yönetici notu ve önizleme zoom
 
 - [x] #4179: Birime Gelen vatandaş detayında Yönetici Notu kartı kurum içi ile aynı.

@@ -65,7 +65,7 @@ export function SocialConversationMediaPreview({
 }
 
 const MIN_ZOOM = 1
-const MAX_ZOOM = 2
+const MAX_ZOOM = 2.25
 const ZOOM_STEP = 0.25
 const CLICK_ZOOM = 1.5
 

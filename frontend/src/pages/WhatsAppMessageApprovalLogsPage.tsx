@@ -1,8 +1,10 @@
+import { FileText } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
+import { Button } from '../components/ui/button'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
@@ -10,12 +12,13 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
-import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
 import { looksLikePhone } from '../utils/phoneDisplay'
+import { JobsPage } from './JobsPage'
 
-type ApprovalLogKind = 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed' | 'reviewRequested'
+type ApprovalLogKind = 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed' | 'reviewRequested' | 'requestCreated'
 
 const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: string; chipClass: string }> = [
   { value: 'all', labelKey: 'whatsappMessageApprovalLogs.kinds.all', fallback: 'Tümü', chipClass: 'scope-chip--all' },
@@ -23,6 +26,7 @@ const KIND_FILTERS: Array<{ value: ApprovalLogKind; labelKey: string; fallback: 
   { value: 'pendingApprovalCleared', labelKey: 'whatsappMessageApprovalLogs.kinds.pendingApprovalCleared', fallback: 'Mesaj Onayı/Cevabı Verildi Yapan', chipClass: 'scope-chip--overdue' },
   { value: 'messageRelayed', labelKey: 'whatsappMessageApprovalLogs.kinds.messageRelayed', fallback: 'Mesajı İleten', chipClass: 'scope-chip--completed' },
   { value: 'reviewRequested', labelKey: 'whatsappMessageApprovalLogs.kinds.reviewRequested', fallback: 'Mesaj İncelemeye Gönderen', chipClass: 'scope-chip--rejected' },
+  { value: 'requestCreated', labelKey: 'whatsappMessageApprovalLogs.kinds.requestCreated', fallback: 'Talep Oluşturan', chipClass: 'scope-chip--approved' },
 ]
 
 const BASE_COLUMN_COUNT = 5
@@ -62,9 +66,10 @@ export function WhatsAppMessageApprovalLogsPage() {
     citizenName?: string | null
     entryId: string
   } | null>(null)
+  const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const [pageSize, setPageSize] = useState(25)
   const [currentPage, setCurrentPage] = useState(1)
-  const { filters, setFilter, matchesFilters } = useColumnFilters()
+  const { filters, setFilter, clearFilters, matchesFilters } = useColumnFilters()
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
   const locale = getLocale(i18n.language)
   useEffect(() => muteNewRecordSoundWhileMounted(), [])
@@ -86,6 +91,11 @@ export function WhatsAppMessageApprovalLogsPage() {
         actorText: row.actorDisplayName?.trim() || '—',
         destinationText: row.destinationName?.trim() || '—',
         reviewerText: row.reviewerDisplayName?.trim() || '—',
+        requestNoText: formatCitizenRequestNumber({
+          citizenRequestNumber: row.citizenRequestNumber,
+          citizenRequestNumberYear: row.citizenRequestNumberYear,
+          receivedAtUtc: row.eventTimeUtc,
+        }, locale),
         dateText: new Date(row.eventTimeUtc).toLocaleString(locale, {
           day: '2-digit',
           month: '2-digit',
@@ -101,7 +111,9 @@ export function WhatsAppMessageApprovalLogsPage() {
       if (key === 'actor') return item.actorText
       if (key === 'destination') return item.destinationText
       if (key === 'reviewer') return item.reviewerText
-      if (key === 'actedAt') return item.dateText
+      if (key === 'actedAt' || key === 'requestDate') return item.dateText
+      if (key === 'requestNo') return item.requestNoText
+      if (key === 'creator') return item.actorText
       return ''
     }))
     if (!sortKey) return filtered
@@ -124,7 +136,8 @@ export function WhatsAppMessageApprovalLogsPage() {
 
   const selectedFilter = KIND_FILTERS.find(filter => filter.value === kind) ?? KIND_FILTERS[0]
   const showReviewColumns = kind === 'reviewRequested'
-  const columnCount = showReviewColumns ? BASE_COLUMN_COUNT + 2 : BASE_COLUMN_COUNT
+  const showRequestCreator = kind === 'requestCreated'
+  const columnCount = showRequestCreator ? 6 : showReviewColumns ? BASE_COLUMN_COUNT + 2 : BASE_COLUMN_COUNT
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -148,7 +161,7 @@ export function WhatsAppMessageApprovalLogsPage() {
             key={filter.value}
             type="button"
             className={`scope-chip ${filter.chipClass}${kind === filter.value ? ' active' : ''}`}
-            onClick={() => { setKind(filter.value); setCurrentPage(1) }}
+            onClick={() => { setKind(filter.value); setCurrentPage(1); clearFilters() }}
           >
             {t(filter.labelKey, filter.fallback)}
           </button>
@@ -161,6 +174,63 @@ export function WhatsAppMessageApprovalLogsPage() {
         <div className="table-wrap desktop-panel-scroll">
           <table className="data-table data-table--zebra whatsapp-message-logs-table">
             <thead>
+              {showRequestCreator ? (
+                <tr>
+                  <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
+                  <FilterableTh
+                    className="whatsapp-log-request-no-col"
+                    filterKey="requestNo"
+                    filterValue={filters['requestNo'] ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="requestNoText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('whatsappMessageApprovalLogs.columns.requestNo', 'Vatandaş Talep No')}
+                  </FilterableTh>
+                  <FilterableTh
+                    className="whatsapp-log-citizen-col"
+                    filterKey="citizen"
+                    filterValue={filters['citizen'] ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="citizenNameText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    <span className="inline-flex flex-col gap-1 leading-tight">
+                      <span>{t('whatsappMessageApprovalLogs.columns.citizenName', 'Vatandaş Adı')}</span>
+                      <span className="text-[0.9em] font-bold leading-tight">{t('whatsappMessageApprovalLogs.columns.citizenPhone', 'Telefon No')}</span>
+                    </span>
+                  </FilterableTh>
+                  <FilterableTh
+                    className="whatsapp-log-date-col"
+                    filterKey="requestDate"
+                    filterValue={filters['requestDate'] ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="eventTimeUtc"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('whatsappMessageApprovalLogs.columns.requestDate', 'Vatandaş Talep Tarihi')}
+                  </FilterableTh>
+                  <FilterableTh
+                    className="whatsapp-log-actor-col"
+                    filterKey="creator"
+                    filterValue={filters['creator'] ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="actorText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('whatsappMessageApprovalLogs.columns.creator', 'Talebi Oluşturan')}
+                  </FilterableTh>
+                  <th className="whatsapp-log-actions-col text-center">{t('common.actions', 'İşlemler')}</th>
+                </tr>
+              ) : (
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                 <FilterableTh
@@ -241,6 +311,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   {t('whatsappMessageApprovalLogs.columns.actedAt', 'İşlem Tarihi')}
                 </FilterableTh>
               </tr>
+              )}
             </thead>
             <tbody>
               {logsQuery.isLoading ? (
@@ -248,6 +319,33 @@ export function WhatsAppMessageApprovalLogsPage() {
               ) : pagedRows.length === 0 ? (
                 <TableEmptyStateRows columnCount={columnCount} message={t('whatsappMessageApprovalLogs.empty', 'Kayıt yok.')} />
               ) : pagedRows.map((row, index) => (
+                showRequestCreator ? (
+                <tr key={row.jobId ?? row.auditLogId}>
+                  <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
+                  <td className="table-number-cell font-mono text-xs text-slate-500">{row.requestNoText}</td>
+                  <td>
+                    <span className="block">{row.citizenNameText}</span>
+                    {row.citizenPhoneText ? <span className="block text-slate-600">{row.citizenPhoneText}</span> : null}
+                  </td>
+                  <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
+                  <td>{row.actorText}</td>
+                  <td className="actions-cell">
+                    <div className="flex justify-center">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="secondary"
+                        className="inline-flex items-center gap-1.5"
+                        disabled={!row.jobId}
+                        onClick={() => row.jobId && setDetailJobId(row.jobId)}
+                      >
+                        <FileText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('jobs.actions.details', 'Detaylar')}
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+                ) : (
                 <tr key={row.auditLogId}>
                   <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
                   <td>
@@ -282,6 +380,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   ) : null}
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
                 </tr>
+                )
               ))}
             </tbody>
           </table>
@@ -302,6 +401,17 @@ export function WhatsAppMessageApprovalLogsPage() {
           citizenName={relayConversation.citizenName}
           highlightEntryId={relayConversation.entryId}
           onClose={() => setRelayConversation(null)}
+        />
+      ) : null}
+      {detailJobId ? (
+        <JobsPage
+          key={detailJobId}
+          mode="myRequests"
+          fixedScope="mine"
+          detailOnly
+          detailContextOverride="social"
+          notificationJobId={detailJobId}
+          onNotificationDetailClose={() => setDetailJobId(null)}
         />
       ) : null}
     </div>

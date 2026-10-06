@@ -2018,7 +2018,7 @@ export const api = {
     await ensureOk(response, i18n.t('errors.genericDeleteFailed', 'Silinemedi.'))
   },
 
-  async getWhatsAppMessageApprovalLogs(kind: 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed' | 'reviewRequested' = 'all'): Promise<WhatsAppMessageApprovalLogItem[]> {
+  async getWhatsAppMessageApprovalLogs(kind: 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed' | 'reviewRequested' | 'requestCreated' = 'all'): Promise<WhatsAppMessageApprovalLogItem[]> {
     const search = new URLSearchParams()
     if (kind !== 'all') search.set('kind', kind)
     const query = search.toString()

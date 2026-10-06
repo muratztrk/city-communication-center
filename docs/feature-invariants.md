@@ -1091,7 +1091,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `max-h-[70vh]`, görsel/video `max-h-[56vh]` (WA + kurum içi — #6a75848c / #6a75722a).
   Fotoğrafın üzerine gelince büyüteç (büyüt/küçült) çıkar. Ölçek, pencere genişliğine değil
   1x’te görünen fotoğraf genişliğine uygulanır. Tıklama 1x↔1.5x, düğmeler 0.25 adım,
-  en fazla 2x (#4175). Ctrl+tekerlek ve Ctrl+artı/eksi aynı adımı uygular. Önizlemenin
+  en fazla 2.25x (#4175). Ctrl+tekerlek ve Ctrl+artı/eksi aynı adımı uygular. Önizlemenin
   altındaki çubuk zoom seviyesine göre dolar (#4180). 1x ölçüsü değişmez.
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
@@ -3485,6 +3485,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesajı İleten tıklanınca Yazışmaya Git popup'ı açılır; o giden kayıt «İletilen Mesaj» olarak işaretlenir.
   Mesaj İncelemeye Gönderen seçilince buton kırmızı. Gittiği Yer ve İnceleyen Personel yalnız bu
   filtrede, İşlemi Yapan ardından gelir; diğer filtrelerde bu iki başlık yoktur.
+  Talep Oluşturan en sondadır (#4182). Aynı tablo tasarımı; sütunlar Sıra, Vatandaş Talep No,
+  Vatandaş Adı / Telefon No, Vatandaş Talep Tarihi, Talebi Oluşturan, İşlemler. İşlemler `Detaylar`
+  ile vatandaş talep detayını açar. Tümü listesine karışmaz.
   İşlem Tarihi takvim ikonlu, saniyesiz; ad, durum ve yapan sütunları biraz dar, tarih sütunu daha geniş
   (masaüstü `table-layout: fixed` + yüzde). ≤1023px'de sabit yüzde yok: sütunlar içeriğe açılır, tablo
   `.table-wrap` içinde yatay kayar — başlıklar üst üste binmez (#6ab94034).

@@ -1032,6 +1032,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma satırı durum sayaçları salt metindir:** konuşma kartındaki `İşleme Alınan /
   Yapılmakta / Tamamlandı` değerleri tıklanabilir buton gibi davranmaz; `İptal` bu satırda basılmaz ve yalnız sol panel
   üstündeki özet sayaçları Vatandaş Talepleri filtrelerine götürür.
+- **WhatsApp FAB paneli operatörde yalnız Yanıt bekleyen (#4172):** FAB zaten yalnız `Operator`.
+  Panel satırı ve rozeti `isWaitingForConversationResponse` ile `/whatsapp` **Yanıt bekleyen**
+  filtresinin aynısıdır (açık talep, son mesaj vatandaştan, bekleyen yanıt temizlenmemiş).
+  Personel giden / Beklemede satırları bu pencerede durmaz.
+- **Rutin görev oluştur ek (#4173/#4174):** seçilen dosyanın uzantısı küçük harfle saklanır ve
+  listelenir. JPG/JPEG/PNG satırında yeşil **Ön İzle** Sil'in solundadır; diğer türlerde yalnız Sil.
 - **WhatsApp FAB bildirimi aynı son mesaj için geri dirilmez:** kendi gönderdiğin kurum içi ileti
   veya FAB satırına tıklama, kullanıcı bazlı `conversationId + lastMessageAt` bastırması yapar;
   polling aynı son mesajı yeniden rozet/panel satırı olarak göstermez, yeni mesaj zamanı değişirse bildirim geri gelir.

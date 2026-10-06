@@ -13,6 +13,7 @@ import { formatConversationListTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
 import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { getWhatsAppFabUnreadCount, isAutomaticOutboundConversation } from '../../utils/whatsappFabNotification'
+import { isWaitingForConversationResponse } from '../../utils/whatsappConversationTicket'
 import { matchesPhone } from '../../utils/phoneNormalization'
 import { syncWaitingWhatsAppReplyCount } from '../../utils/syncWaitingWhatsAppReplyCount'
 import { syncWhatsAppUnreadMessageCount } from '../../utils/whatsappUnreadMessageCount'
@@ -352,6 +353,8 @@ export function WhatsAppNotificationFab() {
       .filter(conversation => {
         if (conversation.isRelevantToCurrentUser === false) return false
         if (isAutomaticOutboundConversation(conversation)) return false
+        // Operatör paneli yalnız /whatsapp "Yanıt bekleyen" ile aynı konuşmaları listeler (#4172).
+        if (!isWaitingForConversationResponse(conversation)) return false
         const dismissedAt = dismissedNotifications[conversation.citizenConversationId]
         if (sameMessageTime(dismissedAt, conversation.lastMessageAt)) return false
         // Son mesajı kendimiz yazdıysak (kurum içi ileti veya Beklemede yanıt) bildirimde görünmesin (card #1495/#1499).

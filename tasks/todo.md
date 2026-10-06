@@ -1,3 +1,9 @@
+## Round 1454 — operatör WA paneli ve rutin dosya
+
+- [x] #4172: Operatör WhatsApp bildirim penceresi yalnız Yanıt bekleyen konuşmaları listeler.
+- [x] #4173: Rutin görev dosya uzantısı küçük harf.
+- [x] #4174: Rutin görev fotoğraf ekine yeşil Ön İzle, Sil'in solunda.
+
 ## Round 1453 — Lumespec destek alanları, durum ve yazışma
 
 - [x] #4165: Gönder öncelik, kişi, birim ve ekleri destek.lumespec.com'a yollar. Cevap ve Çözümlendi durumu detay Yazışma / grid'e gelir.

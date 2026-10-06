@@ -1,4 +1,4 @@
-import { ClipboardList, FileText, Paperclip, Send } from 'lucide-react'
+import { ClipboardList, Eye, FileText, Paperclip, Send } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateTasks } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
+import { SocialConversationMediaPreview } from '../components/SocialConversationMediaPreview'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -29,6 +30,7 @@ import {
   attachmentFileExtension,
   isAllowedAttachmentFileName,
 } from '../utils/attachmentAccept'
+import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 import {
   ATTACHMENT_MAX_TOTAL_BYTES,
   exceedsAttachmentTotalLimit,
@@ -62,8 +64,18 @@ const INITIAL: FormState = {
 
 const MAX_FILE_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
+function isImageAttachment(name: string) {
+  return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name))
+}
+
 function pendingFileIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name)) ? SimpleImageAttachmentIcon : FileText
+  return isImageAttachment(name) ? SimpleImageAttachmentIcon : FileText
+}
+
+function withLowercaseExtension(file: File): File {
+  const name = lowercaseFileExtension(file.name)
+  if (name === file.name) return file
+  return new File([file], name, { type: file.type, lastModified: file.lastModified })
 }
 
 function escapeHtml(value: string): string {
@@ -103,6 +115,7 @@ export function RoutineTaskPage() {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
+  const [localPreview, setLocalPreview] = useState<{ url: string; mime: string; fileName: string } | null>(null)
   const fileProgress = useLocalFileSelectProgress()
   const [userQuickReplies, setUserQuickReplies] = useState<UserQuickReplyTemplate[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -168,10 +181,26 @@ export function RoutineTaskPage() {
       ? { ...current, neighborhood: '', street: '', streetNo: '', openAddress: '', coordinates: '' }
       : { ...current, [key]: value })
 
+  useEffect(() => () => {
+    if (localPreview?.url) URL.revokeObjectURL(localPreview.url)
+  }, [localPreview?.url])
+
+  const openLocalPreview = (file: File) => {
+    const url = URL.createObjectURL(file)
+    setLocalPreview(current => {
+      if (current?.url) URL.revokeObjectURL(current.url)
+      const ext = attachmentFileExtension(file.name)
+      const mime = file.type.startsWith('image/')
+        ? file.type
+        : ext === '.png' ? 'image/png' : 'image/jpeg'
+      return { url, mime, fileName: file.name }
+    })
+  }
+
   const addFiles = (files: FileList | null) => {
     if (!files) return
     setFileError(null)
-    const incoming = Array.from(files)
+    const incoming = Array.from(files).map(withLowercaseExtension)
     for (const file of incoming) {
       const err = validateFile(file)
       if (err) { setFileError(err); return }
@@ -458,11 +487,23 @@ export function RoutineTaskPage() {
                           {pendingFiles.map((file, idx) => {
                             const Icon = pendingFileIcon(file.name)
                             return (
-                            <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
-                              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                            <li key={`${file.name}-${idx}`} className="flex min-w-0 items-center gap-2">
+                              <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                                 <Icon className="size-3" aria-hidden="true" />
                               </span>
-                              <span className="min-w-0 flex-1 break-words text-[10px] font-normal text-slate-900">{file.name}</span>
+                              <span className="min-w-0 flex-1 break-words text-[10px] font-normal text-slate-900">{lowercaseFileExtension(file.name)}</span>
+                              {isImageAttachment(file.name) ? (
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="success"
+                                  className="h-6 shrink-0 gap-0.5 px-1.5 text-[10px]"
+                                  onClick={() => openLocalPreview(file)}
+                                >
+                                  <Eye className="size-3" aria-hidden="true" />
+                                  {t('attachments.preview', 'Ön İzle')}
+                                </Button>
+                              ) : null}
                               <button
                                 type="button"
                                 className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
@@ -533,6 +574,24 @@ export function RoutineTaskPage() {
         </div>
       </form>
       )}
+      {localPreview ? (
+        <SocialConversationMediaPreview
+          open
+          objectUrl={localPreview.url}
+          mime={localPreview.mime}
+          filename={localPreview.fileName}
+          onClose={() => setLocalPreview(current => {
+            if (current?.url) URL.revokeObjectURL(current.url)
+            return null
+          })}
+          onDownload={() => {
+            const link = document.createElement('a')
+            link.href = localPreview.url
+            link.download = localPreview.fileName
+            link.click()
+          }}
+        />
+      ) : null}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )

@@ -143,7 +143,7 @@ public sealed class CitizenJobStatusMessageTests
             "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".\n\nSaygılarımızla");
 
         Assert.Equal(
-            "VT-2026-42 no'lu Yol bakım talebinizin durumu \"İşleme Alındı\".\n\nSaygılarımızla",
+            "VT-2026-42 no'lu Yol Bakım talebinizin durumu \"İşleme Alındı\".\n\nSaygılarımızla",
             content);
     }
 
@@ -172,7 +172,7 @@ public sealed class CitizenJobStatusMessageTests
             "Fen İşleri Müdürlüğü");
 
         Assert.Equal(
-            "VT-2026-42 no'lu Yol bakım talebiniz Yapılmakta. Fen İşleri Müdürlüğü ekiplerince inceleniyor.",
+            "VT-2026-42 no'lu Yol Bakım talebiniz Yapılmakta. Fen İşleri Müdürlüğü ekiplerince inceleniyor.",
             content);
     }
 

@@ -1,3 +1,7 @@
+## Round 1463 — oluşturan personel puntosu
+
+- [x] #4187: Vatandaş talep tarihinin altındaki personel adı biraz büyüdü.
+
 ## Round 1462 — ayraç, oluşturan, telefon punto
 
 - [x] #4185: Talep Oluşturan butonunun önünde | ayracı.

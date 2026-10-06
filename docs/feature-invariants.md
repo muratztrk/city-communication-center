@@ -1104,7 +1104,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri grid kolonları:** Gridde `Kanal` ve `Durum` sütunları gösterilmez; kanal
   talep numarasının başındaki kanal ikonu ile anlaşılır. `Vatandaş Talep No` ve
   `Vatandaş Talep Tarihi` başlıkları tek satır kalır. Tarih hücresinin alt satırında talebi
-  oluşturan personel (`job.createdByDisplayName`, #4187) görünür. `Etiket` kolonu operatörün talep
+  oluşturan personel (`job.createdByDisplayName`, #4187) görünür; punto alt satırdan biraz
+  büyüktür (masaüstü `0.80rem`). `Etiket` kolonu operatörün talep
   etiketi/kategorisini gösterir. Telefon No, Vatandaş Adı sütununun alt satırındadır (#3759).
   Tamamlandı/iptal + vatandaş mesaj onayı yoksa talep no altında turuncu yanıp sönen
   `Yönetici Onayı Bekleyen` (`extra-time-pending-blink`, parantez yok).

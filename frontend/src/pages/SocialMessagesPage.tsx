@@ -798,7 +798,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                     <td>
                       <DateCell value={message.receivedAtUtc} locale={locale} />
                       {linkedJob?.createdByDisplayName?.trim() ? (
-                        <span className="grid-stack-secondary mt-0.5 block font-semibold text-slate-500">{linkedJob.createdByDisplayName}</span>
+                        <span className="citizen-request-date-creator grid-stack-secondary mt-0.5 block font-semibold text-slate-500">{linkedJob.createdByDisplayName}</span>
                       ) : null}
                     </td>
                     {embedded ? null : (

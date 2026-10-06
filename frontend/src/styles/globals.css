@@ -5540,6 +5540,10 @@
       font-size: 0.74rem !important;
     }
 
+    .social-messages-table tbody td .citizen-request-date-creator {
+      font-size: 0.80rem !important;
+    }
+
     .app-content-shell .incoming-requests-table tbody td .grid-stack-secondary {
       font-size: 0.80rem !important;
     }
@@ -7817,6 +7821,10 @@
     .table-container tbody td .grid-stack-secondary,
     .data-table tbody td .grid-stack-secondary {
       font-size: 0.52rem !important;
+    }
+
+    .social-messages-table tbody td .citizen-request-date-creator {
+      font-size: 0.56rem !important;
     }
 
     /* Yeşil birim çerçevesi — renkli arka plan, #3257 büyütme. */

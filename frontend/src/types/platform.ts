@@ -395,6 +395,7 @@ export interface JobSummary {
   citizenTerminalMessageReleasedAtUtc?: string | null;
   cancelledByRoleCode?: string | null;
   hadOverdueDueDate?: boolean;
+  lastReturnedToOperatorAtUtc?: string | null;
 }
 
 export interface JobDueDateChange {

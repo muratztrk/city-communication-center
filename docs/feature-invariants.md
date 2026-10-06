@@ -901,7 +901,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Phone'a çevirmez. `UpdateSocialMessage` WhatsApp → Phone çevirisini reddeder.
   Konuşmada yanıtlanmamış WhatsApp inbound varken otomatik durum bildirimi ve `/whatsapp`
   yanıtı çağrı SMS'ine değil o WhatsApp thread'ine gider; `Yanıt bekliyor` yalnız
-  WhatsApp-kanal entry yönüne bakar. Talep oluştur yanıt hedefi (`pickReply`) olmasa da
+  WhatsApp-kanal entry yönüne bakar. Elle yanıt (Yazışmaya Git, `ReplyToSocialMessage` metin + ek)
+  `ResolveReplyMessageAsync` kullanır: konuşmada WhatsApp thread'i varsa son WA kaydı yanıtlanmış
+  olsa bile yanıt o thread'e Beklemede düşer (durumsuz telefon notu olmaz); otomatik bildirim
+  yalnız yanıtlanmamış inbound kuralında kalır. Talep oluştur yanıt hedefi (`pickReply`) olmasa da
   açık konuşmada durur (çağrı-önce: yalnız Phone ticket varken de). Konuşmada mevcut VT
   varsa (çağrı dahil) `forceNew` ile yeni WhatsApp `SocialMessage` + Job açılır; işsiz WA
   thread yalnız hiç VT yoksa yerinde dönüşür.
@@ -3313,6 +3316,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlangıç/bitiş tarihi; gridde **Talep Etiketi** sütunu yok.
   Tarih kolonu, tarih filtresi, arama ve varsayılan sıralama `returnedToOperatorAtUtc`
   (**İade Tarihi**, #4151); talep geliş tarihi bu kolonda yok. Kolon `min-w-[11.5rem]` (#4151 r2).
+  Yönlendirilen/Tümü'nde `AtUtc` temizlendiği için tarih `lastReturnedToOperatorAtUtc`
+  (son `CitizenRequestReturnedToOperator` audit zamanı) ile dolar; `AtUtc == null` kapsam anlamı korunur.
 - **Operatöre iade edilen VT (#3675–#3678):** Birime Gelen detayda yalnız **İşleme Alındı**
   (görevsiz `Active`) durumda turuncu **Operatöre İade Et** — Talep Detayları başlığı ile
   aynı satırda sağa yaslı; hedef birim `Pending` veya `Approved` olabilir (#3675 reopen).

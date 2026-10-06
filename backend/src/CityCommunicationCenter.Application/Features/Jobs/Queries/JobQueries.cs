@@ -330,6 +330,22 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                 .Select(department => new { department.DepartmentId, department.Name })
                 .ToDictionaryAsync(department => department.DepartmentId, department => department.Name, cancellationToken);
 
+        var returnedJobIdTexts = rows
+            .Where(row => row.Job.ReturnedToOperatorReason != null || row.Job.ReturnedToOperatorAtUtc != null)
+            .Select(row => row.Job.JobId.ToString())
+            .ToList();
+        var lastReturnedAtMap = returnedJobIdTexts.Count == 0
+            ? new Dictionary<string, DateTimeOffset>()
+            : (await _dbContext.AuditLogs
+                .AsNoTracking()
+                .Where(log => log.EntityType == nameof(Job)
+                    && log.Action == "CitizenRequestReturnedToOperator"
+                    && returnedJobIdTexts.Contains(log.EntityId))
+                .Select(log => new { log.EntityId, log.CreatedAtUtc })
+                .ToListAsync(cancellationToken))
+                .GroupBy(log => log.EntityId)
+                .ToDictionary(g => g.Key, g => g.Max(log => log.CreatedAtUtc));
+
         var cancelledByRoleCodeMap = await JobSummaryResponseFactory.ResolveCancelledByRoleCodeMapAsync(
             _dbContext,
             tenantId,
@@ -387,7 +403,11 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
                 : null,
             releasedAtByJobId.GetValueOrDefault(r.Job.JobId),
             cancelledByRoleCodeMap.GetValueOrDefault(r.Job.JobId),
-            r.Job.HadOverdueDueDate)).ToArray();
+            r.Job.HadOverdueDueDate,
+            r.Job.ReturnedToOperatorAtUtc
+                ?? (lastReturnedAtMap.TryGetValue(r.Job.JobId.ToString(), out var lastReturnedAt)
+                    ? lastReturnedAt
+                    : null))).ToArray();
     }
 }
 

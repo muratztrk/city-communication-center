@@ -28,6 +28,48 @@ public static class CitizenWhatsAppDeliveryTarget
         return unanswered ?? sourceMessage;
     }
 
+    /// <summary>
+    /// Personel/operatör yanıtı (Yazışmaya Git): konuşmada WhatsApp thread'i varsa, son WhatsApp
+    /// kaydı yanıtlanmış olsa bile yanıt o thread'e gider; aksi halde telefon kaydında durumsuz
+    /// yerel not olarak kalır ve vatandaşa ulaşmaz.
+    /// </summary>
+    public static async Task<SocialMessage> ResolveReplyMessageAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        SocialMessage sourceMessage,
+        CancellationToken cancellationToken)
+    {
+        if (sourceMessage.Channel == SocialChannel.WhatsApp)
+        {
+            return sourceMessage;
+        }
+
+        var unanswered = await FindUnansweredWhatsAppMessageAsync(
+            dbContext,
+            tenantId,
+            sourceMessage.CitizenConversationId,
+            cancellationToken);
+        if (unanswered is not null)
+        {
+            return unanswered;
+        }
+
+        if (sourceMessage.CitizenConversationId is not Guid conversationId)
+        {
+            return sourceMessage;
+        }
+
+        var latestWhatsAppMessage = await dbContext.SocialMessages
+            .Where(message => message.TenantId == tenantId
+                && message.CitizenConversationId == conversationId
+                && message.Channel == SocialChannel.WhatsApp)
+            .OrderByDescending(message => dbContext.ConversationEntries
+                .Where(entry => entry.SocialMessageId == message.SocialMessageId)
+                .Max(entry => (DateTimeOffset?)entry.SentAt) ?? message.ReceivedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+        return latestWhatsAppMessage ?? sourceMessage;
+    }
+
     public static async Task<SocialMessage?> FindUnansweredWhatsAppMessageAsync(
         IApplicationDbContext dbContext,
         Guid tenantId,

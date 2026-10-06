@@ -85,7 +85,7 @@ function toReturnedRow(
   socialByJobId: Map<string, SocialMessage>,
 ): ReturnedCitizenRequestRow {
   const linkedMessage = socialByJobId.get(job.jobId)
-  const returnDateUtc = job.returnedToOperatorAtUtc ?? ''
+  const returnDateUtc = job.returnedToOperatorAtUtc ?? job.lastReturnedToOperatorAtUtc ?? ''
   const citizenName = job.citizenName?.trim()
     || (linkedMessage ? getSocialMessageCitizenName(linkedMessage) : '—')
   const citizenPhone = job.citizenPhone?.trim()

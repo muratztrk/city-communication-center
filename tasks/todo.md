@@ -1,3 +1,8 @@
+## Round 1464 — iade tarihi, Yazışmaya Git WhatsApp hedefi
+
+- [x] İade Edilen Talepler Yönlendirilen/Tümü İade Tarihi "Belirsiz" yerine operatöre iade zamanı (audit log).
+- [x] Telefon kanallı VT'de Yazışmaya Git yanıtı, WhatsApp thread'i yanıtlanmış olsa da WhatsApp'a Beklemede düşer.
+
 ## Round 1463 — oluşturan personel puntosu
 
 - [x] #4187: Vatandaş talep tarihinin altındaki personel adı biraz büyüdü.

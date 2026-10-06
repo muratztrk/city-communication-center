@@ -34,7 +34,7 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
 
         if (message is null) return false;
 
-        message = await CitizenWhatsAppDeliveryTarget.ResolveDeliveryMessageAsync(
+        message = await CitizenWhatsAppDeliveryTarget.ResolveReplyMessageAsync(
             _dbContext,
             tenantId,
             message,
@@ -352,7 +352,7 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
 
         if (message is null) return false;
 
-        message = await CitizenWhatsAppDeliveryTarget.ResolveDeliveryMessageAsync(
+        message = await CitizenWhatsAppDeliveryTarget.ResolveReplyMessageAsync(
             _dbContext,
             tenantId,
             message,

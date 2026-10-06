@@ -117,7 +117,9 @@ public sealed record JobSummaryResponse(
     DateTimeOffset? CitizenTerminalMessageReleasedAtUtc = null,
     /// <summary>Son JobCancelled audit aktörünün rolü — operatör iptalinde VT grid etiketi gizlenir (#3760).</summary>
     string? CancelledByRoleCode = null,
-    bool HadOverdueDueDate = false);
+    bool HadOverdueDueDate = false,
+    /// <summary>Son CitizenRequestReturnedToOperator audit zamanı — yönlendirme sonrası ReturnedToOperatorAtUtc temizlense de korunur.</summary>
+    DateTimeOffset? LastReturnedToOperatorAtUtc = null);
 
 public sealed record JobManagerNoteResponse(
     Guid NoteId,

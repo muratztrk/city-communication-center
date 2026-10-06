@@ -795,7 +795,12 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                       <div>{getSocialMessageCitizenName(message)}</div>
                       <div className="citizen-grid-phone-value mt-0.5 text-sm font-semibold text-slate-500 tabular-nums">{getSocialMessageCitizenPhone(message)}</div>
                     </td>
-                    <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
+                    <td>
+                      <DateCell value={message.receivedAtUtc} locale={locale} />
+                      {linkedJob?.createdByDisplayName?.trim() ? (
+                        <span className="grid-stack-secondary mt-0.5 block font-semibold text-slate-500">{linkedJob.createdByDisplayName}</span>
+                      ) : null}
+                    </td>
                     {embedded ? null : (
                     <td>
                       {message.channel === 'MobileApp' && !message.assignedDepartmentName ? (

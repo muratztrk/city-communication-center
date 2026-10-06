@@ -1,3 +1,9 @@
+## Round 1462 — ayraç, oluşturan, telefon punto
+
+- [x] #4185: Talep Oluşturan butonunun önünde | ayracı.
+- [x] #4187: Vatandaş Talepleri tarihinin altında talebi oluşturan personel.
+- [x] #4188: Whatsapp Mesaj Logları telefon numarası biraz küçük.
+
 ## Round 1461 — gittiği yer, kanal ikonu, destek yıldızı
 
 - [x] #4183: Talep Oluşturan gridinde Talebi Oluşturan ardından Gittiği Yer (hedef birim).

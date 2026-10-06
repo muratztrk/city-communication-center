@@ -1103,7 +1103,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   header'ında görünür (card #1255).
 - **Vatandaş Talepleri grid kolonları:** Gridde `Kanal` ve `Durum` sütunları gösterilmez; kanal
   talep numarasının başındaki kanal ikonu ile anlaşılır. `Vatandaş Talep No` ve
-  `Vatandaş Talep Tarihi` başlıkları tek satır kalır; `Etiket` kolonu operatörün talep
+  `Vatandaş Talep Tarihi` başlıkları tek satır kalır. Tarih hücresinin alt satırında talebi
+  oluşturan personel (`job.createdByDisplayName`, #4187) görünür. `Etiket` kolonu operatörün talep
   etiketi/kategorisini gösterir. Telefon No, Vatandaş Adı sütununun alt satırındadır (#3759).
   Tamamlandı/iptal + vatandaş mesaj onayı yoksa talep no altında turuncu yanıp sönen
   `Yönetici Onayı Bekleyen` (`extra-time-pending-blink`, parantez yok).
@@ -3495,7 +3496,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (masaüstü `table-layout: fixed` + yüzde). ≤1023px'de sabit yüzde yok: sütunlar içeriğe açılır, tablo
   `.table-wrap` içinde yatay kayar — başlıklar üst üste binmez (#6ab94034).
   Seçili filtre bannerın ilk satırında. Başlık diğer gridlerle aynı yeşil.
-  Filtre butonları bannerın altında. Seçili buton: Yanıt Verildi Yapan mavi, Mesaj Onayı/Cevabı
+  Filtre butonları bannerın altında. Talep Oluşturan öncesinde `|` ayracı vardır (#4185).
+  Telefon no, ad satırından biraz küçüktür (`0.93em`, #4188).
+  Seçili buton: Yanıt Verildi Yapan mavi, Mesaj Onayı/Cevabı
   Verildi Yapan turuncu, Mesajı İleten yeşil.
   Sayfa varsayılanı Operatör; Vatandaş lisansı açıkken görünür.
 - **Log grid:** Her kapsamın ilk sütunu Sıra. Talep Log sonra Talep No + Başlık; Görev Log Görev No + Başlık.

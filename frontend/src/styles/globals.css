@@ -3701,6 +3701,11 @@
     width: 16%;
   }
 
+  .whatsapp-message-logs-table .whatsapp-log-phone-value {
+    font-size: 0.93em;
+    line-height: 1.25;
+  }
+
   .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-status-col,
   .app-content-shell .whatsapp-message-logs-table th.whatsapp-log-actor-col {
     width: 16%;

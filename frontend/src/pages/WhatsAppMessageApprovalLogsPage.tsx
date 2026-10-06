@@ -1,5 +1,5 @@
 import { FileText } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -158,14 +158,16 @@ export function WhatsAppMessageApprovalLogsPage() {
 
       <nav className="scope-chips" aria-label={t('whatsappMessageApprovalLogs.filterLabel', 'Mesaj log filtreleri')}>
         {KIND_FILTERS.map(filter => (
-          <button
-            key={filter.value}
-            type="button"
-            className={`scope-chip ${filter.chipClass}${kind === filter.value ? ' active' : ''}`}
-            onClick={() => { setKind(filter.value); setCurrentPage(1); clearFilters() }}
-          >
-            {t(filter.labelKey, filter.fallback)}
-          </button>
+          <Fragment key={filter.value}>
+            {filter.value === 'requestCreated' ? <span className="scope-chip-divider" aria-hidden="true">|</span> : null}
+            <button
+              type="button"
+              className={`scope-chip ${filter.chipClass}${kind === filter.value ? ' active' : ''}`}
+              onClick={() => { setKind(filter.value); setCurrentPage(1); clearFilters() }}
+            >
+              {t(filter.labelKey, filter.fallback)}
+            </button>
+          </Fragment>
         ))}
       </nav>
 
@@ -343,7 +345,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   </td>
                   <td>
                     <span className="block">{row.citizenNameText}</span>
-                    {row.citizenPhoneText ? <span className="block text-slate-600">{row.citizenPhoneText}</span> : null}
+                    {row.citizenPhoneText ? <span className="whatsapp-log-phone-value block text-slate-600">{row.citizenPhoneText}</span> : null}
                   </td>
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
                   <td>{row.actorText}</td>
@@ -369,7 +371,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
                   <td>
                     <span className="block">{row.citizenNameText}</span>
-                    {row.citizenPhoneText ? <span className="block text-slate-600">{row.citizenPhoneText}</span> : null}
+                    {row.citizenPhoneText ? <span className="whatsapp-log-phone-value block text-slate-600">{row.citizenPhoneText}</span> : null}
                   </td>
                   <td>
                     {row.action === 'WhatsAppMessageRelayed' && row.socialMessageId ? (

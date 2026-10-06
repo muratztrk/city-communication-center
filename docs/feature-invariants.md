@@ -1089,6 +1089,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `font-size: 0.8rem`, yükseklik `6.85rem` (#2743/#2746). Modal gelen görsel balon içinde `w-full` (Round 719).
 - **Görsel lightbox yüksekliği (Round 720):** `SocialConversationMediaPreview` kabuk
   `max-h-[70vh]`, görsel/video `max-h-[56vh]` (WA + kurum içi — #6a75848c / #6a75722a).
+  Fotoğrafın üzerine gelince büyüteç (büyüt/küçült) çıkar; tıklama 1x↔2x, düğmeler 0.5 adım,
+  en fazla 3x (#4175). 1x ölçüsü değişmez.
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal

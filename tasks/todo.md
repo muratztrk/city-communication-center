@@ -1,3 +1,7 @@
+## Round 1455 — fotoğraf önizlemede büyüt
+
+- [x] #4175: WhatsApp fotoğraf önizlemesinde üzerine gelince büyüteç; büyüt ve küçült.
+
 ## Round 1454 — operatör WA paneli ve rutin dosya
 
 - [x] #4172: Operatör WhatsApp bildirim penceresi yalnız Yanıt bekleyen konuşmaları listeler.

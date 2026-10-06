@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Download } from 'lucide-react'
+import { Download, ZoomIn, ZoomOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
 import { ModalBackdrop } from './ui/modal-backdrop'
@@ -23,6 +24,7 @@ export function SocialConversationMediaPreview({
   onDownload,
 }: SocialConversationMediaPreviewProps) {
   const { t } = useTranslation()
+  const isImage = mime.startsWith('image/')
 
   if (!open) return null
 
@@ -45,13 +47,9 @@ export function SocialConversationMediaPreview({
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-4">
-          {mime.startsWith('image/') ? (
-            <img
-              src={objectUrl}
-              alt={filename}
-              className="max-h-[56vh] max-w-full rounded-xl object-contain"
-            />
+        <div className="group relative flex min-h-0 w-full flex-1 flex-col items-center overflow-auto p-4">
+          {isImage ? (
+            <PreviewZoomImage key={objectUrl} objectUrl={objectUrl} filename={filename} />
           ) : mime.startsWith('video/') ? (
             <video src={objectUrl} controls autoPlay className="max-h-[56vh] max-w-full rounded-xl" />
           ) : mime.startsWith('audio/') ? (
@@ -63,5 +61,46 @@ export function SocialConversationMediaPreview({
       </div>
     </ModalBackdrop>,
     document.body,
+  )
+}
+
+function PreviewZoomImage({ objectUrl, filename }: { objectUrl: string; filename: string }) {
+  const { t } = useTranslation()
+  const [scale, setScale] = useState(1)
+  const zoomIn = () => setScale(current => Math.min(3, Math.round((current + 0.5) * 10) / 10))
+  const zoomOut = () => setScale(current => Math.max(1, Math.round((current - 0.5) * 10) / 10))
+
+  return (
+    <>
+      <img
+        src={objectUrl}
+        alt={filename}
+        onClick={() => setScale(current => (current === 1 ? 2 : 1))}
+        className={`rounded-xl object-contain ${scale === 1 ? 'max-h-[56vh] max-w-full cursor-zoom-in' : 'h-auto max-w-none cursor-zoom-out'}`}
+        style={scale === 1 ? undefined : { width: `${scale * 100}%` }}
+      />
+      <div className="pointer-events-none sticky bottom-2 z-10 -mt-11 flex h-0 w-full shrink-0 justify-center self-stretch overflow-visible opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100">
+        <div className="flex gap-2 rounded-full bg-black/70 p-1 shadow-lg ring-1 ring-white/15">
+          <button
+            type="button"
+            className="flex size-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label={t('attachments.zoomOut', 'Küçült')}
+            disabled={scale <= 1}
+            onClick={zoomOut}
+          >
+            <ZoomOut className="size-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="flex size-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label={t('attachments.zoomIn', 'Büyüt')}
+            disabled={scale >= 3}
+            onClick={zoomIn}
+          >
+            <ZoomIn className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </>
   )
 }

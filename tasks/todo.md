@@ -1,3 +1,8 @@
+## Round 1460 — zoom ipucu satırı ve oluşturan rengi
+
+- [x] #4176: Zoom ipucu iki satır: CTRL+Mouse Orta Tuş / zoom yapabilirsiniz.
+- [x] #4182: Talebi Oluşturan yazı rengi açık maviden eski haline döndü.
+
 ## Round 1459 — zoom ipucu ve talep no
 
 - [x] #4176: Görsel önizlemede İndir'in solunda beyaz zoom ipucu.

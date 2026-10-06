@@ -40,8 +40,8 @@ export function SocialConversationMediaPreview({
           <p className="min-w-0 truncate text-sm font-semibold text-white">{filename}</p>
           <div className="flex shrink-0 items-center gap-3">
             {isImage ? (
-              <p className="text-xs font-normal text-white">
-                {t('attachments.zoomHint', 'CTRL+Mouse Orta Tuş ile zoom yapabilirsiniz.')}
+              <p className="whitespace-pre-line text-right text-xs font-normal leading-tight text-white">
+                {t('attachments.zoomHint', 'CTRL+Mouse Orta Tuş\nzoom yapabilirsiniz.')}
               </p>
             ) : null}
             <Button type="button" size="sm" variant="secondary" className="h-8 px-2.5 text-xs" onClick={onDownload}>

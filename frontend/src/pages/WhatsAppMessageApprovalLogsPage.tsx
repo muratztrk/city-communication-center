@@ -334,7 +334,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                     {row.citizenPhoneText ? <span className="block text-slate-600">{row.citizenPhoneText}</span> : null}
                   </td>
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
-                  <td className="font-medium text-sky-500">{row.actorText}</td>
+                  <td>{row.actorText}</td>
                   <td className="actions-cell">
                     <div className="flex justify-center">
                       <Button

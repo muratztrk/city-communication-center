@@ -1092,7 +1092,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Fotoğrafın üzerine gelince büyüteç (büyüt/küçült) çıkar. Ölçek, pencere genişliğine değil
   1x’te görünen fotoğraf genişliğine uygulanır. Tıklama 1x↔1.5x, düğmeler 0.25 adım,
   en fazla 2.25x (#4175). Ctrl+tekerlek ve Ctrl+artı/eksi aynı adımı uygular. Görsel önizlemede
-  İndir'in solunda küçük beyaz yazı: `CTRL+Mouse Orta Tuş ile zoom yapabilirsiniz.` (#4176).
+  İndir'in solunda küçük beyaz yazı iki satırdır: `CTRL+Mouse Orta Tuş` / `zoom yapabilirsiniz.` (#4176).
   Önizlemenin altındaki çubuk zoom seviyesine göre dolar (#4180). 1x ölçüsü değişmez.
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
@@ -3489,7 +3489,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep Oluşturan en sondadır (#4182). Aynı tablo tasarımı; sütunlar Sıra, Vatandaş Talep No,
   Vatandaş Adı / Telefon No, Vatandaş Talep Tarihi, Talebi Oluşturan, İşlemler. İşlemler `Detaylar`
   ile vatandaş talep detayını açar. Tümü listesine karışmaz. VT no biraz büyük (`0.8125rem`) ve
-  solunda Vatandaş Talepleri ile aynı kanal ikonu vardır. Talebi Oluşturan açık mavidir (`text-sky-500`).
+  solunda Vatandaş Talepleri ile aynı kanal ikonu vardır. Talebi Oluşturan diğer log satırlarıyla aynı yazı rengindedir (#4182).
   İşlem Tarihi takvim ikonlu, saniyesiz; ad, durum ve yapan sütunları biraz dar, tarih sütunu daha geniş
   (masaüstü `table-layout: fixed` + yüzde). ≤1023px'de sabit yüzde yok: sütunlar içeriğe açılır, tablo
   `.table-wrap` içinde yatay kayar — başlıklar üst üste binmez (#6ab94034).

@@ -66,6 +66,8 @@ public static class CitizenWhatsAppDeliveryTarget
             .OrderByDescending(message => dbContext.ConversationEntries
                 .Where(entry => entry.SocialMessageId == message.SocialMessageId)
                 .Max(entry => (DateTimeOffset?)entry.SentAt) ?? message.ReceivedAtUtc)
+            .ThenByDescending(message => message.ReceivedAtUtc)
+            .ThenByDescending(message => message.SocialMessageId)
             .FirstOrDefaultAsync(cancellationToken);
         return latestWhatsAppMessage ?? sourceMessage;
     }

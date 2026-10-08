@@ -255,6 +255,7 @@ const REPORTER_DEPARTMENT_CHART_ORDER = [
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.neighborhoodAllRequests',
   'dashboard.charts.edevletActivityPlans',
+  'dashboard.charts.myRequests',
 ]
 
 function reporterDepartmentChartOrder(titleKey: string): number {

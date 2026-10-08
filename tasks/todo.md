@@ -1,3 +1,7 @@
+## Round 1466 — üst düzey Taleplerim pie
+
+- [x] Anasayfa - Birimler: Üst Düzey Yönetici'de Taleplerim pie'ı e-Devlet'in yanına geri geldi.
+
 ## Round 1464 — iade tarihi, Yazışmaya Git WhatsApp hedefi
 
 - [x] İade Edilen Talepler Yönlendirilen/Tümü İade Tarihi "Belirsiz" yerine operatöre iade zamanı (audit log).

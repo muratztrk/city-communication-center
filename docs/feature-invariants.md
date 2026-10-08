@@ -2491,7 +2491,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `ClassifyCitizenRequestsPie` kullanır. Drilldown Durum etiketi sahte taskCount=1 kullanmaz —
   `OpenTaskCount` ile İşleme Alındı / Yapılmakta ayrılır.   Harita alanı yok (#6a6cdf95).   Birimler sayfasında Reporter pie sırası (#3056): Tamamlanan /
   Yapılmakta / Onay Bekleyen Talepler → Tamamlanan / Yapılmakta Projeler → Talep Oluşturan Birimler
-  → Taleplerim.
+  → Mahallelerdeki Tüm Talepler → e-Devlet Günlük Faaliyet Planları → Taleplerim (son hücre, #6ac72e14).
   Birimler sayfasında Reporter: Taleplerim +
   dış birim pie'ları. Operator: Görevlerim/Taleplerim. `Birimdeki Görevler` ve `Talep Önceliği`
   pie'ları tüm anasayfalardan kaldırıldı (#2521). Birimler pie + drilldown vatandaş kaynaklı

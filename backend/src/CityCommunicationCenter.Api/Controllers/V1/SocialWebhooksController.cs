@@ -12,6 +12,7 @@ public sealed class SocialWebhooksController : ControllerBase
 {
     private const string WebhookSecretHeader = "X-CCC-Webhook-Secret";
     private const string MetaSignatureHeader = "X-Hub-Signature-256";
+    private const int WebhookBodyLogLimit = 16_384;
     private readonly IMediator _sender;
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly IConfiguration _configuration;
@@ -112,6 +113,8 @@ public sealed class SocialWebhooksController : ControllerBase
             return BadRequest();
         }
 
+        LogWebhookBody(correlationId, body);
+
         using (payload)
         {
             if (!IsWhatsAppPayloadForPhoneNumber(payload.RootElement, settings.PhoneNumberId))
@@ -130,6 +133,22 @@ public sealed class SocialWebhooksController : ControllerBase
 
             return Ok(new { receivedCount });
         }
+    }
+
+    private void LogWebhookBody(string correlationId, byte[] body)
+    {
+        var text = Encoding.UTF8.GetString(body);
+        var truncated = text.Length > WebhookBodyLogLimit;
+        if (truncated)
+        {
+            text = text[..WebhookBodyLogLimit];
+        }
+
+        _logger.LogInformation(
+            "WhatsApp webhook body. CorrelationId={CorrelationId} Truncated={Truncated} Body={Body}",
+            correlationId,
+            truncated,
+            text);
     }
 
     private void LogRejected(string correlationId, string skipReason)

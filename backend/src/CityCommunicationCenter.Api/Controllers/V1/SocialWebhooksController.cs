@@ -16,17 +16,20 @@ public sealed class SocialWebhooksController : ControllerBase
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly IConfiguration _configuration;
     private readonly IWebHostEnvironment _environment;
+    private readonly Microsoft.Extensions.Logging.ILogger<SocialWebhooksController> _logger;
 
     public SocialWebhooksController(
         IMediator sender,
         ISocialMediaSettingsProvider settingsProvider,
         IConfiguration configuration,
-        IWebHostEnvironment environment)
+        IWebHostEnvironment environment,
+        Microsoft.Extensions.Logging.ILogger<SocialWebhooksController> logger)
     {
         _sender = sender;
         _settingsProvider = settingsProvider;
         _configuration = configuration;
         _environment = environment;
+        _logger = logger;
     }
 
     [HttpPost("{channel}")]
@@ -75,10 +78,16 @@ public sealed class SocialWebhooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ReceiveWhatsApp(Guid tenantId, CancellationToken cancellationToken)
     {
+        var correlationId = string.IsNullOrWhiteSpace(HttpContext.TraceIdentifier)
+            ? Guid.NewGuid().ToString("N")
+            : HttpContext.TraceIdentifier;
+        Response.Headers["X-Correlation-Id"] = correlationId;
+
         var settings = _settingsProvider.GetSettings(tenantId)?.WhatsApp;
         if (string.IsNullOrWhiteSpace(settings?.AppSecret) ||
             string.IsNullOrWhiteSpace(settings.PhoneNumberId))
         {
+            LogRejected(correlationId, WhatsAppWebhookSkipReason.MissingWhatsAppSettings);
             return NotFound();
         }
 
@@ -88,6 +97,7 @@ public sealed class SocialWebhooksController : ControllerBase
 
         if (!IsMetaSignatureValid(settings.AppSecret, body))
         {
+            LogRejected(correlationId, WhatsAppWebhookSkipReason.InvalidSignature);
             return Unauthorized();
         }
 
@@ -98,6 +108,7 @@ public sealed class SocialWebhooksController : ControllerBase
         }
         catch (JsonException)
         {
+            LogRejected(correlationId, WhatsAppWebhookSkipReason.InvalidJson);
             return BadRequest();
         }
 
@@ -105,14 +116,59 @@ public sealed class SocialWebhooksController : ControllerBase
         {
             if (!IsWhatsAppPayloadForPhoneNumber(payload.RootElement, settings.PhoneNumberId))
             {
+                LogPhoneNumberMismatch(correlationId, settings.PhoneNumberId, payload.RootElement);
                 return BadRequest();
             }
 
             var receivedCount = await _sender.Send(
-                new ReceiveWhatsAppWebhookCommand(tenantId, payload.RootElement.Clone()),
+                new ReceiveWhatsAppWebhookCommand(
+                    tenantId,
+                    payload.RootElement.Clone(),
+                    correlationId,
+                    settings.PhoneNumberId),
                 cancellationToken);
 
             return Ok(new { receivedCount });
+        }
+    }
+
+    private void LogRejected(string correlationId, string skipReason)
+    {
+        _logger.LogWarning(
+            "WhatsApp webhook processed. CorrelationId={CorrelationId} Result={Result} SkipReason={SkipReason}",
+            correlationId,
+            WhatsAppWebhookProcessingResult.Failed,
+            skipReason);
+    }
+
+    private void LogPhoneNumberMismatch(string correlationId, string expectedPhoneNumberId, JsonElement payload)
+    {
+        var hints = WhatsAppWebhookForensics.Enumerate(payload);
+        if (hints.Count == 0)
+        {
+            _logger.LogInformation(
+                "WhatsApp webhook processed. CorrelationId={CorrelationId} ExpectedPhoneNumberId={ExpectedPhoneNumberId} Result={Result} SkipReason={SkipReason}",
+                correlationId,
+                expectedPhoneNumberId,
+                WhatsAppWebhookProcessingResult.PhoneNumberMismatch,
+                WhatsAppWebhookSkipReason.PhoneNumberMismatch);
+            return;
+        }
+
+        foreach (var hint in hints)
+        {
+            _logger.LogInformation(
+                "WhatsApp webhook processed. CorrelationId={CorrelationId} WabaId={WabaId} PhoneNumberId={PhoneNumberId} ExpectedPhoneNumberId={ExpectedPhoneNumberId} MessageId={MessageId} Sender={Sender} EventType={EventType} MessageType={MessageType} Result={Result} SkipReason={SkipReason}",
+                correlationId,
+                hint.WabaId,
+                hint.PhoneNumberId,
+                expectedPhoneNumberId,
+                hint.MessageId,
+                hint.SenderMasked,
+                hint.EventType,
+                hint.MessageType,
+                WhatsAppWebhookProcessingResult.PhoneNumberMismatch,
+                WhatsAppWebhookSkipReason.PhoneNumberMismatch);
         }
     }
 

@@ -551,6 +551,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 
+- **WhatsApp webhook forensics:** ham JSON, mesaj metni, medya ve token loglanmaz. Her istek `CorrelationId` (`TraceIdentifier`, yanıt başlığı `X-Correlation-Id`) ile Information loglanır. `receivedCount: 0` özeti `Created` / `Duplicate` / `IgnoredNoise` / `StatusOnly` / `Blocked` / `PhoneNumberMismatch` sayaçlarıyla ayrılır. Payload'daki `phone_number_id` tenant ayarından farklıysa o olay kaydedilmez.
+
 - **Gelen WA balonunda üst satır gönderen etiketi:** isim varsa isim (+telefon), yoksa telefon;
   `ConversationPanel` → `inboundSenderLabel` (card #1716). Vatandaş Talebi Oluştur dahil.
 

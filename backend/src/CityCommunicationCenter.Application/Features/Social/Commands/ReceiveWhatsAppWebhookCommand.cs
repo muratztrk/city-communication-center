@@ -8,7 +8,9 @@ namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record ReceiveWhatsAppWebhookCommand(
     Guid TenantId,
-    JsonElement Payload) : ICommand<int>;
+    JsonElement Payload,
+    string CorrelationId,
+    string ExpectedPhoneNumberId) : ICommand<int>;
 
 public sealed class ReceiveWhatsAppWebhookCommandHandler
     : ICommandHandler<ReceiveWhatsAppWebhookCommand, int>
@@ -43,13 +45,71 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         ReceiveWhatsAppWebhookCommand request,
         CancellationToken cancellationToken)
     {
+        var trace = new WebhookTrace(
+            string.IsNullOrWhiteSpace(request.CorrelationId)
+                ? Guid.NewGuid().ToString("N")
+                : request.CorrelationId,
+            request.ExpectedPhoneNumberId);
+        var receivedCount = 0;
+        try
+        {
+            receivedCount = await HandleCoreAsync(request, trace, cancellationToken);
+            return receivedCount;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            trace.Failed++;
+            _logger.LogError(
+                exception,
+                "WhatsApp webhook processed. CorrelationId={CorrelationId} Result={Result} SkipReason={SkipReason}",
+                trace.CorrelationId,
+                WhatsAppWebhookProcessingResult.Failed,
+                WhatsAppWebhookSkipReason.Unhandled);
+            throw;
+        }
+        finally
+        {
+            _logger.LogInformation(
+                "WhatsApp webhook summary. CorrelationId={CorrelationId} ExpectedPhoneNumberId={ExpectedPhoneNumberId} Created={Created} Duplicate={Duplicate} IgnoredNoise={IgnoredNoise} StatusOnly={StatusOnly} Blocked={Blocked} PhoneNumberMismatch={PhoneNumberMismatch} Failed={Failed} ReceivedCount={ReceivedCount}",
+                trace.CorrelationId,
+                trace.ExpectedPhoneNumberId,
+                trace.Created,
+                trace.Duplicate,
+                trace.IgnoredNoise,
+                trace.StatusOnly,
+                trace.Blocked,
+                trace.PhoneNumberMismatch,
+                trace.Failed,
+                receivedCount);
+        }
+    }
+
+    private async Task<int> HandleCoreAsync(
+        ReceiveWhatsAppWebhookCommand request,
+        WebhookTrace trace,
+        CancellationToken cancellationToken)
+    {
         // Echoes must be persisted before status updates when both arrive in one payload.
-        var echoCount = await ProcessMessageEchoesAsync(request.TenantId, request.Payload, cancellationToken);
-        var statusCount = await ProcessStatusUpdatesAsync(request.TenantId, request.Payload, cancellationToken);
+        var echoCount = await ProcessMessageEchoesAsync(request.TenantId, request.Payload, trace, cancellationToken);
+        var statusCount = await ProcessStatusUpdatesAsync(request.TenantId, request.Payload, trace, cancellationToken);
 
         var incoming = ParseMessages(request.Payload);
         if (incoming.Count == 0)
         {
+            if (trace.EventCount == 0)
+            {
+                LogProcessed(
+                    trace,
+                    null,
+                    trace.ExpectedPhoneNumberId,
+                    null,
+                    null,
+                    "webhook",
+                    null,
+                    WhatsAppWebhookProcessingResult.StatusOnly,
+                    WhatsAppWebhookSkipReason.NoActionableEvents);
+            }
+
             return echoCount + statusCount;
         }
 
@@ -69,12 +129,34 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             .Select(m => m.ExternalMessageId)
             .ToHashSetAsync(cancellationToken);
 
-        var newMessages = incoming
-            .Where(m => !existingExternalIds.Contains(m.ExternalMessageId) &&
-                        !existingLegacyIds.Contains(m.ExternalMessageId))
-            .ToArray();
+        var newMessages = new List<WhatsAppIncomingMessage>();
+        foreach (var message in incoming)
+        {
+            if (!TryAcceptPhone(trace, message.PhoneNumberId, message.WabaId, message.ExternalMessageId, message.CitizenHandle, "message", message.MessageType))
+            {
+                continue;
+            }
 
-        if (newMessages.Length == 0)
+            if (existingExternalIds.Contains(message.ExternalMessageId) ||
+                existingLegacyIds.Contains(message.ExternalMessageId))
+            {
+                LogProcessed(
+                    trace,
+                    message.WabaId,
+                    message.PhoneNumberId,
+                    message.ExternalMessageId,
+                    message.CitizenHandle,
+                    "message",
+                    message.MessageType,
+                    WhatsAppWebhookProcessingResult.Duplicate,
+                    WhatsAppWebhookSkipReason.AlreadyStored);
+                continue;
+            }
+
+            newMessages.Add(message);
+        }
+
+        if (newMessages.Count == 0)
         {
             // Meta aynı mesajı tekrar gönderdiğinde ilk turda düşen arşiv indirmesi burada telafi edilir;
             // yerel kopyası olan entry'ler ArchiveMediaAsync içinde atlanır (#6aac5ca5).
@@ -100,10 +182,28 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         {
             var citizenHandle = citizenGroup.Key;
             var orderedMsgs = citizenGroup.OrderBy(m => m.ReceivedAtUtc).ToArray();
-            var persistableMsgs = orderedMsgs
-                .Where(m => !WhatsAppInboundContentParser.IsIgnorableInboundNoise(m.Content, m.MediaId))
-                .ToArray();
-            if (persistableMsgs.Length == 0)
+            var persistableMsgs = new List<WhatsAppIncomingMessage>(orderedMsgs.Length);
+            foreach (var message in orderedMsgs)
+            {
+                if (!WhatsAppInboundContentParser.IsIgnorableInboundNoise(message.Content, message.MediaId))
+                {
+                    persistableMsgs.Add(message);
+                    continue;
+                }
+
+                LogProcessed(
+                    trace,
+                    message.WabaId,
+                    message.PhoneNumberId,
+                    message.ExternalMessageId,
+                    message.CitizenHandle,
+                    "message",
+                    message.MessageType,
+                    WhatsAppWebhookProcessingResult.IgnoredNoise,
+                    WhatsAppWebhookSkipReason.UnsupportedWithoutMedia);
+            }
+
+            if (persistableMsgs.Count == 0)
             {
                 continue;
             }
@@ -127,6 +227,20 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             else if (conversation.IsBlocked)
             {
                 // Engellenen numara inbound yazamaz; liste sırasını da oynatma (#3537).
+                foreach (var message in persistableMsgs)
+                {
+                    LogProcessed(
+                        trace,
+                        message.WabaId,
+                        message.PhoneNumberId,
+                        message.ExternalMessageId,
+                        message.CitizenHandle,
+                        "message",
+                        message.MessageType,
+                        WhatsAppWebhookProcessingResult.Blocked,
+                        WhatsAppWebhookSkipReason.ConversationBlocked);
+                }
+
                 continue;
             }
             else if (latestAt > conversation.LastMessageAt)
@@ -134,7 +248,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 conversation.LastMessageAt = latestAt;
             }
 
-            conversation.UnreadCount += persistableMsgs.Length;
+            conversation.UnreadCount += persistableMsgs.Count;
             // Yeni inbound → manuel "Yanıt Verildi İşaretle" sıfırlanır (#6a6bab12).
             conversation.WaitingReplyClearedAtUtc = null;
 
@@ -211,6 +325,16 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 }
 
                 savedCount++;
+                LogProcessed(
+                    trace,
+                    msg.WabaId,
+                    msg.PhoneNumberId,
+                    msg.ExternalMessageId,
+                    citizenHandle,
+                    "message",
+                    msg.MessageType,
+                    WhatsAppWebhookProcessingResult.Created,
+                    null);
             }
 
             // Aynı webhook batch'inde görsel+metin gibi çoklu inbound yalnız bir auto-reply tetikler (#3361).
@@ -262,6 +386,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
     private async Task<int> ProcessMessageEchoesAsync(
         Guid tenantId,
         JsonElement payload,
+        WebhookTrace trace,
         CancellationToken cancellationToken)
     {
         var echoes = ParseMessageEchoes(payload);
@@ -270,16 +395,48 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             return 0;
         }
 
-        var externalIds = echoes.Select(echo => echo.ExternalMessageId).ToArray();
+        var acceptedEchoes = new List<WhatsAppEchoMessage>();
+        foreach (var echo in echoes)
+        {
+            if (TryAcceptPhone(trace, echo.PhoneNumberId, echo.WabaId, echo.ExternalMessageId, echo.CitizenHandle, "echo", echo.MessageType))
+            {
+                acceptedEchoes.Add(echo);
+            }
+        }
+
+        if (acceptedEchoes.Count == 0)
+        {
+            return 0;
+        }
+
+        var externalIds = acceptedEchoes.Select(echo => echo.ExternalMessageId).ToArray();
         var existingExternalIds = await _dbContext.ConversationEntries
             .Where(entry => entry.ExternalEntryId != null && externalIds.Contains(entry.ExternalEntryId))
             .Select(entry => entry.ExternalEntryId)
             .ToHashSetAsync(cancellationToken);
 
-        var newEchoes = echoes
-            .Where(echo => !existingExternalIds.Contains(echo.ExternalMessageId))
-            .ToArray();
-        if (newEchoes.Length == 0)
+        var newEchoes = new List<WhatsAppEchoMessage>();
+        foreach (var echo in acceptedEchoes)
+        {
+            if (!existingExternalIds.Contains(echo.ExternalMessageId))
+            {
+                newEchoes.Add(echo);
+                continue;
+            }
+
+            LogProcessed(
+                trace,
+                echo.WabaId,
+                echo.PhoneNumberId,
+                echo.ExternalMessageId,
+                echo.CitizenHandle,
+                "echo",
+                echo.MessageType,
+                WhatsAppWebhookProcessingResult.Duplicate,
+                WhatsAppWebhookSkipReason.AlreadyStored);
+        }
+
+        if (newEchoes.Count == 0)
         {
             return 0;
         }
@@ -390,6 +547,16 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 }
 
                 savedCount++;
+                LogProcessed(
+                    trace,
+                    echo.WabaId,
+                    echo.PhoneNumberId,
+                    echo.ExternalMessageId,
+                    citizenHandle,
+                    "echo",
+                    echo.MessageType,
+                    WhatsAppWebhookProcessingResult.Created,
+                    null);
             }
         }
 
@@ -580,9 +747,21 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             : WhatsAppInboundContentParser.NormalizeInboundMediaFileName(content[start..end]);
     }
 
-    private async Task<int> ProcessStatusUpdatesAsync(Guid tenantId, JsonElement payload, CancellationToken cancellationToken)
+    private async Task<int> ProcessStatusUpdatesAsync(
+        Guid tenantId,
+        JsonElement payload,
+        WebhookTrace trace,
+        CancellationToken cancellationToken)
     {
-        var statuses = ParseStatuses(payload);
+        var statuses = new List<WhatsAppStatusUpdate>();
+        foreach (var status in ParseStatuses(payload))
+        {
+            if (TryAcceptPhone(trace, status.PhoneNumberId, status.WabaId, status.ExternalMessageId, status.RecipientId, "status", status.Status))
+            {
+                statuses.Add(status);
+            }
+        }
+
         if (statuses.Count == 0)
         {
             return 0;
@@ -605,6 +784,11 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
         if (entries.Count == 0)
         {
+            foreach (var status in statuses)
+            {
+                LogStatus(trace, status, WhatsAppWebhookSkipReason.EntryNotFound);
+            }
+
             return 0;
         }
 
@@ -618,11 +802,13 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         {
             if (!entriesByExternalId.TryGetValue(status.ExternalMessageId, out var row))
             {
+                LogStatus(trace, status, WhatsAppWebhookSkipReason.EntryNotFound);
                 continue;
             }
 
             if (!ConversationDeliveryStatusHelper.TryParseWhatsAppStatus(status.Status, out var parsedStatus))
             {
+                LogStatus(trace, status, WhatsAppWebhookSkipReason.UnrecognizedStatus);
                 continue;
             }
 
@@ -633,6 +819,17 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 {
                     changedConversationIds.Add(row.CitizenConversationId.Value);
                 }
+
+                LogStatus(
+                    trace,
+                    status,
+                    string.Equals(status.Status, "failed", StringComparison.OrdinalIgnoreCase)
+                        ? WhatsAppWebhookSkipReason.DeliveryFailed
+                        : null);
+            }
+            else
+            {
+                LogStatus(trace, status, WhatsAppWebhookSkipReason.Unchanged);
             }
         }
 
@@ -688,6 +885,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             if (!entry.TryGetProperty("changes", out var changes) || changes.ValueKind != JsonValueKind.Array)
                 continue;
 
+            var wabaId = GetString(entry, "id");
             foreach (var change in changes.EnumerateArray())
             {
                 if (!change.TryGetProperty("value", out var value) ||
@@ -695,6 +893,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     messages.ValueKind != JsonValueKind.Array)
                     continue;
 
+                var phoneNumberId = ReadPhoneNumberId(value);
                 foreach (var message in messages.EnumerateArray())
                 {
                     var externalMessageId = GetString(message, "id");
@@ -707,7 +906,18 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         receivedAtUtc = DateTimeOffset.FromUnixTimeSeconds(ts);
 
                     var (content, mediaId, mediaMimeType, lat, lon) = WhatsAppInboundContentParser.Parse(message);
-                    result.Add(new WhatsAppIncomingMessage(externalMessageId, citizenHandle, content, mediaId, mediaMimeType, receivedAtUtc, lat, lon));
+                    result.Add(new WhatsAppIncomingMessage(
+                        externalMessageId,
+                        citizenHandle,
+                        content,
+                        mediaId,
+                        mediaMimeType,
+                        receivedAtUtc,
+                        lat,
+                        lon,
+                        phoneNumberId,
+                        wabaId,
+                        GetString(message, "type")));
                 }
             }
         }
@@ -725,6 +935,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
         foreach (var entry in entries.EnumerateArray())
         {
+            var wabaId = GetString(entry, "id");
             if (!entry.TryGetProperty("changes", out var changes) || changes.ValueKind != JsonValueKind.Array)
             {
                 continue;
@@ -739,6 +950,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     continue;
                 }
 
+                var phoneNumberId = ReadPhoneNumberId(value);
                 foreach (var message in messageEchoes.EnumerateArray())
                 {
                     var externalMessageId = GetString(message, "id");
@@ -761,7 +973,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         content,
                         mediaId,
                         mediaMimeType,
-                        sentAtUtc));
+                        sentAtUtc,
+                        phoneNumberId,
+                        wabaId,
+                        GetString(message, "type")));
                 }
             }
         }
@@ -779,6 +994,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
         foreach (var entry in entries.EnumerateArray())
         {
+            var wabaId = GetString(entry, "id");
             if (!entry.TryGetProperty("changes", out var changes) || changes.ValueKind != JsonValueKind.Array)
             {
                 continue;
@@ -793,6 +1009,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     continue;
                 }
 
+                var phoneNumberId = ReadPhoneNumberId(value);
                 foreach (var status in statuses.EnumerateArray())
                 {
                     var externalMessageId = GetString(status, "id");
@@ -812,7 +1029,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         externalMessageId,
                         statusValue,
                         statusAtUtc,
-                        ParseStatusError(status)));
+                        ParseStatusError(status),
+                        phoneNumberId,
+                        wabaId,
+                        GetString(status, "recipient_id")));
                 }
             }
         }
@@ -848,19 +1068,138 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
     private static string? GetString(JsonElement el, string prop) =>
         el.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
 
+    private static string? ReadPhoneNumberId(JsonElement value) =>
+        value.TryGetProperty("metadata", out var metadata)
+            ? GetString(metadata, "phone_number_id")
+            : null;
+
+    private bool TryAcceptPhone(
+        WebhookTrace trace,
+        string? payloadPhoneNumberId,
+        string? wabaId,
+        string? messageId,
+        string? sender,
+        string eventType,
+        string? messageType)
+    {
+        if (!WhatsAppWebhookForensics.IsPhoneNumberMismatch(payloadPhoneNumberId, trace.ExpectedPhoneNumberId))
+        {
+            return true;
+        }
+
+        LogProcessed(
+            trace,
+            wabaId,
+            payloadPhoneNumberId,
+            messageId,
+            sender,
+            eventType,
+            messageType,
+            WhatsAppWebhookProcessingResult.PhoneNumberMismatch,
+            WhatsAppWebhookSkipReason.PhoneNumberMismatch);
+        return false;
+    }
+
+    private void LogStatus(WebhookTrace trace, WhatsAppStatusUpdate status, string? skipReason) =>
+        LogProcessed(
+            trace,
+            status.WabaId,
+            status.PhoneNumberId,
+            status.ExternalMessageId,
+            status.RecipientId,
+            "status",
+            status.Status,
+            WhatsAppWebhookProcessingResult.StatusOnly,
+            skipReason);
+
+    private void LogProcessed(
+        WebhookTrace trace,
+        string? wabaId,
+        string? phoneNumberId,
+        string? messageId,
+        string? sender,
+        string eventType,
+        string? messageType,
+        WhatsAppWebhookProcessingResult result,
+        string? skipReason)
+    {
+        trace.Add(result);
+        _logger.Log(
+            result == WhatsAppWebhookProcessingResult.Failed ? LogLevel.Warning : LogLevel.Information,
+            "WhatsApp webhook processed. CorrelationId={CorrelationId} WabaId={WabaId} PhoneNumberId={PhoneNumberId} MessageId={MessageId} Sender={Sender} EventType={EventType} MessageType={MessageType} Result={Result} SkipReason={SkipReason}",
+            trace.CorrelationId,
+            wabaId,
+            phoneNumberId,
+            messageId,
+            WhatsAppWebhookForensics.MaskSender(sender),
+            eventType,
+            messageType,
+            result,
+            skipReason);
+    }
+
+    private sealed class WebhookTrace(string correlationId, string expectedPhoneNumberId)
+    {
+        public string CorrelationId { get; } = correlationId;
+        public string ExpectedPhoneNumberId { get; } = expectedPhoneNumberId;
+        public int Created { get; private set; }
+        public int Duplicate { get; private set; }
+        public int IgnoredNoise { get; private set; }
+        public int StatusOnly { get; private set; }
+        public int Blocked { get; private set; }
+        public int PhoneNumberMismatch { get; private set; }
+        public int Failed { get; set; }
+        public int EventCount =>
+            Created + Duplicate + IgnoredNoise + StatusOnly + Blocked + PhoneNumberMismatch + Failed;
+
+        public void Add(WhatsAppWebhookProcessingResult result)
+        {
+            switch (result)
+            {
+                case WhatsAppWebhookProcessingResult.Created:
+                    Created++;
+                    break;
+                case WhatsAppWebhookProcessingResult.Duplicate:
+                    Duplicate++;
+                    break;
+                case WhatsAppWebhookProcessingResult.IgnoredNoise:
+                    IgnoredNoise++;
+                    break;
+                case WhatsAppWebhookProcessingResult.StatusOnly:
+                    StatusOnly++;
+                    break;
+                case WhatsAppWebhookProcessingResult.Blocked:
+                    Blocked++;
+                    break;
+                case WhatsAppWebhookProcessingResult.PhoneNumberMismatch:
+                    PhoneNumberMismatch++;
+                    break;
+                case WhatsAppWebhookProcessingResult.Failed:
+                    Failed++;
+                    break;
+            }
+        }
+    }
+
     private sealed record WhatsAppEchoMessage(
         string ExternalMessageId,
         string CitizenHandle,
         string Content,
         string? MediaId,
         string? MediaMimeType,
-        DateTimeOffset SentAtUtc);
+        DateTimeOffset SentAtUtc,
+        string? PhoneNumberId,
+        string? WabaId,
+        string? MessageType);
 
     private sealed record WhatsAppStatusUpdate(
         string ExternalMessageId,
         string Status,
         DateTimeOffset StatusAtUtc,
-        string? ErrorMessage);
+        string? ErrorMessage,
+        string? PhoneNumberId,
+        string? WabaId,
+        string? RecipientId);
 
     private sealed record WhatsAppIncomingMessage(
         string ExternalMessageId,
@@ -870,7 +1209,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         string? MediaMimeType,
         DateTimeOffset ReceivedAtUtc,
         double? Latitude,
-        double? Longitude);
+        double? Longitude,
+        string? PhoneNumberId,
+        string? WabaId,
+        string? MessageType);
 
     private sealed record PendingWhatsAppAutoReply(
         Guid TenantId,

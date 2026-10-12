@@ -2,6 +2,8 @@ import { AlertTriangle, ArrowLeft, ArrowUp, CalendarClock, CalendarDays, Clock3,
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { restoreSessionFromCookie } from '../api/auth'
+import { touchSessionActivity } from '../utils/sessionActivity'
 import { api } from '../api/client'
 import { AppFooter } from '../components/layout/AppFooter'
 import { Button } from '../components/ui/button'
@@ -207,6 +209,14 @@ export function WallboardPage() {
     setError(null)
 
     try {
+      // Otomatik yenile cookie'yi kaydırır; erişim jetonu dolunca oturum düşmez (#4194).
+      const session = await restoreSessionFromCookie()
+      if (!session) {
+        setError(t('common.error'))
+        return
+      }
+      touchSessionActivity()
+
       const [tasks, jobs, socialMessages] = await Promise.all([
         api.getTasks('all'),
         api.getJobs('active'),

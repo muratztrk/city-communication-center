@@ -552,6 +552,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 
 - **WhatsApp webhook forensics:** imzası doğrulanmış webhook gövdesi `WhatsApp webhook body` satırında, `CorrelationId` ile, en fazla 16 KB Information loglanır (telefon ve mesaj metni dahil; Serilog saklama 14 gün). Geçersiz imzada gövde loglanmaz. Her istek `CorrelationId` (`TraceIdentifier`, yanıt başlığı `X-Correlation-Id`) ile Information loglanır. `receivedCount: 0` özeti `Created` / `Duplicate` / `IgnoredNoise` / `StatusOnly` / `Blocked` / `PhoneNumberMismatch` sayaçlarıyla ayrılır. Payload'daki `phone_number_id` tenant ayarından farklıysa o olay kaydedilmez.
+- **Vatandaş Talepleri grid (#4199):** Talep Etiketi kolonu yok; yerine bağlı talebin başlığı
+  (Talep Başlığı).
+- **WhatsApp mesaj logu (#4198):** Talep Oluşturan görünümünde Talebi Oluşturan'ın sağında
+  Talep Başlığı (`job.Title`).
 
 - **Gelen WA balonunda üst satır gönderen etiketi:** isim varsa isim (+telefon), yoksa telefon;
   `ConversationPanel` → `inboundSenderLabel` (card #1716). Vatandaş Talebi Oluştur dahil.
@@ -1735,6 +1739,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`xl:grid-cols-2`, `items-stretch` + `h-full`; dış/`grid` `gap-6` eşit düşey boşluk;
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
   Syslog | Mail Bildirimi (#3909/#3906) | Veritabanı Yedeği / Kurum İçi Mesajlar | reCAPTCHA (#2952).
+  Syslog iletimi ayardaki aktarımı kullanır: `TCP` ise TCP (2 sn, satır sonu), aksi UDP (#4200).
   Kurum İçi Mesajlar kutusu yalnız `isModuleUsable('internal')` iken görünür (#3914).
   SMTP sunucu Default/Specify yok — düz textbox, placeholder `Mail sunucu ip'si giriniz...`.
   Etiketler: Kullanıcı Adı, Parola, Gönderen adresi. Gönderen adresinden sonra
@@ -3633,6 +3638,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen kanal (#r545):** VT satırında sosyal kanal yoksa unlinked `SocialMessage` → `Phone`
   (chart ile aynı); `?? WhatsApp` varsayımı yok. `citizen=1` tüm VT; `channel=` alias eşleşmeli.
 - **Operator Taleplerim dilimi (#r545):** Staff gibi `Onaylanmış/Yapılmakta`.
+- **Wallboard oturum (#4194):** `/display` her yenilemede cookie oturumunu kaydırır
+  (`restoreSessionFromCookie`) ve `touchSessionActivity` ile diğer sekmedeki 9 saat
+  hareketsizlik sayacını sıfırlar; otomatik yenileme oturumu düşürmez.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş kanal ikonu Talep No'nun
   solundadır; Oluşturan satırında ikon yoktur (#4184). Vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
@@ -3862,6 +3870,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `*`; altındaki karakter uyarıları yoktur (#4147). Gönder, konu 4 ve açıklama 10 karakterden kısa olunca kapalı kalır.
 - **Lumespec Destek detay (#4117/#4116):** Destek Bilgileri başlığının sağında etiket yok;
   üstte Destek No, altında biraz daha küçük öncelik metni, sağa yaslı. Talep Durumu değeri `text-xs`.
+- **Lumespec Destek numarası (#4196):** grid ve detay DESTEK no `centralTicketNo`
+  (destek.lumespec.com); yerel `Tire-YYYY-N` gösterilmez.
+- **Lumespec `waiting_customer` (#4195):** etiket "Sizden çözüm onayı bekleniyor"; pill turuncu
+  zemin, beyaz yazı. Diğer bekleyen durumlar açık mavi kalır.
+- **Ayarlar Destek Talepleri sekmesi (#4197):** sekme düğmesi yok; `?tab=support` Kurum'a düşer.
 - **Lumespec Destek grid Talep Durumu (#4154):** `StatusPill` (Çözüm Bekleyen açık mavi `sky-100`,
   çözümlenen success, senkron hatası danger). Grid tarih başlığı **Talep Tarihi**.
   Hücre verisi Vatandaş Talepleri ile aynı: numara `table-number-cell`, tarihler `DateCell`,

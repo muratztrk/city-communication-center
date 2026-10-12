@@ -950,7 +950,7 @@ const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
 }
 
 function readTab(tab: string | null): SettingsTab {
-  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'mailNotifications' || tab === 'templates' || tab === 'license' || tab === 'support' ? tab : 'tenant'
+  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'mailNotifications' || tab === 'templates' || tab === 'license' ? tab : 'tenant'
 }
 
 const SETTINGS_TAB_LABEL_KEYS: Record<SettingsTab, string> = {
@@ -2933,9 +2933,6 @@ export function SettingsPage() {
             )}
             <button className={`tab-button ${activeTab === 'license' ? 'active' : ''}`} onClick={() => setTab('license')} type="button">
               {t('settings.tabs.license', 'Lisans')}
-            </button>
-            <button className={`tab-button ${activeTab === 'support' ? 'active' : ''}`} onClick={() => setTab('support')} type="button">
-              {t('settings.tabs.support', 'Destek Talepleri')}
             </button>
           </div>
         </div>

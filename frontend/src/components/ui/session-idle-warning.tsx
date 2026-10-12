@@ -6,14 +6,14 @@ import { Button } from './button'
 import { ModalBackdrop } from './modal-backdrop'
 import { isSessionSupersededPending } from '../../api/sessionFlags'
 import { restoreSessionFromCookie } from '../../api/auth'
+import { sessionActivityKeys } from '../../utils/sessionActivity'
 
 /** 9 saat hareketsizlik → popup yok, direkt logout (#3424). */
 const IDLE_LOGOUT_MS = 9 * 60 * 60_000
-/** Cookie ExpireMinutes ile aynı; aktivitede kayar — aktif kullanıcı oturumu sınırsız (#3424). */
-const SESSION_LIFETIME_MS = 540 * 60_000
+const SESSION_LIFETIME_MS = sessionActivityKeys.lifetimeMs
 const WARNING_COUNTDOWN_SECONDS = 60
-const LAST_ACTIVITY_KEY = 'ccc_last_activity_at'
-const SESSION_DEADLINE_KEY = 'ccc_session_deadline_at'
+const LAST_ACTIVITY_KEY = sessionActivityKeys.lastActivity
+const SESSION_DEADLINE_KEY = sessionActivityKeys.deadline
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [
   'mousedown',
@@ -218,6 +218,22 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     document.addEventListener('visibilitychange', onWakeOrVisible)
     window.addEventListener('focus', onWakeOrVisible)
     window.addEventListener('pageshow', onWakeOrVisible)
+    const onActivityStorage = (event: StorageEvent) => {
+      if (event.key !== LAST_ACTIVITY_KEY || !event.newValue) return
+      const value = Number(event.newValue)
+      if (!Number.isFinite(value) || value <= lastActivityAtRef.current) return
+      lastActivityAtRef.current = value
+      sessionDeadlineRef.current = value + SESSION_LIFETIME_MS
+      if (warningOpenRef.current) {
+        warningOpenRef.current = false
+        warningOpenedAtRef.current = null
+        setIsWarningOpen(false)
+        setSecondsLeft(WARNING_COUNTDOWN_SECONDS)
+      }
+      startIdleTimer()
+      startSessionWarningTimer()
+    }
+    window.addEventListener('storage', onActivityStorage)
     return () => {
       clearIdleTimer()
       clearSessionTimer()
@@ -228,6 +244,7 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
       document.removeEventListener('visibilitychange', onWakeOrVisible)
       window.removeEventListener('focus', onWakeOrVisible)
       window.removeEventListener('pageshow', onWakeOrVisible)
+      window.removeEventListener('storage', onActivityStorage)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only idle watchers
   }, [])

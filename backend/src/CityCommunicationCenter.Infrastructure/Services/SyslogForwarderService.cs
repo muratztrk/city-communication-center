@@ -34,8 +34,16 @@ public sealed class SyslogForwarderService : ISyslogForwarderService
 
             var severity = MapSeverity(auditLog.Action);
             var message = BuildSyslogMessage(severity, auditLog);
+            var port = payload.Port > 0 ? payload.Port : 514;
 
-            await SendUdpAsync(payload.Host, payload.Port, message, cancellationToken);
+            if (string.Equals(payload.Transport, "TCP", StringComparison.OrdinalIgnoreCase))
+            {
+                await SendTcpAsync(payload.Host, port, message, cancellationToken);
+            }
+            else
+            {
+                await SendUdpAsync(payload.Host, port, message, cancellationToken);
+            }
         }
         catch
         {
@@ -70,8 +78,19 @@ public sealed class SyslogForwarderService : ISyslogForwarderService
     {
         using var udpClient = new UdpClient();
         var bytes = Encoding.UTF8.GetBytes(message);
-        await udpClient.SendAsync(bytes, bytes.Length, host, port);
-        await Task.CompletedTask;
+        await udpClient.SendAsync(bytes, host, port, cancellationToken);
+    }
+
+    private static async Task SendTcpAsync(string host, int port, string message, CancellationToken cancellationToken)
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token);
+        using var client = new TcpClient();
+        await client.ConnectAsync(host, port, linked.Token);
+        await using var stream = client.GetStream();
+        // RFC 6587 non-transparent framing: mesaj + LF.
+        var bytes = Encoding.UTF8.GetBytes(message + "\n");
+        await stream.WriteAsync(bytes, linked.Token);
     }
 
     private sealed class SyslogPayload

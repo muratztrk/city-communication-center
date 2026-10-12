@@ -836,6 +836,7 @@ export interface WhatsAppMessageApprovalLogItem {
   citizenRequestNumber?: number | null;
   citizenRequestNumberYear?: number | null;
   jobId?: string | null;
+  requestTitle?: string | null;
 }
 
 export interface SmsOutboundLogsResponse {

@@ -36,3 +36,8 @@ export function isCentralSupportStatusResolved(status: string | null | undefined
 export function isCentralSupportStatusWaiting(status: string | null | undefined): boolean {
   return !isCentralSupportStatusResolved(status)
 }
+
+/** Lumespec `waiting_customer`: çözüm onayı bekleniyor (#4195). */
+export function isCentralSupportSolutionApproval(status: string | null | undefined): boolean {
+  return normalizeCentralSupportStatusKey(status) === 'waiting_customer'
+}

@@ -1,3 +1,13 @@
+## Round 1467 — ekran oturumu, destek, grid, syslog
+
+- [x] #4194: Ekrana yansıt yenilemesi cookie oturumunu kaydırır, diğer sekmenin hareketsizlik sayacını sıfırlar.
+- [x] #4196: Destek numarası merkezi DESTEK no (`centralTicketNo`).
+- [x] #4195: `waiting_customer` "Sizden çözüm onayı bekleniyor", turuncu pill, beyaz yazı.
+- [x] #4197: Ayarlar Destek Talepleri sekme düğmesi kalktı.
+- [x] #4198: WhatsApp mesaj logunda Talebi Oluşturan'ın sağında Talep Başlığı.
+- [x] #4199: Vatandaş Talepleri gridinde Talep Etiketi yerine Talep Başlığı.
+- [x] #4200: Syslog TCP seçiliyse TCP, değilse UDP gider.
+
 ## Round 1466 — üst düzey Taleplerim pie
 
 - [x] Anasayfa - Birimler: Üst Düzey Yönetici'de Taleplerim pie'ı e-Devlet'in yanına geri geldi.

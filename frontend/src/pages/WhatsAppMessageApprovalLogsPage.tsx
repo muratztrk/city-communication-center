@@ -97,6 +97,7 @@ export function WhatsAppMessageApprovalLogsPage() {
           citizenRequestNumberYear: row.citizenRequestNumberYear,
           receivedAtUtc: row.eventTimeUtc,
         }, locale),
+        requestTitleText: row.requestTitle?.trim() || '—',
         dateText: new Date(row.eventTimeUtc).toLocaleString(locale, {
           day: '2-digit',
           month: '2-digit',
@@ -115,6 +116,7 @@ export function WhatsAppMessageApprovalLogsPage() {
       if (key === 'actedAt' || key === 'requestDate') return item.dateText
       if (key === 'requestNo') return item.requestNoText
       if (key === 'creator') return item.actorText
+      if (key === 'requestTitle') return item.requestTitleText
       return ''
     }))
     if (!sortKey) return filtered
@@ -138,7 +140,7 @@ export function WhatsAppMessageApprovalLogsPage() {
   const selectedFilter = KIND_FILTERS.find(filter => filter.value === kind) ?? KIND_FILTERS[0]
   const showReviewColumns = kind === 'reviewRequested'
   const showRequestCreator = kind === 'requestCreated'
-  const columnCount = showRequestCreator ? 7 : showReviewColumns ? BASE_COLUMN_COUNT + 2 : BASE_COLUMN_COUNT
+  const columnCount = showRequestCreator ? 8 : showReviewColumns ? BASE_COLUMN_COUNT + 2 : BASE_COLUMN_COUNT
 
   return (
     <div className="page-stack desktop-page-shell">
@@ -230,6 +232,18 @@ export function WhatsAppMessageApprovalLogsPage() {
                     onSort={handleSort}
                   >
                     {t('whatsappMessageApprovalLogs.columns.creator', 'Talebi Oluşturan')}
+                  </FilterableTh>
+                  <FilterableTh
+                    className="whatsapp-log-title-col"
+                    filterKey="requestTitle"
+                    filterValue={filters['requestTitle'] ?? ''}
+                    onFilter={handleFilter}
+                    sortKey="requestTitleText"
+                    currentSortKey={sortKey}
+                    sortDir={sortDir}
+                    onSort={handleSort}
+                  >
+                    {t('jobs.form.title', 'Talep Başlığı')}
                   </FilterableTh>
                   <FilterableTh
                     className="whatsapp-log-destination-col"
@@ -349,6 +363,7 @@ export function WhatsAppMessageApprovalLogsPage() {
                   </td>
                   <td><DateCell value={row.eventTimeUtc} locale={locale} /></td>
                   <td>{row.actorText}</td>
+                  <td>{row.requestTitleText}</td>
                   <td>{row.destinationText}</td>
                   <td className="actions-cell">
                     <div className="flex justify-center">

@@ -17,8 +17,9 @@ import { getLocale } from '../utils/localization'
 import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
 import { DateCell } from '../components/ui/date-cell'
 import { StatusPill } from '../components/ui/status-pill'
-import { buildLumespecSupportTicketDisplayMap, formatLumespecSupportTicketNo } from '../utils/lumespecSupportTicket'
+import { formatLumespecSupportTicketNo } from '../utils/lumespecSupportTicket'
 import {
+  isCentralSupportSolutionApproval,
   isCentralSupportStatusResolved,
   isCentralSupportStatusWaiting,
 } from '../utils/centralSupportStatus'
@@ -58,17 +59,12 @@ export function LumespecSupportPage() {
 
   const detailItem = (requestsQuery.data ?? []).find(item => item.supportRequestId === detailId) ?? null
 
-  const ticketDisplayMap = useMemo(
-    () => buildLumespecSupportTicketDisplayMap(requestsQuery.data ?? []),
-    [requestsQuery.data],
-  )
-
   const rows = useMemo(() => {
     const source = (requestsQuery.data ?? []).map(item => {
       const statusLabel = resolveSupportRequestStatusLabel(t, item.centralStatus, item.centralSyncError)
       return {
         ...item,
-        ticketNoText: formatLumespecSupportTicketNo(item, ticketDisplayMap),
+        ticketNoText: formatLumespecSupportTicketNo(item),
         requestDateText: new Date(item.createdAtUtc).toLocaleString(locale, {
           day: '2-digit',
           month: '2-digit',
@@ -110,7 +106,7 @@ export function LumespecSupportPage() {
       return [...filtered].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc))
     }
     return sortItems(filtered)
-  }, [locale, matchesFilters, requestsQuery.data, scope, sortItems, sortKey, t, ticketDisplayMap])
+  }, [locale, matchesFilters, requestsQuery.data, scope, sortItems, sortKey, t])
 
   const showResolvedAt = scope === 'resolved' || scope === 'all'
   const columnCount = BASE_COLUMN_COUNT + (showResolvedAt ? 1 : 0)
@@ -265,7 +261,11 @@ export function LumespecSupportPage() {
                     <td>
                       <StatusPill
                         tone={row.centralSyncError ? 'danger' : isCentralSupportStatusResolved(row.centralStatus) ? 'success' : 'info'}
-                        className={!row.centralSyncError && !isCentralSupportStatusResolved(row.centralStatus) ? '!bg-sky-100 !text-sky-700 !ring-sky-200' : undefined}
+                        className={isCentralSupportSolutionApproval(row.centralStatus)
+                          ? '!bg-orange-500 !text-white !ring-orange-500'
+                          : !row.centralSyncError && !isCentralSupportStatusResolved(row.centralStatus)
+                            ? '!bg-sky-100 !text-sky-700 !ring-sky-200'
+                            : undefined}
                       >
                         {row.statusLabel}
                       </StatusPill>
@@ -309,7 +309,7 @@ export function LumespecSupportPage() {
         <SupportRequestDetailModal
           item={detailItem}
           userDisplayName={userDisplayName}
-          ticketDisplayNo={formatLumespecSupportTicketNo(detailItem, ticketDisplayMap)}
+          ticketDisplayNo={formatLumespecSupportTicketNo(detailItem)}
           onClose={() => setDetailId(null)}
         />
       ) : null}

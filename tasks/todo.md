@@ -1,3 +1,7 @@
+## Round 1471 — WhatsApp liste durumu önceliği
+
+- [x] #4204: WhatsApp listesinde hem Yanıt bekliyor hem Mesaj Onayı Bekleyen ise satırda Yanıt bekliyor görünür.
+
 ## Round 1470 — sistem yöneticisi talep oluştur lisansı
 
 - [x] #4202: Sistem Yöneticisinde Talep Oluştur lisansa göre açılır. Yalnız vatandaş: çağrı talebi. Yalnız kurum içi: Birim İçi ve Birim Dışı. İkisi birden: üçü.

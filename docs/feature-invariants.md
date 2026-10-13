@@ -585,8 +585,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mobilde (`max-width: 1023px`) açılan inceleme paneli tetikleyiciyle aynı genişliktedir; +48px yalnız masaüstü, sağa (#6ab19450, #6ab23335).
   Bu dropdown yalnız WhatsApp Mesajları sayfasındadır; Vatandaş Talebi Oluştur popup'ında yoktur (#6ab18e55).
   Kapalı tetikleyici placeholder rengi Dosya ekle ile aynıdır (`slate-700` / `#334155`, #6ab190a5).
-- **WA Mesaj Onayı Bekleyen liste/header (#6ab13aac/#6ab13e72):** `hasPendingMessageApproval` kuyruğu `Yanıt bekliyor`dan önceliklidir;
-  `Mesaj Onayı/Cevabı Verildi Yap` yalnız bu kuyruk aktifken görünür (24s penceresi engeli yok).
+- **WA Mesaj Onayı Bekleyen liste/header (#6ab13aac/#6ab13e72, #4204):** Liste satırında hem **Yanıt bekliyor** hem `hasPendingMessageApproval` varsa ifade ve avatar noktası **Yanıt bekliyor** (turuncu) olur. Yalnız onay kuyruğu varsa kırmızı **Mesaj Onayı Bekleyen** durur.
+  Header'da `Mesaj Onayı/Cevabı Verildi Yap` yalnız bu kuyruk aktifken görünür (24s penceresi engeli yok) ve yanıt bekleme butonundan önce gelir.
 
 - **Operatör WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091 / #2600).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında mesajı GÖNDERMEZ (`SendImmediately` yok sayılır), `DeliveryStatus=Pending` entry
@@ -618,9 +618,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `POST .../mark-pending-approval-cleared` → `PendingApprovalClearedAtUtc`. İşaretlendikten sonra aynı yerde **Yanıt Verildi**
   durum etiketi görünür (#3389).
   `/whatsapp` liste chip seçili renk (#6aad09c9): **Yanıt bekleyen** turuncu (`bg-orange-500`), **Mesaj Onayı Bekleyen**
-  kırmızı (`bg-red-500`), **Tümü** yeşil (`bg-emerald-800`). Satır durumu (#6aad0118): `hasPendingMessageApproval`
+  kırmızı (`bg-red-500`), **Tümü** yeşil (`bg-emerald-800`). Satır durumu (#6aad0118, #4204): `hasPendingMessageApproval`
   + açık talep + yanıt beklenmiyorsa yeşil **Yanıt Verildi** yerine kırmızı **Mesaj Onayı Bekleyen** metni
-  ve avatar sağ-alt kırmızı nokta (yeşil nokta değil).
+  ve avatar sağ-alt kırmızı nokta (yeşil nokta değil). İkisi birden yanıt bekliyorsa turuncu **Yanıt bekliyor**.
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekleyen` sağında; `hasPendingMessageApproval`
   = iletilmemiş Beklemede giden (personel yanıtı + yönetici onaylı Tamamlandı/İptal şablon; re-engagement
   Failed dahil). `PendingApprovalClearedAtUtc` ("Mesaj Onayı/Cevabı Verildi Yap") ≥ iletilmemiş

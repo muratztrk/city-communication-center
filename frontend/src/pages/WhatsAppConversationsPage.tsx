@@ -247,17 +247,17 @@ function ConversationListItem({
   const listTimestamp = conversationListTimestamp(conv)
   const timeLabel = formatWhatsAppConversationListTime(listTimestamp, locale, t)
   const recentTime = isRecentConversationTime(listTimestamp)
-  const responseStatus = pendingApprovalStatus ? (
-    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
-      <span className="size-1.5 rounded-full bg-red-500" aria-hidden="true" />
-      {t('whatsapp.listFilter.pendingApproval', 'Mesaj Onayı Bekleyen')}
-    </span>
-  ) : waitingForResponse ? (
+  const responseStatus = waitingForResponse ? (
     <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
       <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
       {t('whatsapp.waitingForResponse', 'Yanıt bekliyor')}
     </span>
-  ) : !waitingForResponse && ticketOpen ? (
+  ) : pendingApprovalStatus ? (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
+      <span className="size-1.5 rounded-full bg-red-500" aria-hidden="true" />
+      {t('whatsapp.listFilter.pendingApproval', 'Mesaj Onayı Bekleyen')}
+    </span>
+  ) : ticketOpen ? (
     // Arka plan rengi yok — sadece nokta + metin (card #1440).
     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
       <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
@@ -300,7 +300,7 @@ function ConversationListItem({
           {(isUrgent || pendingApprovalStatus || waitingForResponse || ticketOpen) && (
             <span
               className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full ring-2 ring-white ${
-                pendingApprovalStatus
+                pendingApprovalStatus && !waitingForResponse
                   ? 'bg-red-500'
                   : isUrgent || waitingForResponse
                     ? 'bg-orange-400'

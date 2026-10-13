@@ -3869,8 +3869,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `*`; altındaki karakter uyarıları yoktur (#4147). Gönder, konu 4 ve açıklama 10 karakterden kısa olunca kapalı kalır.
 - **Lumespec Destek detay (#4117/#4116):** Destek Bilgileri başlığının sağında etiket yok;
   üstte Destek No, altında biraz daha küçük öncelik metni, sağa yaslı. Talep Durumu değeri `text-xs`.
-- **Lumespec Destek numarası (#4196):** grid ve detay DESTEK no `centralTicketNo`
-  (destek.lumespec.com); yerel `Tire-YYYY-N` gösterilmez.
+- **Lumespec Destek numarası (#4196):** grid, detay ve destek popup'ı `centralTicketNo`
+  gösterir; `TIRE-2026-000034` ekranda `Tire-2026-34` olur (önek ilk harf büyük, sıra
+  başındaki sıfırlar yok). Eşleşmeyen biçim olduğu gibi kalır.
 - **Lumespec `waiting_customer` (#4195):** etiket "Sizden çözüm onayı bekleniyor"; pill turuncu
   zemin, beyaz yazı. Diğer bekleyen durumlar açık mavi kalır.
 - **Ayarlar Destek Talepleri sekmesi (#4197):** sekme düğmesi yok; `?tab=support` Kurum'a düşer.

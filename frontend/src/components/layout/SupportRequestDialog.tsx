@@ -8,6 +8,7 @@ import { ModalBackdrop } from '../ui/modal-backdrop'
 import { api } from '../../api/client'
 import { queryKeys } from '../../api/queryKeys'
 import { formatCentralSupportStatus } from '../../utils/centralSupportStatus'
+import { formatLumespecSupportTicketNo } from '../../utils/lumespecSupportTicket'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../../utils/attachmentAccept'
 import { exceedsAttachmentTotalLimit, sumFileSizes } from '../../utils/attachmentLimits'
 import { pickAttachmentFiles, supportsAttachmentFilePicker } from '../../utils/attachmentFilePicker'
@@ -323,7 +324,7 @@ export function SupportRequestDialog({ open, onClose, variant = 'default' }: Sup
                           <div>
                             <p className="text-sm font-semibold text-slate-900">{item.subject}</p>
                             <p className="mt-1 text-xs text-slate-500">
-                              {item.centralTicketNo ?? t('support.localTicket', 'Yerel kayıt')}
+                              {item.centralTicketNo ? formatLumespecSupportTicketNo(item) : t('support.localTicket', 'Yerel kayıt')}
                             </p>
                           </div>
                           {centralStatusLabel ? (

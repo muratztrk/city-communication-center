@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { formatLumespecSupportTicketNo } from '../utils/lumespecSupportTicket'
 import { queryKeys } from '../api/queryKeys'
 import { invalidateSettings } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
@@ -5707,7 +5708,7 @@ export function SettingsPage() {
                       <td className="whitespace-nowrap">{new Date(item.createdAtUtc).toLocaleString('tr-TR')}</td>
                       <td className="whitespace-nowrap">{item.submittedByDisplayName}</td>
                       <td className="whitespace-nowrap font-mono text-xs text-slate-600">
-                        {item.centralTicketNo ?? item.centralSyncError ?? '—'}
+                        {item.centralTicketNo ? formatLumespecSupportTicketNo(item) : (item.centralSyncError ?? '—')}
                       </td>
                       <td className="font-semibold text-slate-800">{item.subject}</td>
                       <td className="max-w-md whitespace-pre-wrap text-slate-600">{item.message}</td>

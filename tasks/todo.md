@@ -1,3 +1,7 @@
+## Round 1469 — destek numarası biçimi
+
+- [x] #4196: Merkez DESTEK no `TIRE-2026-000034` ekranda `Tire-2026-34`.
+
 ## Round 1468 — talep başlığı kolonları geri alındı
 
 - [x] #4198: WhatsApp mesaj logunda Talebi Oluşturan sağındaki Talep Başlığı kolonu kalktı.

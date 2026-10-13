@@ -1,3 +1,7 @@
+## Round 1470 — sistem yöneticisi talep oluştur lisansı
+
+- [x] #4202: Sistem Yöneticisinde Talep Oluştur lisansa göre açılır. Yalnız vatandaş: çağrı talebi. Yalnız kurum içi: Birim İçi ve Birim Dışı. İkisi birden: üçü.
+
 ## Round 1469 — destek numarası biçimi
 
 - [x] #4196: Merkez DESTEK no `TIRE-2026-000034` ekranda `Tire-2026-34`.

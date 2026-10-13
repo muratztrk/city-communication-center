@@ -347,7 +347,8 @@ export function CreateRequestPage() {
 
   useEffect(() => muteNewRecordSoundWhileMounted(), [])
 
-  const canCreateCitizenRequest = user?.role === 'Operator'
+  const isSystemAdmin = user?.role === 'SystemAdmin' || (user?.additionalRoles ?? []).includes('SystemAdmin')
+  const canCreateCitizenRequest = user?.role === 'Operator' || isSystemAdmin
   const canShowCitizenRequest = canCreateCitizenRequest && isModuleUsable('citizen')
   const districtId = useMunicipalityDistrictId()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
@@ -671,18 +672,19 @@ export function CreateRequestPage() {
   }, [selectedKind, internalForm.ownerDepartmentId, ownerDepartmentOptions, myDepartmentId, editJobId])
 
   useEffect(() => {
-    if (!isModuleUsable('internal') && user?.role !== 'Operator') {
+    const canUseCitizenOnlyCreate = (user?.role === 'Operator' || isSystemAdmin) && isModuleUsable('citizen')
+    if (!isModuleUsable('internal') && !canUseCitizenOnlyCreate) {
       navigate(getDefaultLandingPath(user), { replace: true })
       return
     }
-    if (!isModuleUsable('internal') && user?.role === 'Operator' && (kindParam === 'internal' || kindParam === 'external')) {
+    if (!isModuleUsable('internal') && (kindParam === 'internal' || kindParam === 'external')) {
       navigate(canShowCitizenRequest ? '/requests/new?kind=citizen' : getDefaultLandingPath(user), { replace: true })
       return
     }
     if ((rawKindParam && !kindParam) || (kindParam === 'citizen' && !canShowCitizenRequest)) {
       navigate('/requests/new', { replace: true })
     }
-  }, [canShowCitizenRequest, kindParam, navigate, rawKindParam, user])
+  }, [canShowCitizenRequest, isSystemAdmin, kindParam, navigate, rawKindParam, user])
 
   // Üst Düzey Yönetici "Talep Oluştur"a tıkladığında doğrudan Birim Dışı formu açılır.
   useEffect(() => {
@@ -691,12 +693,12 @@ export function CreateRequestPage() {
     }
   }, [isReporter, selectedKind, navigate])
 
-  // Operator + Kurum İçi kapalı: yalnız Vatandaş Çağrı Talebi (#2376).
+  // Operator veya Sistem Yöneticisi + yalnız vatandaş lisansı: doğrudan Vatandaş Çağrı Talebi (#2376, #4202).
   useEffect(() => {
-    if (user?.role === 'Operator' && !selectedKind && !isModuleUsable('internal') && canShowCitizenRequest) {
+    if ((user?.role === 'Operator' || isSystemAdmin) && !selectedKind && !isModuleUsable('internal') && canShowCitizenRequest) {
       navigate('/requests/new?kind=citizen', { replace: true })
     }
-  }, [user?.role, selectedKind, canShowCitizenRequest, navigate])
+  }, [user?.role, isSystemAdmin, selectedKind, canShowCitizenRequest, navigate])
 
 
   const addPickedFiles = (incoming: File[]) => {

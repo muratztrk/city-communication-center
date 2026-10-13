@@ -1157,8 +1157,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız
   `updateCitizenConversationProfile` ve WA **Vatandaş Bilgileri** panelinden yazılır.
   yatay buton görünümünde kalır; form başlığındaki ikon, seçim kartındaki mavi zeminli telefon ikonuyla aynıdır.
-- **Talep Oluştur Vatandaş kartı lisans (#2357):** tür seçim ekranındaki `Vatandaş Çağrı Talebi`
-  kartı yalnız `Operator` rolü **ve** `citizen` modülü kullanılabilirken görünür (`canShowCitizenRequest`).
+- **Talep Oluştur Vatandaş kartı lisans (#2357, #4202):** tür seçim ekranındaki `Vatandaş Çağrı Talebi`
+  kartı `Operator` veya `SystemAdmin` **ve** `citizen` modülü kullanılabilirken görünür (`canShowCitizenRequest`).
+  Sistem Yöneticisinde sol menü `Talep Oluştur`, sayfa matrisinden bağımsız lisansa bağlıdır:
+  yalnız vatandaş lisansı → çağrı talebi; yalnız kurum içi → Birim İçi ve Birim Dışı; ikisi birden → üçü.
+  Yalnız vatandaş lisansında form doğrudan açılır (#2376).
 - **Vatandaş Talebi detay düzenleme:** Detay popup'ta `Düzenle` aktifken `Ekler / Fotoğraflar`
   bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**

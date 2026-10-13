@@ -308,9 +308,17 @@ export function canAnyRoleAccessPage(roles: readonly (string | undefined)[] | un
   const effectiveRoles = (roles ?? [])
     .filter((role): role is RoleCode => !!role && isRoleCode(role))
 
-  // Kurum İçi lisans kapalıyken yalnız Operator Talep Oluştur'a girebilir (citizen VT) (#2368).
-  if (pageKey === 'createRequest' && !isModuleUsable('internal')) {
-    return effectiveRoles.includes('Operator') && isModuleUsable('citizen')
+  // Talep Oluştur lisans kapısı (#2368, #4202). Sistem Yöneticisi sayfa matrisinden bağımsız:
+  // vatandaş lisansı varsa çağrı talebi, kurum içi lisansı varsa birim içi/dışı.
+  if (pageKey === 'createRequest') {
+    const citizen = isModuleUsable('citizen')
+    const internal = isModuleUsable('internal')
+    if (effectiveRoles.includes('SystemAdmin')) {
+      return citizen || internal
+    }
+    if (!internal) {
+      return effectiveRoles.includes('Operator') && citizen
+    }
   }
 
   if (!isPageLicenseUsable(pageKey)) {

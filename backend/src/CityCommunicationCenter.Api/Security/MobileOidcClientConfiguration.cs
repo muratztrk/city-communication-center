@@ -12,4 +12,9 @@ public sealed record MobileOidcClientConfiguration(string ClientId, string Redir
     public bool Matches(string? clientId, string? redirectUri) =>
         string.Equals(ClientId, clientId, StringComparison.Ordinal)
         && string.Equals(RedirectUri, redirectUri, StringComparison.Ordinal);
+
+    /// Password-grant calls from the native executive app. reCAPTCHA v2 is a
+    /// browser checkbox and cannot run on that login screen.
+    public bool IsRegisteredClient(string? clientId) =>
+        string.Equals(ClientId, clientId, StringComparison.Ordinal);
 }

@@ -14,6 +14,9 @@ public sealed class MobileOidcClientConfigurationTests
 
         Assert.True(client.Matches("ccc-mobile", "ccc.mobile:/oauth2redirect"));
         Assert.False(client.Matches("ccc-mobile", "https://untrusted.example/callback"));
+        Assert.True(client.IsRegisteredClient("ccc-mobile"));
+        Assert.False(client.IsRegisteredClient("web"));
+        Assert.False(client.IsRegisteredClient(null));
     }
 
     [Fact]

@@ -69,14 +69,20 @@ public sealed class AuthController : ControllerBase
 
         if (Guid.TryParse(tenantId, out var parsedTenantId))
         {
-            var captchaFailure = await ValidateRecaptchaIfRequiredAsync(
-                parsedTenantId,
-                request.Username,
-                request.GetParameter("recaptcha_token")?.ToString(),
-                cancellationToken);
-            if (captchaFailure is not null)
+            // The native app signs in with the registered mobile client id.
+            // Web session login still requires the checkbox when reCAPTCHA is on.
+            var mobileClient = MobileOidcClientConfiguration.FromConfiguration(_configuration);
+            if (!mobileClient.IsRegisteredClient(request.ClientId))
             {
-                return captchaFailure;
+                var captchaFailure = await ValidateRecaptchaIfRequiredAsync(
+                    parsedTenantId,
+                    request.Username,
+                    request.GetParameter("recaptcha_token")?.ToString(),
+                    cancellationToken);
+                if (captchaFailure is not null)
+                {
+                    return captchaFailure;
+                }
             }
 
             if (await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))

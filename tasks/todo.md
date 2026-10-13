@@ -1,3 +1,8 @@
+## Round 1468 — talep başlığı kolonları geri alındı
+
+- [x] #4198: WhatsApp mesaj logunda Talebi Oluşturan sağındaki Talep Başlığı kolonu kalktı.
+- [x] #4199: Vatandaş Talepleri gridinde Talep Etiketi ve etiket seçici geri geldi.
+
 ## Round 1467 — ekran oturumu, destek, grid, syslog
 
 - [x] #4194: Ekrana yansıt yenilemesi cookie oturumunu kaydırır, diğer sekmenin hareketsizlik sayacını sıfırlar.

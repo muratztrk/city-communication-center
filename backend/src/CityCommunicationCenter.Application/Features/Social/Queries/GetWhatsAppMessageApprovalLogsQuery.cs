@@ -172,8 +172,7 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 null,
                 message.CitizenRequestNumber,
                 message.CitizenRequestNumberYear,
-                job.JobId,
-                job.Title))
+                job.JobId))
             .Take(MaxItems)
             .ToListAsync(cancellationToken);
     }

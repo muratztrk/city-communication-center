@@ -424,8 +424,7 @@ public sealed record WhatsAppMessageApprovalLogItemResponse(
     string? ReviewerDisplayName = null,
     int? CitizenRequestNumber = null,
     int? CitizenRequestNumberYear = null,
-    Guid? JobId = null,
-    string? RequestTitle = null);
+    Guid? JobId = null);
 
 public sealed record SocialConversationMediaMaintenanceRequest(
     IReadOnlyList<Guid> EntryIds);

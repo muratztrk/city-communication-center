@@ -11,6 +11,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
+import { RequestTagPicker } from '../components/RequestTagDialog'
 import { Button } from '../components/ui/button'
 import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
@@ -18,7 +19,7 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
-import type { Department, JobSummary, SocialMessage } from '../types/platform'
+import type { Department, JobSummary, RequestTag, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
@@ -41,16 +42,18 @@ async function loadCitizenInbox(embedded: boolean) {
     return {
       messageList,
       jobList,
+      tagList: [] as RequestTag[],
       departmentList: [] as Department[],
     }
   }
 
-  const [messageList, jobList, departmentList] = await Promise.all([
+  const [messageList, jobList, tagList, departmentList] = await Promise.all([
     api.getSocialMessages(),
     jobsPromise,
+    api.getRequestTags().catch(() => [] as RequestTag[]),
     api.getDepartments().catch(() => [] as Department[]),
   ])
-  return { messageList, jobList, departmentList }
+  return { messageList, jobList, tagList, departmentList }
 }
 
 function getChannelBadgeSeenAt(channel: string): string | null {
@@ -288,6 +291,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
   const [managerApprovalPendingFilter, setManagerApprovalPendingFilter] = useState(
     embedded ? false : parseSocialManagerApprovalPendingFilter(searchParams),
   )
+  const [requestTags, setRequestTags] = useState<RequestTag[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [badgeSeenTick, setBadgeSeenTick] = useState(0)
   const [routingMessageId, setRoutingMessageId] = useState<string | null>(null)
@@ -315,13 +319,14 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
     let isActive = true
 
     void loadCitizenInbox(embedded)
-      .then(({ messageList, jobList, departmentList }) => {
+      .then(({ messageList, jobList, tagList, departmentList }) => {
         if (!isActive) {
           return
         }
 
         setMessages(messageList)
         setJobsById(new Map(jobList.map(job => [job.jobId, job])))
+        setRequestTags(tagList)
         setDepartments(departmentList)
       })
       .catch(loadError => {
@@ -347,10 +352,11 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
     setError('')
 
     try {
-      const { messageList, jobList, departmentList } = await loadCitizenInbox(embedded)
+      const { messageList, jobList, tagList, departmentList } = await loadCitizenInbox(embedded)
 
       setMessages(messageList)
       setJobsById(new Map(jobList.map(job => [job.jobId, job])))
+      setRequestTags(tagList)
       setDepartments(departmentList)
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
@@ -359,6 +365,27 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
         setLoading(false)
       }
     }
+  }
+
+  const handleCategorySelect = async (message: SocialMessage, category: string) => {
+    try {
+      await api.updateSocialMessage(message.socialMessageId, {
+        channel: message.channel,
+        citizenHandle: message.citizenHandle,
+        content: message.content ?? '',
+        category,
+        latitude: message.latitude ?? undefined,
+        longitude: message.longitude ?? undefined,
+      })
+      invalidateSocialMessages(queryClient, message.socialMessageId)
+      await reload({ quiet: true })
+    } catch (updateError) {
+      setError(updateError instanceof Error ? updateError.message : t('common.error'))
+    }
+  }
+
+  const handleCategoryClear = async (message: SocialMessage) => {
+    await handleCategorySelect(message, '')
   }
 
   const handleMobileAppDepartmentAssign = async (message: SocialMessage, departmentId: string) => {
@@ -411,7 +438,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
       priority: linkedJob?.priority ?? '',
       statusSortText: linkedJob ? getLinkedJobDisplayStatus(t, linkedJob, dueDateUtc) : '',
       statusAtUtc: getSocialMessageStatusAtUtc(message, linkedJob),
-      requestTitle: linkedJob?.title?.trim() ?? '',
+      labelSortText: message.category ?? '',
     }
   }), [messages, jobsById, locale, t])
 
@@ -441,10 +468,10 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
         message.citizenHandle,
         message.content,
         message.category,
-        message.requestTitle,
         message.assignedDepartmentName,
         message.priority,
         message.statusSortText,
+        message.labelSortText,
       ].filter(Boolean).join(' ').toLocaleLowerCase('tr').includes(query))
     }
 
@@ -486,7 +513,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
         citizenPhone?: string
         dueDateUtc?: string | null
         statusSortText?: string
-        requestTitle?: string
+        labelSortText?: string
       }
       if (key === 'citizenPhone') {
         return String(row.citizenPhone ?? '').replace(/\D/g, '').replace(/^90/, '')
@@ -498,7 +525,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
         return formatDateTime(row.dueDateUtc, locale)
       }
       if (key === 'channel') return getSocialChannelLabel(t, row.channel)
-      if (key === 'requestTitle') return row.requestTitle ?? ''
+      if (key === 'labelSortText') return row.labelSortText ?? row.category ?? ''
       return String((item as Record<string, unknown>)[key] ?? '')
     })),
     [filteredMessages, locale, socialMatchesFilters, t],
@@ -727,7 +754,7 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                 )}
                 <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
                 {embedded ? null : (
-                <FilterableTh filterKey="requestTitle" filterValue={socialFilters['requestTitle'] ?? ''} onFilter={setSocialFilter} sortKey="requestTitle" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.form.title', 'Talep Başlığı')}</FilterableTh>
+                <FilterableTh filterKey="labelSortText" filterValue={socialFilters['labelSortText'] ?? ''} onFilter={setSocialFilter} sortKey="labelSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('whatsapp.label', 'Talep Etiketi')}</FilterableTh>
                 )}
                 <th>{t('common.actions')}</th>
               </tr>
@@ -845,8 +872,23 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                       })()}
                     </td>
                     {embedded ? null : (
-                    <td className="font-semibold text-slate-700">
-                      {linkedJob?.title?.trim() || '—'}
+                    <td className="text-center">
+                      <div className="inline-flex w-full justify-center">
+                        <RequestTagPicker
+                          key={`${message.socialMessageId}-${messagesPage}`}
+                          tags={requestTags}
+                          selectedName={message.category}
+                          emptyLabel={t('whatsapp.requestTagsGridEmpty', 'Etiketler')}
+                          matchTriggerWidth
+                          disabled={linkedJob != null && !isCitizenProcessingReceivedState({
+                            status: linkedJob.status,
+                            dueDateUtc: message.dueDateUtc ?? linkedJob.dueDateUtc ?? null,
+                            taskCount: linkedJob.taskCount ?? 0,
+                          })}
+                          onSelect={name => { void handleCategorySelect(message, name) }}
+                          onClear={() => { void handleCategoryClear(message) }}
+                        />
+                      </div>
                     </td>
                     )}
                     <td className="actions-cell">

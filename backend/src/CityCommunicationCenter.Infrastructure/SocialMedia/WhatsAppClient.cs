@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using CityCommunicationCenter.Application.Features.Social;
 
 namespace CityCommunicationCenter.Infrastructure.SocialMedia;
 
@@ -108,14 +109,14 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
 
     public async Task<SocialMediaResult> SendMessageAsync(SendMessageRequest request, CancellationToken ct = default)
     {
-        var payload = new
+        var payload = new Dictionary<string, object?>
         {
-            messaging_product = "whatsapp",
-            recipient_type = "individual",
-            to = request.RecipientId, // Phone number in international format
-            type = "text",
-            text = new { body = request.Message }
+            ["messaging_product"] = "whatsapp",
+            ["recipient_type"] = "individual",
+            ["type"] = "text",
+            ["text"] = new { body = request.Message }
         };
+        SetRecipient(payload, request.RecipientId);
 
         var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";
         var response = await PostJsonAsync(url, payload, ct);
@@ -175,14 +176,14 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
             mediaPayload["filename"] = request.FileName;
         }
 
-        var payload = new Dictionary<string, object>
+        var payload = new Dictionary<string, object?>
         {
             ["messaging_product"] = "whatsapp",
             ["recipient_type"] = "individual",
-            ["to"] = request.RecipientId,
             ["type"] = mediaType,
             [mediaType] = mediaPayload
         };
+        SetRecipient(payload, request.RecipientId);
 
         var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";
         var response = await PostJsonAsync(url, payload, ct);
@@ -275,15 +276,15 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
     public async Task<SocialMediaResult> ReplyAsync(ReplyRequest request, CancellationToken ct = default)
     {
         // Reply to a message using context
-        var payload = new
+        var payload = new Dictionary<string, object?>
         {
-            messaging_product = "whatsapp",
-            recipient_type = "individual",
-            to = request.RecipientId,
-            type = "text",
-            context = new { message_id = request.OriginalMessageId },
-            text = new { body = request.Content }
+            ["messaging_product"] = "whatsapp",
+            ["recipient_type"] = "individual",
+            ["type"] = "text",
+            ["context"] = new { message_id = request.OriginalMessageId },
+            ["text"] = new { body = request.Content }
         };
+        SetRecipient(payload, request.RecipientId);
 
         var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";
         var response = await PostJsonAsync(url, payload, ct);
@@ -357,19 +358,19 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
             });
         }
 
-        var payload = new
+        var payload = new Dictionary<string, object?>
         {
-            messaging_product = "whatsapp",
-            recipient_type = "individual",
-            to = phoneNumber,
-            type = "template",
-            template = new
+            ["messaging_product"] = "whatsapp",
+            ["recipient_type"] = "individual",
+            ["type"] = "template",
+            ["template"] = new
             {
                 name = templateName,
                 language = new { code = languageCode },
                 components = components.Count > 0 ? components : null
             }
         };
+        SetRecipient(payload, phoneNumber);
 
         var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";
         var response = await PostJsonAsync(url, payload, ct);
@@ -404,14 +405,14 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
         if (!string.IsNullOrEmpty(caption))
             mediaPayload["caption"] = caption;
 
-        var payload = new Dictionary<string, object>
+        var payload = new Dictionary<string, object?>
         {
             ["messaging_product"] = "whatsapp",
             ["recipient_type"] = "individual",
-            ["to"] = phoneNumber,
             ["type"] = mediaType,
             [mediaType] = mediaPayload
         };
+        SetRecipient(payload, phoneNumber);
 
         var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";
         var response = await PostJsonAsync(url, payload, ct);
@@ -459,14 +460,14 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
         if (!string.IsNullOrEmpty(footerText))
             interactive["footer"] = new { text = footerText };
 
-        var payload = new
+        var payload = new Dictionary<string, object?>
         {
-            messaging_product = "whatsapp",
-            recipient_type = "individual",
-            to = phoneNumber,
-            type = "interactive",
-            interactive
+            ["messaging_product"] = "whatsapp",
+            ["recipient_type"] = "individual",
+            ["type"] = "interactive",
+            ["interactive"] = interactive
         };
+        SetRecipient(payload, phoneNumber);
 
         var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";
         var response = await PostJsonAsync(url, payload, ct);
@@ -597,6 +598,18 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
         return value.ValueKind == JsonValueKind.String && double.TryParse(value.GetString(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out number)
             ? number
             : null;
+    }
+
+    private static void SetRecipient(Dictionary<string, object?> payload, string? recipient)
+    {
+        var value = recipient?.Trim() ?? string.Empty;
+        if (WhatsAppBusinessScopedUserId.IsValid(value))
+        {
+            payload["recipient"] = value;
+            return;
+        }
+
+        payload["to"] = value;
     }
 
     private async Task<HttpResponseMessage> PostJsonAsync(string url, object payload, CancellationToken ct)

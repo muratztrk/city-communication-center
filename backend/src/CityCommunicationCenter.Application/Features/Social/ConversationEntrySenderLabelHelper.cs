@@ -10,6 +10,11 @@ public static class ConversationEntrySenderLabelHelper
         if (string.IsNullOrWhiteSpace(raw)) return "Vatandaş";
 
         var trimmed = raw.Trim();
+        if (WhatsAppBusinessScopedUserId.IsValid(trimmed))
+        {
+            return trimmed;
+        }
+
         var atIndex = trimmed.IndexOf('@');
         if (atIndex >= 0) trimmed = trimmed[..atIndex];
 

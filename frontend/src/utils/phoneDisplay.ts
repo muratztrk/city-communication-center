@@ -2,10 +2,12 @@ import { formatNationalPhoneGroups, splitCitizenPhone } from './countryCallingCo
 
 /** Grid/detay telefon: uluslararası kodlu `+90 5XX XXX XX XX` (#3573). */
 export function formatDirectoryPhone(phone: string | null | undefined): string {
-  if (!phone?.trim()) return ''
-  const digits = phone.replace(/\D/g, '')
-  if (!digits) return phone.trim()
-  const { dial, national } = splitCitizenPhone(phone)
+  const trimmed = phone?.trim()
+  if (!trimmed) return ''
+  if (/^[A-Za-z]{2}\.[A-Za-z0-9.]+$/.test(trimmed)) return trimmed
+  const digits = trimmed.replace(/\D/g, '')
+  if (!digits) return trimmed
+  const { dial, national } = splitCitizenPhone(trimmed)
   if (!national) return `+${dial}`
   return `+${dial} ${formatNationalPhoneGroups(national)}`
 }

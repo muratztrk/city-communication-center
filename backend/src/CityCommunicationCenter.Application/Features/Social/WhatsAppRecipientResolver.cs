@@ -19,11 +19,21 @@ public static class WhatsAppRecipientResolver
             {
                 return NormalizePhoneDigits(conversationPhone!);
             }
+
+            if (WhatsAppBusinessScopedUserId.IsValid(conversationPhone))
+            {
+                return conversationPhone!.Trim();
+            }
         }
 
         if (LooksLikePhone(message.CitizenHandle))
         {
             return NormalizePhoneDigits(message.CitizenHandle);
+        }
+
+        if (WhatsAppBusinessScopedUserId.IsValid(message.CitizenHandle))
+        {
+            return message.CitizenHandle.Trim();
         }
 
         // Çağrı / form taleplerinde konuşma telefonu yoksa Job.CitizenPhone (#6a75eea2).

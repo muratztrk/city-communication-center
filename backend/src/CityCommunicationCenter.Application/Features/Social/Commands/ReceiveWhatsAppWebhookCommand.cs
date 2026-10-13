@@ -248,6 +248,14 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 conversation.LastMessageAt = latestAt;
             }
 
+            var profileName = persistableMsgs
+                .Select(message => message.DisplayName)
+                .LastOrDefault(name => !string.IsNullOrWhiteSpace(name));
+            if (string.IsNullOrWhiteSpace(conversation.CitizenName) && !string.IsNullOrWhiteSpace(profileName))
+            {
+                conversation.CitizenName = profileName.Trim();
+            }
+
             conversation.UnreadCount += persistableMsgs.Count;
             // Yeni inbound → manuel "Yanıt Verildi İşaretle" sıfırlanır (#6a6bab12).
             conversation.WaitingReplyClearedAtUtc = null;
@@ -309,9 +317,12 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     MediaMimeType = msg.MediaMimeType,
                     ExternalEntryId = msg.ExternalMessageId,
                     SentAt = msg.ReceivedAtUtc,
-                    SenderLabel = ConversationEntrySenderLabelHelper.FormatCitizenPhone(
-                        citizenHandle,
-                        conversation.CitizenPhone),
+                    SenderLabel = WhatsAppBusinessScopedUserId.IsValid(citizenHandle)
+                        ? (string.IsNullOrWhiteSpace(msg.DisplayName) ? conversation.CitizenName : msg.DisplayName.Trim())
+                          ?? "Vatandaş"
+                        : ConversationEntrySenderLabelHelper.FormatCitizenPhone(
+                            citizenHandle,
+                            conversation.CitizenPhone),
                 });
 
                 if (!string.IsNullOrWhiteSpace(msg.MediaId))
@@ -897,9 +908,13 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 foreach (var message in messages.EnumerateArray())
                 {
                     var externalMessageId = GetString(message, "id");
-                    var citizenHandle = GetString(message, "from");
+                    var phone = GetString(message, "from");
+                    var userId = GetString(message, "from_user_id");
+                    var citizenHandle = WhatsAppBusinessScopedUserId.ResolveHandle(phone, userId);
                     if (string.IsNullOrWhiteSpace(externalMessageId) || string.IsNullOrWhiteSpace(citizenHandle))
                         continue;
+
+                    var displayName = WhatsAppBusinessScopedUserId.ReadProfileName(value, phone, userId);
 
                     var receivedAtUtc = DateTimeOffset.UtcNow;
                     if (long.TryParse(GetString(message, "timestamp"), out var ts))
@@ -917,7 +932,8 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         lon,
                         phoneNumberId,
                         wabaId,
-                        GetString(message, "type")));
+                        GetString(message, "type"),
+                        displayName));
                 }
             }
         }
@@ -954,7 +970,9 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 foreach (var message in messageEchoes.EnumerateArray())
                 {
                     var externalMessageId = GetString(message, "id");
-                    var citizenHandle = GetString(message, "to");
+                    var citizenHandle = WhatsAppBusinessScopedUserId.ResolveHandle(
+                        GetString(message, "to"),
+                        GetString(message, "to_user_id"));
                     if (string.IsNullOrWhiteSpace(externalMessageId) || string.IsNullOrWhiteSpace(citizenHandle))
                     {
                         continue;
@@ -1032,7 +1050,9 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         ParseStatusError(status),
                         phoneNumberId,
                         wabaId,
-                        GetString(status, "recipient_id")));
+                        WhatsAppBusinessScopedUserId.ResolveHandle(
+                            GetString(status, "recipient_id"),
+                            GetString(status, "recipient_user_id"))));
                 }
             }
         }
@@ -1212,7 +1232,8 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         double? Longitude,
         string? PhoneNumberId,
         string? WabaId,
-        string? MessageType);
+        string? MessageType,
+        string? DisplayName);
 
     private sealed record PendingWhatsAppAutoReply(
         Guid TenantId,

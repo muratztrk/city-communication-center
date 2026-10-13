@@ -1,3 +1,7 @@
+## Round 1472 — onay filtresinde satır etiketi
+
+- [x] #4205: Mesaj Onayı Bekleyen chip'inde ikisi birden olan satır Mesaj Onayı Bekleyen yazar. Diğer listelerde Yanıt bekliyor durur.
+
 ## Round 1471 — WhatsApp liste durumu önceliği
 
 - [x] #4204: WhatsApp listesinde hem Yanıt bekliyor hem Mesaj Onayı Bekleyen ise satırda Yanıt bekliyor görünür.

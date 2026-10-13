@@ -229,10 +229,12 @@ function whatsappListFilterButtonClass(filter: ConversationListFilter, active: b
 function ConversationListItem({
   conv,
   selected,
+  listFilter,
   onClick,
 }: {
   conv: CitizenConversationSummary
   selected: boolean
+  listFilter: ConversationListFilter
   onClick: () => void
 }) {
   const { i18n, t } = useTranslation()
@@ -244,18 +246,20 @@ function ConversationListItem({
   const waitingForResponse = isWaitingForConversationResponse(conv)
   const ticketOpen = isConversationTicketOpen(conv)
   const pendingApprovalStatus = conversationHasPendingMessageApprovalQueue(conv)
+  const pendingLabelWins = pendingApprovalStatus
+    && (!waitingForResponse || listFilter === 'pendingApproval')
   const listTimestamp = conversationListTimestamp(conv)
   const timeLabel = formatWhatsAppConversationListTime(listTimestamp, locale, t)
   const recentTime = isRecentConversationTime(listTimestamp)
-  const responseStatus = waitingForResponse ? (
-    <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
-      <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
-      {t('whatsapp.waitingForResponse', 'Yanıt bekliyor')}
-    </span>
-  ) : pendingApprovalStatus ? (
+  const responseStatus = pendingLabelWins ? (
     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
       <span className="size-1.5 rounded-full bg-red-500" aria-hidden="true" />
       {t('whatsapp.listFilter.pendingApproval', 'Mesaj Onayı Bekleyen')}
+    </span>
+  ) : waitingForResponse ? (
+    <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-[10px] font-semibold text-orange-700">
+      <span className="size-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+      {t('whatsapp.waitingForResponse', 'Yanıt bekliyor')}
     </span>
   ) : ticketOpen ? (
     // Arka plan rengi yok — sadece nokta + metin (card #1440).
@@ -300,7 +304,7 @@ function ConversationListItem({
           {(isUrgent || pendingApprovalStatus || waitingForResponse || ticketOpen) && (
             <span
               className={`absolute -bottom-0.5 -right-0.5 size-3 rounded-full ring-2 ring-white ${
-                pendingApprovalStatus && !waitingForResponse
+                pendingLabelWins
                   ? 'bg-red-500'
                   : isUrgent || waitingForResponse
                     ? 'bg-orange-400'
@@ -604,6 +608,7 @@ function ConversationListPanel({
               key={conv.citizenConversationId}
               conv={conv}
               selected={conv.citizenConversationId === selectedId}
+              listFilter={listFilter}
               onClick={() => onSelect(conv.citizenConversationId)}
             />
           ))

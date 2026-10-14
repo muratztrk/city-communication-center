@@ -72,7 +72,7 @@ export function MyRequestDetailHeader({
               <Button
                 type="button"
                 size="lg"
-                className="inline-flex !h-auto min-h-10 items-center gap-1.5 py-1 !bg-orange-600 !text-white hover:!bg-orange-700"
+                className="inline-flex items-center gap-1.5 !bg-orange-600 !text-white hover:!bg-orange-700"
                 onClick={onForwardReturned}
               >
                 <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

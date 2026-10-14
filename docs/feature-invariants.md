@@ -532,7 +532,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   turkuaz `(Yönlendirilen Talep)` rozeti görünür. Detay `Talebin Yönlenme Sebebi` değerinde
   yönlendiren birim + yönlenme sebebi koyu turkuaz ama bold olmayan metinle gösterilir.
 - **Talep yönlendirme butonu (#4206):** buton yazısı iki satırdır; üstte `Farklı Birime`, altında
-  ortalı `Talebi Yönlendir`. Modal başlığı `Talebi Yönlendir` kalır.
+  ortalı `Talebi Yönlendir`. Yükseklik diğer başlık butonlarıyla aynı (`h-11`); yazı bir kademe küçüktür.
+  Modal başlığı `Talebi Yönlendir` kalır.
 - **Talep yönlendirme yetkisi (#3449/#3629):** Birime Gelen detay popup'ta hedef birimin müdürü,
   vekil müdürü, birim sorumlusu veya o hedefteki VTY `Talebi Yönlendir` kullanabilir; BE
   `CanManageJobAsDepartmentLeaderAsync` + VTY `CanManageCitizenRequestInTargetDepartmentAsync`.
@@ -3671,7 +3672,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünmez; `scope-chip-search-input` yazı ağırlığı yarı-kalın seviyede kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
   Mobil sol menüde Ekrana Yansıt satırı ve ona ait ayırıcı çizgiler gizlenir (`max-lg` + `a[href="/display"]`, #6a920522/#4207).
-  Müdür menüsünde `Personelimin Görevleri` altında iki kalın ayırıcı çizgi durur.
+  Müdür menüsünde `Personelimin Görevleri` altında önce ince, sonra kalın bir ayırıcı durur. Satırlar arasındaki ince çizgiler durur.
 
 ## 5b. Bildirimler (Notifications)
 

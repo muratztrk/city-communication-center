@@ -178,9 +178,8 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
       <nav className="grid grid-cols-[minmax(0,1fr)] gap-0">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
-          const nextIsSeparator = items[index + 1]?.type === 'separator'
           const displayLink = item.type !== 'separator' && item.type !== 'group' && item.path.split('?')[0] === '/display'
-          const separator = !isLast && !nextIsSeparator ? (
+          const separator = !isLast ? (
             <div className={cn('mx-2 h-px bg-white/[0.09]', displayLink && 'max-lg:hidden')} />
           ) : null
 

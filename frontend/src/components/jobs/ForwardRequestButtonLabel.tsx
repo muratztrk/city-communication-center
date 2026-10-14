@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 export function ForwardRequestButtonLabel() {
   const { t } = useTranslation()
   return (
-    <span className="inline-flex flex-col items-center text-center leading-tight">
+    <span className="inline-flex flex-col items-center text-center text-xs leading-none">
       <span>{t('jobs.actions.forwardDepartmentLine', 'Farklı Birime')}</span>
       <span>{t('jobs.actions.forward', 'Talebi Yönlendir')}</span>
     </span>

@@ -1,3 +1,10 @@
+## Round 1474 — yönlendir yüksekliği, telefon zıplaması, menü çizgisi
+
+- [x] #4206: Farklı Birime / Talebi Yönlendir butonu eski yüksekliğe döndü, yazı biraz küçüldü.
+- [x] #4210: Telefon kutusu yalnız telefonsuz sohbette çağrı formu gibi. Numarası olan sohbette sabit. Konuşma değişince kutu görünüp kaybolmaz.
+- [x] Kullanıcı adı yoksa başlık durur, değer `-`. Gelen kullanıcı adı alanı günceller.
+- [x] #4207: İnce çizgiler durur. Personelimin Görevleri altında 1 ince + 1 kalın çizgi.
+
 ## Round 1473 — WhatsApp kimlik ekranı, menü çizgisi, yönlendir, destek
 
 - [x] #4215: Vatandaş Bilgileri'nde WhatsApp Profil Adı ve User ID alanları gizli; log ve kolonlarda durur.

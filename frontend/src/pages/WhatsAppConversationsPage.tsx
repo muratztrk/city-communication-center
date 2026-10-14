@@ -900,6 +900,9 @@ function ConversationProfilePanel({
   onSave,
   onCreateRequest,
   canCreateRequest,
+  knownPhone,
+  knownUsername,
+  conversationId,
 }: {
   detail: CitizenConversationDetail | null
   draft: ConversationProfileDraft
@@ -908,6 +911,10 @@ function ConversationProfilePanel({
   onSave: () => void
   onCreateRequest?: () => void
   canCreateRequest?: boolean
+  /** Liste özeti. Detay gelene kadar telefon kutusu modu değişmesin (#6acf5780). */
+  knownPhone?: string | null
+  knownUsername?: string | null
+  conversationId: string
 }) {
   const { t } = useTranslation()
   const districtId = useMunicipalityDistrictId()
@@ -915,7 +922,8 @@ function ConversationProfilePanel({
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
   const neighborhoodFieldRef = useRef<HTMLDivElement>(null)
-  const phoneEntryRequired = !citizenPhoneOrEmpty(detail?.citizenPhone)
+  const phoneEntryRequired = !citizenPhoneOrEmpty(detail?.citizenPhone ?? knownPhone)
+  const usernameValue = (detail?.whatsAppUsername ?? knownUsername)?.trim() || '-'
   const phoneMissing = phoneEntryRequired && !looksLikePhone(draft.citizenPhone)
   const createLocked = Boolean(detail && !canCreateRequest && detail.operatorLockedByUserId)
   const [neighborhoodMenuWidth, setNeighborhoodMenuWidth] = useState(0)
@@ -999,7 +1007,7 @@ function ConversationProfilePanel({
           </span>
           {phoneEntryRequired ? (
             <UserIdPhoneField
-              key={detail?.citizenConversationId ?? 'new'}
+              key={conversationId}
               draftPhone={draft.citizenPhone}
               onDraftChange={onDraftChange}
             />
@@ -1008,8 +1016,8 @@ function ConversationProfilePanel({
           )}
         </label>
         <label className="block space-y-1">
-          <span className={labelClass}>{t('whatsapp.username', 'WhatsApp Kullanıcı Adı')}</span>
-          <input className={disabledFieldClass} value={detail?.whatsAppUsername?.trim() || '-'} readOnly disabled />
+          <span className={`${labelClass} block text-left`}>{t('whatsapp.username', 'WhatsApp Kullanıcı Adı')}</span>
+          <input className={`${disabledFieldClass} text-left`} value={usernameValue} readOnly disabled />
         </label>
         {/* Mahalle başlığı tıklanınca dropdown açılmasın — label yerine div (#6a75b6c1). */}
         <div ref={neighborhoodFieldRef} className="block space-y-1">
@@ -2197,6 +2205,9 @@ function ConversationDetail({
         </div>
         <ConversationProfilePanel
           detail={activeDetail}
+          conversationId={conversationId}
+          knownPhone={citizenPhone}
+          knownUsername={citizenUsername}
           draft={profileDraft}
           saving={profileSaving}
           onDraftChange={patch => {

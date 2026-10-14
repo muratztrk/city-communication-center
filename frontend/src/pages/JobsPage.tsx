@@ -29,6 +29,7 @@ import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
 import { Button } from '../components/ui/button'
+import { ForwardRequestButtonLabel } from '../components/jobs/ForwardRequestButtonLabel'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import { emitPageToast } from '../components/ui/pageToast'
@@ -2993,22 +2994,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button
                     type="button"
                     size="lg"
-                    className="inline-flex items-center gap-1.5 !bg-orange-600 !text-white hover:!bg-orange-700"
+                    className="inline-flex !h-auto min-h-10 items-center gap-1.5 py-1 !bg-orange-600 !text-white hover:!bg-orange-700"
                     onClick={openReturnedForwardModal}
                   >
                     <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('jobs.actions.forward', 'Talebi Yönlendir')}
+                    <ForwardRequestButtonLabel />
                   </Button>
                 )}
                 {canForwardTargetDetail && (
                   <Button
                     type="button"
                     size="lg"
-                    className="inline-flex items-center gap-1.5 bg-teal-700 text-white hover:bg-teal-800"
+                    className="inline-flex !h-auto min-h-10 items-center gap-1.5 bg-teal-700 py-1 text-white hover:bg-teal-800"
                     onClick={openForwardModal}
                   >
                     <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('jobs.actions.forward', 'Talebi Yönlendir')}
+                    <ForwardRequestButtonLabel />
                   </Button>
                 )}
                 {canCancelDetail && !hideIncomingApproveCancelByView && (

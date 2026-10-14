@@ -385,7 +385,7 @@ export function AppShell() {
     .toUpperCase()
   type NavLinkConfig = SidebarNavLinkItem & { pageKey?: PageAccessKey; requiredRole?: string }
 
-  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean; labelLines?: string[]; badgeCount?: number; iconClassName?: string }
+  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorAfterCount?: number; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean; labelLines?: string[]; badgeCount?: number; iconClassName?: string }
 
   const canSeeCitizenMessageApproval = useMemo(
     () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'citizenMessageApproval'),
@@ -532,8 +532,8 @@ export function AppShell() {
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
     { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks, badgeCount: navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount ?? 0 },
     { pageKey: 'departmentTasks' as const, path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban },
-    { path: '/staff-tasks', label: t('nav.staffTasks', 'Personelimin Görevleri'), icon: Users, requiredRole: 'Manager' },
-    { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp, newTab: true, separatorBefore: true, separatorAfter: true },
+    { path: '/staff-tasks', label: t('nav.staffTasks', 'Personelimin Görevleri'), icon: Users, requiredRole: 'Manager', separatorAfterCount: 2 },
+    { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp, newTab: true },
     { pageKey: 'settings' as const, path: '/settings', label: t('nav.settings'), icon: Settings2 },
     { pageKey: 'audit' as const, path: '/audit', label: t('nav.audit'), icon: ScrollText },
     { pageKey: 'users' as const, path: '/users', label: t('nav.users'), icon: Users },
@@ -577,7 +577,10 @@ export function AppShell() {
       } else {
         items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, labelLines: item.labelLines, badgeCount: item.badgeCount, newTab: item.newTab, iconClassName: item.iconClassName })
       }
-      if (item.separatorAfter) items.push({ type: 'separator' })
+      const separatorAfterCount = item.separatorAfterCount ?? (item.separatorAfter ? 1 : 0)
+      for (let separatorIndex = 0; separatorIndex < separatorAfterCount; separatorIndex += 1) {
+        items.push({ type: 'separator' })
+      }
     }
     return items
   }, [])

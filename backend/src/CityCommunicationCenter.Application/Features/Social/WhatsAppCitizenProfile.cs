@@ -36,12 +36,8 @@ public static class WhatsAppCitizenProfile
 
         if (!string.IsNullOrWhiteSpace(profileName))
         {
-            var name = profileName.Trim();
-            conversation.WhatsAppProfileName = name;
-            if (string.IsNullOrWhiteSpace(conversation.CitizenName))
-            {
-                conversation.CitizenName = name;
-            }
+            // Profil adı Vatandaş Adı'na kopyalanmaz; kutu operatör yazana kadar boş kalır (#4209).
+            conversation.WhatsAppProfileName = profileName.Trim();
         }
     }
 }

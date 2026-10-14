@@ -28,6 +28,8 @@ interface SupportRequestDetailModalProps {
   userDisplayName: string
   ticketDisplayNo: string
   onClose: () => void
+  /** Çözüm onayından sonra liste Çözümlendi sekmesine geçsin (#4137). */
+  onConfirmed?: () => void
 }
 
 function InfoRow({ label, value }: { label: string; value: ReactNode }) {
@@ -44,6 +46,7 @@ export function SupportRequestDetailModal({
   userDisplayName,
   ticketDisplayNo,
   onClose,
+  onConfirmed,
 }: SupportRequestDetailModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -61,6 +64,7 @@ export function SupportRequestDetailModal({
     mutationFn: () => api.confirmSupportRequestResolved(item.supportRequestId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.supportRequests.mine() })
+      onConfirmed?.()
       onClose()
     },
   })

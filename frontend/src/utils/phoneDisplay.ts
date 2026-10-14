@@ -1,5 +1,20 @@
 import { formatNationalPhoneGroups, splitCitizenPhone } from './countryCallingCodes'
 
+/** Meta BSUID (`TR.…`). Telefon değildir; rakama çevrilmez. */
+export function isWhatsAppBusinessScopedUserId(value: string | null | undefined): boolean {
+  const trimmed = value?.trim() ?? ''
+  return trimmed.length >= 4
+    && trimmed.length <= 128
+    && /^[A-Za-z]{2}\.[A-Za-z0-9.]+$/.test(trimmed)
+}
+
+/** Telefon kolonu BSUID ise boş sayılır (#4209/#4212). */
+export function citizenPhoneOrEmpty(value: string | null | undefined): string {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed || isWhatsAppBusinessScopedUserId(trimmed)) return ''
+  return trimmed
+}
+
 /** Grid/detay telefon: uluslararası kodlu `+90 5XX XXX XX XX` (#3573). */
 export function formatDirectoryPhone(phone: string | null | undefined): string {
   const trimmed = phone?.trim()

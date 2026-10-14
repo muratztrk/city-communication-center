@@ -178,8 +178,10 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
       <nav className="grid grid-cols-[minmax(0,1fr)] gap-0">
         {items.map((item, index) => {
           const isLast = index === items.length - 1
-          const separator = !isLast ? (
-            <div className="mx-2 h-px bg-white/[0.09]" />
+          const nextIsSeparator = items[index + 1]?.type === 'separator'
+          const displayLink = item.type !== 'separator' && item.type !== 'group' && item.path.split('?')[0] === '/display'
+          const separator = !isLast && !nextIsSeparator ? (
+            <div className={cn('mx-2 h-px bg-white/[0.09]', displayLink && 'max-lg:hidden')} />
           ) : null
 
           if (item.type === 'separator') {
@@ -189,7 +191,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
           if (item.type !== 'group') {
             return (
               <Fragment key={item.path}>
-                <div className="py-0.5">{renderLink(item)}</div>
+                <div className={cn('py-0.5', displayLink && 'max-lg:hidden')}>{renderLink(item)}</div>
                 {separator}
               </Fragment>
             )

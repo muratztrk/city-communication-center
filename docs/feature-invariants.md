@@ -531,6 +531,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   doluysa Birime Gelen detayında `Talebi Yönlendir` butonu çıkmaz; grid Talep No yanında koyu
   turkuaz `(Yönlendirilen Talep)` rozeti görünür. Detay `Talebin Yönlenme Sebebi` değerinde
   yönlendiren birim + yönlenme sebebi koyu turkuaz ama bold olmayan metinle gösterilir.
+- **Talep yönlendirme butonu (#4206):** buton yazısı iki satırdır; üstte `Farklı Birime`, altında
+  ortalı `Talebi Yönlendir`. Modal başlığı `Talebi Yönlendir` kalır.
 - **Talep yönlendirme yetkisi (#3449/#3629):** Birime Gelen detay popup'ta hedef birimin müdürü,
   vekil müdürü, birim sorumlusu veya o hedefteki VTY `Talebi Yönlendir` kullanabilir; BE
   `CanManageJobAsDepartmentLeaderAsync` + VTY `CanManageCitizenRequestInTargetDepartmentAsync`.
@@ -551,7 +553,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 
-- **WhatsApp webhook forensics:** imzası doğrulanmış webhook gövdesi `WhatsApp webhook body` satırında, `CorrelationId` ile, en fazla 16 KB Information loglanır (telefon ve mesaj metni dahil; Serilog saklama 14 gün). Geçersiz imzada gövde loglanmaz. Her istek `CorrelationId` (`TraceIdentifier`, yanıt başlığı `X-Correlation-Id`) ile Information loglanır. `receivedCount: 0` özeti `Created` / `Duplicate` / `IgnoredNoise` / `StatusOnly` / `Blocked` / `PhoneNumberMismatch` sayaçlarıyla ayrılır. Payload'daki `phone_number_id` tenant ayarından farklıysa o olay kaydedilmez. Telefon varsa normal akış ve telefon alanına yazılır. Telefon yoksa telefon boş kalır; `profile.name`, `profile.username` ve `from_user_id` (BSUID, ör. `TR.13491208655302741`) `CitizenConversation` üzerindeki WhatsApp profil adı, kullanıcı adı ve user_id alanlarına yazılır. Cevap bu user_id ile `to` yerine `recipient` alanına gider.
+- **WhatsApp webhook forensics:** imzası doğrulanmış webhook gövdesi `WhatsApp webhook body` satırında, `CorrelationId` ile, en fazla 16 KB Information loglanır (telefon ve mesaj metni dahil; Serilog saklama 14 gün). Geçersiz imzada gövde loglanmaz. Her istek `CorrelationId` (`TraceIdentifier`, yanıt başlığı `X-Correlation-Id`) ile Information loglanır. `receivedCount: 0` özeti `Created` / `Duplicate` / `IgnoredNoise` / `StatusOnly` / `Blocked` / `PhoneNumberMismatch` sayaçlarıyla ayrılır. Payload'daki `phone_number_id` tenant ayarından farklıysa o olay kaydedilmez. Telefon varsa normal akış ve telefon alanına yazılır. Telefon yoksa telefon boş kalır; `profile.name`, `profile.username` ve `from_user_id` (BSUID, ör. `TR.13491208655302741`) `CitizenConversation` üzerindeki WhatsApp profil adı, kullanıcı adı ve user_id alanlarına yazılır. Profil adı Vatandaş Adı kutusuna kopyalanmaz (#4209). Cevap bu user_id ile `to` yerine `recipient` alanına gider. Panelde profil adı ve user id alanları görünmez; log ve kolonlarda durur (#4215). Kullanıcı adı alanı kalır. Telefonsuz sohbette liste, sohbet başlığı ve balon kullanıcı adını gösterir, user id yazılmaz; operatör ad ve telefon kaydedince standart isim + telefon görünür (#4212). Telefon kutusu çağrı formundaki ülke kodu + `5XX XXX XX XX` alanıdır, etikette `*` vardır; numara boşken Talep Oluştur pasiftir ve imleçte `Vatandaşın telefon numarası zorunludur.` yazar (#4210/#4211).
 - **Talep Başlığı kolonu geri alındı (#4198/#4199):** Vatandaş Talepleri gridinde Talep Etiketi
   ve `RequestTagPicker` durur. WhatsApp mesaj logu Talep Oluşturan görünümünde Talebi Oluşturan'ın
   sağında ayrı Talep Başlığı kolonu yoktur.
@@ -3668,7 +3670,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Banner arama input ağırlığı:** Banner/search input metni kompakt alanda iri okunur ama 700-bold
   görünmez; `scope-chip-search-input` yazı ağırlığı yarı-kalın seviyede kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
-  Mobil sol menüde Ekrana Yansıt satırı gizlenir (`a[href="/display"]`, #6a920522).
+  Mobil sol menüde Ekrana Yansıt satırı ve ona ait ayırıcı çizgiler gizlenir (`max-lg` + `a[href="/display"]`, #6a920522/#4207).
+  Müdür menüsünde `Personelimin Görevleri` altında iki kalın ayırıcı çizgi durur.
 
 ## 5b. Bildirimler (Notifications)
 
@@ -3870,6 +3873,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Lumespec Destek popup (#3404/#3405):** `SupportRequestDialog` başlık altı `border-b`; genişlik
   `max-w-[26rem]`; Konu/Mesaj alanları ~0.875rem. Konu ve Açıklama başlıklarının sonunda kırmızı
   `*`; altındaki karakter uyarıları yoktur (#4147). Gönder, konu 4 ve açıklama 10 karakterden kısa olunca kapalı kalır.
+- **Lumespec Destek çözüm onayı (#4137):** Çözümü Onayla başarılı olunca popup kapanır ve liste
+  `Çözümlendi` sekmesine geçer; grid o sekmede görünür.
 - **Lumespec Destek detay (#4117/#4116):** Destek Bilgileri başlığının sağında etiket yok;
   üstte Destek No, altında biraz daha küçük öncelik metni, sağa yaslı. Talep Durumu değeri `text-xs`.
 - **Lumespec Destek numarası (#4196):** grid, detay ve destek popup'ı `centralTicketNo`

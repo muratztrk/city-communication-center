@@ -36,8 +36,18 @@ import { WHATSAPP_RE_ENGAGEMENT_WARNING } from '../utils/formatWhatsAppDeliveryE
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { conversationHasCitizenRequest, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse, pickCreateRequestSocialMessageId, pickReplySocialMessageId, pickReplyTicket } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
-import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
-import { formatDirectoryPhone } from '../utils/phoneDisplay'
+import { formatTrNationalGrouped, matchesPhone, normalizePhone, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
+import { citizenPhoneOrEmpty, formatDirectoryPhone, looksLikePhone } from '../utils/phoneDisplay'
+import { CountryCallingCodeSelect } from '../components/ui/country-calling-code-select'
+import {
+  DEFAULT_PHONE_COUNTRY_ISO,
+  composeStoredCitizenPhone,
+  getCountryCallingCode,
+  sanitizeForeignNationalInput,
+  splitCitizenPhone,
+  tryParsePastedCitizenPhone,
+} from '../utils/countryCallingCodes'
+import { getPhoneNsnLength } from '../utils/phoneNationalLengths'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
@@ -78,14 +88,29 @@ function formatPhone(phone: string): string {
   return formatDirectoryPhone(phone) || phone
 }
 
-function conversationIdentityLine(conv: {
+function conversationUsername(conv: { whatsAppUsername?: string | null }): string {
+  return conv.whatsAppUsername?.trim() ?? ''
+}
+
+/** Telefon yokken liste/sohbet başlığı kullanıcı adıdır; user id yazılmaz (#4212). */
+function conversationListTitle(conv: {
+  citizenName?: string | null
   citizenPhone?: string | null
   whatsAppUsername?: string | null
+}, fallback: string): string {
+  const phone = citizenPhoneOrEmpty(conv.citizenPhone)
+  if (!phone) return conversationUsername(conv) || fallback
+  const name = conv.citizenName?.trim()
+  return name || formatPhone(phone)
+}
+
+function conversationListPhone(conv: {
+  citizenName?: string | null
+  citizenPhone?: string | null
 }): string {
-  const phone = conv.citizenPhone?.trim() ?? ''
-  if (phone) return formatPhone(phone)
-  const username = conv.whatsAppUsername?.trim()
-  return username ? `@${username}` : ''
+  const phone = citizenPhoneOrEmpty(conv.citizenPhone)
+  if (!phone || !conv.citizenName?.trim()) return ''
+  return formatPhone(phone)
 }
 
 function toLocalPhoneFilterDigits(phone: string): string {
@@ -108,7 +133,7 @@ function matchesBlockedListSearch(conv: CitizenConversationSummary, query: strin
   const queryDigits = trimmed.replace(/\D/g, '').replace(/^90/, '').replace(/^0/, '')
   const phoneDigits = toLocalPhoneFilterDigits(conv.citizenPhone)
   if (queryDigits && phoneDigits.includes(queryDigits)) return true
-  const formatted = formatPhone(conv.citizenPhone).toLocaleLowerCase('tr')
+  const formatted = formatPhone(citizenPhoneOrEmpty(conv.citizenPhone)).toLocaleLowerCase('tr')
   return formatted.includes(qLower)
 }
 
@@ -253,9 +278,12 @@ function ConversationListItem({
 }) {
   const { i18n, t } = useTranslation()
   const locale = getLocale(i18n.language)
-  const displayName = conv.citizenName ?? conversationIdentityLine(conv)
-  const phoneLabel = conversationIdentityLine(conv)
-  const initials = conv.citizenName ? getInitials(conv.citizenName) : null
+  const usernameOnly = !citizenPhoneOrEmpty(conv.citizenPhone)
+  const displayName = conversationListTitle(conv, t('whatsapp.usernameOnly', 'WhatsApp kullanıcısı'))
+  const phoneLabel = conversationListPhone(conv)
+  const initials = usernameOnly
+    ? getInitials(conversationUsername(conv))
+    : (conv.citizenName ? getInitials(conv.citizenName) : null)
   const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
   const waitingForResponse = isWaitingForConversationResponse(conv)
   const ticketOpen = isConversationTicketOpen(conv)
@@ -291,7 +319,7 @@ function ConversationListItem({
       {t('whatsapp.blocked')}
     </span>
   ) : null
-  const showListMetaRow = Boolean(conv.citizenName || responseStatus)
+  const showListMetaRow = Boolean(phoneLabel || responseStatus)
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
@@ -357,7 +385,7 @@ function ConversationListItem({
 
           {showListMetaRow ? (
             <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
-              {conv.citizenName ? (
+              {phoneLabel ? (
                 <p className="min-w-0 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
               ) : <span aria-hidden="true" />}
               <div className="flex shrink-0 items-center gap-1.5">
@@ -659,7 +687,7 @@ type ConversationProfileDraft = {
 function createProfileDraft(detail: CitizenConversationDetail | null, fallbackPhone?: string | null, fallbackName?: string | null): ConversationProfileDraft {
   return {
     citizenName: detail?.citizenName ?? fallbackName ?? '',
-    citizenPhone: detail?.citizenPhone ?? fallbackPhone ?? '',
+    citizenPhone: citizenPhoneOrEmpty(detail?.citizenPhone ?? fallbackPhone),
     label: detail?.label ?? '',
     neighborhood: detail?.neighborhood ?? '',
     street: detail?.street ?? '',
@@ -814,6 +842,56 @@ function OperatorLockBlockedOverlay({
   )
 }
 
+function UserIdPhoneField({
+  draftPhone,
+  onDraftChange,
+}: {
+  draftPhone: string
+  onDraftChange: (patch: Partial<ConversationProfileDraft>) => void
+}) {
+  const [phoneCountryIso, setPhoneCountryIso] = useState(DEFAULT_PHONE_COUNTRY_ISO)
+  const phoneNational = splitCitizenPhone(draftPhone).national
+  return (
+    <div className="flex items-center gap-1.5">
+      <CountryCallingCodeSelect
+        className="w-[6.35rem] shrink-0"
+        value={phoneCountryIso}
+        onChange={iso => {
+          setPhoneCountryIso(iso)
+          onDraftChange({ citizenPhone: '' })
+        }}
+      />
+      <DeferredComposerInput
+        className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition placeholder:text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+        value={phoneCountryIso === 'TR' ? formatTrNationalGrouped(phoneNational) : phoneNational}
+        inputMode="numeric"
+        pattern={phoneCountryIso === 'TR' ? '[0-9 ]*' : '[0-9]*'}
+        placeholder={phoneCountryIso === 'TR' ? '5XX XXX XX XX' : ''}
+        onChange={value => {
+          const nsn = getPhoneNsnLength(phoneCountryIso)
+          if (phoneCountryIso === 'TR') {
+            const pasted = tryParsePastedCitizenPhone('TR', value)
+            if (pasted) {
+              setPhoneCountryIso(pasted.iso)
+              onDraftChange({ citizenPhone: composeStoredCitizenPhone(pasted.iso, pasted.national) })
+              return
+            }
+            const national = sanitizeMobilePhoneInput(value, phoneNational, nsn.max)
+            onDraftChange({ citizenPhone: national ? composeStoredCitizenPhone('TR', national) : '' })
+            return
+          }
+          const national = sanitizeForeignNationalInput(
+            value,
+            getCountryCallingCode(phoneCountryIso).dial,
+            nsn.max,
+          )
+          onDraftChange({ citizenPhone: national ? composeStoredCitizenPhone(phoneCountryIso, national) : '' })
+        }}
+      />
+    </div>
+  )
+}
+
 function ConversationProfilePanel({
   detail,
   draft,
@@ -837,6 +915,9 @@ function ConversationProfilePanel({
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
   const neighborhoodFieldRef = useRef<HTMLDivElement>(null)
+  const phoneEntryRequired = !citizenPhoneOrEmpty(detail?.citizenPhone)
+  const phoneMissing = phoneEntryRequired && !looksLikePhone(draft.citizenPhone)
+  const createLocked = Boolean(detail && !canCreateRequest && detail.operatorLockedByUserId)
   const [neighborhoodMenuWidth, setNeighborhoodMenuWidth] = useState(0)
 
   useLayoutEffect(() => {
@@ -860,20 +941,28 @@ function ConversationProfilePanel({
         style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
       >
         <OperatorLockBlockedOverlay
-          active={Boolean(detail && !canCreateRequest && detail.operatorLockedByUserId)}
+          active={createLocked}
           lockerDisplayName={detail?.operatorLockedByDisplayName}
           tooltip="down"
           t={t}
         >
-          <button
-            type="button"
-            onClick={onCreateRequest}
-            disabled={!detail || !canCreateRequest}
-            className={`inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50${detail && !canCreateRequest && detail.operatorLockedByUserId ? ' pointer-events-none' : ''}`}
+          <OperatorLockHoverTip
+            text={phoneMissing && !createLocked
+              ? t('whatsapp.citizenPhoneRequired', 'Vatandaşın telefon numarası zorunludur.')
+              : undefined}
+            placement="down"
+            blocked
           >
-            <ClipboardPlus className="size-4" aria-hidden="true" />
-            {t('nav.createRequest', 'Talep Oluştur')}
-          </button>
+            <button
+              type="button"
+              onClick={onCreateRequest}
+              disabled={!detail || !canCreateRequest || phoneMissing}
+              className={`inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50${createLocked || phoneMissing ? ' pointer-events-none' : ''}`}
+            >
+              <ClipboardPlus className="size-4" aria-hidden="true" />
+              {t('nav.createRequest', 'Talep Oluştur')}
+            </button>
+          </OperatorLockHoverTip>
         </OperatorLockBlockedOverlay>
       </div>
 
@@ -904,24 +993,25 @@ function ConversationProfilePanel({
           />
         </label>
         <label className="block space-y-1">
-          <span className={labelClass}>{t('whatsapp.phoneNumber', 'Telefon No')}</span>
-          <input className={disabledFieldClass} value={formatPhone(draft.citizenPhone)} readOnly disabled />
+          <span className={labelClass}>
+            {t('whatsapp.phoneNumber', 'Telefon No')}
+            {phoneEntryRequired ? <span className="text-red-500"> *</span> : null}
+          </span>
+          {phoneEntryRequired ? (
+            <UserIdPhoneField
+              key={detail?.citizenConversationId ?? 'new'}
+              draftPhone={draft.citizenPhone}
+              onDraftChange={onDraftChange}
+            />
+          ) : (
+            <input className={disabledFieldClass} value={formatPhone(draft.citizenPhone)} readOnly disabled />
+          )}
         </label>
-        {detail?.whatsAppUserId || detail?.whatsAppUsername || detail?.whatsAppProfileName ? (
-          <>
-            <label className="block space-y-1">
-              <span className={labelClass}>{t('whatsapp.profileName', 'WhatsApp Profil Adı')}</span>
-              <input className={disabledFieldClass} value={detail.whatsAppProfileName ?? ''} readOnly disabled />
-            </label>
-            <label className="block space-y-1">
-              <span className={labelClass}>{t('whatsapp.username', 'WhatsApp Kullanıcı Adı')}</span>
-              <input className={disabledFieldClass} value={detail.whatsAppUsername ?? ''} readOnly disabled />
-            </label>
-            <label className="block space-y-1">
-              <span className={labelClass}>{t('whatsapp.userId', 'WhatsApp User ID')}</span>
-              <input className={disabledFieldClass} value={detail.whatsAppUserId ?? ''} readOnly disabled />
-            </label>
-          </>
+        {detail?.whatsAppUsername ? (
+          <label className="block space-y-1">
+            <span className={labelClass}>{t('whatsapp.username', 'WhatsApp Kullanıcı Adı')}</span>
+            <input className={disabledFieldClass} value={detail.whatsAppUsername} readOnly disabled />
+          </label>
         ) : null}
         {/* Mahalle başlığı tıklanınca dropdown açılmasın — label yerine div (#6a75b6c1). */}
         <div ref={neighborhoodFieldRef} className="block space-y-1">
@@ -990,6 +1080,7 @@ function ConversationDetail({
   conversationId,
   citizenName,
   citizenPhone,
+  citizenUsername,
   statusSummary,
   userQuickReplies,
   onUserQuickRepliesChanged,
@@ -1012,6 +1103,7 @@ function ConversationDetail({
   conversationId: string
   citizenName?: string | null
   citizenPhone?: string | null
+  citizenUsername?: string | null
   statusSummary?: ConversationStatusSummary | null
   userQuickReplies: UserQuickReplyTemplate[]
   onUserQuickRepliesChanged: () => void
@@ -1387,7 +1479,7 @@ function ConversationDetail({
   }
 
   const handleProfileSave = async () => {
-    if (!detail || profileSaving || detail.citizenConversationId !== conversationId) return
+    if (!detail || profileSaving || detail.citizenConversationId !== conversationId) return false
     const savedForConversationId = conversationId
     const active = document.activeElement
     if (active instanceof HTMLElement) active.blur()
@@ -1395,15 +1487,15 @@ function ConversationDetail({
     await new Promise<void>(resolve => {
       window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()))
     })
-    if (latestConversationIdRef.current !== savedForConversationId) return
+    if (latestConversationIdRef.current !== savedForConversationId) return false
     const draft = profileDraftRef.current
     if (draft.neighborhood.trim() && !draft.street.trim()) {
       window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
-      return
+      return false
     }
     if (draft.neighborhood.trim() && !draft.streetNo.trim()) {
       window.alert(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
-      return
+      return false
     }
     const savedDraft: ConversationProfileDraft = {
       citizenName: normalizeTitleCaseField(draft.citizenName) ?? '',
@@ -1418,7 +1510,7 @@ function ConversationDetail({
     try {
       await api.updateCitizenConversationProfile(savedForConversationId, {
         citizenName: savedDraft.citizenName,
-        citizenPhone: savedDraft.citizenPhone || null,
+        citizenPhone: citizenPhoneOrEmpty(savedDraft.citizenPhone) || null,
         neighborhood: savedDraft.neighborhood,
         street: savedDraft.street,
         streetNo: savedDraft.streetNo,
@@ -1432,8 +1524,10 @@ function ConversationDetail({
       profileDirtyRef.current = false
       onProfileSaved()
       emitPageToast(t('common.saveSuccess', 'Kaydedildi.'), 'success')
+      return true
     } catch (err) {
       emitPageToast(err instanceof Error ? err.message : t('errors.genericSaveFailed', 'Kaydedilemedi.'), 'error')
+      return false
     } finally {
       if (latestConversationIdRef.current === savedForConversationId) setProfileSaving(false)
     }
@@ -1594,15 +1688,25 @@ function ConversationDetail({
   const windowOpen = isWhatsApp24hWindowOpen(activeDetail?.lastInboundAt ?? null)
   const hasSelectableTemplates = userQuickReplies.length > 0
 
-  const phoneForHeader = citizenPhone ?? activeDetail?.citizenPhone ?? null
-  const headerTitleIsPhoneOnly = !citizenName?.trim() && Boolean(phoneForHeader)
-  const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
-  const headerInitials = citizenName ? getInitials(citizenName) : null
-  const inboundSenderLabel = citizenName?.trim()
-    ? `${citizenName.trim()}${phoneForHeader ? ` ${formatPhone(phoneForHeader)}` : ''}`
-    : phoneForHeader
-      ? formatPhone(phoneForHeader)
-      : null
+  const storedPhone = citizenPhoneOrEmpty(activeDetail?.citizenPhone ?? citizenPhone)
+  const storedName = (activeDetail?.citizenName ?? citizenName)?.trim() ?? ''
+  const usernameOnly = !storedPhone
+  const phoneForHeader = usernameOnly ? null : storedPhone
+  const headerTitleIsPhoneOnly = !usernameOnly && !storedName && Boolean(storedPhone)
+  const usernameLabel = activeDetail?.whatsAppUsername?.trim() || citizenUsername?.trim() || ''
+  const headerTitle = usernameOnly
+    ? (usernameLabel || t('whatsapp.usernameOnly', 'WhatsApp kullanıcısı'))
+    : (storedName || (storedPhone ? formatPhone(storedPhone) : t('social.conversation', 'Konuşma')))
+  const headerInitials = usernameOnly
+    ? getInitials(usernameLabel)
+    : (storedName ? getInitials(storedName) : null)
+  const inboundSenderLabel = usernameOnly
+    ? (usernameLabel || null)
+    : storedName
+      ? `${storedName}${storedPhone ? ` ${formatPhone(storedPhone)}` : ''}`
+      : storedPhone
+        ? formatPhone(storedPhone)
+        : null
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
   const canManageOperatorLock = user?.role === 'Operator' || user?.role === 'SystemAdmin'
   const detailMatchesConversation = activeDetail?.citizenConversationId === conversationId
@@ -1710,8 +1814,7 @@ function ConversationDetail({
               />
             </div>
           ) : headerTitleIsPhoneOnly ? null : (
-            <div className="flex min-w-0 items-center gap-2">
-              <p className="truncate leading-tight text-[15px] font-semibold text-slate-900">{headerTitle}</p>
+            <div className="mt-1 flex min-w-0 items-center gap-2">
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
                 lastInboundAt={activeDetail?.lastInboundAt ?? null}
@@ -2110,7 +2213,15 @@ function ConversationDetail({
           onSave={() => { void handleProfileSave() }}
           canCreateRequest={Boolean(activeDetail) && !operatorLockedByOther}
           onCreateRequest={activeDetail
-            ? () => onOpenCreateRequest(createRequestSocialMessageId, { hasExistingRequest: hasExistingCitizenRequest })
+            ? () => {
+                void (async () => {
+                  if (!citizenPhoneOrEmpty(activeDetail.citizenPhone)) {
+                    const saved = await handleProfileSave()
+                    if (!saved) return
+                  }
+                  onOpenCreateRequest(createRequestSocialMessageId, { hasExistingRequest: hasExistingCitizenRequest })
+                })()
+              }
             : undefined}
         />
       </div>
@@ -2665,6 +2776,7 @@ export function WhatsAppConversationsPage() {
               conversationId={selectedId}
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}
+              citizenUsername={selectedConv?.whatsAppUsername ?? null}
               statusSummary={selectedConv ?? null}
               userQuickReplies={userQuickReplies}
               onUserQuickRepliesChanged={() => { void refreshUserQuickReplies() }}
@@ -2750,8 +2862,11 @@ export function WhatsAppConversationsPage() {
             ) : (
               <ul className={`divide-y divide-slate-100 pr-1${filteredBlockedConversations.length > 5 ? ' max-h-[16.25rem] overflow-y-auto' : ''}`}>
                 {filteredBlockedConversations.map(item => {
-                  const citizenName = item.citizenName?.trim() ?? ''
-                  const phoneLabel = conversationIdentityLine(item)
+                  const phone = citizenPhoneOrEmpty(item.citizenPhone)
+                  const citizenName = phone
+                    ? (item.citizenName?.trim() ?? '')
+                    : conversationUsername(item)
+                  const phoneLabel = phone && citizenName ? formatPhone(phone) : ''
                   const blockerName = item.blockedByDisplayName?.trim() ?? ''
                   const blockerWhen = item.blockedAtUtc
                     ? formatDateTime(item.blockedAtUtc, locale)

@@ -15,6 +15,7 @@ import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { getWhatsAppFabUnreadCount, isAutomaticOutboundConversation } from '../../utils/whatsappFabNotification'
 import { isWaitingForConversationResponse } from '../../utils/whatsappConversationTicket'
 import { matchesPhone } from '../../utils/phoneNormalization'
+import { citizenPhoneOrEmpty } from '../../utils/phoneDisplay'
 import { syncWaitingWhatsAppReplyCount } from '../../utils/syncWaitingWhatsAppReplyCount'
 import { syncWhatsAppUnreadMessageCount } from '../../utils/whatsappUnreadMessageCount'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
@@ -525,8 +526,9 @@ export function WhatsAppNotificationFab() {
                   <div className="flex items-start justify-between gap-2">
                     <p className="truncate text-sm font-semibold text-[color:var(--color-foreground)]">
                       {conversation.lastStaffSenderDepartment
-                        ?? conversation.citizenName
-                        ?? formatPhone(conversation.citizenPhone)}
+                        ?? (citizenPhoneOrEmpty(conversation.citizenPhone)
+                          ? (conversation.citizenName?.trim() || formatPhone(citizenPhoneOrEmpty(conversation.citizenPhone)))
+                          : (conversation.whatsAppUsername?.trim() || t('whatsapp.usernameOnly', 'WhatsApp kullanıcısı')))}
                     </p>
                     <span className="shrink-0 text-[11px] text-[color:var(--color-muted-foreground)]">
                       {formatConversationListTime(conversation.lastMessageAt, locale, t)}
@@ -538,9 +540,9 @@ export function WhatsAppNotificationFab() {
                         {conversation.lastStaffSenderDisplayName}
                       </p>
                     ) : null
-                  ) : conversation.citizenName ? (
+                  ) : citizenPhoneOrEmpty(conversation.citizenPhone) && conversation.citizenName?.trim() ? (
                     <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
-                      {formatPhone(conversation.citizenPhone)}
+                      {formatPhone(citizenPhoneOrEmpty(conversation.citizenPhone))}
                     </p>
                   ) : null}
                   {conversation.lastMessagePreview ? (

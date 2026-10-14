@@ -84,7 +84,7 @@ public sealed class WhatsAppBusinessScopedUserIdTests
         Assert.Equal("TR.1564244665448763", conversation.WhatsAppUserId);
         Assert.Equal("mutlusaray", conversation.WhatsAppUsername);
         Assert.Equal("Mutlu", conversation.WhatsAppProfileName);
-        Assert.Equal("Mutlu", conversation.CitizenName);
+        Assert.True(string.IsNullOrEmpty(conversation.CitizenName));
     }
 
     [Fact]

@@ -310,6 +310,10 @@ export function LumespecSupportPage() {
           item={detailItem}
           userDisplayName={userDisplayName}
           ticketDisplayNo={formatLumespecSupportTicketNo(detailItem)}
+          onConfirmed={() => {
+            setScope('resolved')
+            setCurrentPage(1)
+          }}
           onClose={() => setDetailId(null)}
         />
       ) : null}

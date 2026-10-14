@@ -86,6 +86,7 @@ public sealed class UpdateCitizenConversationProfileCommandHandler
     private static string? NormalizePhone(string? value)
     {
         if (string.IsNullOrWhiteSpace(value)) return null;
+        if (WhatsAppBusinessScopedUserId.IsValid(value.Trim())) return null;
         var digits = new string(value.Where(char.IsDigit).ToArray());
         return string.IsNullOrWhiteSpace(digits) ? null : digits;
     }

@@ -1,3 +1,14 @@
+## Round 1473 — WhatsApp kimlik ekranı, menü çizgisi, yönlendir, destek
+
+- [x] #4215: Vatandaş Bilgileri'nde WhatsApp Profil Adı ve User ID alanları gizli; log ve kolonlarda durur.
+- [x] #4209: Telefonsuz gelen sohbette Vatandaş Adı boş; profil adı kutuya yazılmaz.
+- [x] #4210: Telefonsuz sohbette Telefon No, çağrı formundaki ülke kodu + `5XX XXX XX XX`.
+- [x] #4211: Telefon boşsa etiketinde `*`, Talep Oluştur pasif, imleçte telefon zorunlu uyarısı.
+- [x] #4212: Liste, sohbet ve başlıkta user id yok; kullanıcı adı görünür. Ad ve telefon kaydedilince standart isim + telefon.
+- [x] #4206: Talebi Yönlendir butonu iki satır: Farklı Birime / Talebi Yönlendir.
+- [x] #4137: Çözümü Onayla sonrası liste Çözümlendi sekmesine geçer.
+- [x] #4207: Mobilde Ekrana Yansıt satırı ve çizgileri yok. Müdürde Personelimin Görevleri altında iki çizgi.
+
 ## Round 1472 — onay filtresinde satır etiketi
 
 - [x] #4205: Mesaj Onayı Bekleyen chip'inde ikisi birden olan satır Mesaj Onayı Bekleyen yazar. Diğer listelerde Yanıt bekliyor durur.

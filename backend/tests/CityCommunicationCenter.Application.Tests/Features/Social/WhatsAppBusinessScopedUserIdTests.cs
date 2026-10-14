@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CityCommunicationCenter.Application.Features.Social;
+using CityCommunicationCenter.Domain.Entities;
 
 namespace CityCommunicationCenter.Application.Tests.Features.Social;
 
@@ -44,6 +45,65 @@ public sealed class WhatsAppBusinessScopedUserIdTests
             userId: "TR.13491208655302741");
 
         Assert.Equal("Abdullah Çakar", name);
+    }
+
+    [Fact]
+    public void ReadContactProfile_reads_username_without_using_it_as_phone()
+    {
+        using var document = JsonDocument.Parse("""
+            {
+              "contacts": [{
+                "profile": { "name": "Mutlu", "username": "mutlusaray" },
+                "user_id": "TR.1564244665448763"
+              }]
+            }
+            """);
+
+        var profile = WhatsAppBusinessScopedUserId.ReadContactProfile(
+            document.RootElement,
+            phone: null,
+            userId: "TR.1564244665448763");
+
+        Assert.Equal("Mutlu", profile.ProfileName);
+        Assert.Equal("mutlusaray", profile.Username);
+    }
+
+    [Fact]
+    public void Apply_keeps_phone_empty_and_maps_whatsapp_identity()
+    {
+        var conversation = new CitizenConversation();
+
+        WhatsAppCitizenProfile.Apply(
+            conversation,
+            phone: null,
+            userId: "TR.1564244665448763",
+            username: "mutlusaray",
+            profileName: "Mutlu");
+
+        Assert.Equal(string.Empty, conversation.CitizenPhone);
+        Assert.Equal("TR.1564244665448763", conversation.WhatsAppUserId);
+        Assert.Equal("mutlusaray", conversation.WhatsAppUsername);
+        Assert.Equal("Mutlu", conversation.WhatsAppProfileName);
+        Assert.Equal("Mutlu", conversation.CitizenName);
+    }
+
+    [Fact]
+    public void Apply_keeps_a_real_phone_and_still_stores_user_id()
+    {
+        var conversation = new CitizenConversation { CitizenName = "Operatör adı" };
+
+        WhatsAppCitizenProfile.Apply(
+            conversation,
+            phone: "905305687744",
+            userId: "TR.1564244665448763",
+            username: "mutlusaray",
+            profileName: "Mutlu");
+
+        Assert.Equal("905305687744", conversation.CitizenPhone);
+        Assert.Equal("TR.1564244665448763", conversation.WhatsAppUserId);
+        Assert.Equal("mutlusaray", conversation.WhatsAppUsername);
+        Assert.Equal("Mutlu", conversation.WhatsAppProfileName);
+        Assert.Equal("Operatör adı", conversation.CitizenName);
     }
 
     [Fact]

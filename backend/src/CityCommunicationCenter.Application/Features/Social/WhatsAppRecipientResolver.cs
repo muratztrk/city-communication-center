@@ -9,20 +9,25 @@ public static class WhatsAppRecipientResolver
     {
         if (message.CitizenConversationId.HasValue)
         {
-            var conversationPhone = await dbContext.CitizenConversations
+            var conversation = await dbContext.CitizenConversations
                 .AsNoTracking()
                 .Where(c => c.CitizenConversationId == message.CitizenConversationId.Value)
-                .Select(c => c.CitizenPhone)
+                .Select(c => new { c.CitizenPhone, c.WhatsAppUserId })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (LooksLikePhone(conversationPhone))
+            if (LooksLikePhone(conversation?.CitizenPhone))
             {
-                return NormalizePhoneDigits(conversationPhone!);
+                return NormalizePhoneDigits(conversation!.CitizenPhone);
             }
 
-            if (WhatsAppBusinessScopedUserId.IsValid(conversationPhone))
+            if (WhatsAppBusinessScopedUserId.IsValid(conversation?.WhatsAppUserId))
             {
-                return conversationPhone!.Trim();
+                return conversation!.WhatsAppUserId!.Trim();
+            }
+
+            if (WhatsAppBusinessScopedUserId.IsValid(conversation?.CitizenPhone))
+            {
+                return conversation!.CitizenPhone.Trim();
             }
         }
 

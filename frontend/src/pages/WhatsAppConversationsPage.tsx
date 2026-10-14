@@ -78,6 +78,16 @@ function formatPhone(phone: string): string {
   return formatDirectoryPhone(phone) || phone
 }
 
+function conversationIdentityLine(conv: {
+  citizenPhone?: string | null
+  whatsAppUsername?: string | null
+}): string {
+  const phone = conv.citizenPhone?.trim() ?? ''
+  if (phone) return formatPhone(phone)
+  const username = conv.whatsAppUsername?.trim()
+  return username ? `@${username}` : ''
+}
+
 function toLocalPhoneFilterDigits(phone: string): string {
   const digits = phone.replace(/\D/g, '')
   if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
@@ -91,6 +101,10 @@ function matchesBlockedListSearch(conv: CitizenConversationSummary, query: strin
   const qLower = trimmed.toLocaleLowerCase('tr')
   const name = (conv.citizenName ?? '').trim().toLocaleLowerCase('tr')
   if (name.includes(qLower)) return true
+  const username = (conv.whatsAppUsername ?? '').trim().toLocaleLowerCase('tr')
+  if (username && (username.includes(qLower) || `@${username}`.includes(qLower))) return true
+  const userId = (conv.whatsAppUserId ?? '').trim().toLocaleLowerCase('tr')
+  if (userId && userId.includes(qLower)) return true
   const queryDigits = trimmed.replace(/\D/g, '').replace(/^90/, '').replace(/^0/, '')
   const phoneDigits = toLocalPhoneFilterDigits(conv.citizenPhone)
   if (queryDigits && phoneDigits.includes(queryDigits)) return true
@@ -239,8 +253,8 @@ function ConversationListItem({
 }) {
   const { i18n, t } = useTranslation()
   const locale = getLocale(i18n.language)
-  const displayName = conv.citizenName ?? formatPhone(conv.citizenPhone)
-  const phoneLabel = formatPhone(conv.citizenPhone)
+  const displayName = conv.citizenName ?? conversationIdentityLine(conv)
+  const phoneLabel = conversationIdentityLine(conv)
   const initials = conv.citizenName ? getInitials(conv.citizenName) : null
   const isUrgent = isUrgentConversationPriority(conv.latestTicketPriority)
   const waitingForResponse = isWaitingForConversationResponse(conv)
@@ -893,6 +907,22 @@ function ConversationProfilePanel({
           <span className={labelClass}>{t('whatsapp.phoneNumber', 'Telefon No')}</span>
           <input className={disabledFieldClass} value={formatPhone(draft.citizenPhone)} readOnly disabled />
         </label>
+        {detail?.whatsAppUserId || detail?.whatsAppUsername || detail?.whatsAppProfileName ? (
+          <>
+            <label className="block space-y-1">
+              <span className={labelClass}>{t('whatsapp.profileName', 'WhatsApp Profil Adı')}</span>
+              <input className={disabledFieldClass} value={detail.whatsAppProfileName ?? ''} readOnly disabled />
+            </label>
+            <label className="block space-y-1">
+              <span className={labelClass}>{t('whatsapp.username', 'WhatsApp Kullanıcı Adı')}</span>
+              <input className={disabledFieldClass} value={detail.whatsAppUsername ?? ''} readOnly disabled />
+            </label>
+            <label className="block space-y-1">
+              <span className={labelClass}>{t('whatsapp.userId', 'WhatsApp User ID')}</span>
+              <input className={disabledFieldClass} value={detail.whatsAppUserId ?? ''} readOnly disabled />
+            </label>
+          </>
+        ) : null}
         {/* Mahalle başlığı tıklanınca dropdown açılmasın — label yerine div (#6a75b6c1). */}
         <div ref={neighborhoodFieldRef} className="block space-y-1">
           <span className={labelClass}>
@@ -2721,7 +2751,7 @@ export function WhatsAppConversationsPage() {
               <ul className={`divide-y divide-slate-100 pr-1${filteredBlockedConversations.length > 5 ? ' max-h-[16.25rem] overflow-y-auto' : ''}`}>
                 {filteredBlockedConversations.map(item => {
                   const citizenName = item.citizenName?.trim() ?? ''
-                  const phoneLabel = formatPhone(item.citizenPhone)
+                  const phoneLabel = conversationIdentityLine(item)
                   const blockerName = item.blockedByDisplayName?.trim() ?? ''
                   const blockerWhen = item.blockedAtUtc
                     ? formatDateTime(item.blockedAtUtc, locale)

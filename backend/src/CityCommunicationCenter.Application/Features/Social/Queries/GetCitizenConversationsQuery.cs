@@ -49,6 +49,9 @@ public sealed class GetCitizenConversationsQueryHandler
                 c.CitizenConversationId,
                 c.CitizenPhone,
                 c.CitizenName,
+                c.WhatsAppProfileName,
+                c.WhatsAppUsername,
+                c.WhatsAppUserId,
                 c.Label,
                 c.Neighborhood,
                 c.Street,
@@ -529,7 +532,10 @@ public sealed class GetCitizenConversationsQueryHandler
                         : null,
                     c.LastMessageDeliveryStatus?.ToString(),
                     c.OperatorLockedByUserId,
-                    c.OperatorLockedByDisplayName);
+                    c.OperatorLockedByDisplayName,
+                    c.WhatsAppProfileName,
+                    c.WhatsAppUsername,
+                    c.WhatsAppUserId);
 
                 return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);
             })

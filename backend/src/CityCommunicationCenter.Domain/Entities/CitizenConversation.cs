@@ -4,8 +4,17 @@ public sealed class CitizenConversation : AuditableTenantEntity, IHasDatabaseInd
 {
     public Guid CitizenConversationId { get; set; }
 
-    /// <summary>Normalized WhatsApp phone number (E.164, e.g. 905301234567)</summary>
+    /// <summary>Normalized WhatsApp phone number (E.164, e.g. 905301234567). Empty when Meta sent only a user id.</summary>
     public string CitizenPhone { get; set; } = string.Empty;
+
+    /// <summary>WhatsApp profile.name. Ayrı tutulur; operatörün düzenlediği vatandaş adının üstüne yazılmaz.</summary>
+    public string? WhatsAppProfileName { get; set; }
+
+    /// <summary>WhatsApp profile.username.</summary>
+    public string? WhatsAppUsername { get; set; }
+
+    /// <summary>Meta BSUID (ör. TR.1564…). Telefon yokken cevap adresi budur; telefon alanına yazılmaz.</summary>
+    public string? WhatsAppUserId { get; set; }
 
     public string? CitizenName { get; set; }
 
@@ -67,7 +76,12 @@ public sealed class CitizenConversation : AuditableTenantEntity, IHasDatabaseInd
     [
         DatabaseIndexDefinition.Unique(
             [nameof(TenantId), nameof(CitizenPhone)],
+            filter: "citizenphone <> ''",
             databaseName: "ix_citizenconversations_tenant_phone_unique"),
+        DatabaseIndexDefinition.Unique(
+            [nameof(TenantId), nameof(WhatsAppUserId)],
+            filter: "whatsappuserid IS NOT NULL",
+            databaseName: "ix_citizenconversations_tenant_whatsappuserid_unique"),
         DatabaseIndexDefinition.NonUnique(nameof(TenantId), nameof(LastMessageAt)),
     ];
 }

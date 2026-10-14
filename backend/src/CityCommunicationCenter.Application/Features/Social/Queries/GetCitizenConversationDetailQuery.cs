@@ -35,6 +35,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 c.CitizenConversationId,
                 c.CitizenPhone,
                 c.CitizenName,
+                c.WhatsAppProfileName,
+                c.WhatsAppUsername,
+                c.WhatsAppUserId,
                 c.Label,
                 c.Neighborhood,
                 c.Street,
@@ -414,7 +417,10 @@ public sealed class GetCitizenConversationDetailQueryHandler
             pendingDepartmentReviewDepartmentIds.Count,
             pendingDepartmentReviewDepartmentIds,
             conversation.OperatorLockedByUserId,
-            conversation.OperatorLockedByDisplayName);
+            conversation.OperatorLockedByDisplayName,
+            conversation.WhatsAppProfileName,
+            conversation.WhatsAppUsername,
+            conversation.WhatsAppUserId);
     }
 
     /// <summary>

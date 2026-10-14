@@ -171,12 +171,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         var pendingConversationPushes = new List<WhatsAppMessagePayload>();
         var pendingMediaArchives = new List<PendingConversationMediaArchive>();
 
-        // Load existing CitizenConversations for all phones in this batch
-        var allPhones = byCitizen.Select(g => g.Key).ToArray();
-        var existingConversations = await _dbContext.CitizenConversations
-            .IgnoreQueryFilters()
-            .Where(c => c.TenantId == request.TenantId && allPhones.Contains(c.CitizenPhone))
-            .ToDictionaryAsync(c => c.CitizenPhone, cancellationToken);
+        var existingConversations = await LoadConversationsByHandleAsync(
+            request.TenantId,
+            byCitizen.Select(group => group.Key),
+            cancellationToken);
 
         foreach (var citizenGroup in byCitizen)
         {
@@ -210,21 +208,31 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
             var latestAt = persistableMsgs[^1].ReceivedAtUtc;
 
-            // Find or create CitizenConversation for this phone
             if (!existingConversations.TryGetValue(citizenHandle, out var conversation))
             {
                 conversation = new CitizenConversation
                 {
                     CitizenConversationId = Guid.NewGuid(),
                     TenantId = request.TenantId,
-                    CitizenPhone = citizenHandle,
+                    CitizenPhone = WhatsAppCitizenProfile.PhoneOrEmpty(persistableMsgs[0].Phone),
                     LastMessageAt = latestAt,
                     UnreadCount = 0,
                 };
                 _dbContext.CitizenConversations.Add(conversation);
-                existingConversations[citizenHandle] = conversation;
+                RememberConversation(existingConversations, citizenHandle, conversation);
             }
-            else if (conversation.IsBlocked)
+
+            foreach (var message in persistableMsgs)
+            {
+                WhatsAppCitizenProfile.Apply(
+                    conversation,
+                    message.Phone,
+                    message.UserId,
+                    message.Username,
+                    message.DisplayName);
+            }
+
+            if (conversation.IsBlocked)
             {
                 // Engellenen numara inbound yazamaz; liste sırasını da oynatma (#3537).
                 foreach (var message in persistableMsgs)
@@ -246,14 +254,6 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             else if (latestAt > conversation.LastMessageAt)
             {
                 conversation.LastMessageAt = latestAt;
-            }
-
-            var profileName = persistableMsgs
-                .Select(message => message.DisplayName)
-                .LastOrDefault(name => !string.IsNullOrWhiteSpace(name));
-            if (string.IsNullOrWhiteSpace(conversation.CitizenName) && !string.IsNullOrWhiteSpace(profileName))
-            {
-                conversation.CitizenName = profileName.Trim();
             }
 
             conversation.UnreadCount += persistableMsgs.Count;
@@ -462,11 +462,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         var byCitizen = newEchoes.GroupBy(echo => echo.CitizenHandle);
         var savedCount = 0;
         var pendingMediaArchives = new List<PendingConversationMediaArchive>();
-        var allPhones = byCitizen.Select(group => group.Key).ToArray();
-        var existingConversations = await _dbContext.CitizenConversations
-            .IgnoreQueryFilters()
-            .Where(conversation => conversation.TenantId == tenantId && allPhones.Contains(conversation.CitizenPhone))
-            .ToDictionaryAsync(conversation => conversation.CitizenPhone, cancellationToken);
+        var existingConversations = await LoadConversationsByHandleAsync(
+            tenantId,
+            byCitizen.Select(group => group.Key),
+            cancellationToken);
 
         foreach (var citizenGroup in byCitizen)
         {
@@ -480,14 +479,20 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 {
                     CitizenConversationId = Guid.NewGuid(),
                     TenantId = tenantId,
-                    CitizenPhone = citizenHandle,
+                    CitizenPhone = WhatsAppCitizenProfile.PhoneOrEmpty(orderedEchoes[0].Phone),
                     LastMessageAt = latestAt,
                     UnreadCount = 0,
                 };
                 _dbContext.CitizenConversations.Add(conversation);
-                existingConversations[citizenHandle] = conversation;
+                RememberConversation(existingConversations, citizenHandle, conversation);
             }
-            else if (latestAt > conversation.LastMessageAt)
+
+            foreach (var echo in orderedEchoes)
+            {
+                WhatsAppCitizenProfile.Apply(conversation, echo.Phone, echo.UserId, username: null, profileName: null);
+            }
+
+            if (latestAt > conversation.LastMessageAt)
             {
                 conversation.LastMessageAt = latestAt;
             }
@@ -914,7 +919,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     if (string.IsNullOrWhiteSpace(externalMessageId) || string.IsNullOrWhiteSpace(citizenHandle))
                         continue;
 
-                    var displayName = WhatsAppBusinessScopedUserId.ReadProfileName(value, phone, userId);
+                    var contact = WhatsAppBusinessScopedUserId.ReadContactProfile(value, phone, userId);
 
                     var receivedAtUtc = DateTimeOffset.UtcNow;
                     if (long.TryParse(GetString(message, "timestamp"), out var ts))
@@ -933,7 +938,10 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         phoneNumberId,
                         wabaId,
                         GetString(message, "type"),
-                        displayName));
+                        contact.ProfileName,
+                        phone,
+                        userId,
+                        contact.Username));
                 }
             }
         }
@@ -970,9 +978,9 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 foreach (var message in messageEchoes.EnumerateArray())
                 {
                     var externalMessageId = GetString(message, "id");
-                    var citizenHandle = WhatsAppBusinessScopedUserId.ResolveHandle(
-                        GetString(message, "to"),
-                        GetString(message, "to_user_id"));
+                    var phone = GetString(message, "to");
+                    var userId = GetString(message, "to_user_id");
+                    var citizenHandle = WhatsAppBusinessScopedUserId.ResolveHandle(phone, userId);
                     if (string.IsNullOrWhiteSpace(externalMessageId) || string.IsNullOrWhiteSpace(citizenHandle))
                     {
                         continue;
@@ -994,7 +1002,9 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         sentAtUtc,
                         phoneNumberId,
                         wabaId,
-                        GetString(message, "type")));
+                        GetString(message, "type"),
+                        phone,
+                        userId));
                 }
             }
         }
@@ -1210,7 +1220,9 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         DateTimeOffset SentAtUtc,
         string? PhoneNumberId,
         string? WabaId,
-        string? MessageType);
+        string? MessageType,
+        string? Phone,
+        string? UserId);
 
     private sealed record WhatsAppStatusUpdate(
         string ExternalMessageId,
@@ -1233,7 +1245,66 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         string? PhoneNumberId,
         string? WabaId,
         string? MessageType,
-        string? DisplayName);
+        string? DisplayName,
+        string? Phone,
+        string? UserId,
+        string? Username);
+
+    private async Task<Dictionary<string, CitizenConversation>> LoadConversationsByHandleAsync(
+        Guid tenantId,
+        IEnumerable<string> handles,
+        CancellationToken cancellationToken)
+    {
+        var keys = handles
+            .Where(handle => !string.IsNullOrWhiteSpace(handle))
+            .Select(handle => handle.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+        if (keys.Length == 0)
+        {
+            return new Dictionary<string, CitizenConversation>(StringComparer.Ordinal);
+        }
+
+        var rows = await _dbContext.CitizenConversations
+            .IgnoreQueryFilters()
+            .Where(conversation => conversation.TenantId == tenantId
+                && (keys.Contains(conversation.CitizenPhone)
+                    || (conversation.WhatsAppUserId != null && keys.Contains(conversation.WhatsAppUserId))))
+            .ToListAsync(cancellationToken);
+
+        var existing = new Dictionary<string, CitizenConversation>(StringComparer.Ordinal);
+        foreach (var conversation in rows)
+        {
+            RememberConversation(existing, conversation.CitizenPhone, conversation);
+            if (WhatsAppBusinessScopedUserId.IsValid(conversation.WhatsAppUserId))
+            {
+                RememberConversation(existing, conversation.WhatsAppUserId!, conversation);
+            }
+        }
+
+        return existing;
+    }
+
+    private static void RememberConversation(
+        Dictionary<string, CitizenConversation> existing,
+        string handle,
+        CitizenConversation conversation)
+    {
+        if (!string.IsNullOrWhiteSpace(handle))
+        {
+            existing[handle] = conversation;
+        }
+
+        if (!string.IsNullOrWhiteSpace(conversation.CitizenPhone))
+        {
+            existing[conversation.CitizenPhone] = conversation;
+        }
+
+        if (WhatsAppBusinessScopedUserId.IsValid(conversation.WhatsAppUserId))
+        {
+            existing[conversation.WhatsAppUserId!] = conversation;
+        }
+    }
 
     private sealed record PendingWhatsAppAutoReply(
         Guid TenantId,

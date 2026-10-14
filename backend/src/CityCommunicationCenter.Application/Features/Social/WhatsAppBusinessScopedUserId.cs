@@ -49,11 +49,13 @@ public static class WhatsAppBusinessScopedUserId
         return IsValid(id) ? id : null;
     }
 
-    public static string? ReadProfileName(JsonElement value, string? phone, string? userId)
+    public readonly record struct WhatsAppContactProfile(string? ProfileName, string? Username);
+
+    public static WhatsAppContactProfile ReadContactProfile(JsonElement value, string? phone, string? userId)
     {
         if (!value.TryGetProperty("contacts", out var contacts) || contacts.ValueKind != JsonValueKind.Array)
         {
-            return null;
+            return default;
         }
 
         JsonElement? only = null;
@@ -70,22 +72,28 @@ public static class WhatsAppBusinessScopedUserId
                 && string.Equals(contactUserId, userId.Trim(), StringComparison.Ordinal);
             if (matchesPhone || matchesUser)
             {
-                return ProfileName(contact);
+                return ToContactProfile(contact);
             }
         }
 
-        return count == 1 && only.HasValue ? ProfileName(only.Value) : null;
+        return count == 1 && only.HasValue ? ToContactProfile(only.Value) : default;
     }
 
-    private static string? ProfileName(JsonElement contact)
+    public static string? ReadProfileName(JsonElement value, string? phone, string? userId)
+        => ReadContactProfile(value, phone, userId).ProfileName;
+
+    private static WhatsAppContactProfile ToContactProfile(JsonElement contact)
     {
         if (!contact.TryGetProperty("profile", out var profile))
         {
-            return null;
+            return default;
         }
 
         var name = ReadString(profile, "name");
-        return string.IsNullOrWhiteSpace(name) ? null : name.Trim();
+        var username = ReadString(profile, "username");
+        return new WhatsAppContactProfile(
+            string.IsNullOrWhiteSpace(name) ? null : name.Trim(),
+            string.IsNullOrWhiteSpace(username) ? null : username.Trim());
     }
 
     private static string? ReadString(JsonElement element, string property) =>

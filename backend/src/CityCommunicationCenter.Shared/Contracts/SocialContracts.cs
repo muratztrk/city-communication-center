@@ -252,7 +252,10 @@ public sealed record CitizenConversationSummaryDto(
     DateTimeOffset? LastVisibleMessageAt = null,
     string? LastMessageDeliveryStatus = null,
     Guid? OperatorLockedByUserId = null,
-    string? OperatorLockedByDisplayName = null);
+    string? OperatorLockedByDisplayName = null,
+    string? WhatsAppProfileName = null,
+    string? WhatsAppUsername = null,
+    string? WhatsAppUserId = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,
@@ -277,7 +280,10 @@ public sealed record CitizenConversationDetailDto(
     int PendingDepartmentReviewCount = 0,
     IReadOnlyList<Guid>? PendingDepartmentReviewDepartmentIds = null,
     Guid? OperatorLockedByUserId = null,
-    string? OperatorLockedByDisplayName = null);
+    string? OperatorLockedByDisplayName = null,
+    string? WhatsAppProfileName = null,
+    string? WhatsAppUsername = null,
+    string? WhatsAppUserId = null);
 
 public sealed record UpdateCitizenConversationProfileRequest(
     string? CitizenName,

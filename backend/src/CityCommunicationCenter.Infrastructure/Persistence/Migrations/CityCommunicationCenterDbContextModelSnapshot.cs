@@ -469,13 +469,31 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("waitingreplyclearedatutc");
 
+                    b.Property<string>("WhatsAppProfileName")
+                        .HasColumnType("text")
+                        .HasColumnName("whatsappprofilename");
+
+                    b.Property<string>("WhatsAppUserId")
+                        .HasColumnType("text")
+                        .HasColumnName("whatsappuserid");
+
+                    b.Property<string>("WhatsAppUsername")
+                        .HasColumnType("text")
+                        .HasColumnName("whatsappusername");
+
                     b.HasKey("CitizenConversationId");
 
                     b.HasIndex("TenantId", "CitizenPhone")
                         .IsUnique()
-                        .HasDatabaseName("ix_citizenconversations_tenant_phone_unique");
+                        .HasDatabaseName("ix_citizenconversations_tenant_phone_unique")
+                        .HasFilter("citizenphone <> ''");
 
                     b.HasIndex("TenantId", "LastMessageAt");
+
+                    b.HasIndex("TenantId", "WhatsAppUserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_citizenconversations_tenant_whatsappuserid_unique")
+                        .HasFilter("whatsappuserid IS NOT NULL");
 
                     b.ToTable("citizenconversations", (string)null);
                 });

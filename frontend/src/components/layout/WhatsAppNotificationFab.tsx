@@ -293,13 +293,17 @@ export function WhatsAppNotificationFab() {
       setActiveConversation(detail
         ? { id: detail.citizenConversationId, phone: detail.citizenPhone }
         : null)
-      if (detail?.citizenPhone) {
+      if (!detail?.citizenConversationId) return
+      if (detail.citizenPhone) {
         dismissNotificationsForPhone(detail.citizenPhone)
+        return
       }
+      const conversation = conversations.find(item => item.citizenConversationId === detail.citizenConversationId)
+      dismissConversationNotification(detail.citizenConversationId, conversation?.lastMessageAt)
     }
     window.addEventListener('ccc:whatsapp-active-conversation', onActiveConversationChange)
     return () => window.removeEventListener('ccc:whatsapp-active-conversation', onActiveConversationChange)
-  }, [dismissNotificationsForPhone])
+  }, [conversations, dismissConversationNotification, dismissNotificationsForPhone])
 
   useEffect(() => {
     const onComposerEngaged = (event: Event) => {

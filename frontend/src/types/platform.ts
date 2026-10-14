@@ -616,6 +616,9 @@ export interface CitizenConversationSummary {
   lastMessageDeliveryStatus?: string | null;
   operatorLockedByUserId?: string | null;
   operatorLockedByDisplayName?: string | null;
+  whatsAppProfileName?: string | null;
+  whatsAppUsername?: string | null;
+  whatsAppUserId?: string | null;
 }
 
 // Kurum içi (personel-arası) mesajlaşma — card #1539.
@@ -740,6 +743,9 @@ export interface CitizenConversationDetail {
   pendingDepartmentReviewDepartmentIds?: string[];
   operatorLockedByUserId?: string | null;
   operatorLockedByDisplayName?: string | null;
+  whatsAppProfileName?: string | null;
+  whatsAppUsername?: string | null;
+  whatsAppUserId?: string | null;
 }
 
 export interface WhatsAppMessageTemplate {

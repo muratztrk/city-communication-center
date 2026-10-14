@@ -1,3 +1,7 @@
+## Round 1475 — yönlendir butonu yazısı
+
+- [x] #4206: Farklı Birime / Talebi Yönlendir yazısı 11px. Buton yüksekliği aynı.
+
 ## Round 1474 — yönlendir yüksekliği, telefon zıplaması, menü çizgisi
 
 - [x] #4206: Farklı Birime / Talebi Yönlendir butonu eski yüksekliğe döndü, yazı biraz küçüldü.

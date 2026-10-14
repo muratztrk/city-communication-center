@@ -532,7 +532,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   turkuaz `(Yönlendirilen Talep)` rozeti görünür. Detay `Talebin Yönlenme Sebebi` değerinde
   yönlendiren birim + yönlenme sebebi koyu turkuaz ama bold olmayan metinle gösterilir.
 - **Talep yönlendirme butonu (#4206):** buton yazısı iki satırdır; üstte `Farklı Birime`, altında
-  ortalı `Talebi Yönlendir`. Yükseklik diğer başlık butonlarıyla aynı (`h-11`); yazı bir kademe küçüktür.
+  ortalı `Talebi Yönlendir`. Yükseklik diğer başlık butonlarıyla aynı (`h-11`); yazı `11px`.
   Modal başlığı `Talebi Yönlendir` kalır.
 - **Talep yönlendirme yetkisi (#3449/#3629):** Birime Gelen detay popup'ta hedef birimin müdürü,
   vekil müdürü, birim sorumlusu veya o hedefteki VTY `Talebi Yönlendir` kullanabilir; BE

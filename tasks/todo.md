@@ -8,6 +8,7 @@
 - [x] #4206: Talebi Yönlendir butonu iki satır: Farklı Birime / Talebi Yönlendir.
 - [x] #4137: Çözümü Onayla sonrası liste Çözümlendi sekmesine geçer.
 - [x] #4207: Mobilde Ekrana Yansıt satırı ve çizgileri yok. Müdürde Personelimin Görevleri altında iki çizgi.
+- [x] #6acf72cd: WhatsApp Kullanıcı Adı yoksa alanda `-`. Sonraki webhook kullanıcı adını yazınca o ad görünür.
 
 ## Round 1472 — onay filtresinde satır etiketi
 

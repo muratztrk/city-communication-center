@@ -1007,12 +1007,10 @@ function ConversationProfilePanel({
             <input className={disabledFieldClass} value={formatPhone(draft.citizenPhone)} readOnly disabled />
           )}
         </label>
-        {detail?.whatsAppUsername ? (
-          <label className="block space-y-1">
-            <span className={labelClass}>{t('whatsapp.username', 'WhatsApp Kullanıcı Adı')}</span>
-            <input className={disabledFieldClass} value={detail.whatsAppUsername} readOnly disabled />
-          </label>
-        ) : null}
+        <label className="block space-y-1">
+          <span className={labelClass}>{t('whatsapp.username', 'WhatsApp Kullanıcı Adı')}</span>
+          <input className={disabledFieldClass} value={detail?.whatsAppUsername?.trim() || '-'} readOnly disabled />
+        </label>
         {/* Mahalle başlığı tıklanınca dropdown açılmasın — label yerine div (#6a75b6c1). */}
         <div ref={neighborhoodFieldRef} className="block space-y-1">
           <span className={labelClass}>

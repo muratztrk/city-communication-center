@@ -1,3 +1,7 @@
+## Round 1476 — yönlendir butonu yazısı geri
+
+- [x] #4206: Bugünkü iki satır ve küçük punto geri alındı. Buton yine tek satır `Talebi Yönlendir`.
+
 ## Round 1475 — yönlendir butonu yazısı
 
 - [x] #4206: Farklı Birime / Talebi Yönlendir yazısı 11px. Buton yüksekliği aynı.

@@ -2,7 +2,6 @@ import { MessageSquareText, PenLine, Printer, Send, X as XIcon, XCircle } from '
 import { useTranslation } from 'react-i18next'
 import { DetailModalHeaderBrand } from '../../branding/DetailModalHeaderBrand'
 import { Button } from '../../ui/button'
-import { ForwardRequestButtonLabel } from '../ForwardRequestButtonLabel'
 import { DetailModalTitle } from '../../../utils/detailModalTitle'
 
 interface MyRequestDetailHeaderProps {
@@ -76,7 +75,7 @@ export function MyRequestDetailHeader({
                 onClick={onForwardReturned}
               >
                 <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                <ForwardRequestButtonLabel />
+                {t('jobs.actions.forward', 'Talebi Yönlendir')}
               </Button>
             )}
             {onEdit && (

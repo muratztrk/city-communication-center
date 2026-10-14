@@ -29,7 +29,6 @@ import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
 import { Button } from '../components/ui/button'
-import { ForwardRequestButtonLabel } from '../components/jobs/ForwardRequestButtonLabel'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import { emitPageToast } from '../components/ui/pageToast'
@@ -2998,7 +2997,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     onClick={openReturnedForwardModal}
                   >
                     <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    <ForwardRequestButtonLabel />
+                    {t('jobs.actions.forward', 'Talebi Yönlendir')}
                   </Button>
                 )}
                 {canForwardTargetDetail && (
@@ -3009,7 +3008,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     onClick={openForwardModal}
                   >
                     <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    <ForwardRequestButtonLabel />
+                    {t('jobs.actions.forward', 'Talebi Yönlendir')}
                   </Button>
                 )}
                 {canCancelDetail && !hideIncomingApproveCancelByView && (

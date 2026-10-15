@@ -849,8 +849,17 @@ function UserIdPhoneField({
   draftPhone: string
   onDraftChange: (patch: Partial<ConversationProfileDraft>) => void
 }) {
-  const [phoneCountryIso, setPhoneCountryIso] = useState(DEFAULT_PHONE_COUNTRY_ISO)
-  const phoneNational = splitCitizenPhone(draftPhone).national
+  // Görünen hane, kayıtlı numaradan her tuşta çözülmez. Yarım TR numarası (532…)
+  // ülke kodu sanılıp gruplama bozuluyordu; yabancı kodda basılan rakam kayboluyordu.
+  const initial = splitCitizenPhone(draftPhone)
+  const [phoneCountryIso, setPhoneCountryIso] = useState(
+    citizenPhoneOrEmpty(draftPhone) ? initial.iso : DEFAULT_PHONE_COUNTRY_ISO,
+  )
+  const [national, setNational] = useState(citizenPhoneOrEmpty(draftPhone) ? initial.national : '')
+  const storeNational = (iso: string, nextNational: string) => {
+    setNational(nextNational)
+    onDraftChange({ citizenPhone: nextNational ? composeStoredCitizenPhone(iso, nextNational) : '' })
+  }
   return (
     <div className="flex items-center gap-1.5">
       <CountryCallingCodeSelect
@@ -858,34 +867,37 @@ function UserIdPhoneField({
         value={phoneCountryIso}
         onChange={iso => {
           setPhoneCountryIso(iso)
+          setNational('')
           onDraftChange({ citizenPhone: '' })
         }}
       />
-      <DeferredComposerInput
+      <input
         className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition placeholder:text-xs focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-        value={phoneCountryIso === 'TR' ? formatTrNationalGrouped(phoneNational) : phoneNational}
+        value={phoneCountryIso === 'TR' ? formatTrNationalGrouped(national) : national}
         inputMode="numeric"
         pattern={phoneCountryIso === 'TR' ? '[0-9 ]*' : '[0-9]*'}
+        maxLength={phoneCountryIso === 'TR' ? 13 : getPhoneNsnLength(phoneCountryIso).max}
         placeholder={phoneCountryIso === 'TR' ? '5XX XXX XX XX' : ''}
-        onChange={value => {
+        onChange={event => {
           const nsn = getPhoneNsnLength(phoneCountryIso)
           if (phoneCountryIso === 'TR') {
-            const pasted = tryParsePastedCitizenPhone('TR', value)
+            const pasted = tryParsePastedCitizenPhone('TR', event.target.value)
             if (pasted) {
               setPhoneCountryIso(pasted.iso)
-              onDraftChange({ citizenPhone: composeStoredCitizenPhone(pasted.iso, pasted.national) })
+              storeNational(pasted.iso, pasted.national)
               return
             }
-            const national = sanitizeMobilePhoneInput(value, phoneNational, nsn.max)
-            onDraftChange({ citizenPhone: national ? composeStoredCitizenPhone('TR', national) : '' })
+            storeNational('TR', sanitizeMobilePhoneInput(event.target.value, national, nsn.max))
             return
           }
-          const national = sanitizeForeignNationalInput(
-            value,
-            getCountryCallingCode(phoneCountryIso).dial,
-            nsn.max,
+          storeNational(
+            phoneCountryIso,
+            sanitizeForeignNationalInput(
+              event.target.value,
+              getCountryCallingCode(phoneCountryIso).dial,
+              nsn.max,
+            ),
           )
-          onDraftChange({ citizenPhone: national ? composeStoredCitizenPhone(phoneCountryIso, national) : '' })
         }}
       />
     </div>

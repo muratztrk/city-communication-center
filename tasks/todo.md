@@ -1,3 +1,7 @@
+## Round 1477 — user id telefon kutusu
+
+- [x] Telefonsuz WhatsApp sohbetinde Türkiye seçiliyken numara yazıldıkça `XXX XXX XX XX`. Başka ülkede basılan rakam kutuda durur.
+
 ## Round 1476 — yönlendir butonu yazısı geri
 
 - [x] #4206: Bugünkü iki satır ve küçük punto geri alındı. Buton yine tek satır `Talebi Yönlendir`.

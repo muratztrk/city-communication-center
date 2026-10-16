@@ -1,11 +1,22 @@
 import { Check, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { ReactNode } from 'react'
+import { isValidElement, type ReactNode } from 'react'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { isPendingApprovalText, splitDateTimeParts, formatDueDateTime, pendingApprovalValueClassName } from './format'
 import { isInProgressProcessStatusLabel } from '../../../utils/localization'
 import { wasJobOverdueWhenClosed } from '../../../utils/dateTimePicker'
+
+function reactNodeText(node: ReactNode): string {
+  if (node == null || typeof node === 'boolean') return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(reactNodeText).join('')
+  if (isValidElement(node)) {
+    const props = node.props as { children?: ReactNode }
+    return reactNodeText(props.children)
+  }
+  return ''
+}
 
 function getLineClass(
   step: JobProcessStep,
@@ -258,11 +269,15 @@ export function JobProcessTimeline({
             && !step.displayValue.includes(` / ${assigneeName}`)
             ? ` / ${assigneeName}`
             : ''
-          const statusUseBlue = isStatusStep && step.state === 'pending'
-          const statusUseOrange = isStatusStep && step.state === 'current'
+          const statusText = isStatusStep ? reactNodeText(statusContent) : ''
+          const statusUseGold = statusText.includes('Plana Alındı')
+          const statusUseBlue = isStatusStep && step.state === 'pending' && !statusUseGold
+          const statusUseOrange = isStatusStep && step.state === 'current' && !statusUseGold
           const valueTone = approvalPendingOverdue
             ? 'text-red-600'
-            : statusUseBlue
+            : statusUseGold
+              ? 'text-[#d4a017]'
+              : statusUseBlue
               ? 'text-sky-500'
               : statusUseOrange
                 ? 'text-[#f97316]'
@@ -334,7 +349,7 @@ export function JobProcessTimeline({
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
-                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}${statusUseBlue ? ' [&_*]:!text-sky-500' : statusUseOrange ? ' [&_*]:!text-[#f97316]' : ''}`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}${statusUseGold ? ' [&_*]:!text-[#d4a017]' : statusUseBlue ? ' [&_*]:!text-sky-500' : statusUseOrange ? ' [&_*]:!text-[#f97316]' : ''}`}>
                     {typeof statusContent === 'string' && isPendingApprovalText(statusContent) ? (
                       <span className="job-process-timeline__pending-approval-text">
                         {overdueYes

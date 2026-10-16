@@ -57,6 +57,13 @@ public sealed class JobsController : ApiControllerBase
         return CreatedAtRoute("GetJobById", new { jobId = response.JobId }, response);
     }
 
+    [HttpPost("{jobId:guid}/plan")]
+    public async Task<IActionResult> Plan(Guid jobId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new PlanJobCommand(jobId, CurrentContext.UserId), cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPost("{jobId:guid}/cancel")]
     public async Task<IActionResult> Cancel(Guid jobId, [FromBody] CancelJobRequest request, CancellationToken cancellationToken)
     {

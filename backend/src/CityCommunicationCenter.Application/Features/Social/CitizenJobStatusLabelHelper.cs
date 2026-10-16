@@ -7,6 +7,13 @@ public static class CitizenJobStatusLabelHelper
 {
     public static string GetDisplayStatus(Job job, int taskCount, DateTimeOffset utcNow)
     {
+        if (job.PlannedAtUtc.HasValue
+            && job.Status is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
+            && !(job.Status == JobStatus.Active && taskCount > 0))
+        {
+            return "Plana Alındı";
+        }
+
         return GetDisplayStatus(job.Status, job.DueDateUtc, taskCount, utcNow);
     }
 
@@ -116,7 +123,9 @@ public static class CitizenJobStatusLabelHelper
         return template.Contains("{Tamamlama Notu}", StringComparison.Ordinal)
             || template.Contains("{TamamlamaNotu}", StringComparison.Ordinal)
             || template.Contains("{İptal Notu}", StringComparison.Ordinal)
-            || template.Contains("{İptalNotu}", StringComparison.Ordinal);
+            || template.Contains("{İptalNotu}", StringComparison.Ordinal)
+            || template.Contains("{Plan Notu}", StringComparison.Ordinal)
+            || template.Contains("{PlanNotu}", StringComparison.Ordinal);
     }
 
     /// <summary>WA otomatik mesajlarda vatandaşa gösterilen durum etiketi (#2104).</summary>
@@ -149,6 +158,7 @@ public static class CitizenJobStatusLabelHelper
             "Son Tarihi Geçmiş",
             "Tamamlandı",
             "Tamamlanmış",
+            "Plana Alındı",
             "İptal Edildi",
             "İptal",
         ];
@@ -196,6 +206,8 @@ public static class CitizenJobStatusLabelHelper
             .Replace("{Tamamlama Notu}", value, StringComparison.Ordinal)
             .Replace("{TamamlamaNotu}", value, StringComparison.Ordinal)
             .Replace("{İptal Notu}", value, StringComparison.Ordinal)
-            .Replace("{İptalNotu}", value, StringComparison.Ordinal);
+            .Replace("{İptalNotu}", value, StringComparison.Ordinal)
+            .Replace("{Plan Notu}", value, StringComparison.Ordinal)
+            .Replace("{PlanNotu}", value, StringComparison.Ordinal);
     }
 }

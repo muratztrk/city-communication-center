@@ -1,3 +1,7 @@
+## Round 1478 — Plana Alındı
+
+- [x] #4218–#4224: Plana Al butonu ve onay, altın grid/Süreç, Planlanan chip, ayarlarda Yapılmakta yerine Plana Alındı kutusu, vatandaş filtresi, geciken altın kalır, açık pastada yeni dilim yok.
+
 ## Round 1477 — user id telefon kutusu
 
 - [x] Telefonsuz WhatsApp sohbetinde Türkiye seçiliyken numara yazıldıkça `XXX XXX XX XX`. Başka ülkede basılan rakam kutuda durur.

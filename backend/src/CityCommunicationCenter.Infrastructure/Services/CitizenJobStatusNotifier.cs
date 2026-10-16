@@ -521,6 +521,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         {
             "İşleme Alındı" => templates.ResolveProcessingReceivedTemplate(channel),
             "Yapılmakta" => templates.InProgress,
+            "Plana Alındı" => templates.PlannedTemplate,
             "Tamamlanmış" or "Tamamlandı" => templates.Completed,
             "İptal" or "İptal Edildi" => templates.Cancelled,
             _ => null,
@@ -543,7 +544,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     }
 
     private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
-        statusLabel is "İşleme Alındı" or "Yapılmakta" or "Tamamlanmış" or "Tamamlandı" or "İptal";
+        statusLabel is "İşleme Alındı" or "Yapılmakta" or "Plana Alındı" or "Tamamlanmış" or "Tamamlandı" or "İptal";
 
     private static bool RequiresOperatorApproval(string statusLabel) =>
         statusLabel is "Tamamlanmış" or "Tamamlandı" or "İptal";

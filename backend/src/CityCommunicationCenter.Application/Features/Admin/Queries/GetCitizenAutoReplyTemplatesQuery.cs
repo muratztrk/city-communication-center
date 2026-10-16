@@ -38,7 +38,8 @@ public sealed class GetCitizenAutoReplyTemplatesQueryHandler : IQueryHandler<Get
                 templates.GreetingFor("Yapılmakta"),
                 templates.GreetingFor("Tamamlandı"),
                 templates.GreetingFor("İptal"),
-                templates.Greetings?.SmsProcessingReceived ?? templates.GreetingFor("İşleme Alındı", Domain.Enums.SocialChannel.Phone)),
+                templates.Greetings?.SmsProcessingReceived ?? templates.GreetingFor("İşleme Alındı", Domain.Enums.SocialChannel.Phone),
+                templates.GreetingFor("Plana Alındı")),
             templates.AfterHoursStaffSms,
             templates.ManagerSmsIsEnabled,
             templates.StaffSmsIsEnabled,
@@ -48,6 +49,7 @@ public sealed class GetCitizenAutoReplyTemplatesQueryHandler : IQueryHandler<Get
             templates.OverdueManagerSmsIsEnabled,
             templates.OverdueStaffSms,
             templates.OverdueStaffSmsIsEnabled,
-            templates.InProgressIsEnabled);
+            templates.InProgressIsEnabled,
+            templates.PlannedTemplate);
     }
 }

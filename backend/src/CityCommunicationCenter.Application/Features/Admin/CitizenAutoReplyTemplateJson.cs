@@ -13,7 +13,8 @@ public sealed record CitizenAutoReplyGreetings(
     string? InProgress = null,
     string? Completed = null,
     string? Cancelled = null,
-    string? SmsProcessingReceived = null);
+    string? SmsProcessingReceived = null,
+    string? Planned = null);
 
 public sealed record CitizenAutoReplyTemplateModel(
     string ProcessingReceived,
@@ -33,7 +34,8 @@ public sealed record CitizenAutoReplyTemplateModel(
     string? OverdueStaffSms = null,
     bool? OverdueStaffSmsEnabled = null,
     bool? InProgressEnabled = null,
-    DateTimeOffset? OverdueSmsCursorUtc = null)
+    DateTimeOffset? OverdueSmsCursorUtc = null,
+    string? Planned = null)
 {
     public bool ManagerSmsIsEnabled => AfterHoursManagerSmsEnabled ?? true;
 
@@ -42,6 +44,10 @@ public sealed record CitizenAutoReplyTemplateModel(
     public bool SmsProcessingReceivedIsEnabled => SmsProcessingReceivedEnabled ?? true;
 
     public bool InProgressIsEnabled => InProgressEnabled ?? true;
+
+    public string PlannedTemplate => string.IsNullOrWhiteSpace(Planned)
+        ? CitizenAutoReplyTemplateDefaults.Planned
+        : Planned;
 
     public bool OverdueManagerSmsIsEnabled => OverdueManagerSmsEnabled ?? true;
 
@@ -77,6 +83,7 @@ public sealed record CitizenAutoReplyTemplateModel(
         {
             "İşleme Alındı" => Greetings?.ProcessingReceived,
             "Yapılmakta" => Greetings?.InProgress,
+            "Plana Alındı" => Greetings?.Planned,
             "Tamamlanmış" or "Tamamlandı" => Greetings?.Completed,
             "İptal" or "İptal Edildi" => Greetings?.Cancelled,
             _ => null,
@@ -93,7 +100,8 @@ public static class CitizenAutoReplyTemplateJson
         CitizenAutoReplyTemplateDefaults.ProcessingReceived,
         CitizenAutoReplyTemplateDefaults.InProgress,
         CitizenAutoReplyTemplateDefaults.Completed,
-        CitizenAutoReplyTemplateDefaults.Cancelled);
+        CitizenAutoReplyTemplateDefaults.Cancelled,
+        Planned: CitizenAutoReplyTemplateDefaults.Planned);
 
     public static CitizenAutoReplyTemplateModel ParseOrDefault(string? json)
     {
@@ -131,7 +139,8 @@ public static class CitizenAutoReplyTemplateJson
                 parsed.OverdueStaffSms,
                 parsed.OverdueStaffSmsEnabled,
                 parsed.InProgressEnabled,
-                parsed.OverdueSmsCursorUtc);
+                parsed.OverdueSmsCursorUtc,
+                EnsurePlanTemplate(string.IsNullOrWhiteSpace(parsed.Planned) ? defaults.PlannedTemplate : parsed.Planned!));
         }
         catch (JsonException)
         {
@@ -160,7 +169,8 @@ public static class CitizenAutoReplyTemplateJson
             model.OverdueStaffSms,
             model.OverdueStaffSmsEnabled,
             model.InProgressEnabled,
-            model.OverdueSmsCursorUtc));
+            model.OverdueSmsCursorUtc,
+            EnsurePlanTemplate(string.IsNullOrWhiteSpace(model.Planned) ? CitizenAutoReplyTemplateDefaults.Planned : model.Planned!)));
 
     /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
     private static CitizenAutoReplyGreetings? NormalizeGreetings(CitizenAutoReplyGreetings? greetings)
@@ -175,7 +185,8 @@ public static class CitizenAutoReplyTemplateJson
             TrimmedOrNull(greetings.InProgress),
             TrimmedOrNull(greetings.Completed),
             TrimmedOrNull(greetings.Cancelled),
-            TrimmedOrNull(greetings.SmsProcessingReceived));
+            TrimmedOrNull(greetings.SmsProcessingReceived),
+            TrimmedOrNull(greetings.Planned));
         return normalized == new CitizenAutoReplyGreetings() ? null : normalized;
     }
 
@@ -274,6 +285,9 @@ public static class CitizenAutoReplyTemplateJson
 
         return $"{template.TrimEnd()} {{GönderilenBirim}}";
     }
+
+    private static string EnsurePlanTemplate(string template) =>
+        EnsureTerminalNoteToken(EnsureTargetDepartmentToken(EnsureQuotedCitizenStatuses(template)), "{Plan Notu}", "{PlanNotu}");
 
     private static string EnsureCompletionNoteToken(string template) =>
         EnsureTerminalNoteToken(template, "{Tamamlama Notu}", "{TamamlamaNotu}");

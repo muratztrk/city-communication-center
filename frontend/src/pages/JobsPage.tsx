@@ -65,6 +65,7 @@ import {
   requestLocationFieldLabel,
   hasCitizenAddress,
 } from '../utils/citizenRequests'
+import { isOpenPlannedJob, plannedStatusLabel } from '../utils/plannedJob'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { displayMapsLink, originalGoogleMapsUrl } from '../utils/coordinates'
@@ -133,14 +134,15 @@ const EXTERNAL_SCOPES: { value: JobListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'jobs.scopes.all' },
 ]
 
-type MyRequestsView = 'pending' | 'approved' | 'external-pending' | 'in-progress' | 'overdue' | 'completed' | 'rejected' | 'all'
+type MyRequestsView = 'pending' | 'approved' | 'external-pending' | 'in-progress' | 'overdue' | 'planned' | 'completed' | 'rejected' | 'all'
 type RequestFlowFilter = 'internal' | 'external' | 'all'
-type DepartmentOutgoingView = 'pending' | 'approved' | 'in-progress' | 'overdue' | 'completed' | 'rejected' | 'all'
+type DepartmentOutgoingView = 'pending' | 'approved' | 'in-progress' | 'overdue' | 'planned' | 'completed' | 'rejected' | 'all'
 
 const MY_REQUEST_VIEWS: { value: MyRequestsView; labelKey: string }[] = [
   { value: 'external-pending', labelKey: 'jobs.myViews.externalPending' },
   { value: 'in-progress', labelKey: 'jobs.myViews.inProgress' },
   { value: 'overdue', labelKey: 'jobs.myViews.overdue' },
+  { value: 'planned', labelKey: 'jobs.myViews.planned' },
   { value: 'pending', labelKey: 'jobs.myViews.pending' },
   { value: 'approved', labelKey: 'jobs.myViews.approved' },
   { value: 'completed', labelKey: 'jobs.myViews.completed' },
@@ -159,6 +161,7 @@ const DEPARTMENT_OUTGOING_VIEWS: { value: DepartmentOutgoingView; labelKey: stri
   { value: 'approved', labelKey: 'jobs.outgoingViews.approved' },
   { value: 'overdue', labelKey: 'jobs.outgoingViews.overdue' },
   { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress' },
+  { value: 'planned', labelKey: 'jobs.outgoingViews.planned' },
   { value: 'completed', labelKey: 'jobs.outgoingViews.completed' },
   { value: 'rejected', labelKey: 'jobs.outgoingViews.rejected' },
   { value: 'all', labelKey: 'jobs.outgoingViews.all' },
@@ -170,6 +173,7 @@ function getScopeChipColorClass(value: string): string {
   if (value === 'approved') return 'scope-chip--approved'
   if (value === 'in-progress') return 'scope-chip--in-progress'
   if (value === 'overdue') return 'scope-chip--overdue'
+  if (value === 'planned') return 'scope-chip--planned'
   if (value === 'completed') return 'scope-chip--completed'
   if (value === 'rejected') return 'scope-chip--rejected'
   if (value === 'all') return 'scope-chip--all'
@@ -261,8 +265,9 @@ function getJobStatusLabel(t: TFunction, status: string): string {
 
 function getJobDisplayStatus(
   t: TFunction,
-  job: Pick<JobSummary, 'status' | 'dueDateUtc' | 'taskCount' | 'requestType' | 'sourceType'>,
+  job: Pick<JobSummary, 'status' | 'dueDateUtc' | 'taskCount' | 'requestType' | 'sourceType' | 'plannedAtUtc'>,
 ): string {
+  if (isOpenPlannedJob(job)) return t('jobs.statusLabel.planned', 'Plana Alındı')
   if (isCitizenRequestJob(job)) {
     return getCitizenRequestStatusLabel(t, job)
   }
@@ -284,8 +289,9 @@ function getJobDisplayStatus(
 
 
 function getJobGridStatusPillClass(
-  job: Pick<JobSummary, 'status' | 'dueDateUtc' | 'taskCount' | 'requestType' | 'sourceType'>,
+  job: Pick<JobSummary, 'status' | 'dueDateUtc' | 'taskCount' | 'requestType' | 'sourceType' | 'plannedAtUtc'>,
 ): string {
+  if (isOpenPlannedJob(job)) return getStatusPillClass('planned')
   if (isCitizenRequestJob(job)) {
     return getStatusPillClass(getCitizenRequestStatusTone(job))
   }
@@ -619,13 +625,13 @@ function getMyRequestsView(value: string | null, isManager: boolean, isReporter:
   if (isManager) {
     // Yöneticiler Taleplerim ekranına girdiğinde varsayılan olarak hedef birim onayı bekleyen
     // birim dışı talepleri görür; personel atanınca kayıt Yapılmakta Olan'a geçer.
-    if (value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all') return value
+    if (value === 'in-progress' || value === 'overdue' || value === 'planned' || value === 'completed' || value === 'rejected' || value === 'all') return value
     return 'external-pending'
   }
   if (isReporter) {
-    return value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+    return value === 'in-progress' || value === 'overdue' || value === 'planned' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
   }
-  return value === 'approved' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
+  return value === 'approved' || value === 'overdue' || value === 'planned' || value === 'completed' || value === 'rejected' || value === 'all' ? value : 'pending'
 }
 
 function getRequestFlowFilter(value: string | null): RequestFlowFilter {
@@ -633,7 +639,7 @@ function getRequestFlowFilter(value: string | null): RequestFlowFilter {
 }
 
 function getDepartmentOutgoingView(value: string | null): DepartmentOutgoingView {
-  return value === 'approved' || value === 'in-progress' || value === 'overdue' || value === 'completed' || value === 'rejected' || value === 'all'
+  return value === 'approved' || value === 'in-progress' || value === 'overdue' || value === 'planned' || value === 'completed' || value === 'rejected' || value === 'all'
     ? value
     : 'pending'
 }
@@ -646,6 +652,7 @@ function matchesRequestFlow(requestType: JobSummary['requestType'], filter: Requ
 
 function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter = false, isManager = false): JobSummary[] {
   if (view === 'all') return jobs
+  if (view === 'planned') return jobs.filter(job => isOpenPlannedJob(job))
   if (view === 'overdue') return jobs.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
 
   if (view === 'external-pending') {
@@ -657,6 +664,7 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
     return jobs.filter(job =>
       job.requestType === 'ExternalUnit'
       && (job.status === 'PendingExternalApproval' || (job.status === 'Active' && job.taskCount === 0))
+      && !isOpenPlannedJob(job)
       && !isJobOverdue(job))
   }
 
@@ -665,11 +673,12 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
     return jobs.filter(job =>
       (job.status === 'Draft' || job.status === 'PendingOwnerApproval' ||
       job.status === 'PendingExternalApproval' || (isReporter && job.status === 'Active' && job.taskCount === 0))
+      && !isOpenPlannedJob(job)
       && !isJobOverdue(job))
   }
 
   if (view === 'approved') {
-    return jobs.filter(job => job.status === 'Active' && !isJobOverdue(job))
+    return jobs.filter(job => job.status === 'Active' && !isOpenPlannedJob(job) && !isJobOverdue(job))
   }
 
   if (view === 'in-progress') {
@@ -682,15 +691,17 @@ function filterMyRequests(jobs: JobSummary[], view: MyRequestsView, isReporter =
       return jobs.filter(job =>
         job.status === 'Active'
         && job.taskCount > 0
+        && !isOpenPlannedJob(job)
         && !isJobOverdue(job))
     }
     if (isReporter) {
-      return jobs.filter(job => job.status === 'Active' && job.taskCount > 0 && !isJobOverdue(job))
+      return jobs.filter(job => job.status === 'Active' && job.taskCount > 0 && !isOpenPlannedJob(job) && !isJobOverdue(job))
     }
     // Yönetici/sorumlu: bekleyen (onay) + onaylanmış (aktif) talepler birlikte.
     return jobs.filter(job =>
       (job.status === 'Draft' || job.status === 'PendingOwnerApproval' ||
       job.status === 'PendingExternalApproval' || job.status === 'Active')
+      && !isOpenPlannedJob(job)
       && !isJobOverdue(job))
   }
 
@@ -711,11 +722,13 @@ function isSameOwnerAndTargetDepartment(job: JobSummary): boolean {
 function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOutgoingView): JobSummary[] {
   const outgoing = jobs.filter(job => !isSameOwnerAndTargetDepartment(job))
   if (view === 'all') return outgoing
+  if (view === 'planned') return outgoing.filter(job => isOpenPlannedJob(job))
   if (view === 'overdue') return outgoing.filter(job => !isClosedJobStatus(job.status) && isJobOverdue(job))
 
   if (view === 'pending') {
     return outgoing.filter(job =>
-      job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
+      (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
+      && !isOpenPlannedJob(job))
   }
 
   // Birim Dışı Onay Bekleyen: Taleplerim external-pending ile aynı (#3999) + sahip onaylı (#2826).
@@ -723,18 +736,20 @@ function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOu
     return outgoing.filter(job => {
       const matchesMyExternalPending = job.requestType === 'ExternalUnit'
         && (job.status === 'PendingExternalApproval' || (job.status === 'Active' && job.taskCount === 0))
+        && !isOpenPlannedJob(job)
         && !isJobOverdue(job)
       const ownerApproved = (job.departments?.some(department => department.role === 'Owner' && department.decidedAtUtc != null) ?? false)
         && job.status !== 'Completed'
         && job.status !== 'Cancelled'
         && job.status !== 'Rejected'
         && !(job.status === 'Active' && job.taskCount > 0)
+        && !isOpenPlannedJob(job)
       return matchesMyExternalPending || ownerApproved
     })
   }
 
   if (view === 'in-progress') {
-    return outgoing.filter(job => job.status === 'Active' && job.taskCount > 0 && !isJobOverdue(job))
+    return outgoing.filter(job => job.status === 'Active' && job.taskCount > 0 && !isOpenPlannedJob(job) && !isJobOverdue(job))
   }
 
   if (view === 'completed') {
@@ -1151,9 +1166,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
     : isReporter
       // Üst Düzey Yönetici: "Bekleyen Taleplerim"den sonra "Yapılmakta Olan Taleplerim".
-      ? (['pending', 'in-progress', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
+      ? (['pending', 'in-progress', 'overdue', 'planned', 'completed', 'rejected', 'all'] as MyRequestsView[])
           .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
-      : (['pending', 'approved', 'overdue', 'completed', 'rejected', 'all'] as MyRequestsView[])
+      : (['pending', 'approved', 'overdue', 'planned', 'completed', 'rejected', 'all'] as MyRequestsView[])
           .map(value => MY_REQUEST_VIEWS.find(view => view.value === value)!)
   const reporterDepartmentParam = searchParams.get('departmentId')
   const reporterDepartmentId = isReporter
@@ -1164,7 +1179,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     DEPARTMENT_OUTGOING_VIEWS.find(view => view.value === currentDepartmentOutgoingView)?.labelKey ?? 'jobs.outgoingViews.pending',
     'Bekleyen Talepler',
   )
-  const detailStatusClass = detail?.status === 'PendingOwnerApproval'
+  const detailStatusClass = detail != null && isOpenPlannedJob({ ...detail, taskCount: detail.tasks?.length ?? 0 })
+    ? 'text-[#d4a017]'
+    : detail?.status === 'PendingOwnerApproval'
     || detail?.status === 'PendingExternalApproval'
     || (isIncomingRequestDetail
       && detail?.status === 'Active'
@@ -2175,6 +2192,37 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
   }
 
+  const openPlanConfirm = (job: JobDetail) => {
+    const number = isCitizenRequestJob(job)
+      ? formatCitizenRequestNumber({
+          citizenRequestNumber: job.citizenRequestNumber,
+          citizenRequestNumberYear: job.citizenRequestNumberYear,
+          createdAtUtc: job.createdAtUtc,
+        }, locale)
+      : formatJobDisplayNumber(job)
+    setConfirmDialog({
+      title: t('jobs.actions.plan', 'Plana Al'),
+      titleDivider: true,
+      message: (
+        <>
+          <span className="font-semibold text-[#d4a017]">{number}</span>
+          {' '}
+          {t('jobs.actions.planConfirmBody', 'numaralı talebi "Plana Alındı" durumuna almayı onaylayınız.')}
+        </>
+      ),
+      confirmLabel: t('common.approve', 'Onayla'),
+      cancelLabel: t('common.cancel', 'Vazgeç'),
+      variant: 'primary',
+      onConfirm: async () => {
+        await api.planJob(job.jobId)
+        invalidateJobs(queryClient, job.jobId)
+        emitPageToast(t('jobs.actions.planSuccess', 'Talep plana alındı.'))
+        await refreshDetail()
+        await reload()
+      },
+    })
+  }
+
   const handleStaffAssignConfirm = async () => {
     if (!staffAssignModal) return
     const { jobId, selectedUserIds, approvalRequired, targetApprovalRequired, targetDepartmentId, requiresProjectConfirmation, projectDecision } = staffAssignModal
@@ -2422,7 +2470,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
       : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
   const myRequestStatusLabel = detail != null ? (
-    isCitizenRequestDetail
+    isOpenPlannedJob({ ...detail, taskCount: detail.tasks?.length ?? 0 })
+      ? plannedStatusLabel(t, shouldShowJobOverdueLabel(detail))
+      : isCitizenRequestDetail
       ? getCitizenRequestDetailStatusLabel(t, detail)
       : getExternalUnitOwnerDisplayStatus(t, detail)
         ?? (detail.status === 'Active'
@@ -2702,7 +2752,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               t={t}
                               label={getJobDisplayStatus(t, job)}
                               overdueSubline={
-                                (isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job))
+                                (isOpenPlannedJob(job) && shouldShowJobOverdueLabel(job))
+                                || (isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job))
                                 || (
                                   shouldShowJobOverdueLabel(job)
                                   && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
@@ -2956,6 +3007,19 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveTarget(detail.jobId, activeDeptId)}>
                     <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.approveOwner', 'Onayla')}
+                  </Button>
+                )}
+                {isIncomingRequestDetail && detail != null && !isOpenPlannedJob({ ...detail, taskCount: detail.tasks?.length ?? 0 })
+                  && (canApproveDetail || canAssignIncomingDetail || canApproveTargetDetail)
+                  && !hideIncomingApproveCancelByView && (
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="inline-flex items-center gap-1.5 !bg-[#d4a017] !text-[#3f2e04] hover:!bg-[#c49612]"
+                    onClick={() => openPlanConfirm(detail)}
+                  >
+                    <ClipboardList className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    {t('jobs.actions.plan', 'Plana Al')}
                   </Button>
                 )}
                 {canApproveIncomingCloseDetail && incomingPendingCloseTask && !hideIncomingApproveCancelByView && (

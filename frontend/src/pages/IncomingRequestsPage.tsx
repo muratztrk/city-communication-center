@@ -12,6 +12,7 @@ function getScopeChipColorClass(value: string): string {
   if (value === 'approved') return 'scope-chip--approved'
   if (value === 'in-progress') return 'scope-chip--in-progress'
   if (value === 'overdue') return 'scope-chip--overdue'
+  if (value === 'planned') return 'scope-chip--planned'
   if (value === 'completed') return 'scope-chip--completed'
   if (value === 'cancelled') return 'scope-chip--rejected'
   if (value === 'all') return 'scope-chip--all'
@@ -67,6 +68,7 @@ import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '
 import { isIncomingPendingApprovalOverdue, matchesIncomingStatusFilter } from '../utils/incomingRequestGrid'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { shouldShowJobOverdueLabel, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
+import { isOpenPlannedJob } from '../utils/plannedJob'
 import { isModuleUsable } from '../lib/licenseModules'
 
 function resolveIncomingSourceChannel(
@@ -107,7 +109,7 @@ function channelsMatch(rowChannel: string | null | undefined, filter: string): b
   return false
 }
 
-type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'processing-received' | 'all'
+type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'planned' | 'completed' | 'cancelled' | 'processing-received' | 'all'
 type IncomingKindFilter = 'internal' | 'external' | 'all'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
@@ -115,6 +117,7 @@ const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback:
   { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanan Talepler' },
   { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress', fallback: 'Yapılmakta Olan Talepler' },
   { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Geciken Talepler' },
+  { value: 'planned', labelKey: 'jobs.scopes.planned', fallback: 'Planlanan Talepler' },
   { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanan Talepler' },
   { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal Talepler' },
   { value: 'all', labelKey: 'jobs.scopes.all', fallback: 'Tümü' },
@@ -183,6 +186,9 @@ function getJobStatusLabel(t: ReturnType<typeof useTranslation>['t'], status: st
 }
 
 function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: IncomingRequestRow): string {
+  if (row.statusDomain === 'job' && isOpenPlannedJob(row)) {
+    return t('jobs.statusLabel.planned', 'Plana Alındı')
+  }
   if (row.statusDomain === 'task') {
     return getTaskDisplayStatus(t, { currentStatus: row.status, dueDateUtc: row.dueDateUtc })
   }
@@ -218,6 +224,7 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
 }
 
 function getIncomingStatusPillClass(row: IncomingRequestRow): string {
+  if (row.statusDomain === 'job' && isOpenPlannedJob(row)) return getStatusPillClass('planned')
   // Vatandaş PendingExternalApproval satırları UI'da İşleme Alındı olabilir — pending tone kullanma (card #1650 reopen).
   if (row.isCitizenRequest && row.statusDomain === 'job') {
     if (isCitizenProcessingReceivedState({
@@ -244,6 +251,7 @@ function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
   return value === 'overdue'
     || value === 'approved'
     || value === 'in-progress'
+    || value === 'planned'
     || value === 'completed'
     || value === 'cancelled'
     || value === 'processing-received'
@@ -1139,7 +1147,8 @@ export function IncomingRequestsPage() {
                               label={getIncomingStatusLabel(t, row)}
                               channel={row.isCitizenRequest ? row.sourceChannel : null}
                               overdueSubline={
-                                (row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
+                                (row.statusDomain === 'job' && isOpenPlannedJob(row) && shouldShowJobOverdueLabel(row))
+                                || (row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
                                   status: row.status,
                                   dueDateUtc: row.dueDateUtc,
                                   taskCount: row.taskCount ?? 0,

@@ -30,7 +30,8 @@ public sealed record CitizenAutoReplyGreetingsContract(
     string? InProgress = null,
     string? Completed = null,
     string? Cancelled = null,
-    string? SmsProcessingReceived = null);
+    string? SmsProcessingReceived = null,
+    string? Planned = null);
 
 public sealed record CitizenAutoReplyTemplatesResponse(
     string ProcessingReceived,
@@ -49,7 +50,8 @@ public sealed record CitizenAutoReplyTemplatesResponse(
     bool OverdueManagerSmsEnabled = true,
     string? OverdueStaffSms = null,
     bool OverdueStaffSmsEnabled = false,
-    bool InProgressEnabled = true);
+    bool InProgressEnabled = true,
+    string? Planned = null);
 
 public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string ProcessingReceived,
@@ -68,7 +70,8 @@ public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     bool OverdueManagerSmsEnabled = true,
     string? OverdueStaffSms = null,
     bool OverdueStaffSmsEnabled = false,
-    bool InProgressEnabled = true);
+    bool InProgressEnabled = true,
+    string? Planned = null);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,

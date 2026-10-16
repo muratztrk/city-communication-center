@@ -38,6 +38,9 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
     /// <summary>Geciken talep mail bildirimi bir kez gönderildiğinde damga (#3922/#3923).</summary>
     public DateTimeOffset? OverdueMailSentAtUtc { get; set; }
 
+    /// <summary>Birime gelen detaydan «Plana Al» — onay ve personel ataması bundan sonra da yapılabilir (#4218).</summary>
+    public DateTimeOffset? PlannedAtUtc { get; set; }
+
     public DateTimeOffset? CompletedAtUtc { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }

@@ -86,6 +86,7 @@ public sealed class ApproveJobTargetCommandHandler : ICommandHandler<ApproveJobT
 
         if (shouldActivate)
         {
+            job.PlannedAtUtc = null;
             job.Status = JobStatus.Active;
             job.UpdatedAtUtc = utcNow;
             job.UpdatedByUserId = actor.UserId;

@@ -430,6 +430,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Süreç'inde terminal olmayan işlerde Talep Tarihi ile Son Tarih arasında `Durum` vardır:
   `İşleme Alındı` / `Yapılmakta` (mavi) / `Geciken` (turuncu, birleşik `Yapılmakta (…)` değil)
   — `getCitizenRequestStatusLabel` backend `CitizenJobStatusLabelHelper` ile aynı — #2574 reopen.
+  **Plana Alındı** (#4218–#4224) ayrı `JobStatus` değildir: `jobs.plannedatutc` dolu, durum terminal değil
+  ve `Active` + açık görev yokken gösterilir. Onayla bayrağı temizler; personel atanınca normal
+  İşleme Alındı/Yapılmakta döner. Grid ve Süreç altın `#d4a017`; gecikince altın kalır, grid alt satırı
+  ve Süreç metni `(Geciken)`. Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden).
+  Açık talep pastaları yeni dilim açmaz; planlı iş `ProcessingReceived` içinde kalır.
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı Görevlerim detay popup sol üst
@@ -1175,6 +1180,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İlk görev eklenince `Yapılmakta`, görev kapatma/tamamlama akışı talebi terminale taşıyınca
   `Tamamlanmış`, talep/görev iptali talebi terminale taşıyınca `İptal` şablonu gönderilir;
   red/son tarihi geçmiş etiketleri bu otomatik şablonlara düşürülmez (cards #1266/#1268).
+  **Plana Alındı** (#4221) aynı anda gönderilir (operatör onay kuyruğu yok). Ayarlar kutusunda
+  Yapılmakta kartı yoktur; kayıt yine mevcut Yapılmakta metnini ve `inProgressEnabled` değerini yollar.
+  Plana Alındı kartı Tamamlandı gibidir: hitap, gövde, `{GönderilenBirim}`, `{Plan Notu}`; Aktif/Pasif yok.
+  Plan onayında not alınmaz, `{Plan Notu}` boşaltılır.
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
   kartının hemen altında durur; `{VatandaşTalepNo}` öncesinde düzenlenebilir hitap
   (`Değerli vatandaşımız,` varsayılan, #2901) `field-textarea min-h-[4.5rem]` — gövde ve ek metin

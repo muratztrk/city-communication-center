@@ -20,7 +20,8 @@ public sealed record UpdateCitizenAutoReplyTemplatesCommand(
     bool OverdueManagerSmsEnabled = true,
     string? OverdueStaffSms = null,
     bool OverdueStaffSmsEnabled = false,
-    bool InProgressEnabled = true) : ICommand<Unit>;
+    bool InProgressEnabled = true,
+    string? Planned = null) : ICommand<Unit>;
 
 public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractValidator<UpdateCitizenAutoReplyTemplatesCommand>
 {
@@ -29,6 +30,7 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractVa
         RuleFor(command => command.TenantId).NotEmpty();
         RuleFor(command => command.ProcessingReceived).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.InProgress).NotEmpty().MaximumLength(1000);
+        RuleFor(command => command.Planned).MaximumLength(1000);
         RuleFor(command => command.Completed).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.Cancelled).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.Greeting).MaximumLength(200);
@@ -44,6 +46,7 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractVa
             RuleFor(command => command.Greetings!.Completed).MaximumLength(200);
             RuleFor(command => command.Greetings!.Cancelled).MaximumLength(200);
             RuleFor(command => command.Greetings!.SmsProcessingReceived).MaximumLength(200);
+            RuleFor(command => command.Greetings!.Planned).MaximumLength(200);
         });
     }
 }
@@ -81,9 +84,8 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
             settings.UpdatedAtUtc = DateTimeOffset.UtcNow;
         }
 
-        var existingCursor = CitizenAutoReplyTemplateJson
-            .ParseOrDefault(settings.CitizenAutoReplyTemplatesJson)
-            .OverdueSmsCursorUtc;
+        var existing = CitizenAutoReplyTemplateJson.ParseOrDefault(settings.CitizenAutoReplyTemplatesJson);
+        var existingCursor = existing.OverdueSmsCursorUtc;
 
         settings.CitizenAutoReplyTemplatesJson = CitizenAutoReplyTemplateJson.Serialize(new CitizenAutoReplyTemplateModel(
             request.ProcessingReceived.TrimStart(),
@@ -99,7 +101,8 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
                     request.Greetings.InProgress,
                     request.Greetings.Completed,
                     request.Greetings.Cancelled,
-                    request.Greetings.SmsProcessingReceived),
+                    request.Greetings.SmsProcessingReceived,
+                    request.Greetings.Planned ?? existing.Greetings?.Planned),
             request.AfterHoursStaffSms,
             request.AfterHoursManagerSmsEnabled,
             request.AfterHoursStaffSmsEnabled,
@@ -112,7 +115,8 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
             request.OverdueStaffSms,
             request.OverdueStaffSmsEnabled,
             request.InProgressEnabled,
-            existingCursor));
+            existingCursor,
+            string.IsNullOrWhiteSpace(request.Planned) ? existing.PlannedTemplate : request.Planned.Trim()));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

@@ -80,7 +80,8 @@ internal static class JobSummaryResponseFactory
                 job.TenantId,
                 [job],
                 cancellationToken)).GetValueOrDefault(job.JobId),
-            HadOverdueDueDate: job.HadOverdueDueDate);
+            HadOverdueDueDate: job.HadOverdueDueDate,
+            PlannedAtUtc: job.PlannedAtUtc);
     }
 
     static async Task<DateTimeOffset?> ResolveEffectiveReleasedAtAsync(

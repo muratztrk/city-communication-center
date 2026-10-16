@@ -1433,6 +1433,14 @@ export const api = {
     await ensureOk(response, i18n.t('errors.jobReturnFailed', 'Failed to return job'))
   },
 
+  async planJob(jobId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/plan`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.jobPlanFailed', 'Talep plana alınamadı.'))
+  },
+
   async approveJobOwner(jobId: string, comment?: string | null, confirmedIsProject?: boolean | null): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs/${jobId}/owner-approval/approve`, {
       method: 'POST',

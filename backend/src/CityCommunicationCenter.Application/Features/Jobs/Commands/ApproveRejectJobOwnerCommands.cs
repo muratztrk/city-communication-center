@@ -80,6 +80,7 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
         var isCoordinatedExternal = job.RequestType == JobRequestType.ExternalUnit && targets.Count > 1;
         if (isCoordinatedExternal)
         {
+            job.PlannedAtUtc = null;
             job.Status = JobStatus.PendingExternalApproval;
             foreach (var target in targets)
             {
@@ -92,6 +93,7 @@ public sealed class ApproveJobOwnerCommandHandler : ICommandHandler<ApproveJobOw
         }
         else
         {
+            job.PlannedAtUtc = null;
             job.Status = JobStatus.Active;
             if (job.DueDateUtc is null)
             {

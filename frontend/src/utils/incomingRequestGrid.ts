@@ -1,9 +1,10 @@
 import type { JobSummary, SocialMessage, Task } from '../types/platform'
 import { getLocale } from './localization'
 import { formatCitizenRequestNumber, isCitizenProcessingReceivedState, isCitizenRequestJob } from './citizenRequests'
+import { isOpenPlannedJob } from './plannedJob'
 import { isJobDueDateOverdue } from './dateTimePicker'
 
-export type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'processing-received' | 'all'
+export type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'planned' | 'completed' | 'cancelled' | 'processing-received' | 'all'
 
 export type IncomingRequestRow = {
   id: string
@@ -28,6 +29,7 @@ export type IncomingRequestRow = {
   updatedAtUtc: string | null
   createdByRoleCode: string | null
   isCitizenRequest?: boolean
+  plannedAtUtc?: string | null
   taskCount?: number
   targetApprovedAtUtc?: string | null
 }
@@ -84,6 +86,9 @@ export function matchesIncomingStatusFilter(row: IncomingRequestRow, filter: Inc
   if (filter === 'all') return true
   const isOverdue = isJobDueDateOverdue(row)
   const isClosed = row.status === 'Completed' || row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
+  const planned = row.statusDomain === 'job' && isOpenPlannedJob(row)
+  if (filter === 'planned') return planned
+  if (planned && filter !== 'overdue') return false
 
   if (filter === 'pending-approval') {
     const ownerApprovalPending = row.status === 'PendingOwnerApproval' || row.status === 'PendingApproval'
@@ -178,6 +183,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
     createdByRoleCode: job.createdByRoleCode ?? null,
+    plannedAtUtc: job.plannedAtUtc ?? null,
   }
 }
 
@@ -233,6 +239,7 @@ function toExternalRow(
     createdByRoleCode: job.createdByRoleCode ?? null,
     isCitizenRequest: isCitizen,
     taskCount: job.taskCount,
+    plannedAtUtc: job.plannedAtUtc ?? null,
     targetApprovedAtUtc: job.departments
       ?.filter(department => department.role === 'Target' && department.decidedAtUtc)
       .map(department => department.decidedAtUtc as string)

@@ -5143,6 +5143,14 @@
     box-shadow: none;
   }
 
+  /* ── Planlanan → Altın sarısı ───────────────── */
+  .scope-chip--planned.active {
+    background: #d4a017;
+    border-color: #b8860b;
+    color: #3f2e04;
+    box-shadow: 0 1px 4px rgba(184, 134, 11, 0.35);
+  }
+
   /* ── Tamamlanmış → Yeşil ────────────────────── */
   .scope-chip--completed.active {
     background: #16a34a;

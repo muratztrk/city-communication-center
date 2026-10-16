@@ -396,6 +396,7 @@ export interface JobSummary {
   cancelledByRoleCode?: string | null;
   hadOverdueDueDate?: boolean;
   lastReturnedToOperatorAtUtc?: string | null;
+  plannedAtUtc?: string | null;
 }
 
 export interface JobDueDateChange {
@@ -516,6 +517,7 @@ export interface JobDetail {
   returnedByDisplayName?: string | null;
   hadOverdueDueDate?: boolean;
   dueDateChanges?: JobDueDateChange[];
+  plannedAtUtc?: string | null;
 }
 
 export interface SocialConversationEntry {
@@ -1149,6 +1151,7 @@ export interface CitizenAutoReplyGreetings {
   completed: string;
   cancelled: string;
   smsProcessingReceived?: string;
+  planned?: string;
 }
 
 export interface CitizenAutoReplyTemplates {
@@ -1171,6 +1174,7 @@ export interface CitizenAutoReplyTemplates {
   smsProcessingReceivedEnabled?: boolean;
   /** Kapalıyken Yapılmakta otomatik mesajı WhatsApp ve çağrı SMS'ine gitmez. */
   inProgressEnabled?: boolean;
+  planned?: string;
 }
 
 export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }

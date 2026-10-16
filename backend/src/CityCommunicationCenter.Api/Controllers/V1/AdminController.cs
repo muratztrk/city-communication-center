@@ -105,7 +105,8 @@ public sealed class AdminController : ApiControllerBase
             request.OverdueManagerSmsEnabled,
             request.OverdueStaffSms,
             request.OverdueStaffSmsEnabled,
-            request.InProgressEnabled), cancellationToken);
+            request.InProgressEnabled,
+            request.Planned), cancellationToken);
         return NoContent();
     }
 

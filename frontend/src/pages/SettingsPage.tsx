@@ -251,12 +251,14 @@ const DEFAULT_CITIZEN_OUTBOUND_GREETING = 'Değerli vatandaşımız,'
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".",
   inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Yapılmakta\". {GönderilenBirim}",
+  planned: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Plana Alındı\". {GönderilenBirim} {Plan Notu}",
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Tamamlandı\". {GönderilenBirim}",
   cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İptal Edildi\". {GönderilenBirim}",
   greeting: DEFAULT_CITIZEN_OUTBOUND_GREETING,
   greetings: {
     processingReceived: DEFAULT_CITIZEN_OUTBOUND_GREETING,
     inProgress: DEFAULT_CITIZEN_OUTBOUND_GREETING,
+    planned: DEFAULT_CITIZEN_OUTBOUND_GREETING,
     completed: DEFAULT_CITIZEN_OUTBOUND_GREETING,
     cancelled: DEFAULT_CITIZEN_OUTBOUND_GREETING,
   },
@@ -278,6 +280,7 @@ const CITIZEN_REQUEST_TITLE_TOKEN = '{VatandaşTalepBaşlığı}'
 const CITIZEN_REQUEST_STATUS_TOKEN = '{VatandaşTalepDurumu}'
 const TARGET_DEPARTMENT_TOKEN = '{GönderilenBirim}'
 const COMPLETION_NOTE_TOKEN = '{Tamamlama Notu}'
+const PLAN_NOTE_TOKEN = '{Plan Notu}'
 const CANCEL_NOTE_TOKEN = '{İptal Notu}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
@@ -1373,10 +1376,12 @@ export function SettingsPage() {
           processingReceived: stripTargetDepartmentToken(
             autoReplyResponse.processingReceived ?? DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES.processingReceived,
           ),
+          planned: autoReplyResponse.planned?.trim() || DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES.planned,
           greeting: generalGreeting,
           greetings: {
             processingReceived: loadedGreetings?.processingReceived?.trim() || generalGreeting,
             inProgress: loadedGreetings?.inProgress?.trim() || generalGreeting,
+            planned: loadedGreetings?.planned?.trim() || generalGreeting,
             completed: loadedGreetings?.completed?.trim() || generalGreeting,
             cancelled: loadedGreetings?.cancelled?.trim() || generalGreeting,
             smsProcessingReceived: loadedGreetings?.smsProcessingReceived?.trim() || generalGreeting,
@@ -2590,6 +2595,14 @@ export function SettingsPage() {
           extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.inProgress),
           true,
         ),
+        planned: buildCitizenAutoReplyTemplate(
+          extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.planned ?? '', t('jobs.statusLabel.planned', 'Plana Alındı')),
+          t('jobs.statusLabel.planned', 'Plana Alındı'),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.planned ?? '', PLAN_NOTE_TOKEN),
+          true,
+          PLAN_NOTE_TOKEN,
+          extractCitizenAutoReplyNoteSuffixText(citizenAutoReplyTemplates.planned ?? '', PLAN_NOTE_TOKEN),
+        ),
         completed: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.completed, t('social.requestStatus.completed', 'Tamamlandı')),
           t('social.requestStatus.completed', 'Tamamlandı'),
@@ -2610,6 +2623,7 @@ export function SettingsPage() {
         greetings: {
           processingReceived: citizenAutoReplyTemplates.greetings.processingReceived.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
           inProgress: citizenAutoReplyTemplates.greetings.inProgress.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+          planned: citizenAutoReplyTemplates.greetings.planned?.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
           completed: citizenAutoReplyTemplates.greetings.completed.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
           cancelled: citizenAutoReplyTemplates.greetings.cancelled.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
           smsProcessingReceived: citizenAutoReplyTemplates.greetings.smsProcessingReceived?.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
@@ -4791,7 +4805,7 @@ export function SettingsPage() {
             <div className="grid gap-4 md:grid-cols-4">
               {([
                 { key: 'processingReceived', label: t('social.requestStatus.processingReceived', 'İşleme Alındı'), tone: 'warning', includeTargetDepartment: false },
-                { key: 'inProgress', label: t('social.requestStatus.inProgress', 'Yapılmakta'), tone: 'warning' },
+                { key: 'planned', label: t('jobs.statusLabel.planned', 'Plana Alındı'), tone: 'warning', noteToken: PLAN_NOTE_TOKEN },
                 { key: 'completed', label: t('social.requestStatus.completed', 'Tamamlandı'), tone: 'success', noteToken: COMPLETION_NOTE_TOKEN },
                 { key: 'cancelled', label: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), templateLabel: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), tone: 'danger', noteToken: CANCEL_NOTE_TOKEN },
               ] as Array<{ key: CitizenAutoReplyTemplateKey; label: string; templateLabel?: string; tone: 'success' | 'warning' | 'danger'; noteToken?: string; includeTargetDepartment?: boolean }>).map(({ key, label, templateLabel, tone, noteToken, includeTargetDepartment }) => (
@@ -4801,8 +4815,8 @@ export function SettingsPage() {
                   statusLabel={label}
                   templateStatusLabel={templateLabel}
                   tone={tone}
-                  value={citizenAutoReplyTemplates[key]}
-                  greeting={citizenAutoReplyTemplates.greetings[key]}
+                  value={citizenAutoReplyTemplates[key] ?? ''}
+                  greeting={citizenAutoReplyTemplates.greetings[key] ?? ''}
                   noteToken={noteToken}
                   includeTargetDepartment={includeTargetDepartment}
                   onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, [key]: value }))}
@@ -4810,22 +4824,13 @@ export function SettingsPage() {
                     ...current,
                     greetings: { ...current.greetings, [key]: value },
                   }))}
-                  hint={key === 'inProgress' ? t('settings.routing.inProgressHint') : undefined}
-                  headerExtra={key === 'inProgress' ? (
-                    <SettingsActiveSwitch
-                      label={(citizenAutoReplyTemplates.inProgressEnabled ?? true) ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
-                      checked={citizenAutoReplyTemplates.inProgressEnabled ?? true}
-                      onChange={() => setCitizenAutoReplyTemplates(current => ({
-                        ...current,
-                        inProgressEnabled: !(current.inProgressEnabled ?? true),
-                      }))}
-                    />
-                  ) : undefined}
+                  hint={undefined}
+                  headerExtra={undefined}
                 />
               ))}
             </div>
             <p className="text-xs font-medium text-slate-500">
-              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı; Yapılmakta/Tamamlandı/İptal kartlarında {GönderilenBirim}; Tamamlandı/İptal kartlarında {Tamamlama Notu} ve {İptal Notu}. İşleme Alındı kartında {GönderilenBirim} yoktur.')}
+              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı; Plana Alındı/Tamamlandı/İptal kartlarında {GönderilenBirim}; Plana Alındı kartında {Plan Notu}; Tamamlandı/İptal kartlarında {Tamamlama Notu} ve {İptal Notu}. İşleme Alındı kartında {GönderilenBirim} yoktur.')}
             </p>
           </section>
 

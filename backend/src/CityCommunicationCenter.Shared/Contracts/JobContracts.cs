@@ -119,7 +119,9 @@ public sealed record JobSummaryResponse(
     string? CancelledByRoleCode = null,
     bool HadOverdueDueDate = false,
     /// <summary>Son CitizenRequestReturnedToOperator audit zamanı — yönlendirme sonrası ReturnedToOperatorAtUtc temizlense de korunur.</summary>
-    DateTimeOffset? LastReturnedToOperatorAtUtc = null);
+    DateTimeOffset? LastReturnedToOperatorAtUtc = null,
+    /// <summary>Plana Alındı damgası. Onay veya personel atamasından sonra ekranda kalkar (#4218).</summary>
+    DateTimeOffset? PlannedAtUtc = null);
 
 public sealed record JobManagerNoteResponse(
     Guid NoteId,
@@ -215,4 +217,5 @@ public sealed record JobDetailResponse(
     /// <summary>Birim dışı talebin kaç kez yönlendirildiği (JobTargetForwarded denetim kaydı sayısı, #6abf9c54).</summary>
     int ForwardCount = 0,
     /// <summary>Son yönlendirmeyi yapan (talebin önceki hedef) birim adı.</summary>
-    string? ForwardedFromDepartmentName = null);
+    string? ForwardedFromDepartmentName = null,
+    DateTimeOffset? PlannedAtUtc = null);

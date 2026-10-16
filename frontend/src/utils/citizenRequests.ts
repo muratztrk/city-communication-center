@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import { getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { isJobDueDateOverdue, shouldShowJobOverdueLabel } from './dateTimePicker'
 import { formatOverdueInProgressStatus, type GridStatusTone } from './localization'
+import { isOpenPlannedJob, plannedStatusLabel } from './plannedJob'
 import { formatDirectoryPhone } from './phoneDisplay'
 
 export function isCitizenRequestJob(job: {
@@ -58,6 +59,7 @@ type CitizenRequestStatusSource = {
   tasks?: { currentStatus?: string }[]
   targetApprovedAtUtc?: string | null
   departments?: { role: string; decidedAtUtc?: string | null }[] | null
+  plannedAtUtc?: string | null
 }
 
 /** Hedef birim yöneticisi onay anı — Yapılmakta grid tarihi (#3902/#3904). */
@@ -109,6 +111,7 @@ export function getCitizenRequestStatusLabel(
   t: TFunction,
   job: CitizenRequestStatusSource,
 ): string {
+  if (isOpenPlannedJob(job)) return t('jobs.statusLabel.planned', 'Plana Alındı')
   if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
@@ -136,6 +139,7 @@ export function getCitizenRequestDetailStatusLabel(
   t: TFunction,
   job: CitizenRequestStatusSource,
 ): string {
+  if (isOpenPlannedJob(job)) return plannedStatusLabel(t, shouldShowJobOverdueLabel(job))
   return getCitizenRequestStatusLabel(t, job)
 }
 
@@ -190,6 +194,7 @@ export function getCitizenGridStatusDateFooterClass(status: string): string {
 }
 
 export function getCitizenRequestStatusTone(job: CitizenRequestStatusSource): GridStatusTone {
+  if (isOpenPlannedJob(job)) return 'planned'
   if (job.status === 'Completed') return 'completed'
   if (job.status === 'Cancelled') return 'cancelled'
   if (job.status === 'Rejected') return 'rejected'

@@ -407,7 +407,8 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
             r.Job.ReturnedToOperatorAtUtc
                 ?? (lastReturnedAtMap.TryGetValue(r.Job.JobId.ToString(), out var lastReturnedAt)
                     ? lastReturnedAt
-                    : null))).ToArray();
+                    : null),
+            PlannedAtUtc: r.Job.PlannedAtUtc)).ToArray();
     }
 }
 
@@ -968,7 +969,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             citizenTaskAttachmentEditorDisplayName,
             managerNotes,
             forwardLogDetails.Count,
-            forwardedFromDepartmentName);
+            forwardedFromDepartmentName,
+            job.PlannedAtUtc);
     }
 
     /// <summary>"From=&lt;guid&gt; To=&lt;guid&gt;" biçimindeki yönlendirme denetim detayından kaynak birim kimliği.</summary>

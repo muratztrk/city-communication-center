@@ -25,6 +25,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber, getCitizenGridStatusDateFooterClass, getCitizenGridStatusDateUtc, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenInProgressState, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState } from '../utils/citizenRequests'
+import { isOpenPlannedJob } from '../utils/plannedJob'
 import { looksLikePhone } from '../utils/phoneDisplay'
 import { wasJobOverdueWhenClosed } from '../utils/dateTimePicker'
 import { emitPageToast } from '../components/ui/pageToast'
@@ -144,11 +145,12 @@ function getSocialMessageStatusAtUtc(message: SocialMessage, linkedJob?: JobSumm
   return linkedJob.updatedAtUtc ?? linkedJob.createdAtUtc ?? message.receivedAtUtc
 }
 
-type SocialRequestStatusFilter = 'all' | 'processing-received' | 'in-progress' | 'completed' | 'cancelled'
+type SocialRequestStatusFilter = 'all' | 'processing-received' | 'planned' | 'in-progress' | 'completed' | 'cancelled'
 
 const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'all', labelKey: 'social.requestStatus.all', fallback: 'Tüm Talep Durumları' },
   { value: 'processing-received', labelKey: 'social.requestStatus.processingReceived', fallback: 'İşleme Alındı' },
+  { value: 'planned', labelKey: 'jobs.statusLabel.planned', fallback: 'Plana Alındı' },
   { value: 'in-progress', labelKey: 'social.requestStatus.inProgress', fallback: 'Yapılmakta' },
   { value: 'completed', labelKey: 'social.requestStatus.completed', fallback: 'Tamamlanan' },
   { value: 'cancelled', labelKey: 'social.requestStatus.cancelled', fallback: 'İptal' },
@@ -178,6 +180,7 @@ function isJobPendingManagerApproval(job: JobSummary | undefined): boolean {
 
 function getSocialMessageStatusKey(job: JobSummary | undefined): Exclude<SocialRequestStatusFilter, 'all'> {
   if (!job) return 'processing-received'
+  if (isOpenPlannedJob(job)) return 'planned'
 
   if (job.status === 'Completed') return 'completed'
   if (job.status === 'Cancelled' || job.status === 'Rejected' || job.status === 'RevisionRequested') return 'cancelled'
@@ -188,11 +191,14 @@ function getSocialMessageStatusKey(job: JobSummary | undefined): Exclude<SocialR
 function matchesSocialRequestStatusFilter(job: JobSummary | undefined, dueDateUtc: string | null, filter: SocialRequestStatusFilter): boolean {
   if (filter === 'all') return true
   if (!job) return filter === 'processing-received'
+  if (filter === 'planned') return isOpenPlannedJob(job)
   if (filter === 'processing-received') {
+    if (isOpenPlannedJob(job)) return false
     return isCitizenProcessingReceivedState({
       status: job.status,
       dueDateUtc,
       taskCount: job.taskCount,
+      plannedAtUtc: job.plannedAtUtc,
     })
   }
   if (filter === 'in-progress') {

@@ -19,7 +19,8 @@ import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, formatOverdueInProgressStatus } from '../utils/localization'
 import { formatCitizenPhoneDisplay, getCitizenGridStatusDateFooterClass, getCitizenGridStatusDateUtc, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue, isCitizenRequestJob } from '../utils/citizenRequests'
 import { drilldownRowMatchesCitizenSearch } from '../utils/requestSearch'
-import { isJobDueDateOverdue } from '../utils/dateTimePicker'
+import { isJobDueDateOverdue, shouldShowJobOverdueLabel } from '../utils/dateTimePicker'
+import { isOpenPlannedJob } from '../utils/plannedJob'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
 import { TruncatedText } from './ui/TruncatedText'
@@ -198,6 +199,7 @@ function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow):
       status: row.status,
       taskCount: row.openTaskCount ?? 0,
       dueDateUtc: row.dueDateUtc,
+      plannedAtUtc: row.plannedAtUtc,
     })
   }
   if (row.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
@@ -222,6 +224,7 @@ function getDrilldownStatusPillClass(row: DashboardChartDrilldownRow): string {
       status: row.status,
       dueDateUtc: row.dueDateUtc,
       taskCount: row.openTaskCount ?? 0,
+      plannedAtUtc: row.plannedAtUtc,
     }))
   }
   if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
@@ -810,11 +813,19 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                                 t={t}
                                 label={statusLabel}
                                 channel={row.sourceChannel}
-                                overdueSubline={row.citizenRequestNumber != null && isCitizenProcessingReceivedOverdue({
+                                overdueSubline={row.citizenRequestNumber != null && (isCitizenProcessingReceivedOverdue({
                                   status: row.status,
                                   dueDateUtc: row.dueDateUtc,
                                   taskCount: row.openTaskCount ?? 0,
-                                })}
+                                  plannedAtUtc: row.plannedAtUtc,
+                                }) || (isOpenPlannedJob({
+                                  status: row.status,
+                                  taskCount: row.openTaskCount ?? 0,
+                                  plannedAtUtc: row.plannedAtUtc,
+                                }) && shouldShowJobOverdueLabel({
+                                  status: row.status,
+                                  dueDateUtc: row.dueDateUtc,
+                                })))}
                                 footer={statusDateText
                                   ? (
                                     <span className={`text-[0.68rem] font-bold ${getCitizenGridStatusDateFooterClass(row.status)}`}>

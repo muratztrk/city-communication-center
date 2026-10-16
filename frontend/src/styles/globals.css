@@ -7102,12 +7102,12 @@
     line-height: 1.1 !important;
   }
 
-  /* Plana Al aynı satırdayken diğer aksiyonlar biraz küçülür. */
+  /* Plana Al aynı satırdayken diğer aksiyonlar çok az büyür. */
   .detail-modal-header-actions--compact button:not(.detail-modal-header-close),
   .detail-modal-header-actions--compact a {
-    height: 1.88rem !important;
-    padding: 0 0.48rem !important;
-    font-size: 0.66rem !important;
+    height: 2.16rem !important;
+    padding: 0 0.78rem !important;
+    font-size: 0.75rem !important;
   }
 
   .detail-modal-header-actions .detail-modal-header-close {

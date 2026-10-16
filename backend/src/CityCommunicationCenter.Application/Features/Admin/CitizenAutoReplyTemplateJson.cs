@@ -287,7 +287,17 @@ public static class CitizenAutoReplyTemplateJson
     }
 
     private static string EnsurePlanTemplate(string template) =>
-        EnsureTerminalNoteToken(EnsureTargetDepartmentToken(EnsureQuotedCitizenStatuses(template)), "{Plan Notu}", "{PlanNotu}");
+        EnsureTargetDepartmentToken(EnsureQuotedCitizenStatuses(StripPlanNoteToken(template)));
+
+    private static string StripPlanNoteToken(string template)
+    {
+        foreach (var token in new[] { "{Plan Notu}", "{PlanNotu}" })
+        {
+            template = template.Replace(token, "", StringComparison.Ordinal);
+        }
+
+        return template.TrimEnd();
+    }
 
     private static string EnsureCompletionNoteToken(string template) =>
         EnsureTerminalNoteToken(template, "{Tamamlama Notu}", "{TamamlamaNotu}");

@@ -1,3 +1,9 @@
+## Round 1480 — Plana Alındı sayaç, pasta ve harita
+
+- [x] Planlanan chip sayaç rozeti, `{Plan Notu}` kalktı, Plana Al satırındaki butonlar biraz büyüdü.
+- [x] Vatandaş Talepleri pastasında süresi geçmiş planlı iş de Plana Alındı diliminde. Drilldown durumu Plana Alındı.
+- [x] Vatandaş haritası: İşleme Alındı açık mavi, Geciken kırmızı.
+
 ## Round 1479 — Plana Alındı görünüm
 
 - [x] Beyaz chip / pill / buton yazısı, gelen gridde planlı satır, süreç altın halka ve çizgi.

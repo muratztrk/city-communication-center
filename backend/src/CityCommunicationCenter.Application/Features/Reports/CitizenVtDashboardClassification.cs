@@ -82,14 +82,14 @@ internal static class CitizenVtDashboardClassification
             return display;
         }
 
-        if (IsPastDue(job.DueDateUtc, now))
-        {
-            return DisplayStatus.Overdue;
-        }
-
         if (IsOpenPlanned(job.Status, job.PlannedAtUtc, job.OpenTaskCount))
         {
             return DisplayStatus.Planned;
+        }
+
+        if (IsPastDue(job.DueDateUtc, now))
+        {
+            return DisplayStatus.Overdue;
         }
 
         return display;

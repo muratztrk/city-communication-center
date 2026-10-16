@@ -54,7 +54,8 @@ public sealed record DashboardChartDrilldownRow(
     /// <summary>Talep Oluşturan Birimler pie: Gittiği Yer (#2616).</summary>
     string? DestinationDepartmentName = null,
     /// <summary>Açık (terminal olmayan) görev sayısı — vatandaş İşleme Alındı / Yapılmakta (#2605).</summary>
-    int? OpenTaskCount = null);
+    int? OpenTaskCount = null,
+    DateTimeOffset? PlannedAtUtc = null);
 
 public sealed record DashboardEDevletPlanRow(
     Guid PlanId,

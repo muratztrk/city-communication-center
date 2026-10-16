@@ -251,7 +251,7 @@ const DEFAULT_CITIZEN_OUTBOUND_GREETING = 'Değerli vatandaşımız,'
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\".",
   inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Yapılmakta\". {GönderilenBirim}",
-  planned: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Plana Alındı\". {GönderilenBirim} {Plan Notu}",
+  planned: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Plana Alındı\". {GönderilenBirim}",
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Tamamlandı\". {GönderilenBirim}",
   cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İptal Edildi\". {GönderilenBirim}",
   greeting: DEFAULT_CITIZEN_OUTBOUND_GREETING,
@@ -280,7 +280,6 @@ const CITIZEN_REQUEST_TITLE_TOKEN = '{VatandaşTalepBaşlığı}'
 const CITIZEN_REQUEST_STATUS_TOKEN = '{VatandaşTalepDurumu}'
 const TARGET_DEPARTMENT_TOKEN = '{GönderilenBirim}'
 const COMPLETION_NOTE_TOKEN = '{Tamamlama Notu}'
-const PLAN_NOTE_TOKEN = '{Plan Notu}'
 const CANCEL_NOTE_TOKEN = '{İptal Notu}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
@@ -2598,10 +2597,8 @@ export function SettingsPage() {
         planned: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.planned ?? '', t('jobs.statusLabel.planned', 'Plana Alındı')),
           t('jobs.statusLabel.planned', 'Plana Alındı'),
-          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.planned ?? '', PLAN_NOTE_TOKEN),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.planned ?? ''),
           true,
-          PLAN_NOTE_TOKEN,
-          extractCitizenAutoReplyNoteSuffixText(citizenAutoReplyTemplates.planned ?? '', PLAN_NOTE_TOKEN),
         ),
         completed: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.completed, t('social.requestStatus.completed', 'Tamamlandı')),
@@ -4805,7 +4802,7 @@ export function SettingsPage() {
             <div className="grid gap-4 md:grid-cols-4">
               {([
                 { key: 'processingReceived', label: t('social.requestStatus.processingReceived', 'İşleme Alındı'), tone: 'warning', includeTargetDepartment: false },
-                { key: 'planned', label: t('jobs.statusLabel.planned', 'Plana Alındı'), tone: 'warning', noteToken: PLAN_NOTE_TOKEN },
+                { key: 'planned', label: t('jobs.statusLabel.planned', 'Plana Alındı'), tone: 'warning' },
                 { key: 'completed', label: t('social.requestStatus.completed', 'Tamamlandı'), tone: 'success', noteToken: COMPLETION_NOTE_TOKEN },
                 { key: 'cancelled', label: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), templateLabel: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), tone: 'danger', noteToken: CANCEL_NOTE_TOKEN },
               ] as Array<{ key: CitizenAutoReplyTemplateKey; label: string; templateLabel?: string; tone: 'success' | 'warning' | 'danger'; noteToken?: string; includeTargetDepartment?: boolean }>).map(({ key, label, templateLabel, tone, noteToken, includeTargetDepartment }) => (
@@ -4830,7 +4827,7 @@ export function SettingsPage() {
               ))}
             </div>
             <p className="text-xs font-medium text-slate-500">
-              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı; Plana Alındı/Tamamlandı/İptal kartlarında {GönderilenBirim}; Plana Alındı kartında {Plan Notu}; Tamamlandı/İptal kartlarında {Tamamlama Notu} ve {İptal Notu}. İşleme Alındı kartında {GönderilenBirim} yoktur.')}
+              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı; Plana Alındı/Tamamlandı/İptal kartlarında {GönderilenBirim}; Tamamlandı/İptal kartlarında {Tamamlama Notu} ve {İptal Notu}. İşleme Alındı kartında {GönderilenBirim} yoktur.')}
             </p>
           </section>
 

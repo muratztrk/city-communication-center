@@ -55,6 +55,7 @@ export interface DashboardChartDrilldownRow {
   destinationDepartmentName?: string | null;
   /** Açık (terminal olmayan) görev sayısı — vatandaş İşleme Alındı / Yapılmakta (#2605). */
   openTaskCount?: number | null;
+  plannedAtUtc?: string | null;
 }
 
 export interface DashboardChartDrilldownResponse {

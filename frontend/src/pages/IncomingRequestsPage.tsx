@@ -813,6 +813,19 @@ export function IncomingRequestsPage() {
     return result.length
   }, [rows, isCitizenRequestManager, citizenOnly, channelFilter, currentKindFilter])
 
+  const incomingPlannedCount = useMemo(() => {
+    let result = rows
+      .filter(row => matchesStatusFilter(row, 'planned'))
+      .filter(row => matchesKindFilter(row, currentKindFilter))
+    if (isCitizenRequestManager || citizenOnly) {
+      result = result.filter(row => row.isCitizenRequest)
+    }
+    if (channelFilter) {
+      result = result.filter(row => channelsMatch(row.sourceChannel, channelFilter))
+    }
+    return result.length
+  }, [rows, isCitizenRequestManager, citizenOnly, channelFilter, currentKindFilter])
+
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText, overdueOnly])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
@@ -976,7 +989,7 @@ export function IncomingRequestsPage() {
             key={filter.value}
             type="button"
             className={`scope-chip ${getScopeChipColorClass(filter.value)}${filter.value === currentStatusFilter ? ' active' : ''}`}
-            badgeCount={filter.value === 'overdue' ? incomingOverdueCount : 0}
+            badgeCount={filter.value === 'overdue' ? incomingOverdueCount : filter.value === 'planned' ? incomingPlannedCount : 0}
             onClick={() => setStatusFilter(filter.value)}
           >
             {t(filter.labelKey, filter.fallback)}

@@ -171,6 +171,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 link.Job.Status,
                 link.Job.Priority,
                 link.Job.DueDateUtc,
+                link.Job.PlannedAtUtc,
                 link.Job.CompletedAtUtc,
                 link.Job.UpdatedAtUtc,
                 link.Job.Neighborhood,
@@ -234,7 +235,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Status.ToString(), departmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
+                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount, PlannedAtUtc: row.PlannedAtUtc))
             .ToList());
     }
 
@@ -288,6 +289,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Status,
                 job.Priority,
                 job.DueDateUtc,
+                job.PlannedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
@@ -378,7 +380,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
+                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount, PlannedAtUtc: row.PlannedAtUtc))
             .ToList();
 
         return new DashboardChartDrilldownResponse(rows);
@@ -428,6 +430,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Status,
                 job.Priority,
                 job.DueDateUtc,
+                job.PlannedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
@@ -518,6 +521,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 link.Job.Status,
                 link.Job.Priority,
                 link.Job.DueDateUtc,
+                link.Job.PlannedAtUtc,
                 link.Job.CompletedAtUtc,
                 link.Job.UpdatedAtUtc,
                 link.Job.Neighborhood,
@@ -581,6 +585,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Status,
                 job.Priority,
                 job.DueDateUtc,
+                job.PlannedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
@@ -654,6 +659,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Status,
                 job.Priority,
                 job.DueDateUtc,
+                job.PlannedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
@@ -700,7 +706,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
+                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount, PlannedAtUtc: row.PlannedAtUtc))
             .ToList());
     }
 
@@ -741,6 +747,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Status,
                 job.Priority,
                 job.DueDateUtc,
+                job.PlannedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
@@ -787,7 +794,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
+                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount, PlannedAtUtc: row.PlannedAtUtc))
             .ToList());
     }
 
@@ -876,6 +883,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Status,
                 job.Priority,
                 job.DueDateUtc,
+                job.PlannedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
@@ -944,12 +952,12 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Status,
                 job.Priority,
                 job.DueDateUtc,
+                job.PlannedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
                 job.CitizenName,
                 job.CitizenPhone,
-                job.PlannedAtUtc,
                 TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
                     && task.CurrentStatus != WorkflowTaskStatus.Completed
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
@@ -982,12 +990,12 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "dashboard.chart.completed" => job.Status == JobStatus.Completed,
             "dashboard.chart.cancelled" => job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested,
             "dashboard.chart.overdue" => job.Status is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
-                && job.DueDateUtc.HasValue && job.DueDateUtc.Value < now,
+                && job.DueDateUtc.HasValue && job.DueDateUtc.Value < now
+                && !CitizenVtDashboardClassification.IsOpenPlanned(job.Status, job.PlannedAtUtc, job.TaskCount),
             "dashboard.chart.inProgress" => job.Status == JobStatus.Active
                 && job.TaskCount > 0
                 && !(job.DueDateUtc.HasValue && job.DueDateUtc.Value < now),
-            "dashboard.chart.citizenPlanned" => CitizenVtDashboardClassification.IsOpenPlanned(job.Status, job.PlannedAtUtc, job.TaskCount)
-                && !(job.DueDateUtc.HasValue && job.DueDateUtc.Value < now),
+            "dashboard.chart.citizenPlanned" => CitizenVtDashboardClassification.IsOpenPlanned(job.Status, job.PlannedAtUtc, job.TaskCount),
             "dashboard.chart.citizenProcessingReceived" => job.Status is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
                 && !(job.DueDateUtc.HasValue && job.DueDateUtc.Value < now)
                 && !(job.Status == JobStatus.Active && job.TaskCount > 0)
@@ -1000,7 +1008,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
             ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
             row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-            row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
+            row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount, PlannedAtUtc: row.PlannedAtUtc))
         .ToList();
 
         return new DashboardChartDrilldownResponse(filtered);

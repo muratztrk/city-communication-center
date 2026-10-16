@@ -434,12 +434,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve `Active` + açık görev yokken gösterilir. Onayla bayrağı temizler; personel atanınca normal
   İşleme Alındı/Yapılmakta döner. Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
   Plana Al butonu yazısı beyaz. Süreç halkası, bağlantı çizgisi ve Durum değeri aynı altın geçişle
-  boyanır (gecikince de maviye dönmez). Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden).
+  boyanır (gecikince de maviye dönmez).   Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden) ve kayıt varken Geciken chip'i
+  ile aynı sağ üst sayaç rozetini gösterir. Plana Al aynı satırdayken diğer aksiyon butonları biraz büyür.
   Açık ve Tüm pastalar yeni dilim açmaz; planlı iş `Classify()` ile `ProcessingReceived` içinde kalır.
-  Yalnız Vatandaş Talepleri pastasında İşleme Alındı'dan hemen sonra altın Plana Alındı dilimi vardır;
-  süresi geçmiş planlı iş o pastada Geciken diliminde kalır. Vatandaş talep haritası: İşleme Alındı mavi,
-  Plana Alındı altın, Yapılmakta turuncu, Geciken mavi-kırmızı, Tamamlanan yeşil. Birim haritası renkleri
-  aynı kalır. Ekrana Yansıt sekmesi açıkken önceki sekme bildirim sesi çalmaz (kalp atışı 120 sn).
+  Drilldown Durum hücresi `plannedAtUtc` doluysa Plana Alındı yazar. Vatandaş Talepleri pastasında
+  İşleme Alındı'dan hemen sonra altın Plana Alındı dilimi vardır; süresi geçmiş planlı iş de bu dilimdedir,
+  Geciken diliminde sayılmaz. Vatandaş talep haritası: İşleme Alındı açık mavi `#38bdf8`, Plana Alındı altın,
+  Yapılmakta turuncu, Geciken kırmızı `#dc2626`, Tamamlanan yeşil. Birim haritası renkleri aynı kalır.
+  Ekrana Yansıt sekmesi açıkken önceki sekme bildirim sesi çalmaz (kalp atışı 120 sn).
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı Görevlerim detay popup sol üst
@@ -1187,8 +1189,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   red/son tarihi geçmiş etiketleri bu otomatik şablonlara düşürülmez (cards #1266/#1268).
   **Plana Alındı** (#4221) aynı anda gönderilir (operatör onay kuyruğu yok). Ayarlar kutusunda
   Yapılmakta kartı yoktur; kayıt yine mevcut Yapılmakta metnini ve `inProgressEnabled` değerini yollar.
-  Plana Alındı kartı Tamamlandı gibidir: hitap, gövde, `{GönderilenBirim}`, `{Plan Notu}`; Aktif/Pasif yok.
-  Plan onayında not alınmaz, `{Plan Notu}` boşaltılır.
+  Plana Alındı kartı Tamamlandı gibidir: hitap, gövde, `{GönderilenBirim}`; `{Plan Notu}` yoktur. Aktif/Pasif yok.
+  Plan onayında not alınmaz.
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
   kartının hemen altında durur; `{VatandaşTalepNo}` öncesinde düzenlenebilir hitap
   (`Değerli vatandaşımız,` varsayılan, #2901) `field-textarea min-h-[4.5rem]` — gövde ve ek metin

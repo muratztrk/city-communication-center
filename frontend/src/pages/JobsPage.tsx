@@ -1442,6 +1442,28 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     return filterDepartmentOutgoingRequests(jobs, 'overdue').length
   }, [isDepartmentOutgoingView, jobs])
 
+  const myRequestsPlannedCount = useMemo(() => {
+    if (!isMyRequestsView) return 0
+    const base = jobs.filter(job => !hideCitizenRequestsFromMyRequests || !isCitizenRequestJob(job))
+    const scoped = showRequestFlowFilters
+      ? base.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter))
+      : base
+    return filterMyRequests(scoped, 'planned', isReporter, isManagerLike).length
+  }, [
+    isMyRequestsView,
+    jobs,
+    hideCitizenRequestsFromMyRequests,
+    showRequestFlowFilters,
+    currentRequestFlowFilter,
+    isReporter,
+    isManagerLike,
+  ])
+
+  const outgoingPlannedCount = useMemo(() => {
+    if (!isDepartmentOutgoingView) return 0
+    return filterDepartmentOutgoingRequests(jobs, 'planned').length
+  }, [isDepartmentOutgoingView, jobs])
+
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters, hasActiveFilters: hasActiveJobColumnFilters } = useColumnFilters()
 
@@ -2537,7 +2559,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 key={view.value}
                 type="button"
                 className={`scope-chip ${chipColorClass}${view.value === currentMyRequestsView ? ' active' : ''}`}
-                badgeCount={view.value === 'overdue' ? myRequestsOverdueCount : 0}
+                badgeCount={view.value === 'overdue' ? myRequestsOverdueCount : view.value === 'planned' ? myRequestsPlannedCount : 0}
                 disabled={isDisabledExternalPending}
                 onClick={() => setMyRequestsView(view.value)}
               >
@@ -2592,7 +2614,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               key={view.value}
               type="button"
               className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentDepartmentOutgoingView ? ' active' : ''}`}
-              badgeCount={view.value === 'overdue' ? outgoingOverdueCount : 0}
+              badgeCount={view.value === 'overdue' ? outgoingOverdueCount : view.value === 'planned' ? outgoingPlannedCount : 0}
               onClick={() => setDepartmentOutgoingView(view.value)}
             >
               {t(view.labelKey)}

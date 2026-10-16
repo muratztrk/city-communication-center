@@ -48,6 +48,9 @@ public sealed class UserRoleAccessTests
     [InlineData(RoleCode.Reporter, "[\"CitizenRequestManager\"]", true)]
     [InlineData(RoleCode.Operator, null, false)]
     [InlineData(RoleCode.Manager, null, false)]
+    [InlineData(RoleCode.SystemAdmin, "[\"Staff\"]", true)]
+    [InlineData(RoleCode.SystemAdmin, null, false)]
+    [InlineData(RoleCode.SystemAdmin, "[]", false)]
     public void IsDepartmentStaffMonitorUser_MatchesStaffAndCitizenRequestManager(
         RoleCode roleCode,
         string? additionalRoleCodesJson,

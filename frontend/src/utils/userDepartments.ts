@@ -18,10 +18,11 @@ function userHasAssignableTaskRole(user: User): boolean {
   return Boolean(user.additionalRoleCodes?.some(role => TASK_ASSIGNABLE_ROLE_CODES.has(role)))
 }
 
-/** Personelimin Görevleri filtresi + dashboard pie: Standart + VTY (birincil veya ek rol). */
+/** Personelimin Görevleri filtresi + dashboard pie: Standart + VTY (birincil veya ek rol). Sistem yöneticisi ek rolü varsa da. */
 function userHasStaffMonitorRole(user: User): boolean {
   if (user.roleCode === 'Staff' || user.roleCode === 'CitizenRequestManager') return true
-  return Boolean(user.additionalRoleCodes?.includes('CitizenRequestManager'))
+  if (user.additionalRoleCodes?.includes('CitizenRequestManager')) return true
+  return user.roleCode === 'SystemAdmin' && (user.additionalRoleCodes?.length ?? 0) > 0
 }
 
 /** Onayla/Personel Ata modallarında görev atanabilecek aktif kullanıcılar. */

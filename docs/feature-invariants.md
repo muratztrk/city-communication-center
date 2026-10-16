@@ -2363,7 +2363,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünmez.
 - **Personelimin Görevleri pie (R548 / #2034):** birimdeki tüm aktif `Staff` + `CitizenRequestManager`
   (birincil veya ek rol) kullanıcıları (görev sayısı 0 olsa bile) dilim/lejantta kalır; yalnız görev
-  atanmış personel listelenmez. `Personelimin Görevleri` personel filtresi aynı kümedir.
+  atanmış personel listelenmez. Birincil rolü `SystemAdmin` olup en az bir ek rolü olan kullanıcı da
+  kendi biriminin müdürünün personel filtresinde ve bu pastada görünür. `Personelimin Görevleri` personel filtresi aynı kümedir.
 - **Mahalle pie'ları (R548 / #2035):** `neighborhoodCompleted/InProgress/Processing` Tire
   mahalle kataloğundaki tüm isimleri 0 sayıyla doldurur (`TireNeighborhoodCatalog`, FE
   `izmir-locations.ts` ile senkron); katalogda olmayan geçmiş mahalle adları kaybolmaz.

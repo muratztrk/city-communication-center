@@ -324,7 +324,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
                         .OrderBy(d => d.DecidedAtUtc)
                         .Select(d => d.DecidedAtUtc)
                         .FirstOrDefault()
-                    : null))
+                    : null,
+                m.Job != null ? m.Job.PlannedAtUtc : null))
             .ToListAsync(cancellationToken);
 
         tickets = await ApplyOpenTaskCountsAsync(tickets, cancellationToken);

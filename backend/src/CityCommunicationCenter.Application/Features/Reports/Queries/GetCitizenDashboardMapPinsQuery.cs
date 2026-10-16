@@ -180,7 +180,9 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
         var overdue = dueDateUtc.HasValue && dueDateUtc.Value < now;
         if (CitizenVtDashboardClassification.IsOpenPlanned(status, plannedAtUtc, taskCount))
         {
-            return overdue ? MapPinDisplayStatus.Overdue : MapPinDisplayStatus.Planned;
+            // A planned request stays Plana Alındı after its due date. It is not
+            // Geciken, and the map marker stays gold.
+            return MapPinDisplayStatus.Planned;
         }
 
         if (status == JobStatus.Active && taskCount > 0)

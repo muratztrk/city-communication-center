@@ -1,3 +1,9 @@
+## Round 1479 — Plana Alındı görünüm
+
+- [x] Beyaz chip / pill / buton yazısı, gelen gridde planlı satır, süreç altın halka ve çizgi.
+- [x] Vatandaş Talepleri pastasında Plana Alındı dilimi; Açık ve Tüm pastalarda yeni dilim yok.
+- [x] Vatandaş haritası renkleri; Ekrana Yansıt açıkken önceki sekmede ses yok.
+
 ## Round 1478 — Plana Alındı
 
 - [x] #4218–#4224: Plana Al butonu ve onay, altın grid/Süreç, Planlanan chip, ayarlarda Yapılmakta yerine Plana Alındı kutusu, vatandaş filtresi, geciken altın kalır, açık pastada yeni dilim yok.

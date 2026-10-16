@@ -49,6 +49,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                 job.Title,
                 job.Status,
                 job.DueDateUtc,
+                job.PlannedAtUtc,
                 Neighborhood = job.Neighborhood,
                 Street = job.Street,
                 StreetNo = job.StreetNo,
@@ -102,7 +103,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
         var pins = rows
             .Select(row =>
             {
-                var display = Classify(row.Status, row.DueDateUtc, row.TaskCount, now);
+                var display = Classify(row.Status, row.DueDateUtc, row.TaskCount, row.PlannedAtUtc, now);
                 return (row, display);
             })
             .Where(pair => pair.display != MapPinDisplayStatus.Cancelled)
@@ -151,6 +152,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
     private static string ToDisplayStatus(MapPinDisplayStatus status) => status switch
     {
         MapPinDisplayStatus.ProcessingReceived => "processingReceived",
+        MapPinDisplayStatus.Planned => "planned",
         MapPinDisplayStatus.InProgress => "inProgress",
         MapPinDisplayStatus.Overdue => "overdue",
         MapPinDisplayStatus.Completed => "completed",
@@ -162,6 +164,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
         JobStatus status,
         DateTimeOffset? dueDateUtc,
         int taskCount,
+        DateTimeOffset? plannedAtUtc,
         DateTimeOffset now)
     {
         if (status == JobStatus.Completed)
@@ -174,14 +177,15 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
             return MapPinDisplayStatus.Cancelled;
         }
 
+        var overdue = dueDateUtc.HasValue && dueDateUtc.Value < now;
+        if (CitizenVtDashboardClassification.IsOpenPlanned(status, plannedAtUtc, taskCount))
+        {
+            return overdue ? MapPinDisplayStatus.Overdue : MapPinDisplayStatus.Planned;
+        }
+
         if (status == JobStatus.Active && taskCount > 0)
         {
-            if (dueDateUtc.HasValue && dueDateUtc.Value < now)
-            {
-                return MapPinDisplayStatus.Overdue;
-            }
-
-            return MapPinDisplayStatus.InProgress;
+            return overdue ? MapPinDisplayStatus.Overdue : MapPinDisplayStatus.InProgress;
         }
 
         return MapPinDisplayStatus.ProcessingReceived;
@@ -190,6 +194,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
     private enum MapPinDisplayStatus
     {
         ProcessingReceived,
+        Planned,
         InProgress,
         Overdue,
         Completed,

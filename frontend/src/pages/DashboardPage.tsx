@@ -292,6 +292,7 @@ const INCOMING_SLICE_STATUS: Record<string, string> = {
   'dashboard.chart.pendingApproval': 'pending-approval',
   'dashboard.chart.pending': 'pending-approval',
   'dashboard.chart.citizenProcessingReceived': 'processing-received',
+  'dashboard.chart.citizenPlanned': 'planned',
   'dashboard.chart.overdue': 'overdue',
   'dashboard.chart.approved': 'approved',
   // Yapılmakta Olan → mavi "Yapılmakta Olan Talepler" chip (#r542 / cards #3+#16)
@@ -302,6 +303,7 @@ const INCOMING_SLICE_STATUS: Record<string, string> = {
 
 const CITIZEN_SLICE_STATUS: Record<string, string> = {
   'dashboard.chart.citizenProcessingReceived': 'processing-received',
+  'dashboard.chart.citizenPlanned': 'planned',
   'dashboard.chart.overdue': 'overdue',
   'dashboard.chart.inProgress': 'in-progress',
   'dashboard.chart.completed': 'completed',

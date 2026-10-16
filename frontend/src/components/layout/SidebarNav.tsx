@@ -4,6 +4,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { prefetchRouteChunk } from '../../app/routePrefetch'
 import { cn } from '../../lib/cn'
 import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
+import { pulseWallboardTabHeartbeat } from '../../utils/newRecordSoundSuppress'
 
 const PAGE_SIZE = 10
 
@@ -136,7 +137,12 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
         rel={item.newTab ? 'noopener noreferrer' : undefined}
         onMouseEnter={() => prefetchRouteChunk(item.path)}
         onFocus={() => prefetchRouteChunk(item.path)}
-        onClick={() => onNavigate?.()}
+        onClick={() => {
+          if (item.path.split('?')[0] === '/display') {
+            pulseWallboardTabHeartbeat()
+          }
+          onNavigate?.()
+        }}
       >
         {item.iconImageSrc ? (
           <img src={item.iconImageSrc} alt="" className={cn('shrink-0 object-contain', isEmphasizedNested ? 'size-4' : nested && !collapsed ? 'size-4' : 'size-4.5')} />

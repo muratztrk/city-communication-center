@@ -11,6 +11,7 @@ const COLOR_MAP: Record<string, string> = {
   warning: '#eab308', // "Bekleyen" sarı — turuncudan (#f97316) ayrışsın (card 760)
   danger: '#ef4444',
   info: '#06b6d4',
+  gold: '#d4a017',
   neutral: '#94a3b8',
   orange: '#f97316',
   violet: '#8b5cf6',

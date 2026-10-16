@@ -10,13 +10,29 @@ internal static class CitizenVtDashboardClassification
     internal enum DisplayStatus
     {
         ProcessingReceived,
+        Planned,
         InProgress,
         Overdue,
         Completed,
         Cancelled,
     }
 
-    internal sealed record JobSlice(JobStatus Status, DateTimeOffset? DueDateUtc, int OpenTaskCount);
+    internal sealed record JobSlice(JobStatus Status, DateTimeOffset? DueDateUtc, int OpenTaskCount, DateTimeOffset? PlannedAtUtc = null);
+
+    internal static bool IsOpenPlanned(JobStatus status, DateTimeOffset? plannedAtUtc, int openTaskCount)
+    {
+        if (!plannedAtUtc.HasValue)
+        {
+            return false;
+        }
+
+        if (status is JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
+        {
+            return false;
+        }
+
+        return !(status == JobStatus.Active && openTaskCount > 0);
+    }
 
     internal static bool IsPastDue(DateTimeOffset? dueDateUtc, DateTimeOffset now) =>
         dueDateUtc.HasValue && dueDateUtc.Value < now;
@@ -69,6 +85,11 @@ internal static class CitizenVtDashboardClassification
         if (IsPastDue(job.DueDateUtc, now))
         {
             return DisplayStatus.Overdue;
+        }
+
+        if (IsOpenPlanned(job.Status, job.PlannedAtUtc, job.OpenTaskCount))
+        {
+            return DisplayStatus.Planned;
         }
 
         return display;

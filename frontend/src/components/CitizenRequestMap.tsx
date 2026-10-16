@@ -33,10 +33,14 @@ import { isSearchQueryActive, pinMatchesMapSearch } from '../utils/requestSearch
 
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boolean }
 
+const CITIZEN_OVERDUE_PIN = 'split-blue-red'
+const CITIZEN_OVERDUE_LEGEND = 'linear-gradient(135deg, #2563eb 0 50%, #dc2626 50% 100%)'
+
 const PIN_COLORS: Record<string, string> = {
-  processingReceived: '#eab308',
+  processingReceived: '#2563eb',
+  planned: '#d4a017',
   pendingApproval: '#0ea5e9',
-  inProgress: '#0ea5e9',
+  inProgress: '#f97316',
   overdue: '#f97316',
   completed: '#22c55e',
 }
@@ -49,6 +53,7 @@ const DEPARTMENT_PIN_COLORS: Record<string, string> = {
 }
 
 function pinColor(displayStatus: string, variant: 'citizen' | 'department'): string {
+  if (variant === 'citizen' && displayStatus === 'overdue') return CITIZEN_OVERDUE_PIN
   const palette = variant === 'department' ? DEPARTMENT_PIN_COLORS : PIN_COLORS
   return palette[displayStatus] ?? palette.inProgress
 }
@@ -184,9 +189,13 @@ function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   const cached = pinIconCache.get(cacheKey)
   if (cached) return cached
   const fillOpacity = approximate ? '0.72' : '1'
+  const split = color === CITIZEN_OVERDUE_PIN
+  const fill = split ? 'url(#pinSplit)' : color
   // Dış çerçeve yok (#2597); pin gövdesi durum rengi, iç daire beyaz (#2613).
+  // Geciken: mavi / kırmızı.
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_WIDTH}" height="${PIN_HEIGHT}" viewBox="0 0 24 36">
-    <path fill="${color}" fill-opacity="${fillOpacity}"
+    ${split ? '<defs><linearGradient id="pinSplit" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#2563eb"/><stop offset="50%" stop-color="#2563eb"/><stop offset="50%" stop-color="#dc2626"/><stop offset="100%" stop-color="#dc2626"/></linearGradient></defs>' : ''}
+    <path fill="${fill}" fill-opacity="${fillOpacity}"
       d="M12 1.2C6.7 1.2 2.4 5.5 2.4 10.8c0 7.4 9.6 23 9.6 23s9.6-15.6 9.6-23C21.6 5.5 17.3 1.2 12 1.2z"/>
     <circle cx="12" cy="11" r="3.6" fill="#ffffff"/>
   </svg>`
@@ -730,7 +739,7 @@ export function CitizenRequestMap({
 
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
-    const overdueColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.overdue : PIN_COLORS.overdue
+    const overdueColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.overdue : CITIZEN_OVERDUE_LEGEND
     const inProgressLabel = t('jobs.statusLabel.inProgress', 'Yapılmakta')
     const overdueLabel = t('citizenRequestMap.legend.overdue', 'Geciken')
     const items = [
@@ -745,6 +754,7 @@ export function CitizenRequestMap({
     if (variant === 'department') return items
     return [
       { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'), color: PIN_COLORS.processingReceived },
+      { key: 'planned', label: t('jobs.statusLabel.planned', 'Plana Alındı'), color: PIN_COLORS.planned },
       ...items,
     ]
   }, [t, variant])
@@ -838,7 +848,7 @@ export function CitizenRequestMap({
               onClick={() => setStatusFilter(current => (current === item.key ? null : item.key))}
               className={`inline-flex shrink-0 items-center gap-1.5 rounded-md px-1 py-0.5 transition-colors hover:bg-slate-100${item.key === 'overdue' ? ' whitespace-nowrap' : ''}${statusFilter === item.key ? ' bg-slate-100 ring-1 ring-slate-300' : ''}`}
             >
-              <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+              <span className="size-2.5 shrink-0 rounded-full" style={{ background: item.color }} />
               {item.label}
             </button>
           ))}

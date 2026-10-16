@@ -11,8 +11,17 @@ import { formatDateTime, formatDueDateTime } from './format'
 import { formatOverdueInProgressStatus } from '../../../utils/localization'
 import { getJobTargetApproverDisplayName } from '../../../utils/jobDetails'
 import { shouldShowJobOverdueLabel } from '../../../utils/dateTimePicker'
+import { isOpenPlannedJob } from '../../../utils/plannedJob'
 
-export type JobProcessStepState = 'completed' | 'current' | 'pending' | 'upcoming' | 'terminal-success' | 'terminal-danger'
+export type JobProcessStepState = 'completed' | 'current' | 'pending' | 'planned' | 'upcoming' | 'terminal-success' | 'terminal-danger'
+
+function isPlannedProcessJob(detail: JobDetail): boolean {
+  return isOpenPlannedJob({
+    status: detail.status,
+    plannedAtUtc: detail.plannedAtUtc,
+    taskCount: detail.tasks?.length ?? 0,
+  })
+}
 
 function isPendingApprovalJobStatus(status: string): boolean {
   return status === 'PendingOwnerApproval'
@@ -181,6 +190,9 @@ function resolveStepStates(
       }
       if (step.id === 'status') {
         foundCurrent = true
+        if (isPlannedProcessJob(detail)) {
+          return { ...step, state: 'planned' as const }
+        }
         // Yapılmakta → mavi pending; Geciken → turuncu current (#2107).
         return { ...step, state: isActiveJobOverdue(detail) ? statusStepStateWhenOverdue(detail) : 'pending' as const }
       }
@@ -258,6 +270,9 @@ function resolveStepStates(
     }
     if (step.id === 'status') {
       foundCurrent = true
+      if (isPlannedProcessJob(detail)) {
+        return { ...step, state: 'planned' as const }
+      }
       // Geciken → turuncu (#1644); İşleme Alındı (Geciken) → mavi (#2875).
       if (isActiveJobOverdue(detail)) {
         return { ...step, state: statusStepStateWhenOverdue(detail) }

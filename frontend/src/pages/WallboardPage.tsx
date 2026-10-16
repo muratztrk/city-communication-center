@@ -179,10 +179,18 @@ export function WallboardPage() {
   useEffect(() => {
     suppressNewRecordSound()
     pulseWallboardTabHeartbeat()
-    const heartbeatId = window.setInterval(pulseWallboardTabHeartbeat, 2000)
+    const heartbeatId = window.setInterval(pulseWallboardTabHeartbeat, 15_000)
     const cleanupMute = muteNewRecordSoundWhileMounted()
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') pulseWallboardTabHeartbeat()
+    }
+    const onPageHide = () => clearWallboardTabHeartbeat()
+    document.addEventListener('visibilitychange', onHide)
+    window.addEventListener('pagehide', onPageHide)
     return () => {
       window.clearInterval(heartbeatId)
+      document.removeEventListener('visibilitychange', onHide)
+      window.removeEventListener('pagehide', onPageHide)
       clearWallboardTabHeartbeat()
       cleanupMute()
     }

@@ -551,6 +551,7 @@
       "assignedToMe": "My Tasks (non-cancelled)",
       "departmentTotal": "Department Tasks",
       "citizenProcessingReceived": "Processing Received",
+      "citizenPlanned": "Planned",
       "priorityNormal": "Normal",
       "priorityHigh": "High",
       "priorityVeryHigh": "Very High",

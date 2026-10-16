@@ -949,6 +949,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Neighborhood,
                 job.CitizenName,
                 job.CitizenPhone,
+                job.PlannedAtUtc,
                 TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
                     && task.CurrentStatus != WorkflowTaskStatus.Completed
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
@@ -985,9 +986,12 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "dashboard.chart.inProgress" => job.Status == JobStatus.Active
                 && job.TaskCount > 0
                 && !(job.DueDateUtc.HasValue && job.DueDateUtc.Value < now),
+            "dashboard.chart.citizenPlanned" => CitizenVtDashboardClassification.IsOpenPlanned(job.Status, job.PlannedAtUtc, job.TaskCount)
+                && !(job.DueDateUtc.HasValue && job.DueDateUtc.Value < now),
             "dashboard.chart.citizenProcessingReceived" => job.Status is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
                 && !(job.DueDateUtc.HasValue && job.DueDateUtc.Value < now)
-                && !(job.Status == JobStatus.Active && job.TaskCount > 0),
+                && !(job.Status == JobStatus.Active && job.TaskCount > 0)
+                && !CitizenVtDashboardClassification.IsOpenPlanned(job.Status, job.PlannedAtUtc, job.TaskCount),
             _ => false,
         })
         .Take(MaxRows)

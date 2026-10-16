@@ -159,6 +159,7 @@ type IncomingRequestRow = {
   cancelReturnStatus?: string
   sourceChannel?: string | null
   isCitizenRequest?: boolean
+  plannedAtUtc?: string | null
   taskCount?: number
   /** Hedef birim yöneticisi onay anı — Yapılmakta grid tarihi (#3904). */
   targetApprovedAtUtc?: string | null
@@ -397,6 +398,7 @@ function toExternalRow(
       .sort()[0] ?? activeTarget?.decidedAtUtc ?? null,
     hasPendingExtraTimeRequest: job.hasPendingExtraTimeRequest,
     lastExtraTimeRequestDecision: job.lastExtraTimeRequestDecision,
+    plannedAtUtc: job.plannedAtUtc ?? null,
   }
 }
 
@@ -443,6 +445,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     createdByRoleCode: job.createdByRoleCode ?? null,
     hasPendingExtraTimeRequest: job.hasPendingExtraTimeRequest,
     lastExtraTimeRequestDecision: job.lastExtraTimeRequestDecision,
+    plannedAtUtc: job.plannedAtUtc ?? null,
   }
 }
 
@@ -1406,6 +1409,7 @@ export function IncomingRequestsPage() {
           notificationJobId={detailJobId}
           detailContextOverride="incoming"
           onNotificationDetailClose={() => setDetailJobId(null)}
+          onDetailMutated={() => { void reload() }}
         />
       )}
     </div>

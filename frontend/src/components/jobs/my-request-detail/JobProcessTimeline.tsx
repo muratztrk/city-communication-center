@@ -30,6 +30,9 @@ function getLineClass(
   const nextIsUpcoming = nextStep.state === 'upcoming'
 
   if (stepDone && nextDone) return 'job-process-timeline__line--completed'
+  if (stepDone && nextStep.state === 'planned') {
+    return 'job-process-timeline__line--to-planned'
+  }
   if (stepDone && nextStep.state === 'pending') {
     return 'job-process-timeline__line--to-pending'
   }
@@ -61,6 +64,7 @@ function getLineClass(
     return 'job-process-timeline__line--to-upcoming-from-danger'
   }
   if (step.state === 'terminal-danger') return 'job-process-timeline__line--from-danger'
+  if (step.state === 'planned') return 'job-process-timeline__line--from-planned'
   if (step.state === 'pending') return 'job-process-timeline__line--from-pending'
   if (step.state === 'current') return 'job-process-timeline__line--from-current'
   return 'job-process-timeline__line--upcoming'
@@ -68,6 +72,7 @@ function getLineClass(
 
 function getStepLabelClass(state: JobProcessStep['state']): string {
   if (state === 'completed' || state === 'terminal-success') return 'text-emerald-600'
+  if (state === 'planned') return 'text-[#d4a017]'
   if (state === 'pending') return 'text-sky-500'
   if (state === 'current') return 'text-orange-500'
   if (state === 'terminal-danger') return 'text-red-600'
@@ -190,6 +195,9 @@ function StepIndicator({ state, shouldPulse }: { state: JobProcessStep['state'];
   if (state === 'current') {
     return <span className="job-process-timeline__indicator job-process-timeline__indicator--current" aria-hidden="true" />
   }
+  if (state === 'planned') {
+    return <span className="job-process-timeline__indicator job-process-timeline__indicator--planned" aria-hidden="true" />
+  }
   if (state === 'pending') {
     return <span className="job-process-timeline__indicator job-process-timeline__indicator--pending" aria-hidden="true" />
   }
@@ -281,6 +289,8 @@ export function JobProcessTimeline({
               ? 'text-sky-500'
               : statusUseOrange
                 ? 'text-[#f97316]'
+                : step.state === 'planned'
+                  ? 'text-[#d4a017]'
                 : step.id === 'completionDate'
                   ? 'text-emerald-600'
                   : step.id === 'cancelDate'
@@ -349,7 +359,7 @@ export function JobProcessTimeline({
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
-                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}${statusUseGold ? ' [&_*]:!text-[#d4a017]' : statusUseBlue ? ' [&_*]:!text-sky-500' : statusUseOrange ? ' [&_*]:!text-[#f97316]' : ''}`}>
+                  <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}${step.state === 'planned' || statusUseGold ? ' job-process-timeline__step-value--planned' : statusUseBlue ? ' [&_*]:!text-sky-500' : statusUseOrange ? ' [&_*]:!text-[#f97316]' : ''}`}>
                     {typeof statusContent === 'string' && isPendingApprovalText(statusContent) ? (
                       <span className="job-process-timeline__pending-approval-text">
                         {overdueYes

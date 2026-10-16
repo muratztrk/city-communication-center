@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-const STATUS_TOKENS = ['İşleme Alındı', 'İptal Edildi', 'Yapılmakta', 'Tamamlandı', 'Yapılan İş:', 'Not:'] as const
+const STATUS_TOKENS = ['İşleme Alındı', 'Plana Alındı', 'İptal Edildi', 'Yapılmakta', 'Tamamlandı', 'Yapılan İş:', 'Not:'] as const
 
 const RELAY_OPERATOR_CLASS = 'font-semibold text-teal-300'
 
@@ -8,6 +8,8 @@ function classNameFor(token: string): string | null {
   switch (token) {
     case 'İşleme Alındı':
       return 'font-semibold text-yellow-300'
+    case 'Plana Alındı':
+      return 'font-semibold text-[#f6c445]'
     case 'Yapılmakta':
       return 'font-semibold text-orange-300'
     case 'Tamamlandı':

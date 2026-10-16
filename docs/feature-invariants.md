@@ -432,9 +432,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   — `getCitizenRequestStatusLabel` backend `CitizenJobStatusLabelHelper` ile aynı — #2574 reopen.
   **Plana Alındı** (#4218–#4224) ayrı `JobStatus` değildir: `jobs.plannedatutc` dolu, durum terminal değil
   ve `Active` + açık görev yokken gösterilir. Onayla bayrağı temizler; personel atanınca normal
-  İşleme Alındı/Yapılmakta döner. Grid ve Süreç altın `#d4a017`; gecikince altın kalır, grid alt satırı
-  ve Süreç metni `(Geciken)`. Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden).
-  Açık talep pastaları yeni dilim açmaz; planlı iş `ProcessingReceived` içinde kalır.
+  İşleme Alındı/Yapılmakta döner. Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
+  Plana Al butonu yazısı beyaz. Süreç halkası, bağlantı çizgisi ve Durum değeri aynı altın geçişle
+  boyanır (gecikince de maviye dönmez). Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden).
+  Açık ve Tüm pastalar yeni dilim açmaz; planlı iş `Classify()` ile `ProcessingReceived` içinde kalır.
+  Yalnız Vatandaş Talepleri pastasında İşleme Alındı'dan hemen sonra altın Plana Alındı dilimi vardır;
+  süresi geçmiş planlı iş o pastada Geciken diliminde kalır. Vatandaş talep haritası: İşleme Alındı mavi,
+  Plana Alındı altın, Yapılmakta turuncu, Geciken mavi-kırmızı, Tamamlanan yeşil. Birim haritası renkleri
+  aynı kalır. Ekrana Yansıt sekmesi açıkken önceki sekme bildirim sesi çalmaz (kalp atışı 120 sn).
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı Görevlerim detay popup sol üst

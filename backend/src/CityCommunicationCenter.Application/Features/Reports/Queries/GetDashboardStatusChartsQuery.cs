@@ -183,7 +183,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 _dbContext.Tasks.Count(task => task.JobId == job.JobId
                     && task.CurrentStatus != WorkflowTaskStatus.Completed
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
-                    && task.CurrentStatus != WorkflowTaskStatus.Rejected)))
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
+                job.PlannedAtUtc))
             .ToListAsync(cancellationToken);
     }
 
@@ -193,6 +194,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
     {
         var values = jobs.ToList();
         var processingReceived = 0;
+        var planned = 0;
         var overdue = 0;
         var inProgress = 0;
         var completed = 0;
@@ -207,6 +209,9 @@ public sealed class GetDashboardStatusChartsQueryHandler
                     break;
                 case CitizenJobDisplayStatus.Cancelled:
                     cancelled++;
+                    break;
+                case CitizenJobDisplayStatus.Planned:
+                    planned++;
                     break;
                 case CitizenJobDisplayStatus.Overdue:
                     overdue++;
@@ -223,6 +228,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         return new DashboardChartResponse("dashboard.charts.citizenRequests",
         [
             new DashboardChartSlice("dashboard.chart.citizenProcessingReceived", processingReceived, "info"),
+            new DashboardChartSlice("dashboard.chart.citizenPlanned", planned, "gold"),
             new DashboardChartSlice("dashboard.chart.overdue", overdue, "orange"),
             new DashboardChartSlice("dashboard.chart.inProgress", inProgress, "success"),
             new DashboardChartSlice("dashboard.chart.completed", completed, "primary"),
@@ -233,7 +239,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
     private static CitizenJobDisplayStatus ClassifyCitizenRequestsPieStatus(CitizenJobStatusItem job, DateTimeOffset now)
     {
         var display = CitizenVtDashboardClassification.ClassifyCitizenRequestsPie(
-            new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
+            new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount, job.PlannedAtUtc),
             now);
         return MapCitizenDisplayStatus(display);
     }
@@ -250,6 +256,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         display switch
         {
             CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived => CitizenJobDisplayStatus.ProcessingReceived,
+            CitizenVtDashboardClassification.DisplayStatus.Planned => CitizenJobDisplayStatus.Planned,
             CitizenVtDashboardClassification.DisplayStatus.InProgress => CitizenJobDisplayStatus.InProgress,
             CitizenVtDashboardClassification.DisplayStatus.Overdue => CitizenJobDisplayStatus.Overdue,
             CitizenVtDashboardClassification.DisplayStatus.Completed => CitizenJobDisplayStatus.Completed,
@@ -1231,11 +1238,12 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
     private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType, string Priority);
     private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks, int TotalTaskCount);
-    private sealed record CitizenJobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, int TaskCount);
+    private sealed record CitizenJobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, int TaskCount, DateTimeOffset? PlannedAtUtc = null);
 
     private enum CitizenJobDisplayStatus
     {
         ProcessingReceived,
+        Planned,
         Overdue,
         InProgress,
         Completed,

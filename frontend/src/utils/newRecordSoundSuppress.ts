@@ -2,7 +2,7 @@ let suppressUntilMs = 0
 let muteCount = 0
 
 const WALLBOARD_HEARTBEAT_KEY = 'ccc-wallboard-active-heartbeat'
-const WALLBOARD_HEARTBEAT_STALE_MS = 5000
+const WALLBOARD_HEARTBEAT_STALE_MS = 120_000
 
 /** Ekrana Yansıt sekmesi açıkken diğer sekmelerde bildirim sesi çalmaz (#4103). */
 export function pulseWallboardTabHeartbeat(): void {

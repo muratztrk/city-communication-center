@@ -777,6 +777,8 @@ interface JobsPageProps {
   detailOnly?: boolean
   detailContextOverride?: 'incoming' | 'social' | 'returned'
   onNotificationDetailClose?: () => void
+  /** Detay aksiyonu listeyi yenilesin (Birime Gelen Plana Al, #6ad1f48b). */
+  onDetailMutated?: () => void
   /** İade Edilen Talepler detayında yönlendirme başarılı (#3743). */
   onReturnedForwardSuccess?: () => void
   /** İade detayından iptal: Bekleyen listesi düşer (#3956). */
@@ -812,7 +814,7 @@ interface JobsPageProps {
   }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onReturnedForwardSuccess, onReturnedCancelSuccess, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, detailRefreshToken = 0, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onDetailMutated, onReturnedForwardSuccess, onReturnedCancelSuccess, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, detailRefreshToken = 0, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -2219,6 +2221,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         emitPageToast(t('jobs.actions.planSuccess', 'Talep plana alındı.'))
         await refreshDetail()
         await reload()
+        onDetailMutated?.()
       },
     })
   }
@@ -2985,7 +2988,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval')
                 }
               />
-              <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center gap-2">
+              <div className={`detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center gap-2${isIncomingRequestDetail && detail != null && !isOpenPlannedJob({ ...detail, taskCount: detail.tasks?.length ?? 0 }) && (canApproveDetail || canAssignIncomingDetail || canApproveTargetDetail) && !hideIncomingApproveCancelByView ? ' detail-modal-header-actions--compact' : ''}`}>
                 {isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage, user) && (
                   <Button
                     type="button"
@@ -3015,7 +3018,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <Button
                     type="button"
                     size="lg"
-                    className="inline-flex items-center gap-1.5 !bg-[#d4a017] !text-[#3f2e04] hover:!bg-[#c49612]"
+                    className="inline-flex items-center gap-1.5 !bg-[#d4a017] !text-white hover:!bg-[#c49612]"
                     onClick={() => openPlanConfirm(detail)}
                   >
                     <ClipboardList className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

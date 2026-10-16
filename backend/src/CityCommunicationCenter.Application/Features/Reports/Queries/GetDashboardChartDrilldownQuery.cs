@@ -106,8 +106,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
                 [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress, CitizenDepartmentDrilldownStatus.Completed],
                 cancellationToken, managerDepartmentScope,
+                // Anasayfa - Birimler dilimi VT + birim içi/dışı sayar. IncludeNonCitizenRequests
+                // yalnız vatandaş filtresini kaldırır; birim taleplerini vatandaşların yerine koymaz.
                 citizenVtOnly: managerDepartmentScope is null && !request.IncludeNonCitizenRequests,
-                internalUnitOnly: managerDepartmentScope is null && request.IncludeNonCitizenRequests),
+                internalUnitOnly: false),
             "neighborhoodOpenRequests" => await BuildCitizenScopedStatusRowsAsync(
                 tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
                 [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress],

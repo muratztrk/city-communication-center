@@ -1326,6 +1326,8 @@
       "roles": "Page Permissions",
       "social": "Social Media Integration",
       "routing": "Citizen Tracking Auto Message Routing",
+      "routingLine1": "Citizen Tracking",
+      "routingLine2": "Auto Message Routing",
       "mailNotifications": "Mail Notification",
       "templates": "Draft Messages",
       "license": "License",

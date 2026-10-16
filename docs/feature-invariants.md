@@ -442,6 +442,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Geciken diliminde sayılmaz. Vatandaş talep haritası: İşleme Alındı açık mavi `#38bdf8`, Plana Alındı altın,
   Yapılmakta turuncu, Geciken kırmızı `#dc2626`, Tamamlanan yeşil. Birim haritası renkleri aynı kalır.
   Ekrana Yansıt sekmesi açıkken önceki sekme bildirim sesi çalmaz (kalp atışı 120 sn).
+  Onayla, Tamamla, Plana Al ve İptal sonrası hedef chip (Onaylanan, Yapılmakta, Planlanan,
+  Tamamlanan, İptal) varsayılan sırası işlem zamanıdır; en son işlem ilk satırdadır.
+  Anasayfa - Birimler «Mahallelerdeki Tüm Talepler» dilim popup'ı pastayla aynı kümeyi açar:
+  vatandaş talebi ve birim içi/dışı birlikte. Vatandaş panosu dilimi yalnız vatandaş talebidir.
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı Görevlerim detay popup sol üst
@@ -1761,6 +1765,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
   Syslog | Mail Bildirimi (#3909/#3906) | Veritabanı Yedeği / Kurum İçi Mesajlar | reCAPTCHA (#2952).
   Syslog iletimi ayardaki aktarımı kullanır: `TCP` ise TCP (2 sn, satır sonu), aksi UDP (#4200).
+  Tanımlıysa denetim satırı kayıt biter bitmez gider; istek iptali bekleyen iletimi düşürmez.
   Kurum İçi Mesajlar kutusu yalnız `isModuleUsable('internal')` iken görünür (#3914).
   SMTP sunucu Default/Specify yok — düz textbox, placeholder `Mail sunucu ip'si giriniz...`.
   Etiketler: Kullanıcı Adı, Parola, Gönderen adresi. Gönderen adresinden sonra

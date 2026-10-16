@@ -863,13 +863,22 @@ export function IncomingRequestsPage() {
       const isCompleted = currentStatusFilter === 'completed'
       const isCancelled = currentStatusFilter === 'cancelled'
       const isApproved = currentStatusFilter === 'approved'
+      const isPlanned = currentStatusFilter === 'planned'
+      const isInProgress = currentStatusFilter === 'in-progress'
       const isPendingApproval = currentStatusFilter === 'pending-approval'
       let base = columnFilteredRows
-      if (isCompleted || isCancelled || isApproved) {
+      if (isCompleted || isCancelled || isApproved || isPlanned || isInProgress) {
         base = [...columnFilteredRows].sort((a, b) => {
-          const av = isCompleted ? a.completedAtUtc : isCancelled ? a.updatedAtUtc : a.approvedAtUtc
-          const bv = isCompleted ? b.completedAtUtc : isCancelled ? b.updatedAtUtc : b.approvedAtUtc
-          return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
+          const actionTime = (row: typeof a) => isCompleted
+            ? row.completedAtUtc
+            : isCancelled
+              ? row.updatedAtUtc
+              : isPlanned
+                ? (row.plannedAtUtc ?? row.updatedAtUtc)
+                : isApproved
+                  ? (row.approvedAtUtc ?? row.updatedAtUtc)
+                  : (row.updatedAtUtc ?? row.createdAtUtc)
+          return new Date(actionTime(b) ?? 0).getTime() - new Date(actionTime(a) ?? 0).getTime()
         })
       } else if (isPendingApproval) {
         // Dış birim: sahip onay tarihi; birim içi: talep tarihi — en yeni üstte (#6a6c9edc).
@@ -887,6 +896,7 @@ export function IncomingRequestsPage() {
     if (filter === 'pending-approval') nextParams.delete('status')
     else nextParams.set('status', filter)
     setSearchParams(nextParams, { replace: true })
+    setIncomingPage(1)
     setIncomingPage(1)
     clearIncomingFilters()
   }

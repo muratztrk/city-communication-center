@@ -1,3 +1,10 @@
+## Round 1481 — mahalle dilimi, syslog, ayar sekmesi, işlem sırası
+
+- [x] Anasayfa - Birimler mahalle dilimi popup'ı pastadaki vatandaş taleplerini de listeler.
+- [x] Syslog açıksa denetim kaydı kayıt anında sunucuya gider.
+- [x] Ayarlar sekmesi: Vatandaş Takip / Otomatik Mesaj Yönlendirme.
+- [x] Onayla, Tamamla, Plana Al, İptal sonrası hedef gridde son işlem en üstte.
+
 ## Round 1480 — Plana Alındı sayaç, pasta ve harita
 
 - [x] Sistem yöneticisi ek rolü varsa birim müdürü Personelimin Görevleri personel butonunda görür.

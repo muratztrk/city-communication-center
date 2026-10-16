@@ -2931,8 +2931,9 @@ export function SettingsPage() {
             </button>
             )}
             {isCitizenModuleUsable && (
-            <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
-              {t('settings.tabs.routing')}
+            <button className={`tab-button tab-button--two-line ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
+              <span>{t('settings.tabs.routingLine1', 'Vatandaş Takip')}</span>
+              <span>{t('settings.tabs.routingLine2', 'Otomatik Mesaj Yönlendirme')}</span>
             </button>
             )}
             <button className={`tab-button ${activeTab === 'mailNotifications' ? 'active' : ''}`} onClick={() => setTab('mailNotifications')} type="button">

@@ -1507,25 +1507,25 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     () => {
       // Tamamlanan/İptal görünümlerinde tamamlanma/iptal tarihine göre, diğerlerinde talep tarihine
       // göre en yeni en üstte varsayılan sırala (card #722).
-      const isCompletedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed'
-      const isRejectedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected'
-      const isApprovedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved'
+      const isListView = isMyRequestsView || isDepartmentOutgoingView
+      const isCompletedView = isListView && activeJobView === 'completed'
+      const isRejectedView = isListView && activeJobView === 'rejected'
+      const isApprovedView = isListView && activeJobView === 'approved'
+      const isPlannedView = isListView && activeJobView === 'planned'
+      const isActionLandingView = isListView && (activeJobView === 'in-progress' || activeJobView === 'external-pending')
       const newestFirst = [...columnFilteredJobs].sort((a, b) => {
-        const av = isCompletedView
-          ? a.completedAtUtc
+        const actionTime = (job: typeof a) => isCompletedView
+          ? job.completedAtUtc
           : isRejectedView
-            ? a.updatedAtUtc
+            ? job.updatedAtUtc
             : isApprovedView
-              ? a.ownerDecidedAtUtc
-              : a.createdAtUtc
-        const bv = isCompletedView
-          ? b.completedAtUtc
-          : isRejectedView
-            ? b.updatedAtUtc
-            : isApprovedView
-              ? b.ownerDecidedAtUtc
-              : b.createdAtUtc
-        return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
+              ? (job.ownerDecidedAtUtc ?? job.updatedAtUtc)
+              : isPlannedView
+                ? (job.plannedAtUtc ?? job.updatedAtUtc)
+                : isActionLandingView
+                  ? (job.updatedAtUtc ?? job.createdAtUtc)
+                  : job.createdAtUtc
+        return new Date(actionTime(b) ?? 0).getTime() - new Date(actionTime(a) ?? 0).getTime()
       })
       return sortJobs(newestFirst).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize)
     },

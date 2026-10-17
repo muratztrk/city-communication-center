@@ -1333,6 +1333,8 @@
       "appearance": "Görünüm",
       "roles": "Sayfa Yetkileri",
       "social": "Sosyal Medya Entegrasyonu",
+      "socialLine1": "Sosyal Medya",
+      "socialLine2": "Entegrasyonu",
       "routing": "Vatandaş Takip Otomatik Mesaj Yönlendirme",
       "routingLine1": "Vatandaş Takip",
       "routingLine2": "Otomatik Mesaj Yönlendirme",

@@ -1325,6 +1325,8 @@
       "appearance": "Appearance",
       "roles": "Page Permissions",
       "social": "Social Media Integration",
+      "socialLine1": "Social Media",
+      "socialLine2": "Integration",
       "routing": "Citizen Tracking Auto Message Routing",
       "routingLine1": "Citizen Tracking",
       "routingLine2": "Auto Message Routing",

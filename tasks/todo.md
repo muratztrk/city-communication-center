@@ -1,3 +1,8 @@
+## Round 1482 — ayar sekmeleri
+
+- [x] Sosyal Medya Entegrasyonu sekmesi iki satır.
+- [x] Banner sekmeleri biraz daha alçak; yalnız iki satırlıların yazısı biraz küçük.
+
 ## Round 1481 — mahalle dilimi, syslog, ayar sekmesi, işlem sırası
 
 - [x] Anasayfa - Birimler mahalle dilimi popup'ı pastadaki vatandaş taleplerini de listeler.

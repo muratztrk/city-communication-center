@@ -2706,8 +2706,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında
   birim yoksa Gittiği Yer birim dropdown (`routeSocialMessage`); Talep Etiketi sütunu `RequestTagPicker`
   (card #1877/#1878).
-- **Ayarlar Sosyal Medya Entegrasyonu:** tab adı bu; Web Formu + Mobil Uygulama statik kartlar
-  (card #1873/#1874).
+- **Ayarlar Sosyal Medya Entegrasyonu:** sekme iki satır (Sosyal Medya / Entegrasyonu);
+  sayfa başlığı tek satır kalır. Banner altı sekmeler biraz daha alçak; iki satırlı
+  sekmelerin yazısı biraz daha küçük, tek satır punto aynı. Web Formu + Mobil Uygulama
+  statik kartlar (card #1873/#1874).
 - **Vatandaş Bilgi Listesi:** Talep listesi popup Taleplerim header'ı (logo ortada + Yazdır +
   kırmızı yuvarlak X), sticky thead (sürekli gradient — `th` transparan), paging; nested detay
   başlığı `Vatandaş Talep Bilgisi`. Popup grid tipografisi Taleplerim ile aynı (`thead` 0.78rem /

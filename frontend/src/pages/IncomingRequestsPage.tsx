@@ -5,6 +5,7 @@ import { DateCell } from '../components/ui/date-cell'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { ScopeChipButton } from '../components/ui/ScopeChipButton'
+import { shortenBannerChipLabel } from '../utils/bannerChipLabel'
 import { OverdueOnlyCheckbox } from '../components/ui/OverdueOnlyCheckbox'
 
 function getScopeChipColorClass(value: string): string {
@@ -113,13 +114,13 @@ type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-pr
 type IncomingKindFilter = 'internal' | 'external' | 'all'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
-  { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
-  { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanan Talepler' },
-  { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress', fallback: 'Yapılmakta Olan Talepler' },
-  { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Geciken Talepler' },
-  { value: 'planned', labelKey: 'jobs.scopes.planned', fallback: 'Planlanan Talepler' },
-  { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanan Talepler' },
-  { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal Talepler' },
+  { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen' },
+  { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanan' },
+  { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress', fallback: 'Yapılmakta Olan' },
+  { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Geciken' },
+  { value: 'planned', labelKey: 'jobs.scopes.planned', fallback: 'Planlanan' },
+  { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanan' },
+  { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal' },
   { value: 'all', labelKey: 'jobs.scopes.all', fallback: 'Tümü' },
 ]
 
@@ -1002,7 +1003,7 @@ export function IncomingRequestsPage() {
             badgeCount={filter.value === 'overdue' ? incomingOverdueCount : filter.value === 'planned' ? incomingPlannedCount : 0}
             onClick={() => setStatusFilter(filter.value)}
           >
-            {t(filter.labelKey, filter.fallback)}
+            {shortenBannerChipLabel(t(filter.labelKey, filter.fallback))}
           </ScopeChipButton>
         ))}
         <OverdueOnlyCheckbox checked={overdueOnly} onChange={setOverdueOnly} />

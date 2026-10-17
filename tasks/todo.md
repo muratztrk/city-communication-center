@@ -1,3 +1,9 @@
+## Round 1484 — chip yazıları, taslak sekmesi, operatör ikonu
+
+- [x] Taslak Mesajlar sekmesi Meta/Taslak Mesajlar.
+- [x] Vatandaş Talep Operatörü sol menüde telefon ikonu.
+- [x] Taleplerim, Gelen, Giden, Görevlerim ve Birimdeki Görevler chip yazıları kısaldı.
+
 ## Round 1483 — sosyal medya sekmesi tek satır
 
 - [x] Sosyal Medya Entegrasyonu sekmesi yine tek satır. Vatandaş Takip iki satır kalır.

@@ -660,7 +660,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-violet-600',
         },
         {
-          label: t('tasks.myViews.overdue', 'Geciken Görevlerim'),
+          label: t('dashboard.cards.myOverdueTasks', 'Geciken Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myOverdueTasksMetricValue ?? 0,
           icon: Clock3,
@@ -692,7 +692,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-amber-600',
         },
         {
-          label: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
+          label: t('dashboard.cards.myOverdueRequests', 'Geciken Taleplerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myOverdueRequestsMetricValue ?? 0,
           icon: Clock3,
@@ -730,7 +730,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-violet-600',
         },
         {
-          label: t('tasks.myViews.overdue', 'Geciken Görevlerim'),
+          label: t('dashboard.cards.myOverdueTasks', 'Geciken Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myOverdueTasksMetricValue ?? 0,
           icon: Clock3,
@@ -748,7 +748,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-amber-600',
         },
         {
-          label: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
+          label: t('dashboard.cards.myOverdueRequests', 'Geciken Taleplerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myOverdueRequestsMetricValue ?? 0,
           icon: Clock3,

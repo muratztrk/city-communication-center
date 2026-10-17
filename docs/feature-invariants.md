@@ -2706,6 +2706,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında
   birim yoksa Gittiği Yer birim dropdown (`routeSocialMessage`); Talep Etiketi sütunu `RequestTagPicker`
   (card #1877/#1878).
+- **Talep Oluştur ikonu:** Vatandaş Talep Operatörü (ek rol dahil), kurum içi lisans açık olsa da
+  yalnız vatandaş lisansındaki telefon ikonunu görür. Diğer roller kurum içi açıkken pano ikonunu görür.
+- **Banner chip yazıları:** Taleplerim'den «Taleplerim» kalkar, Tümü kalır. Gelen/Giden'den «Talepler» kalkar.
+  Görevlerim'den «Görevlerim» kalkar, Tümü kalır. Birimdeki Görevler'den «Görevler» kalkar;
+  Birim İçi/Dışı Tüm Görevler → Birim İçi/Dışı. Ayarlar taslak sekmesi `Meta/Taslak Mesajlar`.
 - **Ayarlar Sosyal Medya Entegrasyonu:** sekme tek satır. Banner altı sekmeler biraz daha
   alçak; iki satırlı sekmelerin yazısı biraz daha küçük, tek satır punto aynı.
   Web Formu + Mobil Uygulama statik kartlar (card #1873/#1874).

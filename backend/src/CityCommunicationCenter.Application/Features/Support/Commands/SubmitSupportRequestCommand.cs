@@ -238,17 +238,9 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
         {
             lines.Add($"E-posta: {email.Trim()}");
         }
-        if (!string.IsNullOrWhiteSpace(phone))
-        {
-            lines.Add($"Telefon: {phone.Trim()}");
-        }
         if (!string.IsNullOrWhiteSpace(departmentName))
         {
             lines.Add($"Birim: {departmentName.Trim()}");
-        }
-        if (!string.IsNullOrWhiteSpace(pageContext))
-        {
-            lines.Add($"Sayfa: {pageContext.Trim()}");
         }
 
         lines.Add(string.Empty);

@@ -7,6 +7,7 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { ScopeChipButton } from '../components/ui/ScopeChipButton'
+import { shortenBannerChipLabel } from '../utils/bannerChipLabel'
 import { OverdueOnlyCheckbox } from '../components/ui/OverdueOnlyCheckbox'
 import { createPortal, flushSync } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -2128,7 +2129,7 @@ const pageKicker = isMyTasksView
               badgeCount={view.value === 'overdue' ? myTasksOverdueCount : 0}
               onClick={() => setMyTaskView(view.value)}
             >
-              {t(view.labelKey)}
+              {shortenBannerChipLabel(t(view.labelKey))}
             </ScopeChipButton>
           ))}
           {showRequestFlowFilters ? (
@@ -2159,7 +2160,7 @@ const pageKicker = isMyTasksView
               badgeCount={view.value === 'overdue' ? departmentTasksOverdueCount : 0}
               onClick={() => setMyTaskView(view.value)}
             >
-              {t(view.labelKey)}
+              {shortenBannerChipLabel(t(view.labelKey))}
             </ScopeChipButton>
           ))}
           {showDepartmentTaskFlowFilters ? (
@@ -2172,7 +2173,7 @@ const pageKicker = isMyTasksView
                   className={`scope-chip scope-chip--${flow.value}${flow.value === currentRequestFlowFilter ? ' active' : ''}`}
                   onClick={() => setDepartmentTaskFlow(flow.value)}
                 >
-                  {t(flow.labelKey)}
+                  {shortenBannerChipLabel(t(flow.labelKey))}
                 </button>
               ))}
             </>

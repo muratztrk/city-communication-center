@@ -20,6 +20,7 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { ScopeChipButton } from '../components/ui/ScopeChipButton'
+import { shortenBannerChipLabel } from '../utils/bannerChipLabel'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages, invalidateTasks } from '../api/cacheInvalidation'
@@ -2563,7 +2564,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 disabled={isDisabledExternalPending}
                 onClick={() => setMyRequestsView(view.value)}
               >
-                {t(view.labelKey)}
+                {shortenBannerChipLabel(t(view.labelKey))}
               </ScopeChipButton>
             )
           })}
@@ -2617,7 +2618,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               badgeCount={view.value === 'overdue' ? outgoingOverdueCount : view.value === 'planned' ? outgoingPlannedCount : 0}
               onClick={() => setDepartmentOutgoingView(view.value)}
             >
-              {t(view.labelKey)}
+              {shortenBannerChipLabel(t(view.labelKey))}
             </ScopeChipButton>
           ))}
           <ClearPieFilterLink hasColumnFilters={hasActiveJobColumnFilters} onClearColumnFilters={clearJobFilters} />

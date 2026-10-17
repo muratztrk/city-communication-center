@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
@@ -12,6 +13,8 @@ public interface ISyslogForwarderService
 
 public sealed class SyslogForwarderService : ISyslogForwarderService
 {
+    private static readonly TimeZoneInfo TurkeyTimeZone = ResolveTurkeyTimeZone();
+
     private readonly IApplicationDbContext _dbContext;
 
     public SyslogForwarderService(IApplicationDbContext dbContext)
@@ -68,10 +71,40 @@ public sealed class SyslogForwarderService : ISyslogForwarderService
         // RFC 3164 format: <priority>timestamp hostname app: message
         const int facility = 16; // local0
         var priority = (facility * 8) + severity;
-        var timestamp = DateTimeOffset.UtcNow.ToString("MMM dd HH:mm:ss");
+        var timestamp = FormatSyslogTimestamp(log.EventTimeUtc);
         var actor = log.ActorDisplayName ?? "system";
         var details = string.IsNullOrEmpty(log.Details) ? string.Empty : $" Details={log.Details}";
         return $"<{priority}>{timestamp} city-communication-center[{log.EntityType}]: Action={log.Action} Entity={log.EntityId} Actor={actor}{details}";
+    }
+
+    private static TimeZoneInfo ResolveTurkeyTimeZone()
+    {
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            return TimeZoneInfo.CreateCustomTimeZone(
+                "Turkey Standard Time",
+                TimeSpan.FromHours(3),
+                "Turkey Standard Time",
+                "Turkey Standard Time");
+        }
+        catch (InvalidTimeZoneException)
+        {
+            return TimeZoneInfo.CreateCustomTimeZone(
+                "Turkey Standard Time",
+                TimeSpan.FromHours(3),
+                "Turkey Standard Time",
+                "Turkey Standard Time");
+        }
+    }
+
+    private static string FormatSyslogTimestamp(DateTimeOffset eventTimeUtc)
+    {
+        var turkeyTime = TimeZoneInfo.ConvertTime(eventTimeUtc, TurkeyTimeZone);
+        return turkeyTime.ToString("MMM dd HH:mm:ss", CultureInfo.InvariantCulture);
     }
 
     private static async Task SendUdpAsync(string host, int port, string message, CancellationToken cancellationToken)

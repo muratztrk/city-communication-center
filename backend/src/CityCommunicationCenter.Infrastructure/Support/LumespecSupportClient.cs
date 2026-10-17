@@ -155,6 +155,93 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
         }
     }
 
+    public async Task<bool> UpdateTicketStatusAsync(
+        Guid supportRequestId,
+        string status,
+        CancellationToken cancellationToken)
+    {
+        if (!_options.Enabled || string.IsNullOrWhiteSpace(_options.ServiceToken))
+        {
+            return false;
+        }
+
+        try
+        {
+            var client = _httpClientFactory.CreateClient(HttpClientName);
+            using var message = new HttpRequestMessage(
+                HttpMethod.Patch,
+                $"/api/external/tickets/{ExternalSource}/{supportRequestId}/status")
+            {
+                Content = JsonContent.Create(new { status }),
+            };
+            message.Headers.Authorization = new("Bearer", _options.ServiceToken);
+
+            using var response = await client.SendAsync(message, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogWarning(
+                    "Lumespec support status sync failed with status {StatusCode}: {Body}",
+                    (int)response.StatusCode,
+                    body);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Lumespec support status sync failed.");
+            return false;
+        }
+    }
+
+    public async Task<bool> UploadAttachmentAsync(
+        Guid supportRequestId,
+        CentralSupportAttachmentPayload attachment,
+        CancellationToken cancellationToken)
+    {
+        if (!_options.Enabled || string.IsNullOrWhiteSpace(_options.ServiceToken))
+        {
+            return false;
+        }
+
+        try
+        {
+            var client = _httpClientFactory.CreateClient(HttpClientName);
+            using var message = new HttpRequestMessage(
+                HttpMethod.Post,
+                $"/api/external/tickets/{ExternalSource}/{supportRequestId}/attachments")
+            {
+                Content = JsonContent.Create(new
+                {
+                    fileName = attachment.FileName,
+                    contentType = attachment.ContentType,
+                    contentBase64 = attachment.ContentBase64,
+                }),
+            };
+            message.Headers.Authorization = new("Bearer", _options.ServiceToken);
+
+            using var response = await client.SendAsync(message, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                _logger.LogWarning(
+                    "Lumespec support attachment sync failed with status {StatusCode}: {Body}",
+                    (int)response.StatusCode,
+                    body);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Lumespec support attachment sync failed.");
+            return false;
+        }
+    }
+
     private static string ResolveRequesterEmail(CreateCentralSupportTicketRequest request)
     {
         if (!string.IsNullOrWhiteSpace(request.RequesterEmail))

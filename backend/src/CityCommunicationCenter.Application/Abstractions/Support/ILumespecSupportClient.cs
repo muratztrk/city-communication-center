@@ -46,4 +46,14 @@ public interface ILumespecSupportClient
     Task<CentralSupportTicketMessagesResult?> GetTicketMessagesAsync(
         Guid supportRequestId,
         CancellationToken cancellationToken);
+
+    Task<bool> UpdateTicketStatusAsync(
+        Guid supportRequestId,
+        string status,
+        CancellationToken cancellationToken);
+
+    Task<bool> UploadAttachmentAsync(
+        Guid supportRequestId,
+        CentralSupportAttachmentPayload attachment,
+        CancellationToken cancellationToken);
 }

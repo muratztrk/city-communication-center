@@ -86,7 +86,14 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
         var requester = context.UserId.HasValue
             ? await _dbContext.Users
                 .Where(user => user.UserId == context.UserId.Value)
-                .Select(user => new { user.DisplayName, user.Email, user.Phone, user.DepartmentId })
+                .Select(user => new
+                {
+                    user.DisplayName,
+                    user.Email,
+                    user.Phone,
+                    user.MobilePhone,
+                    user.DepartmentId,
+                })
                 .FirstOrDefaultAsync(cancellationToken)
             : null;
 
@@ -115,12 +122,13 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
 
         var priority = supportRequest.Priority;
         var priorityLabel = PriorityLabel(priority);
+        var requesterPhone = ResolveRequesterPhone(requester?.Phone, requester?.MobilePhone);
         var centralDescription = BuildCentralDescription(
             supportRequest.Message,
             priorityLabel,
             requester?.DisplayName,
             requester?.Email,
-            requester?.Phone,
+            requesterPhone,
             departmentName,
             supportRequest.PageContext,
             files.Select(file => file.FileName).ToList());
@@ -133,7 +141,7 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
                 context.UserId,
                 requester?.DisplayName ?? "CCC Kullanıcısı",
                 requester?.Email,
-                requester?.Phone,
+                requesterPhone,
                 departmentName,
                 supportRequest.Subject,
                 centralDescription,
@@ -148,6 +156,17 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
 
         if (centralTicket is not null)
         {
+            foreach (var file in files)
+            {
+                await _lumespecSupportClient.UploadAttachmentAsync(
+                    supportRequest.SupportRequestId,
+                    new CentralSupportAttachmentPayload(
+                        file.FileName,
+                        file.ContentType,
+                        Convert.ToBase64String(file.Bytes)),
+                    cancellationToken);
+            }
+
             supportRequest.CentralTicketNo = centralTicket.TicketNo;
             supportRequest.CentralStatus = centralTicket.Status;
             supportRequest.CentralSyncedAtUtc = DateTimeOffset.UtcNow;
@@ -209,6 +228,16 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
         return decoded;
     }
 
+    private static string? ResolveRequesterPhone(string? phone, string? mobilePhone)
+    {
+        if (!string.IsNullOrWhiteSpace(phone))
+        {
+            return phone.Trim();
+        }
+
+        return string.IsNullOrWhiteSpace(mobilePhone) ? null : mobilePhone.Trim();
+    }
+
     private static string PriorityLabel(string priority) => priority switch
     {
         "VeryHigh" => "Acil",
@@ -241,6 +270,10 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
         if (!string.IsNullOrWhiteSpace(departmentName))
         {
             lines.Add($"Birim: {departmentName.Trim()}");
+        }
+        if (!string.IsNullOrWhiteSpace(phone))
+        {
+            lines.Add($"Dahili no: {phone.Trim()}");
         }
 
         lines.Add(string.Empty);

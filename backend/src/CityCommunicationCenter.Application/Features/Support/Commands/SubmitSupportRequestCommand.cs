@@ -251,7 +251,7 @@ public sealed class SubmitSupportRequestCommandHandler : ICommandHandler<SubmitS
             lines.Add("Ek dosyalar:");
             foreach (var name in fileNames)
             {
-                lines.Add($"- {name}");
+                lines.Add(name);
             }
         }
 

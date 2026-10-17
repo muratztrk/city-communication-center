@@ -64,13 +64,9 @@ public sealed class LumespecSupportClient : ILumespecSupportClient
                     priority = request.PriorityLabel ?? request.Priority,
                     priorityCode = request.Priority,
                     subject = request.Subject,
+                    // File bytes stay in CCC; central API only accepts compact JSON (see destek body limit).
+                    // Attachment names are already included in Message / centralDescription.
                     description = request.Message,
-                    attachments = request.Attachments.Select(file => new
-                    {
-                        fileName = file.FileName,
-                        contentType = file.ContentType,
-                        contentBase64 = file.ContentBase64,
-                    }),
                 })
             };
             message.Headers.Authorization = new("Bearer", _options.ServiceToken);

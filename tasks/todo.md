@@ -1,3 +1,7 @@
+## Round 1483 — sosyal medya sekmesi tek satır
+
+- [x] Sosyal Medya Entegrasyonu sekmesi yine tek satır. Vatandaş Takip iki satır kalır.
+
 ## Round 1482 — ayar sekmeleri
 
 - [x] Sosyal Medya Entegrasyonu sekmesi iki satır.

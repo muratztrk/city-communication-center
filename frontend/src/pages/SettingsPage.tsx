@@ -2926,9 +2926,8 @@ export function SettingsPage() {
               {t('settings.tabs.roles')}
             </button>
             {isCitizenModuleUsable && (
-            <button className={`tab-button tab-button--two-line ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">
-              <span>{t('settings.tabs.socialLine1', 'Sosyal Medya')}</span>
-              <span>{t('settings.tabs.socialLine2', 'Entegrasyonu')}</span>
+            <button className={`tab-button ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">
+              {t('settings.tabs.social')}
             </button>
             )}
             {isCitizenModuleUsable && (

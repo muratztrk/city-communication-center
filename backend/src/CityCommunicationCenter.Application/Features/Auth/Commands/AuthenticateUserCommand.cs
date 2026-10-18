@@ -59,6 +59,23 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
         var activeSessionId = Guid.NewGuid();
         entity.ActiveSessionId = activeSessionId;
         entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        var departmentName = await _dbContext.Departments
+            .Where(department => department.DepartmentId == entity.DepartmentId && department.TenantId == entity.TenantId)
+            .Select(department => department.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+        _dbContext.AuditLogs.Add(new AuditLog
+        {
+            AuditLogId = Guid.NewGuid(),
+            TenantId = entity.TenantId,
+            EntityType = nameof(ApplicationUser),
+            EntityId = entity.UserId.ToString(),
+            Action = "Login",
+            ActorUserId = entity.UserId,
+            ActorDisplayName = entity.DisplayName,
+            DepartmentName = departmentName,
+            EventTimeUtc = DateTimeOffset.UtcNow,
+            Details = $"Username={entity.Username}",
+        });
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return new AuthenticatedTokenPayload(

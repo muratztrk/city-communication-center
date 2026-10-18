@@ -243,8 +243,22 @@ public sealed class AuthController : ControllerBase
 
     [HttpPost("session/logout")]
     [AllowAnonymous]
-    public async Task<IActionResult> SessionLogout()
+    public async Task<IActionResult> SessionLogout(CancellationToken cancellationToken)
     {
+        var userIdText = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var tenantText = User.FindFirst("tenant_id")?.Value;
+        if (Guid.TryParse(userIdText, out var userId) && Guid.TryParse(tenantText, out var tenantId))
+        {
+            try
+            {
+                await _sender.Send(new RecordSessionLogoutCommand(userId, tenantId), cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Log.Warning(exception, "Oturum kapatma kaydı yazılamadı.");
+            }
+        }
+
         await HttpContext.SignOutAsync(AuthorizationPolicies.SessionCookieScheme);
         return NoContent();
     }

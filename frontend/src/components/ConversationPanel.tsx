@@ -71,6 +71,8 @@ interface ConversationPanelProps {
   enableConversationSearch?: boolean
   /** Mesaj logu: bu giden kaydı «İletilen Mesaj» olarak işaretle. */
   highlightEntryId?: string | null
+  /** Giden balonda talep durumu ifadelerini WhatsApp sayfasıyla aynı renkte boya. */
+  highlightOutboundPhrases?: boolean
 }
 
 function getInitials(value: string): string | null {
@@ -93,7 +95,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false, enableConversationSearch = false, highlightEntryId = null }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false, enableConversationSearch = false, highlightEntryId = null, highlightOutboundPhrases = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -528,6 +530,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   citizenPhone={citizenPhone}
                   theme="light"
                   compact={compactBubbles}
+                  highlightOutboundPhrases={highlightOutboundPhrases}
                   inboundSenderLabel={inboundSenderLabel}
                   onAddMediaAsAttachment={onAddMediaAsAttachment}
                   canSendPending={canSendPending}

@@ -88,7 +88,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yeni dropdown'larda native `<select>` açma:** mahalle seçimindeki ortak `SingleSelectDropdown`
   standardını (portal paneli, ortak satır/hover, gerektiğinde arama) kullan; yeni özel/native menü üretme.
   Üst düzey yönetici Taleplerim `Tüm Birimler` filtresi de bu menüdür (`forceDown`, chip yüksekliği, #6ad4740f).
-  Talep Oluştur Mahalle/Cadde/No açık liste satırı biraz daha kısa (`create-request-address-menu`, #6ad475ae).
+  Açık menü satırı varsayılandan bir kademe daha kısadır: Mahalle/Cadde/No (`create-request-address-menu`, #6ad475ae),
+  Birim İçi ve Birim Dışı Öncelik (`create-request-priority-menu`, #6ad4852c) ve Tüm Birimler (`reporter-my-requests-department-menu`, #6ad4740f).
+  Vatandaş çağrı adresi menüsü (`citizen-call-address-menu`) daha da kısa kalır.
 - **`MultiSelectDropdown` menüsü de body portal + fixed** (`SingleSelectDropdown` ile aynı); tablo
   hücresinde absolute panel komşu sütunlara binmez (card #1706).
 - **Yerel (Manual) kullanıcı düzenleme:** Kullanıcı Adı / Ad Soyad / Ünvan / e-posta satır içi
@@ -1700,6 +1702,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
 - **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);
   `page-title` `Ayarlar` kalır (card #1708). Ayarlar’da `Vatandaş Akışı` tab’ı yok (card #1707).
+- **Giriş ve çıkış Sistem Log'dadır** (`ApplicationUser` / `Login` / `Logout`) ve aynı kayıt syslog'a gider (#6ad48709).
+- **Üst düzey yönetici, hedef birim henüz onaylamamış birim dışı talebinde Düzenle görür** (Taleplerim bekleyen, #6ad48cb7). Tamamlanan ve yapılmakta olan taleplerde Düzenle yok.
+- **WhatsApp'tan vatandaş talebi oluşturma konuşması** giden durum ifadelerini WhatsApp sayfasıyla aynı renkte boyar (#6ad4888c).
 - **Log sayfası üç sekme:** Sistem Log (`Department`/`ApplicationUser`/`TenantSetting`/diğer),
   Talep Log (`Job`), Görev Log (`WorkTask`/`Task`); banner `page-kicker` seçili sekme (card #1710).
   Sekmeler `tab-bar`/`tab-button` kullanır; `scope-chip` ile aktif görünüm bozulmaz (card #1712).

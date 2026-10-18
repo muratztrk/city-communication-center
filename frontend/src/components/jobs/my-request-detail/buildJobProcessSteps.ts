@@ -118,7 +118,7 @@ function statusStepStateWhenOverdue(detail: JobDetail): 'current' | 'pending' {
  * farklı olması veya hedef birimde atanmış görev bulunması (card #1595 ile aynı sezgi;
  * cards #1603/#1606 "Onay Bekleyen" katmanı bu ayrıma dayanır).
  */
-function hasRealTargetDecision(detail: JobDetail): boolean {
+export function hasRealTargetDecision(detail: JobDetail): boolean {
   const target = detail.departments.find(department => department.role === 'Target')
   if (!target?.decidedAtUtc) return false
   if (detail.requestType !== 'ExternalUnit' || isCitizenRequestJob(detail)) return true

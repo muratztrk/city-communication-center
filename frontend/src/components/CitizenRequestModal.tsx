@@ -617,6 +617,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               enableWhatsAppFileAttachment
               compactActions
               compactBubbles
+              highlightOutboundPhrases={message.channel === 'WhatsApp'}
             />
           </div>
 

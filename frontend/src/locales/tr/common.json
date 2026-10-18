@@ -2015,6 +2015,8 @@
       "RoutineTaskEditSnapshot": "Rutin görev düzenlendi",
       "SocialMessageRouted": "Mesaj yönlendirildi",
       "SocialMessageConverted": "Mesaj işe dönüştürüldü",
+      "Login": "Giriş",
+      "Logout": "Çıkış",
       "JobCreated": "Talep oluşturuldu",
       "JobUpdated": "Talep güncellendi",
       "JobDueDateUpdated": "Talep son tarihi güncellendi",

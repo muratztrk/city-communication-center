@@ -1523,6 +1523,7 @@ export function CreateRequestPage() {
                   onChange={priority => setInternalForm(current => ({ ...current, priority }))}
                   placeholder={t('tasks.newRequest.priority', 'Öncelik')}
                   triggerClassName="create-request-core-placeholder"
+                  menuClassName="create-request-priority-menu"
                 />
               </div>
               <div className="job-field">
@@ -1618,6 +1619,7 @@ export function CreateRequestPage() {
                   onChange={priority => setExternalForm(current => ({ ...current, priority }))}
                   placeholder={t('jobs.form.priority', 'Öncelik')}
                   triggerClassName="create-request-core-placeholder"
+                  menuClassName="create-request-priority-menu"
                 />
               </div>
               {isReporter ? (

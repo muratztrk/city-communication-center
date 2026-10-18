@@ -1977,6 +1977,8 @@
       "RoutineTaskEditSnapshot": "Routine task edited",
       "SocialMessageRouted": "Social message routed",
       "SocialMessageConverted": "Social message converted",
+      "Login": "Log in",
+      "Logout": "Log out",
       "JobCreated": "Request created",
       "JobUpdated": "Request updated",
       "JobDueDateUpdated": "Request due date updated",

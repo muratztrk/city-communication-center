@@ -1,3 +1,10 @@
+## Round 1487 — menü satırı, düzenle, giriş/çıkış, WhatsApp rengi
+
+- [x] Tüm Birimler, adres ve öncelik açık liste satırları biraz daha kısaldı.
+- [x] Hedef birim onaylamadan üst düzey yönetici talebinde Düzenle görünür.
+- [x] Giriş ve çıkış Sistem Log'a yazılır ve syslog'a iletilir.
+- [x] WhatsApp vatandaş talebi konuşmasında durum renkleri WhatsApp sayfasıyla aynı.
+
 ## Round 1486 — birim dropdown ve adres satırı
 
 - [x] Üst düzey yönetici Taleplerim Tüm Birimler menüsü standart dropdown.

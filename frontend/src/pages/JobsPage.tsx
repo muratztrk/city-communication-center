@@ -84,7 +84,7 @@ import { ManagerNotesReadOnly, ManagerNotesSection } from '../components/jobs/Ma
 import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detail/MyRequestTaskDetailsSection'
 import { StackedFieldLabel, StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { CitizenAddressPeekButton } from '../components/jobs/my-request-detail/CitizenAddressPeekButton'
-import { buildJobProcessSteps, isJobRecoveredFromCancellation, wasReopenedViaCitizenMessageApproval } from '../components/jobs/my-request-detail/buildJobProcessSteps'
+import { buildJobProcessSteps, hasRealTargetDecision, isJobRecoveredFromCancellation, wasReopenedViaCitizenMessageApproval } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { DueDateEditorsHint } from '../components/jobs/my-request-detail/DueDateEditorsHint'
 import { isPendingApprovalText } from '../components/jobs/my-request-detail/format'
@@ -2471,7 +2471,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }
 
   const hideMyRequestDetailEdit = isMyRequestsView && (currentMyRequestsView === 'in-progress' || currentMyRequestsView === 'completed')
-  const canReporterEditMyRequest = isPresidencyReporter && currentMyRequestsView === 'pending'
+  // Başkanlık her bekleyen talebi düzenler. Diğer üst düzey yöneticiler, hedef birim
+  // yöneticisi henüz onaylamamış birim dışı talebin başlığında Düzenle görür (#6ad48cb7).
+  const canReporterEditPendingTarget = detail != null
+    && isReporter
+    && currentMyRequestsView === 'pending'
+    && detail.requestType === 'ExternalUnit'
+    && !hasRealTargetDecision(detail)
+  const canReporterEditMyRequest = (isPresidencyReporter && currentMyRequestsView === 'pending') || canReporterEditPendingTarget
   const canEditMyRequestDetailJob = detail != null && (
     canReporterEditMyRequest
     || canOperatorEditPendingExternalJob(user?.role, { ...detail, taskCount: detail.tasks?.length ?? 0 })
@@ -3056,8 +3063,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     Aktif/pasif koşulu ve teal arka plan rengi gridview'daki Düzenle ile birebir aynı
                     (card 648/653/654). */}
                 {isMyRequestsView && !hideMyRequestDetailEdit && detail != null && (() => {
-                  const canReporterEdit = isPresidencyReporter && currentMyRequestsView === 'pending'
-                  const canEditDetailJob = canReporterEdit
+                  const canEditDetailJob = canReporterEditMyRequest
                     || canOperatorEditPendingExternalJob(user?.role, { ...detail, taskCount: detail.tasks?.length ?? 0 })
                     || isPreApprovalStatus(detail.status)
                     || (isManagerLike && (

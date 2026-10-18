@@ -2595,6 +2595,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <span className="scope-chip-divider" aria-hidden="true">|</span>
               <SingleSelectDropdown
                 forceDown
+                searchable
                 className="w-52 shrink-0"
                 triggerClassName="h-[1.95rem] min-h-0 min-w-52 py-1 text-xs"
                 menuClassName="reporter-my-requests-department-menu"

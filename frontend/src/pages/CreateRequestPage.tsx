@@ -1523,7 +1523,6 @@ export function CreateRequestPage() {
                   onChange={priority => setInternalForm(current => ({ ...current, priority }))}
                   placeholder={t('tasks.newRequest.priority', 'Öncelik')}
                   triggerClassName="create-request-core-placeholder"
-                  menuClassName="create-request-priority-menu"
                 />
               </div>
               <div className="job-field">
@@ -1604,11 +1603,14 @@ export function CreateRequestPage() {
               <div className="job-field min-w-0">
                 <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
                 <SingleSelectDropdown
+                  searchable
                   options={targetDepartmentSelectOptions}
                   value={externalForm.targetDepartmentId}
                   onChange={targetDepartmentId => setExternalForm(current => ({ ...current, targetDepartmentId }))}
                   placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
+                  searchPlaceholder={t('common.search', 'Ara...')}
                   triggerClassName="create-request-core-placeholder"
+                  menuClassName="create-request-target-department-menu"
                 />
               </div>
               <div className="job-field min-w-0">
@@ -1619,7 +1621,7 @@ export function CreateRequestPage() {
                   onChange={priority => setExternalForm(current => ({ ...current, priority }))}
                   placeholder={t('jobs.form.priority', 'Öncelik')}
                   triggerClassName="create-request-core-placeholder"
-                  menuClassName="create-request-priority-menu"
+                  menuClassName={isReporter ? 'reporter-create-priority-menu' : undefined}
                 />
               </div>
               {isReporter ? (

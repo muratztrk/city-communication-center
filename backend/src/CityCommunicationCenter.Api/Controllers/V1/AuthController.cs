@@ -245,6 +245,14 @@ public sealed class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> SessionLogout(CancellationToken cancellationToken)
     {
+        // Varsayılan şema bearer. Çıkış yalnız oturum çerezini gönderir; çerez okunmazsa
+        // User boş kalır ve Çıkış satırı hiç yazılmaz (#6ad48709).
+        var session = await HttpContext.AuthenticateAsync(AuthorizationPolicies.SessionCookieScheme);
+        if (session.Succeeded && session.Principal is not null)
+        {
+            HttpContext.User = session.Principal;
+        }
+
         var userIdText = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var tenantText = User.FindFirst("tenant_id")?.Value;
         if (Guid.TryParse(userIdText, out var userId) && Guid.TryParse(tenantText, out var tenantId))

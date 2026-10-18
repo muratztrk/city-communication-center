@@ -1,3 +1,9 @@
+## Round 1488 — çıkış logu, birim araması, öncelik satırı
+
+- [x] Çıkış, oturum çerezinden okunup Sistem Log'a ve syslog'a yazılır.
+- [x] Tüm Birimler ve Talebin Gideceği Birim menüsünün ilk satırı arama.
+- [x] Talebin Gideceği Birim satırları biraz kısaldı; üst düzey Öncelik menüsü bir kademe daha kısa.
+
 ## Round 1487 — menü satırı, düzenle, giriş/çıkış, WhatsApp rengi
 
 - [x] Tüm Birimler, adres ve öncelik açık liste satırları biraz daha kısaldı.

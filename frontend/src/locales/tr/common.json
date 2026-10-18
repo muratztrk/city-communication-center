@@ -2257,6 +2257,8 @@
       "projectOwner": "Proje Sahibi",
       "assignee": "Görevi Yapan",
       "requestApprover": "Talebi Onaylayan",
+      "requestApproverUnitManager": "Birim Yöneticisi",
+      "targetUnitManager": "Hedef Birim Yöneticisi",
       "citizenOutboundEditor": "Vatandaşa Giden Mesajı Düzenleyen",
       "citizenOutboundRelayer": "Vatandaşa Giden Mesajı İleten",
       "citizenRequest": "Vatandaş Talebi",

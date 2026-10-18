@@ -2039,7 +2039,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiket üstte, değer alt satırda (yan yana değil); `StackedFieldValue` mobilde sola yaslı
   (card #1743). Masaüstü sağa yaslı yan yana düzen korunur.
 - **Talep Bilgileri sıra (#2896):** `Talep Yapılan Birim` `Talebi Onaylayan`'dan önce.
-  Talebi Onaylayan yalnız kişi adı (birim yok).
+  Talebi Onaylayan değeri yalnız kişi adıdır (birim yok).
+  Vatandaş talebi dışında sahip birim yöneticisi onayladıysa etiket iki satırdır:
+  `Talebi Onaylayan` / `Birim Yöneticisi` (#6ad4f59e).
+  Hedef birim yöneticisi gerçekten onayladıysa hemen altında `Hedef Birim Yöneticisi` ve adı görünür (#6ad4f807).
+  Otomatik sahip damgası hedef onayı sayılmaz. Vatandaş talebinde etiket `Talebi Onaylayan` kalır.
 - **Birimler / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).

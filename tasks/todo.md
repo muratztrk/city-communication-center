@@ -1,3 +1,8 @@
+## Round 1491 — onaylayan etiketleri
+
+- [x] Sahip birim yöneticisi onayladıysa etiket iki satır: Talebi Onaylayan / Birim Yöneticisi.
+- [x] Hedef birim yöneticisi onayladıysa Talep Bilgileri'ne adı eklenir. Vatandaş talebinde etiket değişmez.
+
 ## Round 1490 — Birim İçi Proje Mi satırı
 
 - [x] Birim İçi Talep Oluştur Proje Mi açık liste yazısı ve satırı biraz kısaldı.

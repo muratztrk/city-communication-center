@@ -2213,6 +2213,8 @@
       "projectOwner": "Project Owner",
       "assignee": "Assignee",
       "requestApprover": "Request Approver",
+      "requestApproverUnitManager": "Unit Manager",
+      "targetUnitManager": "Target Unit Manager",
       "citizenOutboundEditor": "Outbound Message Editor",
       "citizenOutboundRelayer": "Outbound Message Sender",
       "citizenRequest": "Citizen Request",

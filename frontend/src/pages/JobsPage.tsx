@@ -40,7 +40,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDisplayName, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDisplayName, hasOwnerUnitManagerApproval, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -529,7 +529,13 @@ export function printJobDetail(
       : formatJobDestinationsWithAssignees(detail, false, false)],
     ...(options?.myRequestView || !shouldShowRequestApproverField(detail)
       ? []
-      : [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]),
+      : [[
+          hasOwnerUnitManagerApproval(detail) ? 'Talebi Onaylayan Birim Yöneticisi' : 'Talebi Onaylayan',
+          formatRequestApproverDisplay(detail) ?? '—',
+        ] as [string, string]]),
+    ...(!isCitizenPrint && hasRealTargetDecision(detail)
+      ? [['Hedef Birim Yöneticisi', getJobTargetApproverDisplayName(detail) ?? '—'] as [string, string]]
+      : []),
     ...(isCitizenPrint || !shouldShowJobProjectField(detail) ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
@@ -3366,8 +3372,19 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
-                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
+                        label: hasOwnerUnitManagerApproval(detail)
+                          ? (
+                            <StackedFieldLabel
+                              top={t('jobs.detail.requestApprover', 'Talebi Onaylayan')}
+                              bottom={t('jobs.detail.requestApproverUnitManager', 'Birim Yöneticisi')}
+                            />
+                          )
+                          : t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getRequestApproverDisplayName(detail) ?? '—',
+                      }] : []),
+                      ...(hasRealTargetDecision(detail) ? [{
+                        label: t('jobs.detail.targetUnitManager', 'Hedef Birim Yöneticisi'),
+                        value: getJobTargetApproverDisplayName(detail) ?? '—',
                       }] : []),
                       ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),

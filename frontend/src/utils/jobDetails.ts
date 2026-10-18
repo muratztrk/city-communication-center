@@ -71,6 +71,15 @@ export function getRequestApproverDisplayName(
   return getJobOwnerApproverDisplayName(job)
 }
 
+/** Vatandaş talebi değilse ve sahip birim yöneticisi onayladıysa (#6ad4f59e). */
+export function hasOwnerUnitManagerApproval(
+  job: Pick<JobDetail, 'departments' | 'requestType' | 'sourceType'>,
+): boolean {
+  if (isCitizenRequestJob(job)) return false
+  const owner = job.departments.find(department => department.role === 'Owner')
+  return owner?.approvalStatus === 'Approved' && Boolean(owner.decidedAtUtc)
+}
+
 export function shouldShowRequestApproverField(job: {
   status: string
   requestType?: string | null

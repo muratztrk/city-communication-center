@@ -87,6 +87,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   vermese de `SingleSelectDropdown` ilk satıra Türkçe casing uyumlu arama alanı ekler.
 - **Yeni dropdown'larda native `<select>` açma:** mahalle seçimindeki ortak `SingleSelectDropdown`
   standardını (portal paneli, ortak satır/hover, gerektiğinde arama) kullan; yeni özel/native menü üretme.
+  Üst düzey yönetici Taleplerim `Tüm Birimler` filtresi de bu menüdür (`forceDown`, chip yüksekliği, #6ad4740f).
+  Talep Oluştur Mahalle/Cadde/No açık liste satırı biraz daha kısa (`create-request-address-menu`, #6ad475ae).
 - **`MultiSelectDropdown` menüsü de body portal + fixed** (`SingleSelectDropdown` ile aynı); tablo
   hücresinde absolute panel komşu sütunlara binmez (card #1706).
 - **Yerel (Manual) kullanıcı düzenleme:** Kullanıcı Adı / Ad Soyad / Ünvan / e-posta satır içi

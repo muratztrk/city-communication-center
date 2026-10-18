@@ -2719,6 +2719,18 @@
     line-height: 1.15;
   }
 
+  .create-request-address-menu .dropdown-menu-item {
+    min-height: 2.05rem;
+    padding: 0.38rem 0.7rem;
+    font-size: 0.8125rem;
+  }
+
+  .reporter-my-requests-department-menu {
+    width: max-content;
+    min-width: 16rem;
+    max-width: 22rem;
+  }
+
   .country-calling-code-menu .dropdown-menu-item {
     min-height: 1.85rem;
     padding-top: 0.3rem;

@@ -2586,24 +2586,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           {isReporter ? (
             <>
               <span className="scope-chip-divider" aria-hidden="true">|</span>
-              <label className="sr-only" htmlFor="reporter-department-filter">
-                {t('jobs.departmentFilter', 'Departman Seçimi')}
-              </label>
-              <select
-                id="reporter-department-filter"
-                className="field-select h-[1.95rem] min-h-0 w-auto min-w-52 py-1 text-xs"
+              <SingleSelectDropdown
+                forceDown
+                className="w-52 shrink-0"
+                triggerClassName="h-[1.95rem] min-h-0 min-w-52 py-1 text-xs"
+                menuClassName="reporter-my-requests-department-menu"
+                placeholder={t('jobs.allUnits', 'Tüm Birimler')}
+                searchPlaceholder={t('common.search', 'Ara...')}
+                options={[
+                  { value: '', label: t('jobs.allUnits', 'Tüm Birimler') },
+                  ...departments
+                    .filter(department => department.departmentId !== user?.departmentId)
+                    .map(department => ({ value: department.departmentId, label: department.name })),
+                ]}
                 value={reporterDepartmentId}
-                onChange={event => setReporterDepartment(event.target.value)}
-              >
-                <option value="">{t('jobs.allUnits', 'Tüm Birimler')}</option>
-                {departments
-                  .filter(department => department.departmentId !== user?.departmentId)
-                  .map(department => (
-                    <option key={department.departmentId} value={department.departmentId}>
-                      {department.name}
-                    </option>
-                  ))}
-              </select>
+                onChange={setReporterDepartment}
+              />
             </>
           ) : null}
           <ClearPieFilterLink hasColumnFilters={hasActiveJobColumnFilters} onClearColumnFilters={clearJobFilters} />

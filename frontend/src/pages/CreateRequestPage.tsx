@@ -1551,6 +1551,8 @@ export function CreateRequestPage() {
             {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })), {
               coordinatesBelowNeighborhood: true,
               streetRowClassName: 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2',
+              menuClassName: 'create-request-address-menu',
+              menuScrollClassName: 'create-request-address-menu',
             })}
           </div>
           <div className="grid content-start gap-3">
@@ -1669,6 +1671,8 @@ export function CreateRequestPage() {
             {renderAddressFields(externalForm, (field, value) => setExternalForm(current => ({ ...current, [field]: value })), {
               coordinatesBelowNeighborhood: true,
               streetRowClassName: 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2',
+              menuClassName: 'create-request-address-menu',
+              menuScrollClassName: 'create-request-address-menu',
             })}
           </div>
           <div className="grid content-start gap-3">

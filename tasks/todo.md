@@ -1,3 +1,8 @@
+## Round 1486 — birim dropdown ve adres satırı
+
+- [x] Üst düzey yönetici Taleplerim Tüm Birimler menüsü standart dropdown.
+- [x] Talep Oluştur Mahalle/Cadde/No açık liste yazısı ve satırı biraz küçüldü.
+
 ## Round 1485 — Birimden Giden chip sırası
 
 - [x] Geciken ile Yapılmakta Olan yer değiştirdi: Yapılmakta Olan, sonra Geciken.

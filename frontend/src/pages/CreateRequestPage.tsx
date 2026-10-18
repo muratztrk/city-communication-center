@@ -1632,6 +1632,7 @@ export function CreateRequestPage() {
                     value={externalForm.isProject ? 'yes' : 'no'}
                     onChange={value => setExternalForm(current => ({ ...current, isProject: value === 'yes' }))}
                     placeholder={t('jobs.form.isProjectShort', 'Proje Mi')}
+                    menuClassName="reporter-create-project-menu"
                   />
                 </div>
               ) : null}

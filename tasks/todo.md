@@ -1,3 +1,7 @@
+## Round 1489 — Proje Mi satırı
+
+- [x] Üst düzey Talep Oluştur Proje Mi açık liste yazısı ve satırı biraz kısaldı.
+
 ## Round 1488 — çıkış logu, birim araması, öncelik satırı
 
 - [x] Çıkış, oturum çerezinden okunup Sistem Log'a ve syslog'a yazılır.

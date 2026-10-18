@@ -1,3 +1,7 @@
+## Round 1485 — Birimden Giden chip sırası
+
+- [x] Geciken ile Yapılmakta Olan yer değiştirdi: Yapılmakta Olan, sonra Geciken.
+
 ## Round 1484 — chip yazıları, taslak sekmesi, operatör ikonu
 
 - [x] Taslak Mesajlar sekmesi Meta/Taslak Mesajlar.

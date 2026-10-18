@@ -1593,6 +1593,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Geciken'de `Yapılmakta (Geciken)` alt satır `(Geciken)` gösterilir ve punto biraz küçülür (#3989).
   Birimden Giden Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
   Birimden Giden chip `approved` metni **Birim Dışı Onay Bekleyen Talepler** (#3988).
+  Birimden Giden chip sırası: Bekleyen, Birim Dışı Onay Bekleyen, Yapılmakta Olan, Geciken (#6ad47430).
   Birime Gelen Onaylanan: `İşleme Alındı` (hedef yönetici onayı yok) satır yok (#3986).
   Birime Gelen Yapılmakta / Geciken / Tümü İşlemler'de yalnız Detaylar (#3990).
   Birime Gelen Onaylanan header paging gibi boydan boya (`width:100%`; boş durum `colSpan` =

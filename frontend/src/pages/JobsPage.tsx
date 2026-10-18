@@ -160,8 +160,8 @@ const REQUEST_FLOW_FILTERS: { value: RequestFlowFilter; labelKey: string }[] = [
 const DEPARTMENT_OUTGOING_VIEWS: { value: DepartmentOutgoingView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'jobs.outgoingViews.pending' },
   { value: 'approved', labelKey: 'jobs.outgoingViews.approved' },
-  { value: 'overdue', labelKey: 'jobs.outgoingViews.overdue' },
   { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress' },
+  { value: 'overdue', labelKey: 'jobs.outgoingViews.overdue' },
   { value: 'planned', labelKey: 'jobs.outgoingViews.planned' },
   { value: 'completed', labelKey: 'jobs.outgoingViews.completed' },
   { value: 'rejected', labelKey: 'jobs.outgoingViews.rejected' },

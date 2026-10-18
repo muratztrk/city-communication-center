@@ -2722,7 +2722,8 @@
   .create-request-address-menu .dropdown-menu-item,
   .create-request-target-department-menu .dropdown-menu-item,
   .reporter-my-requests-department-menu .dropdown-menu-item,
-  .reporter-create-project-menu .dropdown-menu-item {
+  .reporter-create-project-menu .dropdown-menu-item,
+  .create-request-project-menu .dropdown-menu-item {
     min-height: 1.85rem;
     padding: 0.28rem 0.65rem;
     font-size: 0.78rem;

@@ -1,3 +1,7 @@
+## Round 1490 — Birim İçi Proje Mi satırı
+
+- [x] Birim İçi Talep Oluştur Proje Mi açık liste yazısı ve satırı biraz kısaldı.
+
 ## Round 1489 — Proje Mi satırı
 
 - [x] Üst düzey Talep Oluştur Proje Mi açık liste yazısı ve satırı biraz kısaldı.

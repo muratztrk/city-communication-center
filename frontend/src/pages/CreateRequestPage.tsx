@@ -1544,6 +1544,7 @@ export function CreateRequestPage() {
                       }))
                     }}
                     placeholder={t('jobs.form.isProjectShort', 'Proje Mi')}
+                    menuClassName="create-request-project-menu"
                   />
                 </div>
               ) : null}

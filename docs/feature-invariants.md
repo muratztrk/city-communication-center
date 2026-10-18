@@ -93,6 +93,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve Talebin Gideceği Birim (`create-request-target-department-menu`, arama ilk satır, #6ad475ae/#6ad497a3).
   Üst düzey yönetici Talep Oluştur Öncelik menüsü bir kademe daha kısadır (`reporter-create-priority-menu`, #6ad4852c).
   Aynı formdaki Proje Mi açık listesi biraz daha kısadır (`reporter-create-project-menu`, #6ad4852c).
+  Birim İçi Talep Oluştur Proje Mi listesi de aynı kısalıktadır (`create-request-project-menu`, #6ad4852c).
   Vatandaş çağrı adresi menüsü (`citizen-call-address-menu`) daha da kısa kalır.
 - **`MultiSelectDropdown` menüsü de body portal + fixed** (`SingleSelectDropdown` ile aynı); tablo
   hücresinde absolute panel komşu sütunlara binmez (card #1706).

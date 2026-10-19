@@ -970,7 +970,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             managerNotes,
             forwardLogDetails.Count,
             forwardedFromDepartmentName,
-            job.PlannedAtUtc);
+            job.PlannedAtUtc,
+            job.PlanRecordedAtUtc,
+            job.PlannedByDisplayName);
     }
 
     /// <summary>"From=&lt;guid&gt; To=&lt;guid&gt;" biçimindeki yönlendirme denetim detayından kaynak birim kimliği.</summary>

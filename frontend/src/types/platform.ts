@@ -519,6 +519,8 @@ export interface JobDetail {
   hadOverdueDueDate?: boolean;
   dueDateChanges?: JobDueDateChange[];
   plannedAtUtc?: string | null;
+  planRecordedAtUtc?: string | null;
+  plannedByDisplayName?: string | null;
 }
 
 export interface SocialConversationEntry {

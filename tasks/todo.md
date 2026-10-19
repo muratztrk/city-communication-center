@@ -1,3 +1,9 @@
+## Round 1492 — onay etiketleri, plana alan, mobil çipler
+
+- [x] Talep Eden Birim / Yönetici Onayı ve Hedef Birim / Yönetici Onayı.
+- [x] Plana Alan satırı, Süreç'te Plana Alındı saati onaydan sonra da kalır, Durum yanında adı.
+- [x] Mobil banner altı çipler satırda 3 buton.
+
 ## Round 1491 — onaylayan etiketleri
 
 - [x] Sahip birim yöneticisi onayladıysa etiket iki satır: Talebi Onaylayan / Birim Yöneticisi.

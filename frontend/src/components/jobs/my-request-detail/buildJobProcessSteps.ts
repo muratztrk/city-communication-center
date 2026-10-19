@@ -72,6 +72,7 @@ export type JobProcessStepId =
   | 'requestDate'
   | 'ownerApproval'
   | 'targetApproval'
+  | 'planned'
   | 'status'
   | 'inProgressPeriod'
   | 'completionDate'
@@ -199,6 +200,9 @@ function resolveStepStates(
       if (step.id === 'dueDate') {
         return { ...step, state: 'upcoming' as const }
       }
+      if (step.id === 'planned') {
+        return { ...step, state: isPlannedProcessJob(detail) ? 'planned' as const : 'completed' as const }
+      }
       // Reopen + henüz onaylanmamış hedef: yeşil completed değil, mavi pending (#6a6aecbc).
       if (step.id === 'targetApproval' && !step.dateTimeUtc) {
         return { ...step, state: 'pending' as const }
@@ -236,6 +240,9 @@ function resolveStepStates(
         return { ...step, state: 'upcoming' as const }
       }
       return { ...step, state: 'pending' as const }
+    }
+    if (step.id === 'planned') {
+      return { ...step, state: isPlannedProcessJob(detail) ? 'planned' as const : 'completed' as const }
     }
     if (foundCurrent) {
       return { ...step, state: 'upcoming' as const }
@@ -584,6 +591,26 @@ export function buildJobProcessSteps(
     displayValue: formatDueDateTime(detail.dueDateUtc, locale),
     dateTimeUtc: detail.dueDateUtc ?? null,
   })
+
+  const planAt = detail.planRecordedAtUtc ?? detail.plannedAtUtc ?? null
+  if (planAt) {
+    const openPlanned = isPlannedProcessJob(detail)
+    const plannedStep: Omit<JobProcessStep, 'state'> = {
+      id: 'planned',
+      label: t('jobs.statusLabel.planned', 'Plana Alındı'),
+      displayValue: formatDateTime(planAt, locale),
+      dateTimeUtc: planAt,
+      displayMeta: openPlanned ? undefined : detail.plannedByDisplayName?.trim() || undefined,
+    }
+    const statusIndex = steps.findIndex(step => step.id === 'status')
+    if (statusIndex >= 0) {
+      steps.splice(statusIndex, 0, plannedStep)
+    } else {
+      const dueIndex = steps.findIndex(step => step.id === 'dueDate')
+      if (dueIndex >= 0) steps.splice(dueIndex, 0, plannedStep)
+      else steps.push(plannedStep)
+    }
+  }
 
   return resolveStepStates(steps, detail, options)
 }

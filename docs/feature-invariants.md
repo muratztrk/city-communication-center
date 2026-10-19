@@ -439,8 +439,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `İşleme Alındı` / `Yapılmakta` (mavi) / `Geciken` (turuncu, birleşik `Yapılmakta (…)` değil)
   — `getCitizenRequestStatusLabel` backend `CitizenJobStatusLabelHelper` ile aynı — #2574 reopen.
   **Plana Alındı** (#4218–#4224) ayrı `JobStatus` değildir: `jobs.plannedatutc` dolu, durum terminal değil
-  ve `Active` + açık görev yokken gösterilir. Onayla bayrağı temizler; personel atanınca normal
-  İşleme Alındı/Yapılmakta döner. Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
+  ve `Active` + açık görev yokken gösterilir. Onayla canlı damgayı temizler; `planrecordedatutc` ve
+  `plannedbydisplayname` kalır, Süreç adımı ve Plana Alan satırı onaydan sonra da durur (#6ad5a2c8).
+  Personel atanınca normal İşleme Alındı/Yapılmakta döner. Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
   Plana Al butonu yazısı beyaz. Süreç halkası, bağlantı çizgisi ve Durum değeri aynı altın geçişle
   boyanır (gecikince de maviye dönmez).   Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden) ve kayıt varken Geciken chip'i
   ile aynı sağ üst sayaç rozetini gösterir. Plana Al aynı satırdayken diğer aksiyon butonları biraz büyür.
@@ -2041,9 +2042,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Bilgileri sıra (#2896):** `Talep Yapılan Birim` `Talebi Onaylayan`'dan önce.
   Talebi Onaylayan değeri yalnız kişi adıdır (birim yok).
   Vatandaş talebi dışında sahip birim yöneticisi onayladıysa etiket iki satırdır:
-  `Talebi Onaylayan` / `Birim Yöneticisi` (#6ad4f59e).
-  Hedef birim yöneticisi gerçekten onayladıysa hemen altında `Hedef Birim Yöneticisi` ve adı görünür (#6ad4f807).
+  `Talep Eden Birim` / `Yönetici Onayı` (#6ad5994a).
+  Hedef birim yöneticisi gerçekten onayladıysa hemen altında `Hedef Birim` / `Yönetici Onayı` ve adı görünür (#6ad4f807).
   Otomatik sahip damgası hedef onayı sayılmaz. Vatandaş talebinde etiket `Talebi Onaylayan` kalır.
+  Talep plana alındıysa `Talep Yapılan Birim` altında `Plana Alan` ve kişi adı durur (#6ad5a2c8).
+  Süreç'te `Plana Alındı` adımı ve saati onaydan sonra da kalır (#6ad5a49b).
+  Açıkken Durum değerinin sağında plana alan adı parantez içindedir (#6ad5a516).
 - **Birimler / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).

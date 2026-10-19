@@ -218,4 +218,6 @@ public sealed record JobDetailResponse(
     int ForwardCount = 0,
     /// <summary>Son yönlendirmeyi yapan (talebin önceki hedef) birim adı.</summary>
     string? ForwardedFromDepartmentName = null,
-    DateTimeOffset? PlannedAtUtc = null);
+    DateTimeOffset? PlannedAtUtc = null,
+    DateTimeOffset? PlanRecordedAtUtc = null,
+    string? PlannedByDisplayName = null);

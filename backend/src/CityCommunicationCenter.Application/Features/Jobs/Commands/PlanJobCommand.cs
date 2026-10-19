@@ -62,6 +62,8 @@ public sealed class PlanJobCommandHandler : ICommandHandler<PlanJobCommand, bool
         var utcNow = DateTimeOffset.UtcNow;
         var previousDisplayStatus = CitizenJobStatusLabelHelper.GetDisplayStatus(job, openTaskCount, utcNow);
         job.PlannedAtUtc = utcNow;
+        job.PlanRecordedAtUtc = utcNow;
+        job.PlannedByDisplayName = actor.DisplayName;
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
         await _dbContext.SaveChangesAsync(cancellationToken);

@@ -66,7 +66,7 @@ import {
   requestLocationFieldLabel,
   hasCitizenAddress,
 } from '../utils/citizenRequests'
-import { isOpenPlannedJob, plannedStatusLabel } from '../utils/plannedJob'
+import { formatOpenPlannedStatusLabel, isOpenPlannedJob } from '../utils/plannedJob'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { displayMapsLink, originalGoogleMapsUrl } from '../utils/coordinates'
@@ -527,14 +527,17 @@ export function printJobDetail(
     [jobDestinationFieldLabel(detail, t, { includeAssignee: Boolean(options?.myRequestView) }), options?.myRequestView
       ? formatJobDestinationsWithAssignees(detail)
       : formatJobDestinationsWithAssignees(detail, false, false)],
+    ...(detail.plannedByDisplayName?.trim()
+      ? [['Plana Alan', detail.plannedByDisplayName.trim()] as [string, string]]
+      : []),
     ...(options?.myRequestView || !shouldShowRequestApproverField(detail)
       ? []
       : [[
-          hasOwnerUnitManagerApproval(detail) ? 'Talebi Onaylayan Birim Yöneticisi' : 'Talebi Onaylayan',
+          hasOwnerUnitManagerApproval(detail) ? 'Talep Eden Birim Yönetici Onayı' : 'Talebi Onaylayan',
           formatRequestApproverDisplay(detail) ?? '—',
         ] as [string, string]]),
     ...(!isCitizenPrint && hasRealTargetDecision(detail)
-      ? [['Hedef Birim Yöneticisi', getJobTargetApproverDisplayName(detail) ?? '—'] as [string, string]]
+      ? [['Hedef Birim Yönetici Onayı', getJobTargetApproverDisplayName(detail) ?? '—'] as [string, string]]
       : []),
     ...(isCitizenPrint || !shouldShowJobProjectField(detail) ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
@@ -2509,9 +2512,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
       : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
   const myRequestStatusLabel = detail != null ? (
-    isOpenPlannedJob({ ...detail, taskCount: detail.tasks?.length ?? 0 })
-      ? plannedStatusLabel(t, shouldShowJobOverdueLabel(detail))
-      : isCitizenRequestDetail
+    formatOpenPlannedStatusLabel(t, { ...detail, taskCount: detail.tasks?.length ?? 0 }, shouldShowJobOverdueLabel(detail))
+      ?? (isCitizenRequestDetail
       ? getCitizenRequestDetailStatusLabel(t, detail)
       : getExternalUnitOwnerDisplayStatus(t, detail)
         ?? (detail.status === 'Active'
@@ -2520,7 +2522,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             : t('jobs.statusLabel.inProgress', 'Yapılmakta'))
           : detail.status === 'Completed'
             ? t('jobs.statusLabel.completed', 'Tamamlanan')
-            : getJobStatusLabel(t, detail.status))
+            : getJobStatusLabel(t, detail.status)))
   ) : null
   const myRequestStatusNoteContent = null
   const myRequestStatusContent = detail != null ? (
@@ -3353,6 +3355,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
                             value: <ExternalDestinationValue detail={detail} framed={false} />,
                           }]),
+                      ...(detail.plannedByDisplayName?.trim() ? [{
+                        label: t('jobs.detail.plannedBy', 'Plana Alan'),
+                        value: detail.plannedByDisplayName.trim(),
+                      }] : []),
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getRequestApproverDisplayName(detail) ?? '—',
@@ -3371,19 +3377,28 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
                         value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
+                      ...(detail.plannedByDisplayName?.trim() ? [{
+                        label: t('jobs.detail.plannedBy', 'Plana Alan'),
+                        value: detail.plannedByDisplayName.trim(),
+                      }] : []),
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: hasOwnerUnitManagerApproval(detail)
                           ? (
                             <StackedFieldLabel
-                              top={t('jobs.detail.requestApprover', 'Talebi Onaylayan')}
-                              bottom={t('jobs.detail.requestApproverUnitManager', 'Birim Yöneticisi')}
+                              top={t('jobs.detail.requestingUnitApprovalTop', 'Talep Eden Birim')}
+                              bottom={t('jobs.detail.unitManagerApprovalBottom', 'Yönetici Onayı')}
                             />
                           )
                           : t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
                         value: getRequestApproverDisplayName(detail) ?? '—',
                       }] : []),
                       ...(hasRealTargetDecision(detail) ? [{
-                        label: t('jobs.detail.targetUnitManager', 'Hedef Birim Yöneticisi'),
+                        label: (
+                          <StackedFieldLabel
+                            top={t('jobs.detail.targetUnitApprovalTop', 'Hedef Birim')}
+                            bottom={t('jobs.detail.unitManagerApprovalBottom', 'Yönetici Onayı')}
+                          />
+                        ),
                         value: getJobTargetApproverDisplayName(detail) ?? '—',
                       }] : []),
                       ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),
@@ -3467,7 +3482,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       const activeStatusLabel = detailOverdue
                         ? formatOverdueInProgressStatus(t)
                         : t('jobs.statusLabel.inProgress', 'Yapılmakta')
-                      const incomingOutgoingStatusLabelRaw = isCitizenRequestDetail
+                      const openPlannedStatusLabel = formatOpenPlannedStatusLabel(
+                        t,
+                        { ...detail, taskCount: detail.tasks?.length ?? 0 },
+                        detailOverdue,
+                      )
+                      const incomingOutgoingStatusLabelRaw = openPlannedStatusLabel
+                        ?? (isCitizenRequestDetail
                         ? getCitizenRequestDetailStatusLabel(t, detail)
                         : isIncomingRequestDetail
                           ? (
@@ -3485,7 +3506,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               ? activeStatusLabel
                               : detail.status === 'Completed'
                                 ? t('jobs.statusLabel.completed', 'Tamamlanan')
-                                : getJobStatusLabel(t, detail.status))
+                                : getJobStatusLabel(t, detail.status)))
                       const incomingOutgoingStatusLabel = detailOverdue
                         && typeof incomingOutgoingStatusLabelRaw === 'string'
                         && isPendingApprovalText(incomingOutgoingStatusLabelRaw)

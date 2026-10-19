@@ -187,6 +187,9 @@ export function buildMyRequestDetailFields(
       },
       ...(returnedRequestDetail && citizenSourceMessage?.category?.trim() ? [returnedRequestTagField] : []),
       ...destinationFields,
+      ...(detail.plannedByDisplayName?.trim()
+        ? [{ label: t('jobs.detail.plannedBy', 'Plana Alan'), value: detail.plannedByDisplayName.trim() }]
+        : []),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel && !returnedRequestDetail
         ? [{ label: t('social.label', 'Talep Etiketi'), value: citizenSourceMessage?.category?.trim() || '—' }]
@@ -222,6 +225,9 @@ export function buildMyRequestDetailFields(
           label: destinationFieldLabel(detail, t, { includeAssignee }),
           value: destinationValue,
         }]),
+    ...(detail.plannedByDisplayName?.trim()
+      ? [{ label: t('jobs.detail.plannedBy', 'Plana Alan'), value: detail.plannedByDisplayName.trim() }]
+      : []),
     ...(shouldShowJobProjectField(detail)
       ? [{
           label: t('jobs.form.isProject', 'Proje mi'),

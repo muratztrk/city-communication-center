@@ -89,6 +89,7 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
     : []
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestDetailStatusLabel, getCitizenRequestStatusLabel, isCitizenProcessingReceivedState, shouldShowCitizenTargetApprovalDate, requestLocationFieldLabel } from '../utils/citizenRequests'
+import { formatOpenPlannedStatusLabel, isOpenPlannedJob } from '../utils/plannedJob'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
@@ -3284,7 +3285,13 @@ const pageKicker = isMyTasksView
                       && parentJobDetail.status !== 'Completed'
                       && parentJobDetail.status !== 'Cancelled'
                       && parentJobDetail.status !== 'Rejected'
-                    const parentStatusClass = parentJobDetail.status === 'Completed'
+                    const parentOpenPlanned = isOpenPlannedJob({
+                      ...parentJobDetail,
+                      taskCount: parentJobDetail.tasks?.length ?? 0,
+                    })
+                    const parentStatusClass = parentOpenPlanned
+                      ? 'text-[#d4a017]'
+                      : parentJobDetail.status === 'Completed'
                       ? 'text-emerald-600'
                       : parentJobDetail.status === 'Cancelled'
                         ? 'text-rose-600'
@@ -3292,7 +3299,11 @@ const pageKicker = isMyTasksView
                           ? 'text-sky-500'
                           : 'text-orange-500'
                     // Süreç Durum: süresi geçmişte birleşik etiket (card #1646 / Birimdeki Görevler #1647).
-                    const parentStatusContent = isCitizenParentJob
+                    const parentStatusContent = formatOpenPlannedStatusLabel(t, {
+                      ...parentJobDetail,
+                      taskCount: parentJobDetail.tasks?.length ?? 0,
+                    }, parentOverdue)
+                      ?? (isCitizenParentJob
                       ? getCitizenRequestDetailStatusLabel(t, parentJobDetail)
                       : parentJobDetail.status === 'Completed'
                         ? t('jobs.status.completed', 'Tamamlandı')
@@ -3300,7 +3311,7 @@ const pageKicker = isMyTasksView
                           ? t('jobs.status.cancelled', 'İptal Edildi')
                           : parentOverdue
                             ? formatOverdueInProgressStatus(t)
-                            : t('jobs.status.inProgress', 'Yapılmakta')
+                            : t('jobs.status.inProgress', 'Yapılmakta'))
                     const parentRequestNumberSuffix = parentForwardReasonDisplay ? (
                       <span className="text-[12px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                     ) : null

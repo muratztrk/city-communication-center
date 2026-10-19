@@ -41,6 +41,12 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
     /// <summary>Birime gelen detaydan «Plana Al» — onay ve personel ataması bundan sonra da yapılabilir (#4218).</summary>
     public DateTimeOffset? PlannedAtUtc { get; set; }
 
+    /// <summary>Plana alma zamanı. Onay canlı damgayı silse de Süreç'te kalır (#6ad5a49b).</summary>
+    public DateTimeOffset? PlanRecordedAtUtc { get; set; }
+
+    /// <summary>Plana alan kişi. Onaydan sonra da Talep Bilgileri ve Süreç'te durur (#6ad5a2c8).</summary>
+    public string? PlannedByDisplayName { get; set; }
+
     public DateTimeOffset? CompletedAtUtc { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }

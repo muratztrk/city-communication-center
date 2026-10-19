@@ -7684,18 +7684,19 @@
 
     .scope-chips {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       overflow-x: visible;
-      gap: 0.45rem;
+      gap: 0.35rem;
       padding-block: 0.45rem;
       align-items: stretch;
     }
 
     .scope-chip {
       width: 100%;
-      min-height: 2.15rem;
-      padding: 0.38rem 0.52rem;
-      font-size: 0.72rem;
+      min-height: 2.2rem;
+      padding: 0.22rem 0.28rem;
+      font-size: 0.62rem;
+      line-height: 1.15;
       white-space: normal;
       text-align: center;
     }

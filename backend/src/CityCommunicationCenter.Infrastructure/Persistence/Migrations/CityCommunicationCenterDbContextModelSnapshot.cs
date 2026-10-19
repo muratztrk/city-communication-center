@@ -1306,9 +1306,17 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("overduemailsentatutc");
 
+                    b.Property<DateTimeOffset?>("PlanRecordedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("planrecordedatutc");
+
                     b.Property<DateTimeOffset?>("PlannedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("plannedatutc");
+
+                    b.Property<string>("PlannedByDisplayName")
+                        .HasColumnType("text")
+                        .HasColumnName("plannedbydisplayname");
 
                     b.Property<Guid>("OwnerDepartmentId")
                         .HasColumnType("uuid")

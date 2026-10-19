@@ -19,3 +19,20 @@ export function plannedStatusLabel(t: TFunction, overdue = false): string {
   if (!overdue) return label
   return `${label} (${t('jobs.statusLabel.overdue', 'Geciken')})`
 }
+
+/** Açık plana alınmış talebin Durum değeri. Plana alan adı parantez içinde (#6ad5a516). */
+export function formatOpenPlannedStatusLabel(
+  t: TFunction,
+  job: {
+    plannedAtUtc?: string | null
+    status: string
+    taskCount?: number | null
+    plannedByDisplayName?: string | null
+  },
+  overdue = false,
+): string | null {
+  if (!isOpenPlannedJob(job)) return null
+  const label = plannedStatusLabel(t, overdue)
+  const name = job.plannedByDisplayName?.trim()
+  return name ? `${label} (${name})` : label
+}

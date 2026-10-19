@@ -2596,7 +2596,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Vatandaş Bilgi Listesi` açılır (#6a92713f). Cluster sayısı iş, zoom’da ayrı konum.
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
-  Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593/#2597). Pin **rengi** durum
+  Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593/#2597). Çok işarette tıklama
+  kutusu kaymasın diye pin ve cluster `optimized: false`; imleç görselin üstündedir (#6ad61f53). Pin **rengi** durum
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
@@ -3587,7 +3588,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`ClassifyCitizenRequestsPie`) sayılır; açık geciken talep Tamamlanan pie'da durmaz. Tıklanınca
   açılan liste ve Tüm Talepler popup'ları aynı filtreyi uygular.
 - **Anasayfa kutu kartları mobil (#6ad5ef10):** `max-width: 767px` arama altındaki metrik kutuları
-  satırda 2. Pasta grafikler tek sütun kalır.
+  satırda 2. Pasta grafikler tek sütun kalır. Standart ve vatandaş yöneticisinde Özel, Yıllık'ın
+  hemen sağında ve dönem satırı tek satırdır (#6ad60187).
 - **İş akışı not limiti (#3466/#3516):** tamamlama/iptal/durum değişikliği notu, talep yönlendirme notu,
   vatandaş mesaj onay notu ve **Talebi İptal Et** (`CancelJob`) nedeni FE+BE **400 karakter**.
 - **GetJobById outbound (#3513/#3515/#3512/#3518/#3521/#3527):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`

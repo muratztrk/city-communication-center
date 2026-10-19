@@ -1,3 +1,8 @@
+## Round 1496 — mobil dönem, harita tıklama
+
+- [x] Standart ve vatandaş yöneticisinde Özel, Yıllık'ın sağında tek satır.
+- [x] Harita işaretinin tıklama alanı görselin üstünde.
+
 ## Round 1495 — mobil anasayfa
 
 - [x] Telefonda Gecikti mi, Tüm Talepler ile aynı satırda.

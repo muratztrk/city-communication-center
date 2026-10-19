@@ -867,6 +867,11 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const showDashboardOverdueControls = effectiveView === 'citizen'
     || effectiveView === 'departments'
     || (effectiveView === 'full' && isManagerOrAdmin)
+  const compactMobilePeriodRow = (role === 'Staff' || hasCitizenRequestManagerRole(currentUser))
+    && role !== 'Manager'
+    && role !== 'SystemAdmin'
+    && role !== 'Operator'
+    && role !== 'Reporter'
   const displayChartCards = wasOverdueFilter && showDashboardOverdueControls
     ? visibleChartCards.map(card => (
         OVERDUE_ENTITY_CHART_KEYS.has(card.titleKey)
@@ -952,8 +957,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           </div>
         </div>
 
-        <div className="dashboard-period-row flex flex-wrap items-center gap-2 px-4 py-2.5 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
-          <span className="text-xs font-semibold text-[color:var(--color-muted-foreground)] uppercase tracking-wide mr-1">
+        <div className={`dashboard-period-row flex flex-wrap items-center gap-2 px-4 py-2.5 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]${compactMobilePeriodRow ? ' dashboard-period-row--fit' : ''}`}>
+          <span className="dashboard-period-label text-xs font-semibold text-[color:var(--color-muted-foreground)] uppercase tracking-wide mr-1">
             {t('dashboard.period.label', 'Dönem')}:
           </span>
           {(['daily', 'weekly', 'monthly', 'yearly'] as const).map(p => (

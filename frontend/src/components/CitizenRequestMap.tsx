@@ -76,7 +76,7 @@ function clusterPixelSize(count: number): number {
 
 function clusterSvgIcon(count: number, color: string): google.maps.Icon {
   const size = clusterPixelSize(count)
-  const svg = `<svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  const svg = `<svg fill="${color}" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 240 240">
     <circle cx="120" cy="120" opacity=".55" r="70" />
     <circle cx="120" cy="120" opacity=".28" r="90" />
     <circle cx="120" cy="120" opacity=".16" r="110" />
@@ -95,6 +95,9 @@ const bannerClusterRenderer = {
     return new google.maps.Marker({
       position,
       icon: clusterSvgIcon(count, color),
+      // Çok işarette tuval sprite'ı tıklama kutusunu kaydırır; imleç görselin üstünde kalsın.
+      optimized: false,
+      cursor: 'pointer',
       label: {
         text: String(count),
         color: '#ffffff',
@@ -697,6 +700,8 @@ export function CitizenRequestMap({
       const marker = new google.maps.Marker({
         position: { lat: pin.position.lat, lng: pin.position.lng },
         icon: pinSvgIcon(pinColor(pin.displayStatus, variant), pin.approximate),
+        optimized: false,
+        cursor: 'pointer',
       })
       marker.addListener('click', () => {
         stopMarkerBounce()

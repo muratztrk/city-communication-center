@@ -1,3 +1,8 @@
+## Round 1495 — mobil anasayfa
+
+- [x] Telefonda Gecikti mi, Tüm Talepler ile aynı satırda.
+- [x] Arama altındaki kutu kartları 2'şer; pasta grafikler tek sütun.
+
 ## Round 1494 — birim görev rozeti, onay sonrası durum
 
 - [x] Birimdeki Görevler menüsünde Bekleyen sayısı kırmızı rozet.

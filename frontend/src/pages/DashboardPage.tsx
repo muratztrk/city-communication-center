@@ -952,7 +952,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
+        <div className="dashboard-period-row flex flex-wrap items-center gap-2 px-4 py-2.5 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
           <span className="text-xs font-semibold text-[color:var(--color-muted-foreground)] uppercase tracking-wide mr-1">
             {t('dashboard.period.label', 'Dönem')}:
           </span>
@@ -986,43 +986,30 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               <ScopeChipDateRange from={customFrom} to={customTo} onFromChange={setCustomFrom} onToChange={setCustomTo} forceDown />
             </>
           )}
-          {effectiveView === 'citizen' ? (
-            <button
-              type="button"
-              onClick={() => setAllCitizenRequestsOpen(true)}
-              className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50"
-            >
-              {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
-            </button>
-          ) : null}
-          {effectiveView === 'departments' ? (
-            <button
-              type="button"
-              onClick={() => setAllDepartmentRequestsOpen(true)}
-              className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50"
-            >
-              {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
-            </button>
-          ) : null}
-          {effectiveView === 'full' && isManagerOrAdmin ? (
-            <button
-              type="button"
-              onClick={() => setAllCitizenRequestsOpen(true)}
-              className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50"
-            >
-              {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
-            </button>
-          ) : null}
-          {showDashboardOverdueControls ? (
-            <label className="ml-1 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
-              <input
-                type="checkbox"
-                className="field-checkbox"
-                checked={wasOverdueFilter}
-                onChange={event => setWasOverdueFilter(event.target.checked)}
-              />
-              {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
-            </label>
+          {(effectiveView === 'citizen' || effectiveView === 'departments' || (effectiveView === 'full' && isManagerOrAdmin)) ? (
+            <span className="dashboard-period-trailing inline-flex shrink-0 items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  if (effectiveView === 'departments') setAllDepartmentRequestsOpen(true)
+                  else setAllCitizenRequestsOpen(true)
+                }}
+                className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50"
+              >
+                {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
+              </button>
+              {showDashboardOverdueControls ? (
+                <label className="dashboard-overdue-label inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
+                  <input
+                    type="checkbox"
+                    className="field-checkbox"
+                    checked={wasOverdueFilter}
+                    onChange={event => setWasOverdueFilter(event.target.checked)}
+                  />
+                  {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
+                </label>
+              ) : null}
+            </span>
           ) : null}
         </div>
         <div className="flex items-center px-4 py-2 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
@@ -1035,14 +1022,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <div className="px-5 py-3.5 sm:px-8">
             {dashboardQuery.isLoading
               ? (
-                <div className={`mx-auto grid gap-x-8 gap-y-2 ${managerMetricGridClass}`}>
+                <div className={`dashboard-metric-grid mx-auto grid gap-x-8 gap-y-2 ${managerMetricGridClass}`}>
                   {Array.from({ length: isInternalModuleUsable ? 6 : 4 }).map((_, i) => (
                     <div key={i} className="h-[72px] min-w-0 animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                   ))}
                 </div>
               )
               : (
-                <div className={`mx-auto grid gap-x-8 gap-y-2 ${managerMetricGridClass}`}>
+                <div className={`dashboard-metric-grid mx-auto grid gap-x-8 gap-y-2 ${managerMetricGridClass}`}>
                   {[...managerRowHead, ...managerRowTail].map(renderCard)}
                 </div>
               )}
@@ -1050,7 +1037,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         ) : (
           <div className="px-5 py-3.5 sm:px-8">
             {useStaffMetricFourCol && staffMetrics.length >= 4 ? (
-              <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-x-6 gap-y-2 [&>button]:w-full [&>button]:min-w-[12.75rem] [&>button]:sm:max-w-[calc((100%-4.5rem)/4)]">
+              <div className="dashboard-metric-grid mx-auto flex max-w-5xl flex-wrap justify-center gap-x-6 gap-y-2 [&>button]:w-full [&>button]:min-w-[12.75rem] [&>button]:sm:max-w-[calc((100%-4.5rem)/4)]">
                 {dashboardQuery.isLoading
                   ? Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="h-[72px] w-full min-w-[12.75rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-4.5rem)/4)]" />
@@ -1058,7 +1045,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                   : staffMetrics.map(renderCard)}
               </div>
             ) : (
-              <div className={`mx-auto grid gap-x-12 gap-y-2 ${staffMetricGridClass}`}>
+              <div className={`dashboard-metric-grid mx-auto grid gap-x-12 gap-y-2 ${staffMetricGridClass}`}>
                 {dashboardQuery.isLoading
                   ? Array.from({ length: useStaffMetricFourCol ? 4 : 2 }).map((_, i) => (
                       <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />

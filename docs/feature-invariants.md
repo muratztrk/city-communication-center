@@ -3581,10 +3581,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Liste Gecikti mi? (#3908):** Birime Gelen / Görevlerim / Birimdeki / Personelimin chip satırında
   son durum chip'inden sonra `Gecikti mi?` checkbox; açık ve gecikmiş satırları mevcut görünüme süzer.
 - **Dashboard Gecikti mi? (#3467/#3465/#3866):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
-  tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox. Durum pie'larında dilim
+  tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox. Telefonda (`max-width: 767px`)
+  checkbox Tüm Talepler ile aynı satırda, hemen sağında (#6ad5ea97). Durum pie'larında dilim
   yalnız `dashboard.chart.overdue`. Mahalle, birim, etiket ve kanal pie'ları aynı Geciken kümesinden
   (`ClassifyCitizenRequestsPie`) sayılır; açık geciken talep Tamamlanan pie'da durmaz. Tıklanınca
   açılan liste ve Tüm Talepler popup'ları aynı filtreyi uygular.
+- **Anasayfa kutu kartları mobil (#6ad5ef10):** `max-width: 767px` arama altındaki metrik kutuları
+  satırda 2. Pasta grafikler tek sütun kalır.
 - **İş akışı not limiti (#3466/#3516):** tamamlama/iptal/durum değişikliği notu, talep yönlendirme notu,
   vatandaş mesaj onay notu ve **Talebi İptal Et** (`CancelJob`) nedeni FE+BE **400 karakter**.
 - **GetJobById outbound (#3513/#3515/#3512/#3518/#3521/#3527):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`

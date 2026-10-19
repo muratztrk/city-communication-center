@@ -73,7 +73,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     .Where(e => _dbContext.SocialMessages
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
                                   && m.SocialMessageId == e.SocialMessageId
-                                  && m.Channel == SocialChannel.WhatsApp))
+                                  && m.Channel == SocialChannel.WhatsApp)
+                        && e.Content != "[system]")
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.Content)
                     .FirstOrDefault(),
@@ -82,7 +83,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     .Where(e => _dbContext.SocialMessages
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
                                   && m.SocialMessageId == e.SocialMessageId
-                                  && m.Channel == SocialChannel.WhatsApp))
+                                  && m.Channel == SocialChannel.WhatsApp)
+                        && e.Content != "[system]")
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.SenderLabel)
                     .FirstOrDefault(),
@@ -90,7 +92,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     .Where(e => _dbContext.SocialMessages
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
                                   && m.SocialMessageId == e.SocialMessageId
-                                  && m.Channel == SocialChannel.WhatsApp))
+                                  && m.Channel == SocialChannel.WhatsApp)
+                        && e.Content != "[system]")
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.DeliveryStatus)
                     .FirstOrDefault(),

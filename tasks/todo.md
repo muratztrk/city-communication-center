@@ -1,3 +1,7 @@
+## WhatsApp system balonu
+
+- [x] Meta `type: system` gövdesiz gelince konuşmaya yazılmaz; eski `[system]` balonu gizlenir. Gövde varsa o metin kalır.
+
 ## Round 1492 — onay etiketleri, plana alan, mobil çipler
 
 - [x] Talep Eden Birim / Yönetici Onayı ve Hedef Birim / Yönetici Onayı.

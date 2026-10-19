@@ -470,7 +470,32 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         foreach (var citizenGroup in byCitizen)
         {
             var citizenHandle = citizenGroup.Key;
-            var orderedEchoes = citizenGroup.OrderBy(echo => echo.SentAtUtc).ToArray();
+            var orderedEchoes = new List<WhatsAppEchoMessage>();
+            foreach (var echo in citizenGroup.OrderBy(echo => echo.SentAtUtc))
+            {
+                if (!WhatsAppInboundContentParser.IsIgnorableInboundNoise(echo.Content, echo.MediaId))
+                {
+                    orderedEchoes.Add(echo);
+                    continue;
+                }
+
+                LogProcessed(
+                    trace,
+                    echo.WabaId,
+                    echo.PhoneNumberId,
+                    echo.ExternalMessageId,
+                    echo.CitizenHandle,
+                    "echo",
+                    echo.MessageType,
+                    WhatsAppWebhookProcessingResult.IgnoredNoise,
+                    WhatsAppWebhookSkipReason.UnsupportedWithoutMedia);
+            }
+
+            if (orderedEchoes.Count == 0)
+            {
+                continue;
+            }
+
             var latestAt = orderedEchoes[^1].SentAtUtc;
 
             if (!existingConversations.TryGetValue(citizenHandle, out var conversation))

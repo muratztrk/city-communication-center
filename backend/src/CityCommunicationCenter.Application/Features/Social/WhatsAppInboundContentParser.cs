@@ -10,7 +10,8 @@ internal static class WhatsAppInboundContentParser
     /// </summary>
     public static bool IsIgnorableInboundNoise(string content, string? mediaId) =>
         string.IsNullOrWhiteSpace(mediaId)
-        && string.Equals(content.Trim(), "[unsupported]", StringComparison.OrdinalIgnoreCase);
+        && (string.Equals(content.Trim(), "[unsupported]", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(content.Trim(), "[system]", StringComparison.OrdinalIgnoreCase));
 
     public static (string Content, string? MediaId, string? MediaMimeType, double? Latitude, double? Longitude) Parse(
         JsonElement message)
@@ -78,6 +79,19 @@ internal static class WhatsAppInboundContentParser
                 ? "[kişi kartı]"
                 : $"[kişi kartı]\n{contactLines}";
             return (display, null, null, null, null);
+        }
+
+        // Meta type:system vatandaş metni değildir (numara/kimlik bildirimi). Gövde yoksa
+        // konuşmaya [system] yazılır; kayıt ve ekran bunu yok sayar.
+        if (type == "system")
+        {
+            string? body = null;
+            if (message.TryGetProperty("system", out var systemObj) && systemObj.ValueKind == JsonValueKind.Object)
+            {
+                body = GetString(systemObj, "body");
+            }
+
+            return (string.IsNullOrWhiteSpace(body) ? "[system]" : body.Trim(), null, null, null, null);
         }
 
         if (message.TryGetProperty(type, out var mediaObj) && mediaObj.ValueKind == JsonValueKind.Object)

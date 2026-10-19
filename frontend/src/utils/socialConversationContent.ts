@@ -234,6 +234,7 @@ export function isIgnorableWhatsAppInboundNoise(
   if (mediaId) return false
   const trimmed = content?.trim() ?? ''
   return trimmed.toLocaleLowerCase('tr') === '[unsupported]'
+    || trimmed.toLocaleLowerCase('tr') === '[system]'
 }
 
 export function filterVisibleConversationEntries<

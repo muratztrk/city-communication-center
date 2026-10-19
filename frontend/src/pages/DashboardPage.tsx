@@ -286,6 +286,7 @@ const SLICE_VIEW: Record<string, string> = {
   'dashboard.chart.cancelled': 'rejected',
   'dashboard.chart.approved': 'approved',
   'dashboard.chart.inProgress': 'approved',
+  'dashboard.chart.planned': 'planned',
 }
 
 const INCOMING_SLICE_STATUS: Record<string, string> = {
@@ -297,6 +298,7 @@ const INCOMING_SLICE_STATUS: Record<string, string> = {
   'dashboard.chart.approved': 'approved',
   // Yapılmakta Olan → mavi "Yapılmakta Olan Talepler" chip (#r542 / cards #3+#16)
   'dashboard.chart.inProgress': 'in-progress',
+  'dashboard.chart.planned': 'planned',
   'dashboard.chart.completed': 'completed',
   'dashboard.chart.cancelled': 'cancelled',
 }

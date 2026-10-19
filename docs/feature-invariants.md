@@ -441,11 +441,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Plana Alındı** (#4218–#4224) ayrı `JobStatus` değildir: `jobs.plannedatutc` dolu, durum terminal değil
   ve `Active` + açık görev yokken gösterilir. Onayla canlı damgayı temizler; `planrecordedatutc` ve
   `plannedbydisplayname` kalır, Süreç adımı ve Plana Alan satırı onaydan sonra da durur (#6ad5a2c8).
+  Talep hâlâ planlıyken Süreç'te `Durum` katmanı yoktur; plana alan adı `Plana Alındı` ifadesinin
+  sağında parantez içindedir (#6ad5c0b0/#6ad5a516).
   Personel atanınca normal İşleme Alındı/Yapılmakta döner. Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
   Plana Al butonu yazısı beyaz. Süreç halkası, bağlantı çizgisi ve Durum değeri aynı altın geçişle
   boyanır (gecikince de maviye dönmez).   Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden) ve kayıt varken Geciken chip'i
   ile aynı sağ üst sayaç rozetini gösterir. Plana Al aynı satırdayken diğer aksiyon butonları biraz büyür.
   Açık ve Tüm pastalar yeni dilim açmaz; planlı iş `Classify()` ile `ProcessingReceived` içinde kalır.
+  Birime Gelen, Birimden Giden ve Taleplerim pastalarında Tamamlanan'dan önce altın `Plana Alınan` dilimi vardır;
+  süresi geçmiş planlı iş bu dilimdedir, Geciken diliminde sayılmaz (#6ad5c65b).
   Drilldown Durum hücresi `plannedAtUtc` doluysa Plana Alındı yazar. Vatandaş Talepleri pastasında
   İşleme Alındı'dan hemen sonra altın Plana Alındı dilimi vardır; süresi geçmiş planlı iş de bu dilimdedir,
   Geciken diliminde sayılmaz. Vatandaş talep haritası: İşleme Alındı açık mavi `#38bdf8`, Plana Alındı altın,
@@ -579,7 +583,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 
-- **WhatsApp webhook forensics:** imzası doğrulanmış webhook gövdesi `WhatsApp webhook body` satırında, `CorrelationId` ile, en fazla 16 KB Information loglanır (telefon ve mesaj metni dahil; Serilog saklama 14 gün). Geçersiz imzada gövde loglanmaz. Her istek `CorrelationId` (`TraceIdentifier`, yanıt başlığı `X-Correlation-Id`) ile Information loglanır. `receivedCount: 0` özeti `Created` / `Duplicate` / `IgnoredNoise` / `StatusOnly` / `Blocked` / `PhoneNumberMismatch` sayaçlarıyla ayrılır. Payload'daki `phone_number_id` tenant ayarından farklıysa o olay kaydedilmez. Telefon varsa normal akış ve telefon alanına yazılır. Telefon yoksa telefon boş kalır; `profile.name`, `profile.username` ve `from_user_id` (BSUID, ör. `TR.13491208655302741`) `CitizenConversation` üzerindeki WhatsApp profil adı, kullanıcı adı ve user_id alanlarına yazılır. Profil adı Vatandaş Adı kutusuna kopyalanmaz (#4209). Cevap bu user_id ile `to` yerine `recipient` alanına gider. Panelde profil adı ve user id alanları görünmez; log ve kolonlarda durur (#4215). Kullanıcı adı alanı kalır; boşsa `-`, webhook ile gelince ad yazılır (#6acf72cd). Telefonsuz sohbette liste, sohbet başlığı ve balon kullanıcı adını gösterir, user id yazılmaz; operatör ad ve telefon kaydedince standart isim + telefon görünür (#4212). Telefon kutusu çağrı formundaki ülke kodu + `5XX XXX XX XX` alanıdır, etikette `*` vardır; numara boşken Talep Oluştur pasiftir ve imleçte `Vatandaşın telefon numarası zorunludur.` yazar (#4210/#4211). Türkiye seçiliyken rakamlar yazıldıkça `XXX XXX XX XX` gruplanır; başka ülkede basılan rakam kutuda görünür. Görünen hane kayıtlı numaradan her tuşta çözülmez.
+- **WhatsApp webhook forensics:** imzası doğrulanmış webhook gövdesi `WhatsApp webhook body` satırında, `CorrelationId` ile, en fazla 16 KB Information loglanır (telefon ve mesaj metni dahil; Serilog saklama 14 gün). Geçersiz imzada gövde loglanmaz. Her istek `CorrelationId` (`TraceIdentifier`, yanıt başlığı `X-Correlation-Id`) ile Information loglanır. `receivedCount: 0` özeti `Created` / `Duplicate` / `IgnoredNoise` / `StatusOnly` / `Blocked` / `PhoneNumberMismatch` sayaçlarıyla ayrılır. Payload'daki `phone_number_id` tenant ayarından farklıysa o olay kaydedilmez. Telefon varsa normal akış ve telefon alanına yazılır. Telefon yoksa telefon boş kalır; `profile.name`, `profile.username` ve `from_user_id` (BSUID, ör. `TR.13491208655302741`) `CitizenConversation` üzerindeki WhatsApp profil adı, kullanıcı adı ve user_id alanlarına yazılır. Profil adı Vatandaş Adı kutusuna kopyalanmaz (#4209). Cevap bu user_id ile `to` yerine `recipient` alanına gider. Panelde profil adı ve user id alanları görünmez; log ve kolonlarda durur (#4215). Kullanıcı adı alanı kalır; boşsa `-`, webhook ile gelince ad yazılır (#6acf72cd). Telefonsuz sohbette liste, sohbet başlığı ve balon kullanıcı adını gösterir, user id yazılmaz; operatör ad ve telefon kaydedince standart isim + telefon görünür (#4212). WhatsApp Mesaj Logları telefon hizası: numara yoksa kullanıcı adı, numara sonradan kaydedildiyse numara (#6ad5c7b4). Telefon kutusu çağrı formundaki ülke kodu + `5XX XXX XX XX` alanıdır, etikette `*` vardır; numara boşken Talep Oluştur pasiftir ve imleçte `Vatandaşın telefon numarası zorunludur.` yazar (#4210/#4211). Türkiye seçiliyken rakamlar yazıldıkça `XXX XXX XX XX` gruplanır; başka ülkede basılan rakam kutuda görünür. Görünen hane kayıtlı numaradan her tuşta çözülmez.
 - **Talep Başlığı kolonu geri alındı (#4198/#4199):** Vatandaş Talepleri gridinde Talep Etiketi
   ve `RequestTagPicker` durur. WhatsApp mesaj logu Talep Oluşturan görünümünde Talebi Oluşturan'ın
   sağında ayrı Talep Başlığı kolonu yoktur.
@@ -2047,7 +2051,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Otomatik sahip damgası hedef onayı sayılmaz. Vatandaş talebinde etiket `Talebi Onaylayan` kalır.
   Talep plana alındıysa `Talep Yapılan Birim` altında `Plana Alan` ve kişi adı durur (#6ad5a2c8).
   Süreç'te `Plana Alındı` adımı ve saati onaydan sonra da kalır (#6ad5a49b).
-  Açıkken Durum değerinin sağında plana alan adı parantez içindedir (#6ad5a516).
+  Talep hâlâ planlıyken Süreç'te `Durum` katmanı yoktur; plana alan adı `Plana Alındı` ifadesinin sağında parantez içindedir (#6ad5c0b0/#6ad5a516).
 - **Birimler / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).

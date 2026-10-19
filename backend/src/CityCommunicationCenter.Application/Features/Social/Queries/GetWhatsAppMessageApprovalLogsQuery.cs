@@ -41,21 +41,7 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
             if (includeWaiting) actions.Add(WhatsAppMessageApprovalLog.WaitingRepliedAction);
             if (includeCleared) actions.Add(WhatsAppMessageApprovalLog.PendingApprovalClearedAction);
 
-            rows.AddRange(await _dbContext.AuditLogs.AsNoTracking()
-                .Where(log => log.TenantId == tenantId
-                    && log.EntityType == nameof(CitizenConversation)
-                    && actions.Contains(log.Action))
-                .OrderByDescending(log => log.EventTimeUtc)
-                .Take(MaxItems)
-                .Select(log => new WhatsAppMessageApprovalLogItemResponse(
-                    log.AuditLogId,
-                    log.Details,
-                    log.Notes,
-                    log.EventTimeUtc,
-                    log.Action,
-                    log.ActorDisplayName,
-                    null))
-                .ToListAsync(cancellationToken));
+            rows.AddRange(await LoadApprovalActionsAsync(tenantId, actions, cancellationToken));
         }
 
         if (includeRelayed)
@@ -72,6 +58,127 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
             .OrderByDescending(row => row.EventTimeUtc)
             .Take(MaxItems)
             .ToList();
+    }
+
+    private async Task<List<WhatsAppMessageApprovalLogItemResponse>> LoadApprovalActionsAsync(
+        Guid tenantId,
+        IReadOnlyList<string> actions,
+        CancellationToken cancellationToken)
+    {
+        var logs = await _dbContext.AuditLogs.AsNoTracking()
+            .Where(log => log.TenantId == tenantId
+                && log.EntityType == nameof(CitizenConversation)
+                && actions.Contains(log.Action))
+            .OrderByDescending(log => log.EventTimeUtc)
+            .Take(MaxItems)
+            .Select(log => new
+            {
+                log.AuditLogId,
+                log.Details,
+                log.Notes,
+                log.EventTimeUtc,
+                log.Action,
+                log.ActorDisplayName,
+                log.EntityId,
+            })
+            .ToListAsync(cancellationToken);
+
+        var conversationIds = logs
+            .Select(log => Guid.TryParse(log.EntityId, out var id) ? id : Guid.Empty)
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToArray();
+        var conversations = conversationIds.Length == 0
+            ? new Dictionary<Guid, (string? Phone, string? Username)>()
+            : await _dbContext.CitizenConversations.AsNoTracking()
+                .Where(conversation => conversation.TenantId == tenantId
+                    && conversationIds.Contains(conversation.CitizenConversationId))
+                .Select(conversation => new
+                {
+                    conversation.CitizenConversationId,
+                    conversation.CitizenPhone,
+                    conversation.WhatsAppUsername,
+                })
+                .ToDictionaryAsync(
+                    conversation => conversation.CitizenConversationId,
+                    conversation => (Phone: (string?)conversation.CitizenPhone, Username: conversation.WhatsAppUsername),
+                    cancellationToken);
+
+        return logs.Select(log =>
+        {
+            Guid.TryParse(log.EntityId, out var conversationId);
+            conversations.TryGetValue(conversationId, out var conversation);
+            var phone = FirstPhone(conversation.Phone, log.Notes);
+            return new WhatsAppMessageApprovalLogItemResponse(
+                log.AuditLogId,
+                log.Details,
+                phone,
+                log.EventTimeUtc,
+                log.Action,
+                log.ActorDisplayName,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                string.IsNullOrWhiteSpace(phone) ? conversation.Username : null);
+        }).ToList();
+    }
+
+    private static string? FirstPhone(string? currentPhone, string? snapshotPhone)
+    {
+        var live = PhoneOrNull(currentPhone);
+        if (live is not null)
+        {
+            return live;
+        }
+
+        return PhoneOrNull(snapshotPhone);
+    }
+
+    private static string? PhoneOrNull(string? value)
+    {
+        var trimmed = value?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed) || IsBusinessScopedUserId(trimmed))
+        {
+            return null;
+        }
+
+        var digits = 0;
+        foreach (var ch in trimmed)
+        {
+            if (char.IsDigit(ch))
+            {
+                digits++;
+            }
+        }
+
+        return digits is >= 10 and <= 15 ? trimmed : null;
+    }
+
+    private static bool IsBusinessScopedUserId(string value)
+    {
+        if (value.Length < 4 || value.Length > 128 || value[2] != '.')
+        {
+            return false;
+        }
+
+        if (!char.IsLetter(value[0]) || !char.IsLetter(value[1]))
+        {
+            return false;
+        }
+
+        for (var index = 3; index < value.Length; index++)
+        {
+            var ch = value[index];
+            if (!char.IsLetterOrDigit(ch) && ch != '.')
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private async Task<List<WhatsAppMessageApprovalLogItemResponse>> LoadRelayedAsync(
@@ -101,7 +208,13 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 entry.SentAt,
                 WhatsAppMessageApprovalLog.MessageRelayedAction,
                 entry.RelayedByDisplayName,
-                message.SocialMessageId))
+                message.SocialMessageId,
+                null,
+                null,
+                null,
+                null,
+                null,
+                conversation != null ? conversation.WhatsAppUsername : null))
             .Take(MaxItems)
             .ToListAsync(cancellationToken);
     }
@@ -133,7 +246,11 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 sender.DisplayName,
                 review.SocialMessageId,
                 department.Name,
-                review.AcknowledgedAtUtc != null && reviewer != null ? reviewer.DisplayName : null))
+                review.AcknowledgedAtUtc != null && reviewer != null ? reviewer.DisplayName : null,
+                null,
+                null,
+                null,
+                conversation != null ? conversation.WhatsAppUsername : null))
             .Take(MaxItems)
             .ToListAsync(cancellationToken);
     }
@@ -152,6 +269,9 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
             join creator in _dbContext.Users.AsNoTracking()
                 on job.CreatedByUserId equals (Guid?)creator.UserId into creators
             from creator in creators.DefaultIfEmpty()
+            join conversation in _dbContext.CitizenConversations.AsNoTracking()
+                on message.CitizenConversationId equals conversation.CitizenConversationId into conversations
+            from conversation in conversations.DefaultIfEmpty()
             orderby message.ReceivedAtUtc descending
             select new WhatsAppMessageApprovalLogItemResponse(
                 job.JobId,
@@ -172,7 +292,8 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 null,
                 message.CitizenRequestNumber,
                 message.CitizenRequestNumberYear,
-                job.JobId))
+                job.JobId,
+                conversation != null ? conversation.WhatsAppUsername : null))
             .Take(MaxItems)
             .ToListAsync(cancellationToken);
     }

@@ -593,14 +593,19 @@ export function buildJobProcessSteps(
   })
 
   const planAt = detail.planRecordedAtUtc ?? detail.plannedAtUtc ?? null
+  if (isPlannedProcessJob(detail)) {
+    for (let index = steps.length - 1; index >= 0; index -= 1) {
+      if (steps[index]?.id === 'status') steps.splice(index, 1)
+    }
+  }
   if (planAt) {
-    const openPlanned = isPlannedProcessJob(detail)
+    const plannerName = detail.plannedByDisplayName?.trim()
+    const plannedLabel = t('jobs.statusLabel.planned', 'Plana Alındı')
     const plannedStep: Omit<JobProcessStep, 'state'> = {
       id: 'planned',
-      label: t('jobs.statusLabel.planned', 'Plana Alındı'),
+      label: plannerName ? `${plannedLabel} (${plannerName})` : plannedLabel,
       displayValue: formatDateTime(planAt, locale),
       dateTimeUtc: planAt,
-      displayMeta: openPlanned ? undefined : detail.plannedByDisplayName?.trim() || undefined,
     }
     const statusIndex = steps.findIndex(step => step.id === 'status')
     if (statusIndex >= 0) {

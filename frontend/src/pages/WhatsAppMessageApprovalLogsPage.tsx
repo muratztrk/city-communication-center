@@ -16,7 +16,7 @@ import { useSortable } from '../hooks/useSortable'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
-import { looksLikePhone } from '../utils/phoneDisplay'
+import { citizenPhoneOrEmpty, looksLikePhone } from '../utils/phoneDisplay'
 import { JobsPage } from './JobsPage'
 
 type ApprovalLogKind = 'all' | 'waitingReplied' | 'pendingApprovalCleared' | 'messageRelayed' | 'reviewRequested' | 'requestCreated'
@@ -82,12 +82,13 @@ export function WhatsAppMessageApprovalLogsPage() {
   const rows = useMemo(() => {
     const source = (logsQuery.data ?? []).map(row => {
       const name = row.citizenName?.trim() || '—'
-      const phone = row.citizenPhone?.trim()
-      const phoneText = phone && looksLikePhone(phone) ? formatCitizenPhoneDisplay(phone) : (phone || '')
+      const phone = citizenPhoneOrEmpty(row.citizenPhone)
+      const phoneText = phone && looksLikePhone(phone) ? formatCitizenPhoneDisplay(phone) : phone
+      const username = row.whatsAppUsername?.trim() ?? ''
       return {
         ...row,
         citizenNameText: name,
-        citizenPhoneText: phoneText,
+        citizenPhoneText: phoneText || username,
         statusLabel: actionLabel(row.action, t),
         actorText: row.actorDisplayName?.trim() || '—',
         destinationText: row.destinationName?.trim() || '—',

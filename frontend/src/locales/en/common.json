@@ -554,6 +554,7 @@
       "departmentTotal": "Department Tasks",
       "citizenProcessingReceived": "Processing Received",
       "citizenPlanned": "Planned",
+      "planned": "Planned",
       "priorityNormal": "Normal",
       "priorityHigh": "High",
       "priorityVeryHigh": "Very High",

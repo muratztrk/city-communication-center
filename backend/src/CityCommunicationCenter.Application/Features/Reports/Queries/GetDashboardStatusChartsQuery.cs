@@ -274,7 +274,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
                     && task.CurrentStatus != WorkflowTaskStatus.Completed
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
                     && task.CurrentStatus != WorkflowTaskStatus.Rejected),
-                _dbContext.Tasks.Count(task => task.JobId == job.JobId)))
+                _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                job.PlannedAtUtc))
             .ToListAsync(cancellationToken);
     }
 
@@ -1159,13 +1160,16 @@ public sealed class GetDashboardStatusChartsQueryHandler
         bool includeInProgress)
     {
         var values = jobs.ToList();
+        var planned = values.Count(IsOpenPlannedJobSlice);
         var pending = pendingLabel == "dashboard.chart.externalPendingApproval"
-            ? values.Count(job => MatchesExternalPendingView(job, now))
-            : values.Count(job => MatchesJobPendingSlice(job.Status, pendingLabel) && !IsPastDue(job.DueDateUtc, now));
+            ? values.Count(job => !IsOpenPlannedJobSlice(job) && MatchesExternalPendingView(job, now))
+            : values.Count(job => !IsOpenPlannedJobSlice(job) && MatchesJobPendingSlice(job.Status, pendingLabel) && !IsPastDue(job.DueDateUtc, now));
         // Son tarihi geçmiş kayıtlar yalnızca DueDateUtc ile belirlenir (card #1181).
-        var overdue = values.Count(job => IsOpen(job.Status) && IsPastDue(job.DueDateUtc, now));
+        // Açık planlı iş Geciken diliminde sayılmaz; Plana Alınan dilimindedir.
+        var overdue = values.Count(job => !IsOpenPlannedJobSlice(job) && IsOpen(job.Status) && IsPastDue(job.DueDateUtc, now));
         var activeNotOverdue = values.Where(job =>
-            job.Status == JobStatus.Active
+            !IsOpenPlannedJobSlice(job)
+            && job.Status == JobStatus.Active
             && !IsPastDue(job.DueDateUtc, now)).ToList();
         var slices = new List<DashboardChartSlice>
         {
@@ -1177,10 +1181,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
         {
             slices.Add(new DashboardChartSlice("dashboard.chart.inProgress", activeNotOverdue.Count(job => job.HasOpenTasks), "success"));
         }
+        slices.Add(new DashboardChartSlice("dashboard.chart.planned", planned, "gold"));
         slices.Add(new DashboardChartSlice("dashboard.chart.completed", values.Count(job => job.Status == JobStatus.Completed), "primary"));
         slices.Add(new DashboardChartSlice("dashboard.chart.cancelled", values.Count(job => job.Status is JobStatus.Cancelled or JobStatus.Rejected), "danger"));
         return new DashboardChartResponse(titleKey, slices);
     }
+
+    private static bool IsOpenPlannedJobSlice(JobStatusItem job) =>
+        CitizenVtDashboardClassification.IsOpenPlanned(job.Status, job.PlannedAtUtc, job.HasOpenTasks ? 1 : 0);
 
     private static bool MatchesJobPendingSlice(JobStatus status, string pendingLabel) => pendingLabel switch
     {
@@ -1237,7 +1245,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
     }
 
     private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType, string Priority);
-    private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks, int TotalTaskCount);
+    private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks, int TotalTaskCount, DateTimeOffset? PlannedAtUtc = null);
     private sealed record CitizenJobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, int TaskCount, DateTimeOffset? PlannedAtUtc = null);
 
     private enum CitizenJobDisplayStatus

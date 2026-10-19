@@ -1,3 +1,9 @@
+## Round 1493 — süreç durumu, pasta, mesaj logu
+
+- [x] Planlı talepte Süreç'ten Durum katmanı kalktı; plana alan adı Plana Alındı'nın sağında.
+- [x] Birime Gelen, Birimden Giden ve Taleplerim pastalarına altın Plana Alınan dilimi.
+- [x] Numarasız WhatsApp kaydında mesaj logu telefon hizasında kullanıcı adı.
+
 ## WhatsApp system balonu
 
 - [x] Meta `type: system` gövdesiz gelince konuşmaya yazılmaz; eski `[system]` balonu gizlenir. Gövde varsa o metin kalır.

@@ -7,10 +7,12 @@ export function isOpenPlannedJob(job: {
   plannedAtUtc?: string | null
   status: string
   taskCount?: number | null
+  tasks?: readonly unknown[] | null
 }): boolean {
   if (!job.plannedAtUtc) return false
   if (CLOSED_JOB_STATUSES.has(job.status)) return false
-  if (job.status === 'Active' && (job.taskCount ?? 0) > 0) return false
+  const taskCount = job.taskCount ?? job.tasks?.length ?? 0
+  if (job.status === 'Active' && taskCount > 0) return false
   return true
 }
 

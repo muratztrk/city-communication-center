@@ -531,7 +531,7 @@ export function AppShell() {
     { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), labelLines: [t('nav.citizenMessageApprovalLine1', 'Vatandaşa Gönderilecek'), t('nav.citizenMessageApprovalLine2', 'Mesaj Onayı')], icon: Send, multilineLabel: true, badgeCount: pendingCitizenMessageApprovalCount },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
     { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks, badgeCount: navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount ?? 0 },
-    { pageKey: 'departmentTasks' as const, path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban },
+    { pageKey: 'departmentTasks' as const, path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban, badgeCount: navDashboardCounts?.deptPendingTaskCount ?? 0 },
     { path: '/staff-tasks', label: t('nav.staffTasks', 'Personelimin Görevleri'), icon: Users, requiredRole: 'Manager', separatorAfterCount: 1 },
     { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp, newTab: true },
     { pageKey: 'settings' as const, path: '/settings', label: t('nav.settings'), icon: Settings2 },

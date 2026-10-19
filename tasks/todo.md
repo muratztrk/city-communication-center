@@ -1,3 +1,8 @@
+## Round 1494 — birim görev rozeti, onay sonrası durum
+
+- [x] Birimdeki Görevler menüsünde Bekleyen sayısı kırmızı rozet.
+- [x] Planlı talep personel atanıp onaylandıktan sonra Süreç Durum Yapılmakta.
+
 ## Round 1493 — süreç durumu, pasta, mesaj logu
 
 - [x] Planlı talepte Süreç'ten Durum katmanı kalktı; plana alan adı Plana Alındı'nın sağında.

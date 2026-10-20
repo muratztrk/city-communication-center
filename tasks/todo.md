@@ -1,3 +1,7 @@
+## Round 1498 — dönem büyütmesi geri
+
+- [x] Standart / vatandaş yöneticisi dönem düğmeleri önceki küçük boyuta döndü.
+
 ## Round 1497 — dönem boyu, plan mesajı
 
 - [x] Standart / vatandaş yöneticisi dönem düğmeleri biraz büyük, tek satır.

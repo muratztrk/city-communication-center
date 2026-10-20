@@ -3590,7 +3590,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açılan liste ve Tüm Talepler popup'ları aynı filtreyi uygular.
 - **Anasayfa kutu kartları mobil (#6ad5ef10):** `max-width: 767px` arama altındaki metrik kutuları
   satırda 2. Pasta grafikler tek sütun kalır. Standart ve vatandaş yöneticisinde Özel, Yıllık'ın
-  hemen sağında ve dönem satırı tek satırdır; düğmeler satıra sığacak kadar biraz büyüktür (#6ad60187).
+  hemen sağında ve dönem satırı tek satırdır (#6ad60187). Büyütme isteği geri alındı.
 - **İş akışı not limiti (#3466/#3516):** tamamlama/iptal/durum değişikliği notu, talep yönlendirme notu,
   vatandaş mesaj onay notu ve **Talebi İptal Et** (`CancelJob`) nedeni FE+BE **400 karakter**.
 - **GetJobById outbound (#3513/#3515/#3512/#3518/#3521/#3527):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`

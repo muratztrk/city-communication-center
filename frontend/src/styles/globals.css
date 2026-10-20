@@ -9103,19 +9103,19 @@
       /* Standart / vatandaş yöneticisi: Özel, Yıllık'ın sağında, satır tek (#4284). */
       .dashboard-period-row--fit:not(:has(.scope-chip-date-range)) {
         flex-wrap: nowrap;
-        column-gap: 0.3rem;
+        column-gap: 0.22rem;
       }
 
       .dashboard-period-row--fit > .dashboard-period-label {
-        margin-right: 0.15rem !important;
-        font-size: 0.66rem !important;
+        margin-right: 0.1rem !important;
+        font-size: 0.6rem !important;
         letter-spacing: 0 !important;
       }
 
       .dashboard-period-row--fit > button {
-        padding-left: 0.4rem !important;
-        padding-right: 0.4rem !important;
-        font-size: 0.68rem !important;
+        padding-left: 0.28rem !important;
+        padding-right: 0.28rem !important;
+        font-size: 0.6rem !important;
       }
     }
 

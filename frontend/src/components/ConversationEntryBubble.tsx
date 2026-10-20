@@ -288,9 +288,12 @@ export function ConversationEntryBubble({
         theme === 'light' ? 'bg-[color:var(--color-primary)]' : 'bg-sky-600'
       }`
 
+  const isPlannedStatusMessage = (entry.content ?? '').toLocaleLowerCase('tr').includes('plana alındı')
   const messageApproverButton = (
     <DelayedHoverTooltip
-      label={t('whatsapp.messageApproverButton', 'Onaylayan Personel')}
+      label={isPlannedStatusMessage
+        ? t('whatsapp.plannedByStaffButton', 'Plana Alan Personel')
+        : t('whatsapp.messageApproverButton', 'Onaylayan Personel')}
       tooltip={messageApproverName ?? '—'}
       className={`${approverChipClassName} cursor-default`}
       icon={<User className={actionIconClass} strokeWidth={1.75} aria-hidden="true" />}
@@ -539,6 +542,7 @@ export function ConversationEntryBubble({
           </div>
         ) : (
           <div className={`mt-1 flex flex-wrap items-center justify-end gap-1.5 ${compact ? 'min-h-[1.75rem]' : 'min-h-[2.125rem]'}`}>
+            {isPlannedStatusMessage ? null : (
             <button
               type="button"
               onClick={beginEdit}
@@ -548,6 +552,7 @@ export function ConversationEntryBubble({
               <PenLine className={actionIconClass} strokeWidth={1.75} aria-hidden="true" />
               {t('common.edit', 'Düzenle')}
             </button>
+            )}
             {showMessageApprover || isPending ? messageApproverButton : null}
             <button
               type="button"

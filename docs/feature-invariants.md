@@ -443,7 +443,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `plannedbydisplayname` kalır, Süreç adımı ve Plana Alan satırı onaydan sonra da durur (#6ad5a2c8).
   Talep hâlâ planlıyken Süreç'te `Durum` katmanı yoktur; plana alan adı `Plana Alındı` ifadesinin
   sağında parantez içindedir (#6ad5c0b0/#6ad5a516).
-  Personel atanınca normal İşleme Alındı/Yapılmakta döner; `JobDetail.tasks` doluysa `taskCount` olmasa da planlı sayılmaz (#6ad5da44). Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
+  Personel atanınca normal İşleme Alındı/Yapılmakta döner; `JobDetail.tasks` doluysa `taskCount` olmasa da planlı sayılmaz (#6ad5da44). Vatandaş talebinde Plana Al onayı, otomatik mesaj cümlesini de gösterir (#6ad6ff79). Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
   Plana Al butonu yazısı beyaz. Süreç halkası, bağlantı çizgisi ve Durum değeri aynı altın geçişle
   boyanır (gecikince de maviye dönmez).   Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden) ve kayıt varken Geciken chip'i
   ile aynı sağ üst sayaç rozetini gösterir. Plana Al aynı satırdayken diğer aksiyon butonları biraz büyür.
@@ -2860,7 +2860,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterir (#3912).
 - **Otomatik WA 24s (#3912):** talep oluşturma / non-terminal durum (İşleme Alındı, Yapılmakta)
   serbest metin, son inbound ≥24s ise WhatsApp'a gitmez. Failed balon yazılmaz; `Pending` kuyruk
-  (Düzenle / Onaylayan Personel / Mesajı Gönder). Terminal Pending gizleme yalnız Tamamlandı/İptal.
+  (Düzenle / Onaylayan Personel / Mesajı Gönder). Plana Alındı aynı kuyrukta Beklemede kalır;
+  Düzenle yoktur, düğmeler Plana Alan Personel ve Mesajı Gönder (#6ad700cb). Terminal Pending gizleme yalnız Tamamlandı/İptal.
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472/#r531):** personel adı `text-sm font-semibold` (#2006).
@@ -3589,7 +3590,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açılan liste ve Tüm Talepler popup'ları aynı filtreyi uygular.
 - **Anasayfa kutu kartları mobil (#6ad5ef10):** `max-width: 767px` arama altındaki metrik kutuları
   satırda 2. Pasta grafikler tek sütun kalır. Standart ve vatandaş yöneticisinde Özel, Yıllık'ın
-  hemen sağında ve dönem satırı tek satırdır (#6ad60187).
+  hemen sağında ve dönem satırı tek satırdır; düğmeler satıra sığacak kadar biraz büyüktür (#6ad60187).
 - **İş akışı not limiti (#3466/#3516):** tamamlama/iptal/durum değişikliği notu, talep yönlendirme notu,
   vatandaş mesaj onay notu ve **Talebi İptal Et** (`CancelJob`) nedeni FE+BE **400 karakter**.
 - **GetJobById outbound (#3513/#3515/#3512/#3518/#3521/#3527):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`

@@ -160,6 +160,11 @@ public sealed class GetSocialConversationQueryHandler
                 tenantId,
                 messageIds,
                 cancellationToken);
+        var plannedByByMessageId = await PlannedByDisplayNameLookup.ByMessageIdAsync(
+            _dbContext,
+            tenantId,
+            messageIds,
+            cancellationToken);
 
         return entries
             .Where(e => !ConversationEntryOperatorVisibility.IsTerminalPendingAwaitingManagerRelease(
@@ -180,11 +185,16 @@ public sealed class GetSocialConversationQueryHandler
                 && terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out terminalInfo);
             var terminalStatus = hasTerminalInfo ? terminalInfo?.Status : null;
             var terminalNote = hasTerminalInfo ? terminalInfo?.Note : null;
-            var messageApprover = hasTerminalInfo
-                && e.DeliveryStatusLabel is nameof(ConversationDeliveryStatus.Pending)
-                    or nameof(ConversationDeliveryStatus.Failed)
-                ? terminalInfo?.MessageApproverDisplayName
-                : null;
+            var messageApprover = PlannedByDisplayNameLookup.ForPlannedPendingMessage(
+                e.Content,
+                e.DeliveryStatusLabel,
+                hasTerminalInfo
+                    && e.DeliveryStatusLabel is nameof(ConversationDeliveryStatus.Pending)
+                        or nameof(ConversationDeliveryStatus.Failed)
+                    ? terminalInfo?.MessageApproverDisplayName
+                    : null,
+                plannedByByMessageId,
+                e.SocialMessageId);
 
             var (latitude, longitude) = ConversationLocationHelper.Resolve(
                 e.Content,

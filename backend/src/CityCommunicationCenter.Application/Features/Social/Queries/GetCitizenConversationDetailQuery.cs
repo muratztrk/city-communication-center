@@ -134,6 +134,11 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 tenantId,
                 messageIds,
                 cancellationToken);
+        var plannedByByMessageId = await PlannedByDisplayNameLookup.ByMessageIdAsync(
+            _dbContext,
+            tenantId,
+            messageIds,
+            cancellationToken);
 
         var timeline = rawTimeline
             .Where(e => !ConversationEntryOperatorVisibility.IsTerminalPendingAwaitingManagerRelease(
@@ -170,6 +175,15 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     requestNumber.CitizenRequestNumber,
                     requestNumber.CitizenRequestNumberYear,
                     requestNumber.ReceivedAtUtc);
+                var messageApprover = PlannedByDisplayNameLookup.ForPlannedPendingMessage(
+                    e.Content,
+                    e.DeliveryStatusLabel,
+                    (e.DeliveryStatusLabel is nameof(ConversationDeliveryStatus.Pending)
+                        or nameof(ConversationDeliveryStatus.Failed))
+                        ? terminalInfo?.MessageApproverDisplayName
+                        : null,
+                    plannedByByMessageId,
+                    e.SocialMessageId);
                 return new CitizenConversationTimelineEntryDto(
                     e.EntryId,
                     e.DirectionLabel,
@@ -187,10 +201,7 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     e.RelayedByDisplayName,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatusLabel) ? terminalInfo?.Status : null,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatusLabel) ? terminalInfo?.Note : null,
-                    (e.DeliveryStatusLabel is nameof(ConversationDeliveryStatus.Pending)
-                        or nameof(ConversationDeliveryStatus.Failed))
-                        ? terminalInfo?.MessageApproverDisplayName
-                        : null,
+                    messageApprover,
                     latitude,
                     longitude,
                     WhatsAppTemplateAutoReply.IsAutomaticTimedReplyEntry(

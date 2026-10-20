@@ -2242,6 +2242,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           <span className="font-semibold text-[#d4a017]">{number}</span>
           {' '}
           {t('jobs.actions.planConfirmBody', 'numaralı talebi "Plana Alındı" durumuna almayı onaylayınız.')}
+          {isCitizenRequestJob(job) ? (
+            <span className="mt-2 block">
+              {t('jobs.actions.planConfirmCitizenNotice', 'Bu işlem sonrasında vatandaşımıza iletilmek üzere otomatik mesaj gönderilecektir.')}
+            </span>
+          ) : null}
         </>
       ),
       confirmLabel: t('common.approve', 'Onayla'),

@@ -1261,6 +1261,7 @@
       "completion": "Note"
     },
     "messageApproverButton": "Approving Staff",
+    "plannedByStaffButton": "Planning Staff",
     "requestTagsShort": "Select a tag",
       "requestTagPlaceholder": "Select request tag...",
     "requestTagsGridEmpty": "Tags",

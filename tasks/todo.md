@@ -1,3 +1,9 @@
+## Round 1497 — dönem boyu, plan mesajı
+
+- [x] Standart / vatandaş yöneticisi dönem düğmeleri biraz büyük, tek satır.
+- [x] Vatandaş talebi Plana Al onayında otomatik mesaj cümlesi.
+- [x] 24 saat sonrası Plana Alındı mesajı Beklemede; Düzenle yok, Plana Alan Personel.
+
 ## Round 1496 — mobil dönem, harita tıklama
 
 - [x] Standart ve vatandaş yöneticisinde Özel, Yıllık'ın sağında tek satır.

@@ -198,7 +198,7 @@ public sealed class BelediyeSoapMiddleware
         XElement payload,
         CancellationToken cancellationToken)
     {
-        var basvuruBilgileri = payload.Element(Tns + "basvuruBilgileri");
+        var basvuruBilgileri = Child(payload, "basvuruBilgileri");
         if (basvuruBilgileri is null)
         {
             return BuildIslemSonuc("basvuruYapC", belediyeKodu, BelediyeSoapResultCodes.ValidationFailed, "BASVURU BILGILERI ZORUNLUDUR");
@@ -219,8 +219,8 @@ public sealed class BelediyeSoapMiddleware
             GetValue(basvuruBilgileri, "icKapiNo"),
             GetValue(basvuruBilgileri, "basvuranAcikAdres"),
             GetValue(basvuruBilgileri, "basvuranNVIAdresNo"),
-            GetValue(basvuruBilgileri.Element(Tns + "koordinat"), "enlem"),
-            GetValue(basvuruBilgileri.Element(Tns + "koordinat"), "boylam"),
+            GetValue(Child(basvuruBilgileri, "koordinat"), "enlem"),
+            GetValue(Child(basvuruBilgileri, "koordinat"), "boylam"),
             GetValue(basvuruBilgileri, "cevapSekli"),
             ParseDosyaListesi(basvuruBilgileri));
 
@@ -525,18 +525,26 @@ public sealed class BelediyeSoapMiddleware
             new XElement(Tns + "sonucAciklamasi", sonucAciklamasi),
         ];
 
+    // WSDL elementFormDefault="unqualified": istemciler govde elemanlarini namespace'siz gonderir; eski (qualified)
+    // istemciler ise v3 namespace'iyle. Her ikisi de kabul edilir, bu yuzden ada gore (namespace'ten bagimsiz) okunur.
+    private static XElement? Child(XElement? parent, string name)
+        => parent?.Elements().FirstOrDefault(element => element.Name.LocalName == name);
+
+    private static IEnumerable<XElement> Children(XElement parent, string name)
+        => parent.Elements().Where(element => element.Name.LocalName == name);
+
     private static string GetValue(XElement? element, string name)
-        => element?.Element(Tns + name)?.Value?.Trim() ?? string.Empty;
+        => Child(element, name)?.Value?.Trim() ?? string.Empty;
 
     private static IReadOnlyList<string> ParseTelefonListesi(XElement basvuruBilgileri)
     {
-        var list = basvuruBilgileri.Element(Tns + "telefonListesi");
+        var list = Child(basvuruBilgileri, "telefonListesi");
         if (list is null)
         {
             return Array.Empty<string>();
         }
 
-        return list.Elements(Tns + "telefonBilgisi")
+        return Children(list, "telefonBilgisi")
             .Select(element => GetValue(element, "telefonNumarasi"))
             .Where(value => !string.IsNullOrWhiteSpace(value))
             .ToList();
@@ -544,16 +552,16 @@ public sealed class BelediyeSoapMiddleware
 
     private static IReadOnlyList<BelediyeSoapBasvuruDosyaItem> ParseDosyaListesi(XElement basvuruBilgileri)
     {
-        var list = basvuruBilgileri.Element(Tns + "dosyaListesi");
+        var list = Child(basvuruBilgileri, "dosyaListesi");
         if (list is null)
         {
             return Array.Empty<BelediyeSoapBasvuruDosyaItem>();
         }
 
-        return list.Elements(Tns + "dosyaBilgisi")
+        return Children(list, "dosyaBilgisi")
             .Select(element =>
             {
-                var raw = element.Element(Tns + "dosya")?.Value ?? string.Empty;
+                var raw = Child(element, "dosya")?.Value ?? string.Empty;
                 byte[] bytes;
                 try
                 {

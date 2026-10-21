@@ -32,6 +32,20 @@ public interface IBelediyeSoapOperations
         string basvuruNumarasi,
         CancellationToken cancellationToken);
 
+    Task<BelediyeSoapOperationResult<bool>> BasvuruNotEkleAsync(
+        Guid tenantId,
+        string tcKimlikNo,
+        string basvuruNo,
+        string eklenecekNot,
+        CancellationToken cancellationToken);
+
+    Task<BelediyeSoapOperationResult<bool>> BasvuruyuTekrarAcAsync(
+        Guid tenantId,
+        string tcKimlikNo,
+        string basvuruNo,
+        string acilmaNedeni,
+        CancellationToken cancellationToken);
+
     Task<BelediyeSoapOperationResult<string>> AyarOkuAsync(
         Guid tenantId,
         string ayar,

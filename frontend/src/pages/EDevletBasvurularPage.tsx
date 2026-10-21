@@ -317,7 +317,20 @@ export function EDevletBasvurularPage() {
                     <td>{row.sokakCaddeAdi ?? '—'}</td>
                     <td className="max-w-xs truncate" title={row.description}>{row.description}</td>
                     <td className="actions-cell">
-                      <div className="flex flex-wrap justify-center gap-2">
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        {row.reopenedAtUtc ? (
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                            {t('edevletBasvurular.reopened', 'Tekrar Açıldı')}
+                          </span>
+                        ) : null}
+                        {row.citizenNotes.length > 0 ? (
+                          <span
+                            className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-700"
+                            title={row.citizenNotes.map(note => note.text).join('\n')}
+                          >
+                            {t('edevletBasvurular.citizenNotes', 'Vatandaş Notu')} ({row.citizenNotes.length})
+                          </span>
+                        ) : null}
                         {row.status === 'PendingReview' ? (
                           <Button type="button" size="sm" onClick={() => openConvert(row)}>
                             {t('edevletBasvurular.convert', 'Talebe Dönüştür')}
@@ -360,6 +373,19 @@ export function EDevletBasvurularPage() {
             <h2 className="text-lg font-semibold">{t('edevletBasvurular.convertTitle', 'e-Devlet Başvurusunu Talebe Dönüştür')}</h2>
             <p className="mt-1 text-sm text-[color:var(--color-muted-foreground)]">{selected.takipNo}</p>
             <div className="mt-4 grid gap-3">
+              {selected.citizenNotes.length > 0 ? (
+                <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-slate-50 p-3 text-sm">
+                  <div className="mb-1 font-semibold">{t('edevletBasvurular.citizenNotes', 'Vatandaş Notu')}</div>
+                  <ul className="grid max-h-28 gap-1 overflow-y-auto">
+                    {selected.citizenNotes.map(note => (
+                      <li key={`${note.at}-${note.kind}`}>
+                        <span className="text-xs text-slate-400">{formatDateTime(note.at, locale)}</span>{' '}
+                        {note.kind === 'TekrarAcma' ? `${t('edevletBasvurular.reopened', 'Tekrar Açıldı')}: ` : ''}{note.text}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               <label className="grid gap-1 text-sm">
                 <span>{t('jobs.fields.title', 'Başlık')}</span>
                 <input className="rounded-[var(--radius-lg)] border border-[var(--color-border)] px-3 py-2" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />

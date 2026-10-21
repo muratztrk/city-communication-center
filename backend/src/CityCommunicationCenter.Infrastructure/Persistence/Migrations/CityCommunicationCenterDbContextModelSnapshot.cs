@@ -746,6 +746,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("citizenlastname");
 
+                    b.Property<string>("CitizenNotesJson")
+                        .HasColumnType("text")
+                        .HasColumnName("citizennotesjson");
+
                     b.Property<string>("CitizenTcKimlikNo")
                         .IsRequired()
                         .HasMaxLength(11)
@@ -817,6 +821,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<string>("PhoneNumbersJson")
                         .HasColumnType("text")
                         .HasColumnName("phonenumbersjson");
+
+                    b.Property<DateTimeOffset?>("ReopenedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reopenedatutc");
 
                     b.Property<string>("SokakCaddeAdi")
                         .HasColumnType("text")

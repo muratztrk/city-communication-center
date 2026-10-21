@@ -1769,7 +1769,8 @@
           "soapKullaniciAdi": "SOAP Username",
           "soapSifre": "SOAP Password",
           "ilceAdi": "District Name",
-          "bilgilendirmeMetni": "Information Text (ayarOku)"
+          "bilgilendirmeMetni": "Information Text (ayarOku)",
+          "talepOneriAyarlari": "Request/Suggestion Settings (JSON, empty = keep current, {} = defaults)"
         }
       }
     },

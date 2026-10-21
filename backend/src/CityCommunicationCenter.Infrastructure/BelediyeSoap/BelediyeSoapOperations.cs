@@ -156,6 +156,19 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
                 settings.BelediyeKodu);
         }
 
+        var options = TalepOneriOptions.Parse(settings.TalepOneriAyarlari);
+        var validationError = ValidateBasvuruYap(request, options);
+        if (validationError is not null)
+        {
+            return BelediyeSoapOperationResult<BelediyeSoapBasvuruYapResponse>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                validationError,
+                settings.BelediyeKodu);
+        }
+
+        var mahalleAdi = BelediyeAddressCodes.Resolve(request.MahalleKodu, await LoadMahalleNamesAsync(tenantId, cancellationToken));
+        var sokakCaddeAdi = BelediyeAddressCodes.Resolve(request.SokakCaddeKodu, await LoadSokakNamesAsync(tenantId, cancellationToken));
+
         var utcNow = DateTimeOffset.UtcNow;
         var year = utcNow.Year;
         var nextNumber = await _dbContext.EDevletBasvurular
@@ -184,9 +197,9 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
             IlceKodu = NullIfWhiteSpace(request.IlceKodu),
             IlceAdi = settings.IlceAdi,
             MahalleKodu = NullIfWhiteSpace(request.MahalleKodu),
-            MahalleAdi = NullIfWhiteSpace(request.MahalleKodu),
+            MahalleAdi = mahalleAdi,
             SokakCaddeKodu = NullIfWhiteSpace(request.SokakCaddeKodu),
-            SokakCaddeAdi = NullIfWhiteSpace(request.SokakCaddeKodu),
+            SokakCaddeAdi = sokakCaddeAdi,
             DisKapiNo = NullIfWhiteSpace(request.DisKapiNo),
             IcKapiNo = NullIfWhiteSpace(request.IcKapiNo),
             OpenAddress = NullIfWhiteSpace(request.BasvuranAcikAdres),
@@ -312,6 +325,134 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
             settings.BelediyeKodu!);
     }
 
+    public async Task<BelediyeSoapOperationResult<bool>> BasvuruNotEkleAsync(
+        Guid tenantId,
+        string tcKimlikNo,
+        string basvuruNo,
+        string eklenecekNot,
+        CancellationToken cancellationToken)
+    {
+        var settings = await RequireSettingsAsync(tenantId, cancellationToken);
+        if (settings.Error is not null)
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(settings.Error.Value.Code, settings.Error.Value.Message, settings.BelediyeKodu);
+        }
+
+        var options = TalepOneriOptions.Parse(settings.TalepOneriAyarlari);
+        if (!options.NotEklenebilir)
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                "BASVURUYA NOT EKLEME AKTIF DEGIL",
+                settings.BelediyeKodu);
+        }
+
+        var text = eklenecekNot.Trim();
+        if (text.Length == 0 || text.Length > MaxCitizenNoteLength)
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                $"NOT 1 ILE {MaxCitizenNoteLength} KARAKTER OLMALIDIR",
+                settings.BelediyeKodu);
+        }
+
+        var basvuru = await FindBasvuruAsync(tenantId, tcKimlikNo, basvuruNo, cancellationToken);
+        if (basvuru is null)
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(BelediyeSoapResultCodes.NotFound, BelediyeSoapResultCodes.NotFoundMessage, settings.BelediyeKodu);
+        }
+
+        if (!basvuru.AddCitizenNote(EDevletBasvuruNote.KindNote, text, DateTimeOffset.UtcNow))
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                "BASVURUYA EKLENEBILECEK NOT SAYISI ASILDI",
+                settings.BelediyeKodu);
+        }
+
+        basvuru.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return BelediyeSoapOperationResult<bool>.Success(true, settings.BelediyeKodu!);
+    }
+
+    public async Task<BelediyeSoapOperationResult<bool>> BasvuruyuTekrarAcAsync(
+        Guid tenantId,
+        string tcKimlikNo,
+        string basvuruNo,
+        string acilmaNedeni,
+        CancellationToken cancellationToken)
+    {
+        var settings = await RequireSettingsAsync(tenantId, cancellationToken);
+        if (settings.Error is not null)
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(settings.Error.Value.Code, settings.Error.Value.Message, settings.BelediyeKodu);
+        }
+
+        var options = TalepOneriOptions.Parse(settings.TalepOneriAyarlari);
+        if (!options.BasvuruTekrarAcilabilir)
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                "BASVURUYU TEKRAR ACMA AKTIF DEGIL",
+                settings.BelediyeKodu);
+        }
+
+        var reason = acilmaNedeni.Trim();
+        if (reason.Length == 0 || reason.Length > MaxCitizenNoteLength)
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                $"ACILMA NEDENI 1 ILE {MaxCitizenNoteLength} KARAKTER OLMALIDIR",
+                settings.BelediyeKodu);
+        }
+
+        var basvuru = await FindBasvuruAsync(tenantId, tcKimlikNo, basvuruNo, cancellationToken);
+        if (basvuru is null)
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(BelediyeSoapResultCodes.NotFound, BelediyeSoapResultCodes.NotFoundMessage, settings.BelediyeKodu);
+        }
+
+        if (!options.IsClosedStatus(BelediyeBasvuruStatusMapper.Map(basvuru)))
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                "BASVURU SONUCLANMADIGI ICIN TEKRAR ACILAMAZ",
+                settings.BelediyeKodu);
+        }
+
+        // Ayni sonuclanma icin ikinci kez acilamaz: son tekrar acma, isin kapanisindan sonra ise zaten acilmistir.
+        var closedAtUtc = basvuru.Job?.CompletedAtUtc ?? basvuru.Job?.UpdatedAtUtc;
+        if (basvuru.ReopenedAtUtc is { } reopenedAt && (closedAtUtc is null || reopenedAt >= closedAtUtc))
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                "BASVURU ZATEN TEKRAR ACILMIS",
+                settings.BelediyeKodu);
+        }
+
+        var utcNow = DateTimeOffset.UtcNow;
+        if (!basvuru.AddCitizenNote(EDevletBasvuruNote.KindReopen, reason, utcNow))
+        {
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                "BASVURUYA EKLENEBILECEK NOT SAYISI ASILDI",
+                settings.BelediyeKodu);
+        }
+
+        basvuru.ReopenedAtUtc = utcNow;
+        basvuru.UpdatedAtUtc = utcNow;
+
+        // Is akisina alinmamis (reddedilmis) basvuru operator onayina geri doner; is akisindaki basvurularin
+        // Job'ina dokunulmaz, operator "tekrar acildi" isaretini ve gerekceyi basvuru detayinda gorur.
+        if (basvuru.Job is null && basvuru.Status == EDevletBasvuruStatus.Rejected)
+        {
+            basvuru.Status = EDevletBasvuruStatus.PendingReview;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return BelediyeSoapOperationResult<bool>.Success(true, settings.BelediyeKodu!);
+    }
+
     public async Task<BelediyeSoapOperationResult<string>> AyarOkuAsync(
         Guid tenantId,
         string ayar,
@@ -326,11 +467,14 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
                 settings.BelediyeKodu);
         }
 
-        var value = ayar.Trim().ToUpperInvariant() switch
+        var options = TalepOneriOptions.Parse(settings.TalepOneriAyarlari);
+        var normalizedAyar = ayar.Trim().ToUpperInvariant();
+        var value = normalizedAyar switch
         {
             "BILGILENDIRMETEXT" or "BILGILENDIRMETEXTI" or "BILGILENDIRME" => settings.BilgilendirmeMetni
                 ?? "Basvurunuz alinmis olup operator onayindan sonra isleme alinacaktir.",
-            "CEVAPSEKLI" => "SMS,E-POSTA,EDEVLET",
+            "CEVAPSEKLI" => options.CevapTuru,
+            _ when string.Equals(ayar.Trim(), TalepOneriOptions.AyarAdi, StringComparison.OrdinalIgnoreCase) => options.ToJson(),
             _ => string.Empty,
         };
 
@@ -349,6 +493,14 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
                 single.SonucKodu,
                 single.SonucAciklamasi,
                 single.BelediyeKodu);
+        }
+
+        if (string.Equals(ayar.Trim(), TalepOneriOptions.AyarAdi, StringComparison.OrdinalIgnoreCase))
+        {
+            // JSON degeri virgullerden bolunmez.
+            return BelediyeSoapOperationResult<IReadOnlyList<BelediyeSoapDetailItem>>.Success(
+                [new BelediyeSoapDetailItem("deger", single.Data!)],
+                single.BelediyeKodu!);
         }
 
         var items = single.Data!
@@ -397,18 +549,9 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
                 settings.BelediyeKodu);
         }
 
-        var mahalleler = await _dbContext.Jobs
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .Where(job => job.TenantId == tenantId && job.Neighborhood != null && job.Neighborhood != string.Empty)
-            .Select(job => job.Neighborhood!)
-            .Distinct()
-            .OrderBy(name => name)
-            .Take(500)
-            .ToListAsync(cancellationToken);
-
+        var mahalleler = await LoadMahalleNamesAsync(tenantId, cancellationToken);
         var items = mahalleler
-            .Select((name, index) => new BelediyeSoapMahalleItem((index + 1).ToString(), name))
+            .Select(name => new BelediyeSoapMahalleItem(BelediyeAddressCodes.Encode(name), name))
             .ToList();
 
         return BelediyeSoapOperationResult<BelediyeSoapMahalleResponse>.Success(
@@ -431,18 +574,9 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
                 settings.BelediyeKodu);
         }
 
-        var streets = await _dbContext.Jobs
-            .IgnoreQueryFilters()
-            .AsNoTracking()
-            .Where(job => job.TenantId == tenantId && job.Street != null && job.Street != string.Empty)
-            .Select(job => job.Street!)
-            .Distinct()
-            .OrderBy(name => name)
-            .Take(500)
-            .ToListAsync(cancellationToken);
-
+        var streets = await LoadSokakNamesAsync(tenantId, cancellationToken);
         var items = streets
-            .Select((name, index) => new BelediyeSoapSokakCaddeItem((index + 1).ToString(), name))
+            .Select(name => new BelediyeSoapSokakCaddeItem(BelediyeAddressCodes.Encode(name), name))
             .ToList();
 
         return BelediyeSoapOperationResult<BelediyeSoapSokakCaddeResponse>.Success(
@@ -495,7 +629,95 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
         }
     }
 
-    private async Task<(string? BelediyeKodu, string? IlceAdi, string? BilgilendirmeMetni, (string Code, string Message)? Error)> RequireSettingsAsync(
+    private const int MaxCitizenNoteLength = 1000;
+
+    private async Task<EDevletBasvuru?> FindBasvuruAsync(
+        Guid tenantId,
+        string tcKimlikNo,
+        string basvuruNo,
+        CancellationToken cancellationToken)
+        => await _dbContext.EDevletBasvurular
+            .IgnoreQueryFilters()
+            .Include(entity => entity.Job)
+            .FirstOrDefaultAsync(
+                entity => entity.TenantId == tenantId
+                    && entity.CitizenTcKimlikNo == tcKimlikNo.Trim()
+                    && entity.TakipNo == basvuruNo.Trim(),
+                cancellationToken);
+
+    private static string? ValidateBasvuruYap(BelediyeSoapBasvuruYapRequest request, TalepOneriOptions options)
+    {
+        if (!string.IsNullOrWhiteSpace(request.CevapSekli))
+        {
+            var invalid = request.CevapSekli
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .FirstOrDefault(value => !options.IsCevapTuruAllowed(value));
+            if (invalid is not null)
+            {
+                return "GECERSIZ CEVAP SEKLI";
+            }
+        }
+
+        if (request.DosyaListesi.Count == 0)
+        {
+            return null;
+        }
+
+        if (request.DosyaListesi.Count > options.BasvuruDosyaSayisi)
+        {
+            return options.BasvuruDosyaSayisi == 0
+                ? "BASVURUYA DOSYA EKLENEMEZ"
+                : $"EN FAZLA {options.BasvuruDosyaSayisi} DOSYA EKLENEBILIR";
+        }
+
+        foreach (var file in request.DosyaListesi)
+        {
+            if (!options.IsExtensionAllowed(file.DosyaUzanti))
+            {
+                return "DOSYA UZANTISINA IZIN VERILMIYOR";
+            }
+
+            if (file.Dosya.LongLength > options.DosyaBoyutKb * 1024L)
+            {
+                return $"DOSYA BOYUTU EN FAZLA {options.DosyaBoyutKb} KB OLABILIR";
+            }
+        }
+
+        return null;
+    }
+
+    private async Task<List<string>> LoadMahalleNamesAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var names = await _dbContext.Jobs
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(job => job.TenantId == tenantId && job.Neighborhood != null && job.Neighborhood != string.Empty)
+            .Select(job => job.Neighborhood!)
+            .Distinct()
+            .OrderBy(name => name)
+            .Take(500)
+            .ToListAsync(cancellationToken);
+
+        // Eski surumde kod ad olarak kaydedildigi icin "3" gibi sayisal adlar listeye karismis olabilir.
+        return names.Where(name => !BelediyeAddressCodes.IsNumericOnly(name.Trim())).ToList();
+    }
+
+    private async Task<List<string>> LoadSokakNamesAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var names = await _dbContext.Jobs
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(job => job.TenantId == tenantId && job.Street != null && job.Street != string.Empty)
+            .Select(job => job.Street!)
+            .Distinct()
+            .OrderBy(name => name)
+            .Take(500)
+            .ToListAsync(cancellationToken);
+
+        return names.Where(name => !BelediyeAddressCodes.IsNumericOnly(name.Trim())).ToList();
+    }
+
+    private async Task<(string? BelediyeKodu, string? IlceAdi, string? BilgilendirmeMetni, string? TalepOneriAyarlari, (string Code, string Message)? Error)> RequireSettingsAsync(
         Guid tenantId,
         CancellationToken cancellationToken)
     {
@@ -507,10 +729,10 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
         var settings = _settingsProvider.GetSettings(tenantId)?.EDevlet;
         if (tenantSetting?.BelediyeKodu is null || settings?.SoapKullaniciAdi is null || settings.SoapSifre is null)
         {
-            return (settings?.BelediyeKodu, settings?.IlceAdi, settings?.BilgilendirmeMetni, (BelediyeSoapResultCodes.TenantNotFound, "BELEDIYE SOAP AYARLARI TAMAMLANMAMIS"));
+            return (settings?.BelediyeKodu, settings?.IlceAdi, settings?.BilgilendirmeMetni, settings?.TalepOneriAyarlari, (BelediyeSoapResultCodes.TenantNotFound, "BELEDIYE SOAP AYARLARI TAMAMLANMAMIS"));
         }
 
-        return (tenantSetting.BelediyeKodu, settings.IlceAdi, settings.BilgilendirmeMetni, null);
+        return (tenantSetting.BelediyeKodu, settings.IlceAdi, settings.BilgilendirmeMetni, settings.TalepOneriAyarlari, null);
     }
 
     private static IReadOnlyList<BelediyeSoapSurecItem> BuildSurecListesi(EDevletBasvuru basvuru)
@@ -559,15 +781,18 @@ public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
 
     private static IReadOnlyList<BelediyeSoapBasvuruNotItem> BuildNotListesi(EDevletBasvuru basvuru)
     {
-        if (basvuru.Job?.ManagerNote is not { Length: > 0 } note)
+        var notes = new List<(DateTimeOffset At, string Text)>();
+        if (basvuru.Job?.ManagerNote is { Length: > 0 } note)
         {
-            return Array.Empty<BelediyeSoapBasvuruNotItem>();
+            notes.Add((basvuru.Job.UpdatedAtUtc ?? basvuru.CreatedAtUtc, note));
         }
 
-        return
-        [
-            new BelediyeSoapBasvuruNotItem(1, basvuru.Job.UpdatedAtUtc ?? basvuru.CreatedAtUtc, note),
-        ];
+        notes.AddRange(basvuru.GetCitizenNotes().Select(entry => (entry.At, entry.Text)));
+
+        return notes
+            .OrderBy(entry => entry.At)
+            .Select((entry, index) => new BelediyeSoapBasvuruNotItem(index + 1, entry.At, entry.Text))
+            .ToList();
     }
 
     private static IReadOnlyList<string> DeserializePhones(string? json)

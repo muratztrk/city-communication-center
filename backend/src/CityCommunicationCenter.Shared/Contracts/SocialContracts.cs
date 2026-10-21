@@ -153,7 +153,8 @@ public sealed record EDevletSettingsRequest(
     string? SoapKullaniciAdi,
     string? SoapSifre,
     string? IlceAdi,
-    string? BilgilendirmeMetni);
+    string? BilgilendirmeMetni,
+    string? TalepOneriAyarlari = null);
 
 public sealed record EmailSettingsRequest(
     string? ImapHost,

@@ -833,6 +833,7 @@ const CHANNELS: ChannelConfig[] = [
       { key: 'soapSifre', labelKey: 'settings.socialConfig.fields.edevlet.soapSifre', secret: true },
       { key: 'ilceAdi', labelKey: 'settings.socialConfig.fields.edevlet.ilceAdi' },
       { key: 'bilgilendirmeMetni', labelKey: 'settings.socialConfig.fields.edevlet.bilgilendirmeMetni' },
+      { key: 'talepOneriAyarlari', labelKey: 'settings.socialConfig.fields.edevlet.talepOneriAyarlari' },
     ],
   },
   {
@@ -906,7 +907,7 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
   facebook: { appId: '', appSecret: '', pageAccessToken: '', pageId: '', webhookVerifyToken: '' },
   instagram: { accountId: '', accessToken: '', linkedPageId: '' },
   whatsapp: { businessAccountId: '', phoneNumberId: '', accessToken: '', appSecret: '', webhookVerifyToken: '' },
-  edevlet: { clientId: '', clientSecret: '', redirectUri: '', authorizationEndpoint: '', tokenEndpoint: '', scope: '', belediyeKodu: '', soapKullaniciAdi: '', soapSifre: '', ilceAdi: '', bilgilendirmeMetni: '' },
+  edevlet: { clientId: '', clientSecret: '', redirectUri: '', authorizationEndpoint: '', tokenEndpoint: '', scope: '', belediyeKodu: '', soapKullaniciAdi: '', soapSifre: '', ilceAdi: '', bilgilendirmeMetni: '', talepOneriAyarlari: '' },
   email: { imapHost: '', imapPort: '', imapUser: '', imapPassword: '', folder: '', smtpHost: '', smtpPort: '', smtpUser: '', smtpPassword: '' },
 }
 

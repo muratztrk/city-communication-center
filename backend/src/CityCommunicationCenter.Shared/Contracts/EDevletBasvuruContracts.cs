@@ -12,7 +12,9 @@ public sealed record EDevletBasvuruSummaryResponse(
     string Status,
     DateTimeOffset CreatedAtUtc,
     Guid? JobId,
-    string? JobDisplayNumber);
+    string? JobDisplayNumber,
+    DateTimeOffset? ReopenedAtUtc,
+    IReadOnlyList<EDevletBasvuruNoteResponse> CitizenNotes);
 
 public sealed record EDevletBasvuruDetailResponse(
     Guid BasvuruId,
@@ -36,7 +38,11 @@ public sealed record EDevletBasvuruDetailResponse(
     string Status,
     DateTimeOffset CreatedAtUtc,
     Guid? JobId,
-    IReadOnlyList<EDevletBasvuruAttachmentResponse> Attachments);
+    IReadOnlyList<EDevletBasvuruAttachmentResponse> Attachments,
+    IReadOnlyList<EDevletBasvuruNoteResponse> CitizenNotes,
+    DateTimeOffset? ReopenedAtUtc);
+
+public sealed record EDevletBasvuruNoteResponse(DateTimeOffset At, string Kind, string Text);
 
 public sealed record EDevletBasvuruAttachmentResponse(
     Guid AttachmentId,

@@ -112,6 +112,9 @@ public sealed class EDevletSettings
     public string? SoapSifre { get; set; }
     public string? IlceAdi { get; set; }
     public string? BilgilendirmeMetni { get; set; }
+
+    /// <summary>TalepOneriOzellestirmeParametreleri ayarOku JSON'u (bos ise varsayilanlar kullanilir).</summary>
+    public string? TalepOneriAyarlari { get; set; }
 }
 
 public sealed class EmailSettings

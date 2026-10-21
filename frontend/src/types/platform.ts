@@ -1411,6 +1411,8 @@ export interface EDevletBasvuruSummary {
   createdAtUtc: string
   jobId: string | null
   jobDisplayNumber: string | null
+  reopenedAtUtc: string | null
+  citizenNotes: { at: string; kind: string; text: string }[]
 }
 
 /** Vatandaşa Gönderilecek Mesaj Onayı grid satırı (card #2039). */

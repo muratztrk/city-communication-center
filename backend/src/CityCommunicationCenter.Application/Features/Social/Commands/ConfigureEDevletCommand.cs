@@ -22,6 +22,7 @@ public sealed class ConfigureEDevletCommandHandler : ICommandHandler<ConfigureED
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var settings = _settingsProvider.GetSettings(tenantId) ?? new SocialMediaSettings();
+        var previousTalepOneriAyarlari = settings.EDevlet?.TalepOneriAyarlari;
         settings.EDevlet = new EDevletSettings
         {
             ClientId = request.Request.ClientId,
@@ -35,6 +36,10 @@ public sealed class ConfigureEDevletCommandHandler : ICommandHandler<ConfigureED
             SoapSifre = request.Request.SoapSifre,
             IlceAdi = request.Request.IlceAdi,
             BilgilendirmeMetni = request.Request.BilgilendirmeMetni,
+            // Bos birakilirsa mevcut deger korunur; varsayilanlara donmek icin "{}" kaydedilir.
+            TalepOneriAyarlari = string.IsNullOrWhiteSpace(request.Request.TalepOneriAyarlari)
+                ? previousTalepOneriAyarlari
+                : request.Request.TalepOneriAyarlari.Trim(),
         };
 
         await _settingsProvider.SaveSettingsAsync(tenantId, settings, cancellationToken);

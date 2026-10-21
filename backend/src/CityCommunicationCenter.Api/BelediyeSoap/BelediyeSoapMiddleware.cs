@@ -77,6 +77,8 @@ public sealed class BelediyeSoapMiddleware
                 GetValue(payload, "tcKimlikNo"),
                 GetValue(payload, "basvuruNumarasi"),
                 context.RequestAborted),
+            "basvuruNotEkle" => await BuildBasvuruNotEkleResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, payload, context.RequestAborted),
+            "basvuruyuTekrarAc" => await BuildBasvuruyuTekrarAcResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, payload, context.RequestAborted),
             "ayarOku" => await BuildAyarOkuResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, GetValue(payload, "ayar"), context.RequestAborted),
             "ayarOkuListe" => await BuildAyarOkuListeResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, GetValue(payload, "ayar"), context.RequestAborted),
             "ilceSorgula" => await BuildIlceResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, context.RequestAborted),
@@ -110,6 +112,8 @@ public sealed class BelediyeSoapMiddleware
             var action when action.Contains("basvuruYap", StringComparison.OrdinalIgnoreCase) => "basvuruYap",
             var action when action.Contains("basvuruDurumSorgula", StringComparison.OrdinalIgnoreCase) => "basvuruDurumSorgula",
             var action when action.Contains("basvuruDetaySorgula", StringComparison.OrdinalIgnoreCase) => "basvuruDetaySorgula",
+            var action when action.Contains("basvuruNotEkle", StringComparison.OrdinalIgnoreCase) => "basvuruNotEkle",
+            var action when action.Contains("basvuruyuTekrarAc", StringComparison.OrdinalIgnoreCase) => "basvuruyuTekrarAc",
             var action when action.Contains("ayarOkuListe", StringComparison.OrdinalIgnoreCase) => "ayarOkuListe",
             var action when action.Contains("ayarOku", StringComparison.OrdinalIgnoreCase) => "ayarOku",
             var action when action.Contains("ilceSorgula", StringComparison.OrdinalIgnoreCase) => "ilceSorgula",
@@ -123,6 +127,8 @@ public sealed class BelediyeSoapMiddleware
                 "basvuruYapG" => "basvuruYap",
                 "basvuruDurumSorgulamaG" => "basvuruDurumSorgula",
                 "basvuruDetaySorgulamaG" => "basvuruDetaySorgula",
+                "basvuruNotEkleG" => "basvuruNotEkle",
+                "basvuruyuTekrarAcG" => "basvuruyuTekrarAc",
                 "ayarOkuG" or "ayarOkuListeG" => rootLocalName.StartsWith("ayarOkuListe", StringComparison.Ordinal) ? "ayarOkuListe" : "ayarOku",
                 "ilceSorgulamaG" => "ilceSorgula",
                 "mahalleSorgulaG" => "mahalleSorgula",
@@ -330,6 +336,44 @@ public sealed class BelediyeSoapMiddleware
             new XElement(Tns + "detayListesi"));
     }
 
+    private static async Task<XElement> BuildBasvuruNotEkleResponseAsync(
+        IBelediyeSoapOperations operations,
+        Guid tenantId,
+        string belediyeKodu,
+        XElement payload,
+        CancellationToken cancellationToken)
+    {
+        var result = await operations.BasvuruNotEkleAsync(
+            tenantId,
+            GetValue(payload, "tcKimlikNo"),
+            GetValue(payload, "basvuruNo"),
+            GetValue(payload, "eklenecekNot"),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? BuildIslemSonuc("basvuruNotEkleC", belediyeKodu, BelediyeSoapResultCodes.Success, BelediyeSoapResultCodes.SuccessMessage)
+            : BuildIslemSonuc("basvuruNotEkleC", belediyeKodu, result.SonucKodu, result.SonucAciklamasi);
+    }
+
+    private static async Task<XElement> BuildBasvuruyuTekrarAcResponseAsync(
+        IBelediyeSoapOperations operations,
+        Guid tenantId,
+        string belediyeKodu,
+        XElement payload,
+        CancellationToken cancellationToken)
+    {
+        var result = await operations.BasvuruyuTekrarAcAsync(
+            tenantId,
+            GetValue(payload, "tcKimlikNo"),
+            GetValue(payload, "basvuruNo"),
+            GetValue(payload, "acilmaNedeni"),
+            cancellationToken);
+
+        return result.IsSuccess
+            ? BuildIslemSonuc("basvuruyuTekrarAcC", belediyeKodu, BelediyeSoapResultCodes.Success, BelediyeSoapResultCodes.SuccessMessage)
+            : BuildIslemSonuc("basvuruyuTekrarAcC", belediyeKodu, result.SonucKodu, result.SonucAciklamasi);
+    }
+
     private static async Task<XElement> BuildAyarOkuResponseAsync(
         IBelediyeSoapOperations operations,
         Guid tenantId,
@@ -460,6 +504,8 @@ public sealed class BelediyeSoapMiddleware
             "basvuruYap" => BuildIslemSonuc("basvuruYapC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "basvuruDurumSorgula" => BuildIslemSonuc("basvuruDurumSorgulamaC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "basvuruDetaySorgula" => BuildIslemSonuc("basvuruDetaySorgulamaC", belediyeKodu, sonucKodu, sonucAciklamasi),
+            "basvuruNotEkle" => BuildIslemSonuc("basvuruNotEkleC", belediyeKodu, sonucKodu, sonucAciklamasi),
+            "basvuruyuTekrarAc" => BuildIslemSonuc("basvuruyuTekrarAcC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "ayarOku" => BuildIslemSonuc("ayarOkuC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "ayarOkuListe" => BuildIslemSonuc("ayarOkuListeC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "ilceSorgula" => BuildIslemSonuc("ilceSorgulamaC", belediyeKodu, sonucKodu, sonucAciklamasi),

@@ -31,8 +31,12 @@ public sealed class GetEDevletBasvurularQueryHandler : IQueryHandler<GetEDevletB
             query = query.Where(entity => entity.Status == status);
         }
 
-        return await query
+        var entities = await query
+            .Include(entity => entity.Job)
             .OrderByDescending(entity => entity.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        return entities
             .Select(entity => new EDevletBasvuruSummaryResponse(
                 entity.BasvuruId,
                 entity.TakipNo,
@@ -47,8 +51,12 @@ public sealed class GetEDevletBasvurularQueryHandler : IQueryHandler<GetEDevletB
                 entity.JobId,
                 entity.Job != null && entity.Job.JobNumber.HasValue && entity.Job.JobNumberYear.HasValue
                     ? $"T-{entity.Job.JobNumberYear}-{entity.Job.JobNumber}"
-                    : null))
-            .ToListAsync(cancellationToken);
+                    : null,
+                entity.ReopenedAtUtc,
+                entity.GetCitizenNotes()
+                    .Select(note => new EDevletBasvuruNoteResponse(note.At, note.Kind, note.Text))
+                    .ToList()))
+            .ToList();
     }
 }
 
@@ -108,7 +116,11 @@ public sealed class GetEDevletBasvuruByIdQueryHandler : IQueryHandler<GetEDevlet
                 attachment.DosyaCesidi,
                 attachment.OriginalFileName,
                 attachment.ContentType,
-                attachment.SizeBytes)).ToList());
+                attachment.SizeBytes)).ToList(),
+            basvuru.GetCitizenNotes()
+                .Select(note => new EDevletBasvuruNoteResponse(note.At, note.Kind, note.Text))
+                .ToList(),
+            basvuru.ReopenedAtUtc);
     }
 
     private static IReadOnlyList<string> DeserializePhones(string? json)

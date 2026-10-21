@@ -115,6 +115,9 @@ public sealed class EDevletSettings
 
     /// <summary>TalepOneriOzellestirmeParametreleri ayarOku JSON'u (bos ise varsayilanlar kullanilir).</summary>
     public string? TalepOneriAyarlari { get; set; }
+
+    /// <summary>Bilgilendirme (SMS/e-posta) kategorileri JSON: {"sms":[{"kod","ad","aciklama"}],"eposta":[...]} (bos ise varsayilanlar).</summary>
+    public string? BilgilendirmeTurleri { get; set; }
 }
 
 public sealed class EmailSettings

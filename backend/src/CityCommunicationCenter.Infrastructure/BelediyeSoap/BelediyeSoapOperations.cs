@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace CityCommunicationCenter.Infrastructure.BelediyeSoap;
 
-public sealed class BelediyeSoapOperations : IBelediyeSoapOperations
+public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly TimeZoneInfo TurkeyTimeZone = ResolveTurkeyTimeZone();

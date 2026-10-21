@@ -1770,7 +1770,8 @@
           "soapSifre": "SOAP Password",
           "ilceAdi": "District Name",
           "bilgilendirmeMetni": "Information Text (ayarOku)",
-          "talepOneriAyarlari": "Request/Suggestion Settings (JSON, empty = keep current, {} = defaults)"
+          "talepOneriAyarlari": "Request/Suggestion Settings (JSON, empty = keep current, {} = defaults)",
+          "bilgilendirmeTurleri": "Notification Categories (JSON, empty = keep current, {} = defaults)"
         }
       }
     },

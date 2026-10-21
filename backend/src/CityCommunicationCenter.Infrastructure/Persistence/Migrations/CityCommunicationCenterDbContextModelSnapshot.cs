@@ -357,6 +357,102 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.ToTable("auditlogs", (string)null);
                 });
 
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.BilgilendirmeIstegi", b =>
+                {
+                    b.Property<Guid>("BilgilendirmeIstegiId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("bilgilendirmeistegiid");
+
+                    b.Property<string>("Adi")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("adi");
+
+                    b.Property<bool>("BelediyeIletisimBilgisiniGuncelle")
+                        .HasColumnType("boolean")
+                        .HasColumnName("belediyeiletisimbilgisiniguncelle");
+
+                    b.Property<DateTimeOffset?>("CancelledAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelledatutc");
+
+                    b.Property<string>("CepTelefonNo")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("ceptelefonno");
+
+                    b.Property<string>("CepUlkeKodu")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("cepulkekodu");
+
+                    b.Property<string>("CitizenTcKimlikNo")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)")
+                        .HasColumnName("citizentckimlikno");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("createdatutc");
+
+                    b.Property<Guid?>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("createdbyuserid");
+
+                    b.Property<string>("Eposta")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("eposta");
+
+                    b.Property<string>("EpostaKategoriKodlariJson")
+                        .HasColumnType("text")
+                        .HasColumnName("epostakategorikodlarijson");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("isactive");
+
+                    b.Property<string>("MahalleListesiJson")
+                        .HasColumnType("text")
+                        .HasColumnName("mahallelistesijson");
+
+                    b.Property<string>("SmsKategoriKodlariJson")
+                        .HasColumnType("text")
+                        .HasColumnName("smskategorikodlarijson");
+
+                    b.Property<string>("Soyadi")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("soyadi");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenantid");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updatedbyuserid");
+
+                    b.HasKey("BilgilendirmeIstegiId");
+
+                    b.HasIndex("TenantId", "CitizenTcKimlikNo")
+                        .IsUnique()
+                        .HasDatabaseName("ix_bilgilendirmeistekleri_tenantid_tckimlikno_unique");
+
+                    b.ToTable("bilgilendirmeistekleri", (string)null);
+                });
+
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.CitizenConversation", b =>
                 {
                     b.Property<Guid>("CitizenConversationId")
@@ -509,10 +605,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("acknowledgedatutc");
 
-                    b.Property<DateTimeOffset?>("TargetDepartmentOpenedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("targetdepartmentopenedatutc");
-
                     b.Property<Guid>("CitizenConversationId")
                         .HasColumnType("uuid")
                         .HasColumnName("citizenconversationid");
@@ -549,6 +641,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("SocialMessageId")
                         .HasColumnType("uuid")
                         .HasColumnName("socialmessageid");
+
+                    b.Property<DateTimeOffset?>("TargetDepartmentOpenedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("targetdepartmentopenedatutc");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
@@ -1314,6 +1410,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("overduemailsentatutc");
 
+                    b.Property<Guid>("OwnerDepartmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ownerdepartmentid");
+
                     b.Property<DateTimeOffset?>("PlanRecordedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("planrecordedatutc");
@@ -1325,10 +1425,6 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<string>("PlannedByDisplayName")
                         .HasColumnType("text")
                         .HasColumnName("plannedbydisplayname");
-
-                    b.Property<Guid>("OwnerDepartmentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("ownerdepartmentid");
 
                     b.Property<string>("Priority")
                         .IsRequired()

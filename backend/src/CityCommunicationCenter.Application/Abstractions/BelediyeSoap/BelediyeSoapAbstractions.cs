@@ -46,6 +46,27 @@ public interface IBelediyeSoapOperations
         string acilmaNedeni,
         CancellationToken cancellationToken);
 
+    Task<BelediyeSoapOperationResult<BelediyeSoapBilgilendirmeTurResponse>> BilgilendirmeTurleriSorgulaAsync(
+        Guid tenantId,
+        bool sms,
+        CancellationToken cancellationToken);
+
+    Task<BelediyeSoapOperationResult<bool>> BilgilendirmeIstegiYapAsync(
+        Guid tenantId,
+        string tcKimlikNo,
+        BelediyeSoapBilgilendirmeIstegiYapRequest request,
+        CancellationToken cancellationToken);
+
+    Task<BelediyeSoapOperationResult<BelediyeSoapKayitliBilgilendirmeIstegi?>> BilgilendirmeIstegiSorgulaAsync(
+        Guid tenantId,
+        string tcKimlikNo,
+        CancellationToken cancellationToken);
+
+    Task<BelediyeSoapOperationResult<bool>> BilgilendirmeIstegiIptalAsync(
+        Guid tenantId,
+        string tcKimlikNo,
+        CancellationToken cancellationToken);
+
     Task<BelediyeSoapOperationResult<string>> AyarOkuAsync(
         Guid tenantId,
         string ayar,
@@ -206,3 +227,26 @@ public sealed record BelediyeSoapMahalleItem(string MahalleKodu, string MahalleA
 public sealed record BelediyeSoapSokakCaddeResponse(IReadOnlyList<BelediyeSoapSokakCaddeItem> SokakCaddeListesi);
 
 public sealed record BelediyeSoapSokakCaddeItem(string SokakCaddeKodu, string SokakCaddeAdi);
+
+public sealed record BelediyeSoapBilgilendirmeTurItem(string Kod, string Ad, string Aciklama);
+
+public sealed record BelediyeSoapBilgilendirmeTurResponse(IReadOnlyList<BelediyeSoapBilgilendirmeTurItem> BilgilendirmeTurListesi);
+
+public sealed record BelediyeSoapBilgilendirmeIstegiYapRequest(
+    string Adi,
+    string Soyadi,
+    string Eposta,
+    string CepUlkeKodu,
+    string CepTelefonNo,
+    IReadOnlyList<string> MahalleKodlari,
+    bool BelediyeIletisimBilgisiniGuncelle,
+    IReadOnlyList<string> SmsKategoriKodlari,
+    IReadOnlyList<string> EpostaKategoriKodlari);
+
+public sealed record BelediyeSoapKayitliBilgilendirmeIstegi(
+    string Eposta,
+    string CepUlkeKodu,
+    string CepTelefonNo,
+    IReadOnlyList<BelediyeSoapMahalleItem> Mahalleler,
+    IReadOnlyList<BelediyeSoapBilgilendirmeTurItem> SmsKategorileri,
+    IReadOnlyList<BelediyeSoapBilgilendirmeTurItem> EpostaKategorileri);

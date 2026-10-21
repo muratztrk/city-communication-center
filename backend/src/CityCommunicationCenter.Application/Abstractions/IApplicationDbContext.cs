@@ -30,6 +30,7 @@ public interface IApplicationDbContext
     DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans { get; }
     DbSet<EDevletDailyActivityPlanEdit> EDevletDailyActivityPlanEdits { get; }
     DbSet<EDevletBasvuru> EDevletBasvurular { get; }
+    DbSet<BilgilendirmeIstegi> BilgilendirmeIstekleri { get; }
     DbSet<InternalConversation> InternalConversations { get; }
     DbSet<InternalMessage> InternalMessages { get; }
     DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches { get; }

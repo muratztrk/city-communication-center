@@ -77,6 +77,11 @@ public sealed class BelediyeSoapMiddleware
                 GetValue(payload, "tcKimlikNo"),
                 GetValue(payload, "basvuruNumarasi"),
                 context.RequestAborted),
+            "bilgilendirmeIstegiYap" => await BuildBilgilendirmeIstegiYapResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, payload, context.RequestAborted),
+            "bilgilendirmeIstegiSorgula" => await BuildBilgilendirmeIstegiSorgulaResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, GetValue(payload, "tcKimlikNo"), context.RequestAborted),
+            "bilgilendirmeIstegiIptal" => await BuildBilgilendirmeIstegiIptalResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, GetValue(payload, "tcKimlikNo"), context.RequestAborted),
+            "smsBilgilendirmeTurleriSorgula" => await BuildBilgilendirmeTurleriResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, sms: true, context.RequestAborted),
+            "epostaBilgilendirmeTurleriSorgula" => await BuildBilgilendirmeTurleriResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, sms: false, context.RequestAborted),
             "basvuruNotEkle" => await BuildBasvuruNotEkleResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, payload, context.RequestAborted),
             "basvuruyuTekrarAc" => await BuildBasvuruyuTekrarAcResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, payload, context.RequestAborted),
             "ayarOku" => await BuildAyarOkuResponseAsync(operations, auth.TenantId.Value, auth.BelediyeKodu!, GetValue(payload, "ayar"), context.RequestAborted),
@@ -112,6 +117,11 @@ public sealed class BelediyeSoapMiddleware
             var action when action.Contains("basvuruYap", StringComparison.OrdinalIgnoreCase) => "basvuruYap",
             var action when action.Contains("basvuruDurumSorgula", StringComparison.OrdinalIgnoreCase) => "basvuruDurumSorgula",
             var action when action.Contains("basvuruDetaySorgula", StringComparison.OrdinalIgnoreCase) => "basvuruDetaySorgula",
+            var action when action.Contains("bilgilendirmeIstegiYap", StringComparison.OrdinalIgnoreCase) => "bilgilendirmeIstegiYap",
+            var action when action.Contains("bilgilendirmeIstegiSorgula", StringComparison.OrdinalIgnoreCase) => "bilgilendirmeIstegiSorgula",
+            var action when action.Contains("bilgilendirmeIstegiIptal", StringComparison.OrdinalIgnoreCase) => "bilgilendirmeIstegiIptal",
+            var action when action.Contains("smsBilgilendirmeTurleriSorgula", StringComparison.OrdinalIgnoreCase) => "smsBilgilendirmeTurleriSorgula",
+            var action when action.Contains("epostaBilgilendirmeTurleriSorgula", StringComparison.OrdinalIgnoreCase) => "epostaBilgilendirmeTurleriSorgula",
             var action when action.Contains("basvuruNotEkle", StringComparison.OrdinalIgnoreCase) => "basvuruNotEkle",
             var action when action.Contains("basvuruyuTekrarAc", StringComparison.OrdinalIgnoreCase) => "basvuruyuTekrarAc",
             var action when action.Contains("ayarOkuListe", StringComparison.OrdinalIgnoreCase) => "ayarOkuListe",
@@ -127,6 +137,11 @@ public sealed class BelediyeSoapMiddleware
                 "basvuruYapG" => "basvuruYap",
                 "basvuruDurumSorgulamaG" => "basvuruDurumSorgula",
                 "basvuruDetaySorgulamaG" => "basvuruDetaySorgula",
+                "bilgilendirmeIstegiYapG" => "bilgilendirmeIstegiYap",
+                "bilgilendirmeIstegiSorgulaG" => "bilgilendirmeIstegiSorgula",
+                "bilgilendirmeIstegiIptalG" => "bilgilendirmeIstegiIptal",
+                "smsBilgilendirmeTurleriSorgulaG" => "smsBilgilendirmeTurleriSorgula",
+                "epostaBilgilendirmeTurleriSorgulaG" => "epostaBilgilendirmeTurleriSorgula",
                 "basvuruNotEkleG" => "basvuruNotEkle",
                 "basvuruyuTekrarAcG" => "basvuruyuTekrarAc",
                 "ayarOkuG" or "ayarOkuListeG" => rootLocalName.StartsWith("ayarOkuListe", StringComparison.Ordinal) ? "ayarOkuListe" : "ayarOku",
@@ -336,6 +351,122 @@ public sealed class BelediyeSoapMiddleware
             new XElement(Tns + "detayListesi"));
     }
 
+    private static async Task<XElement> BuildBilgilendirmeIstegiYapResponseAsync(
+        IBelediyeSoapOperations operations,
+        Guid tenantId,
+        string belediyeKodu,
+        XElement payload,
+        CancellationToken cancellationToken)
+    {
+        var telefon = Child(payload, "cepTelefonu");
+        var request = new BelediyeSoapBilgilendirmeIstegiYapRequest(
+            GetValue(payload, "adi"),
+            GetValue(payload, "soyadi"),
+            GetValue(payload, "eposta"),
+            GetValue(telefon, "ulkeKodu"),
+            GetValue(telefon, "telefonNo"),
+            ParseKodListesi(payload, "ilgilenilenMahalleListesi"),
+            ParseBoolean(GetValue(payload, "belediyeIletisimBilgisiniGuncelle")),
+            ParseKodListesi(payload, "secilenSMSBilgilendirmeKategoriListesi"),
+            ParseKodListesi(payload, "secilenEpostaBilgilendirmeKategoriListesi"));
+
+        var result = await operations.BilgilendirmeIstegiYapAsync(tenantId, GetValue(payload, "tcKimlikNo"), request, cancellationToken);
+        return result.IsSuccess
+            ? BuildIslemSonuc("bilgilendirmeIstegiYapC", belediyeKodu, BelediyeSoapResultCodes.Success, BelediyeSoapResultCodes.SuccessMessage)
+            : BuildIslemSonuc("bilgilendirmeIstegiYapC", belediyeKodu, result.SonucKodu, result.SonucAciklamasi);
+    }
+
+    private static async Task<XElement> BuildBilgilendirmeIstegiIptalResponseAsync(
+        IBelediyeSoapOperations operations,
+        Guid tenantId,
+        string belediyeKodu,
+        string tcKimlikNo,
+        CancellationToken cancellationToken)
+    {
+        var result = await operations.BilgilendirmeIstegiIptalAsync(tenantId, tcKimlikNo, cancellationToken);
+        return result.IsSuccess
+            ? BuildIslemSonuc("bilgilendirmeIstegiIptalC", belediyeKodu, BelediyeSoapResultCodes.Success, BelediyeSoapResultCodes.SuccessMessage)
+            : BuildIslemSonuc("bilgilendirmeIstegiIptalC", belediyeKodu, result.SonucKodu, result.SonucAciklamasi);
+    }
+
+    private static async Task<XElement> BuildBilgilendirmeIstegiSorgulaResponseAsync(
+        IBelediyeSoapOperations operations,
+        Guid tenantId,
+        string belediyeKodu,
+        string tcKimlikNo,
+        CancellationToken cancellationToken)
+    {
+        var result = await operations.BilgilendirmeIstegiSorgulaAsync(tenantId, tcKimlikNo, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return BuildIslemSonuc("bilgilendirmeIstegiSorgulaC", belediyeKodu, result.SonucKodu, result.SonucAciklamasi);
+        }
+
+        var kayit = result.Data;
+        XElement kayitElement;
+        if (kayit is null)
+        {
+            kayitElement = new XElement(Tns + "kayitliBilgilendirmeIstegi", new XAttribute(Xsi + "nil", "true"));
+        }
+        else
+        {
+            var mahalleler = new XElement(Tns + "ilgilenilenMahalleListesi");
+            foreach (var mahalle in kayit.Mahalleler)
+            {
+                mahalleler.Add(new XElement(Tns + "mahalleBilgisi",
+                    new XElement(Tns + "mahalleKodu", mahalle.MahalleKodu),
+                    new XElement(Tns + "mahalleAdi", mahalle.MahalleAdi)));
+            }
+
+            kayitElement = new XElement(Tns + "kayitliBilgilendirmeIstegi",
+                new XElement(Tns + "eposta", kayit.Eposta),
+                new XElement(Tns + "cepTelefonu",
+                    new XElement(Tns + "telefonTuru", "CEP"),
+                    new XElement(Tns + "ulkeKodu", kayit.CepUlkeKodu),
+                    new XElement(Tns + "telefonNo", kayit.CepTelefonNo)),
+                mahalleler,
+                BuildBilgilendirmeTurListesi("secilenSMSBilgilendirmeKategoriListesi", kayit.SmsKategorileri),
+                BuildBilgilendirmeTurListesi("secilenEpostaBilgilendirmeKategoriListesi", kayit.EpostaKategorileri));
+        }
+
+        return new XElement(Tns + "bilgilendirmeIstegiSorgulaC",
+            BuildIslemSonucChildren(belediyeKodu, BelediyeSoapResultCodes.Success, BelediyeSoapResultCodes.SuccessMessage),
+            kayitElement);
+    }
+
+    private static async Task<XElement> BuildBilgilendirmeTurleriResponseAsync(
+        IBelediyeSoapOperations operations,
+        Guid tenantId,
+        string belediyeKodu,
+        bool sms,
+        CancellationToken cancellationToken)
+    {
+        var elementName = sms ? "smsBilgilendirmeTurleriSorgulaC" : "epostaBilgilendirmeTurleriSorgulaC";
+        var result = await operations.BilgilendirmeTurleriSorgulaAsync(tenantId, sms, cancellationToken);
+        if (!result.IsSuccess || result.Data is null)
+        {
+            return BuildIslemSonuc(elementName, belediyeKodu, result.SonucKodu, result.SonucAciklamasi);
+        }
+
+        return new XElement(Tns + elementName,
+            BuildIslemSonucChildren(belediyeKodu, BelediyeSoapResultCodes.Success, BelediyeSoapResultCodes.SuccessMessage),
+            BuildBilgilendirmeTurListesi("bilgilendirmeTurListesi", result.Data.BilgilendirmeTurListesi));
+    }
+
+    private static XElement BuildBilgilendirmeTurListesi(string name, IEnumerable<BelediyeSoapBilgilendirmeTurItem> items)
+    {
+        var list = new XElement(Tns + name);
+        foreach (var item in items)
+        {
+            list.Add(new XElement(Tns + "bilgilendirmeTuru",
+                new XElement(Tns + "bilgilendirmeTurKodu", item.Kod),
+                new XElement(Tns + "bilgilendirmeTurAdi", item.Ad),
+                new XElement(Tns + "bilgilendirmeAciklama", item.Aciklama)));
+        }
+
+        return list;
+    }
+
     private static async Task<XElement> BuildBasvuruNotEkleResponseAsync(
         IBelediyeSoapOperations operations,
         Guid tenantId,
@@ -504,6 +635,11 @@ public sealed class BelediyeSoapMiddleware
             "basvuruYap" => BuildIslemSonuc("basvuruYapC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "basvuruDurumSorgula" => BuildIslemSonuc("basvuruDurumSorgulamaC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "basvuruDetaySorgula" => BuildIslemSonuc("basvuruDetaySorgulamaC", belediyeKodu, sonucKodu, sonucAciklamasi),
+            "bilgilendirmeIstegiYap" => BuildIslemSonuc("bilgilendirmeIstegiYapC", belediyeKodu, sonucKodu, sonucAciklamasi),
+            "bilgilendirmeIstegiSorgula" => BuildIslemSonuc("bilgilendirmeIstegiSorgulaC", belediyeKodu, sonucKodu, sonucAciklamasi),
+            "bilgilendirmeIstegiIptal" => BuildIslemSonuc("bilgilendirmeIstegiIptalC", belediyeKodu, sonucKodu, sonucAciklamasi),
+            "smsBilgilendirmeTurleriSorgula" => BuildIslemSonuc("smsBilgilendirmeTurleriSorgulaC", belediyeKodu, sonucKodu, sonucAciklamasi),
+            "epostaBilgilendirmeTurleriSorgula" => BuildIslemSonuc("epostaBilgilendirmeTurleriSorgulaC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "basvuruNotEkle" => BuildIslemSonuc("basvuruNotEkleC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "basvuruyuTekrarAc" => BuildIslemSonuc("basvuruyuTekrarAcC", belediyeKodu, sonucKodu, sonucAciklamasi),
             "ayarOku" => BuildIslemSonuc("ayarOkuC", belediyeKodu, sonucKodu, sonucAciklamasi),
@@ -535,6 +671,17 @@ public sealed class BelediyeSoapMiddleware
 
     private static string GetValue(XElement? element, string name)
         => Child(element, name)?.Value?.Trim() ?? string.Empty;
+
+    private static IReadOnlyList<string> ParseKodListesi(XElement parent, string listName)
+    {
+        var list = Child(parent, listName);
+        return list is null
+            ? Array.Empty<string>()
+            : Children(list, "kod").Select(element => element.Value.Trim()).Where(value => value.Length > 0).ToList();
+    }
+
+    private static bool ParseBoolean(string value)
+        => value.Equals("true", StringComparison.OrdinalIgnoreCase) || value == "1";
 
     private static IReadOnlyList<string> ParseTelefonListesi(XElement basvuruBilgileri)
     {

@@ -23,6 +23,7 @@ public sealed class ConfigureEDevletCommandHandler : ICommandHandler<ConfigureED
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var settings = _settingsProvider.GetSettings(tenantId) ?? new SocialMediaSettings();
         var previousTalepOneriAyarlari = settings.EDevlet?.TalepOneriAyarlari;
+        var previousBilgilendirmeTurleri = settings.EDevlet?.BilgilendirmeTurleri;
         settings.EDevlet = new EDevletSettings
         {
             ClientId = request.Request.ClientId,
@@ -40,6 +41,9 @@ public sealed class ConfigureEDevletCommandHandler : ICommandHandler<ConfigureED
             TalepOneriAyarlari = string.IsNullOrWhiteSpace(request.Request.TalepOneriAyarlari)
                 ? previousTalepOneriAyarlari
                 : request.Request.TalepOneriAyarlari.Trim(),
+            BilgilendirmeTurleri = string.IsNullOrWhiteSpace(request.Request.BilgilendirmeTurleri)
+                ? previousBilgilendirmeTurleri
+                : request.Request.BilgilendirmeTurleri.Trim(),
         };
 
         await _settingsProvider.SaveSettingsAsync(tenantId, settings, cancellationToken);

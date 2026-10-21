@@ -1781,7 +1781,8 @@
           "soapSifre": "SOAP Şifre",
           "ilceAdi": "İlçe Adı",
           "bilgilendirmeMetni": "Bilgilendirme Metni (ayarOku)",
-          "talepOneriAyarlari": "Talep/Öneri Ayarları (JSON, boş = mevcut, {} = varsayılan)"
+          "talepOneriAyarlari": "Talep/Öneri Ayarları (JSON, boş = mevcut, {} = varsayılan)",
+          "bilgilendirmeTurleri": "Bilgilendirme Kategorileri (JSON, boş = mevcut, {} = varsayılan)"
         },
         "email": {
           "imapHost": "IMAP Sunucu",

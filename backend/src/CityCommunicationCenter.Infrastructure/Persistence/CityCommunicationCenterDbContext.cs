@@ -53,6 +53,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<EDevletDailyActivityPlan> EDevletDailyActivityPlans => Set<EDevletDailyActivityPlan>();
     public DbSet<EDevletDailyActivityPlanEdit> EDevletDailyActivityPlanEdits => Set<EDevletDailyActivityPlanEdit>();
     public DbSet<EDevletBasvuru> EDevletBasvurular => Set<EDevletBasvuru>();
+    public DbSet<BilgilendirmeIstegi> BilgilendirmeIstekleri => Set<BilgilendirmeIstegi>();
     public DbSet<InternalConversation> InternalConversations => Set<InternalConversation>();
     public DbSet<InternalMessage> InternalMessages => Set<InternalMessage>();
     public DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches => Set<IzmirCbsCatalogCache>();
@@ -128,6 +129,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureEDevletDailyActivityPlanEdit(modelBuilder.Entity<EDevletDailyActivityPlanEdit>());
         ConfigureEDevletBasvuru(modelBuilder.Entity<EDevletBasvuru>());
         ConfigureEDevletBasvuruAttachment(modelBuilder.Entity<EDevletBasvuruAttachment>());
+        ConfigureBilgilendirmeIstegi(modelBuilder.Entity<BilgilendirmeIstegi>());
         ConfigureInternalConversation(modelBuilder.Entity<InternalConversation>());
         ConfigureInternalMessage(modelBuilder.Entity<InternalMessage>());
         ConfigureIzmirCbsCatalogCache(modelBuilder.Entity<IzmirCbsCatalogCache>());
@@ -165,6 +167,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<EDevletDailyActivityPlanEdit>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuru>());
         ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuruAttachment>());
+        ApplyTenantFilter(modelBuilder.Entity<BilgilendirmeIstegi>());
         ApplyTenantFilter(modelBuilder.Entity<InternalConversation>());
         ApplyTenantFilter(modelBuilder.Entity<InternalMessage>());
         ApplyTenantFilter(modelBuilder.Entity<SmsOutboundLog>());
@@ -673,6 +676,19 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
             .WithMany()
             .HasForeignKey(entity => entity.JobId)
             .OnDelete(DeleteBehavior.SetNull);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureBilgilendirmeIstegi(EntityTypeBuilder<BilgilendirmeIstegi> builder)
+    {
+        builder.ToTable("bilgilendirmeistekleri");
+        builder.HasKey(entity => entity.BilgilendirmeIstegiId);
+        builder.Property(entity => entity.CitizenTcKimlikNo).HasMaxLength(11);
+        builder.Property(entity => entity.Adi).HasMaxLength(100);
+        builder.Property(entity => entity.Soyadi).HasMaxLength(100);
+        builder.Property(entity => entity.Eposta).HasMaxLength(200);
+        builder.Property(entity => entity.CepUlkeKodu).HasMaxLength(8);
+        builder.Property(entity => entity.CepTelefonNo).HasMaxLength(32);
         ApplyLowerCaseColumnNames(builder);
     }
 

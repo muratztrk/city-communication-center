@@ -1,3 +1,7 @@
+## Round 1499 — Birime Gelen Plana Al
+
+- [x] Birim müdürü, birim sorumlusu ve vatandaş talep yöneticisi Birime Gelen vatandaş talebini Plana Al onayından sonra plana alır.
+
 ## Round 1498 — dönem büyütmesi geri
 
 - [x] Standart / vatandaş yöneticisi dönem düğmeleri önceki küçük boyuta döndü.

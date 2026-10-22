@@ -2253,12 +2253,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       cancelLabel: t('common.cancel', 'Vazgeç'),
       variant: 'primary',
       onConfirm: async () => {
-        await api.planJob(job.jobId)
-        invalidateJobs(queryClient, job.jobId)
-        emitPageToast(t('jobs.actions.planSuccess', 'Talep plana alındı.'))
-        await refreshDetail()
-        await reload()
-        onDetailMutated?.()
+        try {
+          await api.planJob(job.jobId)
+          invalidateJobs(queryClient, job.jobId)
+          emitPageToast(t('jobs.actions.planSuccess', 'Talep plana alındı.'))
+          await refreshDetail()
+          await reload()
+          onDetailMutated?.()
+        } catch (err) {
+          const message = err instanceof Error ? err.message : t('common.error')
+          setError(message)
+        }
       },
     })
   }

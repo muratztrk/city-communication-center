@@ -443,7 +443,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `plannedbydisplayname` kalır, Süreç adımı ve Plana Alan satırı onaydan sonra da durur (#6ad5a2c8).
   Talep hâlâ planlıyken Süreç'te `Durum` katmanı yoktur; plana alan adı `Plana Alındı` ifadesinin
   sağında parantez içindedir (#6ad5c0b0/#6ad5a516).
-  Personel atanınca normal İşleme Alındı/Yapılmakta döner; `JobDetail.tasks` doluysa `taskCount` olmasa da planlı sayılmaz (#6ad5da44). Vatandaş talebinde Plana Al onayı, otomatik mesaj cümlesini de gösterir (#6ad6ff79). Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
+  Personel atanınca normal İşleme Alındı/Yapılmakta döner; `JobDetail.tasks` doluysa `taskCount` olmasa da planlı sayılmaz (#6ad5da44). Vatandaş talebinde Plana Al onayı, otomatik mesaj cümlesini de gösterir (#6ad6ff79). Birime Gelen'de bu onay birim müdürü, birim sorumlusu ve hedef birimdeki vatandaş talep yöneticisi için geçerlidir (#6ad9b572). Zemin altın `#d4a017`; chip, grid pill, `(Geciken)` alt satırı ve
   Plana Al butonu yazısı beyaz. Süreç halkası, bağlantı çizgisi ve Durum değeri aynı altın geçişle
   boyanır (gecikince de maviye dönmez).   Planlanan chip Tamamlanan'ın solundadır (Taleplerim / Gelen / Giden) ve kayıt varken Geciken chip'i
   ile aynı sağ üst sayaç rozetini gösterir. Plana Al aynı satırdayken diğer aksiyon butonları biraz büyür.

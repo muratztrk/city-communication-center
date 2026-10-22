@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Social;
+using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
@@ -84,7 +85,8 @@ public sealed class PlanJobCommandHandler : ICommandHandler<PlanJobCommand, bool
             return;
         }
 
-        if (await JobWorkflowAuthorization.ManagesDepartmentAsync(_dbContext, actor, job.OwnerDepartmentId, cancellationToken))
+        if (await JobWorkflowAuthorization.CanManageJobAsDepartmentLeaderAsync(
+                _dbContext, actor, job.OwnerDepartmentId, cancellationToken))
         {
             return;
         }
@@ -96,10 +98,17 @@ public sealed class PlanJobCommandHandler : ICommandHandler<PlanJobCommand, bool
             .ToListAsync(cancellationToken);
         foreach (var departmentId in targetDepartmentIds)
         {
-            if (await JobWorkflowAuthorization.ManagesDepartmentAsync(_dbContext, actor, departmentId, cancellationToken))
+            if (await JobWorkflowAuthorization.CanManageJobAsDepartmentLeaderAsync(
+                    _dbContext, actor, departmentId, cancellationToken))
             {
                 return;
             }
+        }
+
+        if (await UserRoleAccess.CanManageCitizenRequestAsync(
+                _dbContext, actor.TenantId, actor, job, cancellationToken))
+        {
+            return;
         }
 
         throw new ForbiddenAccessException("Bu talebi plana alma yetkiniz yok.");

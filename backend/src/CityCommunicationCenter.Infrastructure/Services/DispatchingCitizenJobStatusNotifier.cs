@@ -72,6 +72,25 @@ internal sealed class DispatchingCitizenJobStatusNotifier : ICitizenJobStatusNot
         CancellationToken cancellationToken = default) =>
         _inner.NotifyStatusChangedAsync(tenantId, jobId, previousDisplayStatus, cancellationToken);
 
+    public Task QueueStatusChangedAsync(
+        Guid tenantId,
+        Guid jobId,
+        string previousDisplayStatus,
+        CancellationToken cancellationToken = default) =>
+        BackgroundNotificationWork.Enqueue(
+            _logger,
+            $"citizen-status JobId={jobId}",
+            async () =>
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var inner = scope.ServiceProvider.GetRequiredService<CitizenJobStatusNotifier>();
+                await inner.NotifyStatusChangedAsync(
+                    tenantId,
+                    jobId,
+                    previousDisplayStatus,
+                    CancellationToken.None);
+            });
+
     public Task<bool> ReleaseTerminalMessagesAsync(
         Guid tenantId,
         Guid jobId,

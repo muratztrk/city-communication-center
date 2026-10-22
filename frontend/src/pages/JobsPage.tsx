@@ -2257,8 +2257,19 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           await api.planJob(job.jobId)
           invalidateJobs(queryClient, job.jobId)
           emitPageToast(t('jobs.actions.planSuccess', 'Talep plana alındı.'))
-          await refreshDetail()
-          await reload()
+          const plannedAtUtc = new Date().toISOString()
+          setDetail(current => current?.jobId === job.jobId
+            ? {
+                ...current,
+                plannedAtUtc,
+                planRecordedAtUtc: current.planRecordedAtUtc ?? plannedAtUtc,
+                plannedByDisplayName: user?.displayName?.trim() || current.plannedByDisplayName,
+              }
+            : current)
+          void api.getJobById(job.jobId).then(fresh => {
+            setDetail(current => current?.jobId === fresh.jobId ? fresh : current)
+          }).catch(() => undefined)
+          if (!detailOnly) void reload()
           onDetailMutated?.()
         } catch (err) {
           const message = err instanceof Error ? err.message : t('common.error')

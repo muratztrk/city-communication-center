@@ -54,6 +54,13 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         await NotifyCurrentStatusAsync(tenantId, message, job, taskCount, cancellationToken);
     }
 
+    public Task QueueStatusChangedAsync(
+        Guid tenantId,
+        Guid jobId,
+        string previousDisplayStatus,
+        CancellationToken cancellationToken = default) =>
+        NotifyStatusChangedAsync(tenantId, jobId, previousDisplayStatus, cancellationToken);
+
     public async Task NotifyStatusChangedAsync(
         Guid tenantId,
         Guid jobId,

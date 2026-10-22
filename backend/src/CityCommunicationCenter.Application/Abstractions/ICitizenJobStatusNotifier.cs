@@ -18,6 +18,15 @@ public interface ICitizenJobStatusNotifier
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Durum mesajını isteği bekletmeden kuyruğa alır. Plana Al onayı bunu kullanır (#6ad9b572).
+    /// </summary>
+    Task QueueStatusChangedAsync(
+        Guid tenantId,
+        Guid jobId,
+        string previousDisplayStatus,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Terminal (Tamamlanmış/İptal) vatandaş durum mesajını Manager/CRM onayıyla operatör
     /// WhatsApp ekranına Pending olarak serbest bırakır (card #2039). Zaten serbest bırakılmışsa no-op.
     /// Çağrı (Phone) ikinci aşamada gerçek SMS gönderir; başarısızsa <c>false</c> döner (#6a75eea2).

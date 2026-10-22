@@ -1,3 +1,7 @@
+## Round 1500 — Plana Al onayı hızı
+
+- [x] Birime Gelen Plana Al onayındaki Onayla, mesaj gönderimini ve liste yenilemesini beklemiyor.
+
 ## Round 1499 — Birime Gelen Plana Al
 
 - [x] Birim müdürü, birim sorumlusu ve vatandaş talep yöneticisi Birime Gelen vatandaş talebini Plana Al onayından sonra plana alır.

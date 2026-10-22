@@ -71,7 +71,7 @@ public sealed class PlanJobCommandHandler : ICommandHandler<PlanJobCommand, bool
 
         if (_citizenJobStatusNotifier is not null)
         {
-            await _citizenJobStatusNotifier.NotifyStatusChangedAsync(
+            await _citizenJobStatusNotifier.QueueStatusChangedAsync(
                 tenantId, job.JobId, previousDisplayStatus, cancellationToken);
         }
 

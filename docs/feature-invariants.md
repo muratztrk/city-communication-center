@@ -196,6 +196,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   varsayılanı `--table-chrome-row-px: 1rem`'dir; 1rem altı bir utility (utilities katmanı kazandığından)
   padding'i düşürür. "Boşluk ekle" isteğinde 1rem'den büyük değer kullan (`pl-6` vb.) (card #1329 reopen).
 
+- **Mobil PWA yükleme kartı:** ≤1023px iken `beforeinstallprompt` `preventDefault` ile
+  kesilir (`index.html`, sayfa açılır açılmaz). Service worker ve manifest kalır. Masaüstünde
+  engellenmez. Dinleyici geç kalırsa Chrome kartı yine basar.
+
 ## 1. Görevler (Görevlerim / Tasks) — `pages/TasksPage.tsx`
 
 - **Tamamlama notu PLAIN TEXT** saklanır (`CompleteTaskCommand`: `Notes = ResultNote`,
@@ -3249,7 +3253,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `{GönderilenBirim}` değerinden önce 1 boş satır (`EnsureBlankLineBeforeTargetDepartments`) —
   terminal SMS ile aynı.
 - **Çağrı formu ↔ WA profil (#6a6f1d32 / #2513):** Aynı telefon aynı `CitizenConversation`'da
-  durur; kanallar ayrı VT'dir. `Job.CitizenName` talep bazlı kalır. Convert/UpdateJob çağrı
+  durur; kanallar ayrı VT'dir. Ülke kodlu ve ülke kodsuz iki satır varsa talep, ülke kodlu
+  satıra bağlanır; ülke kodsuz satırın telefonu ülke koduna çekilmez (unique 23505 talebi düşürür).
+  `Job.CitizenName` talep bazlı kalır. Convert/UpdateJob çağrı
   kaydı dolu WA adını **ezmez**, boşsa doldurur. Profil PUT kısmi (`null` = dokunma). WA sağ
   panel Vatandaş Bilgileri talep oluşturma, çağrı formu etiketi veya dizin kaydıyla silinmez;
   convert formu ve çağrı formu kayıtlı profil adresini güncellemez. Profil boş PUT

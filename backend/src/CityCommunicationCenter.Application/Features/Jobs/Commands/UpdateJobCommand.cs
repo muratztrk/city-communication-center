@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Common;
+using CityCommunicationCenter.Application.Features.Social;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
@@ -332,13 +333,13 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             return;
         }
 
-        // Unique (TenantId, CitizenPhone): önce telefon sahibi; çakışmada eski konuşmanın
-        // numarasını ezme — mesajları doğru konuşmaya taşı (#6a6f1d32).
+        // Unique (TenantId, CitizenPhone): ülke kodlu satır varsa onu seç.
+        // Ülke kodsuz kopyanın telefonunu ülke koduna çekmek çakışır (#6a6f1d32).
         var phoneVariants = ConversationPhoneVariants(normalizedPhone);
-        var phoneOwner = await _dbContext.CitizenConversations
-            .FirstOrDefaultAsync(
-                item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
-                cancellationToken);
+        var phoneMatches = await _dbContext.CitizenConversations
+            .Where(item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone))
+            .ToListAsync(cancellationToken);
+        var phoneOwner = CitizenConversationPhoneSelector.PreferCanonical(phoneMatches, normalizedPhone);
 
         CitizenConversation? linked = null;
         var linkedConversationId = linkedMessages

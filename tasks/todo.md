@@ -1,3 +1,7 @@
+## Round 1501 — çift telefonla talep
+
+- [x] Ülke kodlu ve ülke kodsuz konuşma bir aradaysa talep ülke kodlu satıra bağlanır; kayıt 500 dönmez.
+
 ## Round 1500 — Plana Al onayı hızı
 
 - [x] Birime Gelen Plana Al onayındaki Onayla, mesaj gönderimini ve liste yenilemesini beklemiyor.

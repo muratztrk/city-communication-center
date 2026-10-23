@@ -195,13 +195,13 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             return;
         }
 
-        // (TenantId, CitizenPhone) unique — önce telefon sahibi konuşmayı bul; çakışmada
-        // eski konuşmanın numarasını ezme, mesajı doğru konuşmaya taşı (#6a6f1d32).
+        // (TenantId, CitizenPhone) unique — ülke kodlu satır varsa onu seç.
+        // Ülke kodsuz kopyanın telefonunu ülke koduna çekmek çakışır ve talebi düşürür (#6a6f1d32).
         var phoneVariants = ConversationPhoneVariants(normalizedPhone);
-        var phoneOwner = await _dbContext.CitizenConversations
-            .FirstOrDefaultAsync(
-                item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
-                cancellationToken);
+        var phoneMatches = await _dbContext.CitizenConversations
+            .Where(item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone))
+            .ToListAsync(cancellationToken);
+        var phoneOwner = CitizenConversationPhoneSelector.PreferCanonical(phoneMatches, normalizedPhone);
 
         CitizenConversation? linked = null;
         if (message.CitizenConversationId.HasValue)

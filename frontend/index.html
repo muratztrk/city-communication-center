@@ -3,6 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Mobil görünümde Chrome'un PWA "uygulamayı yükle" kartını bastır.
+      // Masaüstü adres çubuğu kurulumu durur; preventDefault çağrılmazsa kart geri gelir.
+      window.addEventListener('beforeinstallprompt', function (event) {
+        if (!window.matchMedia('(max-width: 1023px)').matches) return
+        event.preventDefault()
+      })
+    </script>
     <meta name="theme-color" content="#123B63" />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), local-network-access=()" />
     <link rel="icon" type="image/png" href="/favicon.png" />

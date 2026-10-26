@@ -69,16 +69,63 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
     }
 
     [Fact]
-    public async Task BasvuruYap_LegacyNumericCode_IsNotStoredAsName()
+    public async Task BasvuruYap_LegacyNumericCode_IsRejectedInsteadOfSavedWithoutAddress()
     {
         var (operations, db) = await CreateAsync();
 
-        var result = await operations.BasvuruYapAsync(TenantId, NewRequest(mahalleKodu: "3", sokakKodu: "7"), default);
+        var mahalle = await operations.BasvuruYapAsync(TenantId, NewRequest(mahalleKodu: "3"), default);
+        Assert.False(mahalle.IsSuccess);
+        Assert.Equal(BelediyeSoapResultCodes.ValidationFailed, mahalle.SonucKodu);
+        Assert.Equal("GECERSIZ MAHALLE KODU", mahalle.SonucAciklamasi);
 
-        Assert.True(result.IsSuccess);
+        var sokak = await operations.BasvuruYapAsync(TenantId, NewRequest(sokakKodu: "7"), default);
+        Assert.False(sokak.IsSuccess);
+        Assert.Equal("GECERSIZ SOKAK/CADDE KODU", sokak.SonucAciklamasi);
+
+        Assert.Empty(await db.EDevletBasvurular.IgnoreQueryFilters().ToListAsync());
+    }
+
+    [Fact]
+    public async Task BasvuruYap_CodeOfRemovedName_IsRejected()
+    {
+        var (operations, db) = await CreateAsync();
+        var job = NewJob("Zafer Mahallesi", "Lale Sokak");
+        db.Jobs.Add(job);
+        await db.SaveChangesAsync();
+        var zafer = (await operations.MahalleSorgulaAsync(TenantId, "1", default)).Data!.MahalleListesi.Single();
+
+        db.Jobs.Remove(job);
+        await db.SaveChangesAsync();
+
+        var result = await operations.BasvuruYapAsync(TenantId, NewRequest(mahalleKodu: zafer.MahalleKodu), default);
+        Assert.False(result.IsSuccess);
+        Assert.Equal("GECERSIZ MAHALLE KODU", result.SonucAciklamasi);
+    }
+
+    [Fact]
+    public async Task MahalleSorgula_ListsMoreThan500Names_AndLastOneStillResolves()
+    {
+        var (operations, db) = await CreateAsync();
+        for (var i = 0; i < 520; i++)
+        {
+            db.Jobs.Add(NewJob($"Mahalle {i:D3}", $"Sokak {i:D3}"));
+        }
+
+        await db.SaveChangesAsync();
+
+        var mahalleler = (await operations.MahalleSorgulaAsync(TenantId, "1", default)).Data!.MahalleListesi;
+        var sokaklar = (await operations.SokakCaddeSorgulaAsync(TenantId, "1", "x", default)).Data!.SokakCaddeListesi;
+        Assert.Equal(520, mahalleler.Count);
+        Assert.Equal(520, sokaklar.Count);
+
+        var last = mahalleler.Single(item => item.MahalleAdi == "Mahalle 519");
+        var lastSokak = sokaklar.Single(item => item.SokakCaddeAdi == "Sokak 519");
+        Assert.True((await operations.BasvuruYapAsync(
+            TenantId, NewRequest(mahalleKodu: last.MahalleKodu, sokakKodu: lastSokak.SokakCaddeKodu), default)).IsSuccess);
+
         var saved = await db.EDevletBasvurular.IgnoreQueryFilters().SingleAsync();
-        Assert.Null(saved.MahalleAdi);
-        Assert.Null(saved.SokakCaddeAdi);
+        Assert.Equal("Mahalle 519", saved.MahalleAdi);
+        Assert.Equal("Sokak 519", saved.SokakCaddeAdi);
     }
 
     [Fact]

@@ -173,8 +173,24 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
                 settings.BelediyeKodu);
         }
 
+        // Gonderilen kod cozulemiyorsa (eski sira kodu, listeden kalkmis ad) basvuru adressiz kaydedilmez; vatandas adresi yeniden secer.
         var mahalleAdi = BelediyeAddressCodes.Resolve(request.MahalleKodu, await LoadMahalleNamesAsync(tenantId, cancellationToken));
+        if (!string.IsNullOrWhiteSpace(request.MahalleKodu) && mahalleAdi is null)
+        {
+            return BelediyeSoapOperationResult<BelediyeSoapBasvuruYapResponse>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                "GECERSIZ MAHALLE KODU",
+                settings.BelediyeKodu);
+        }
+
         var sokakCaddeAdi = BelediyeAddressCodes.Resolve(request.SokakCaddeKodu, await LoadSokakNamesAsync(tenantId, cancellationToken));
+        if (!string.IsNullOrWhiteSpace(request.SokakCaddeKodu) && sokakCaddeAdi is null)
+        {
+            return BelediyeSoapOperationResult<BelediyeSoapBasvuruYapResponse>.Fail(
+                BelediyeSoapResultCodes.ValidationFailed,
+                "GECERSIZ SOKAK/CADDE KODU",
+                settings.BelediyeKodu);
+        }
 
         var utcNow = DateTimeOffset.UtcNow;
         var year = utcNow.Year;
@@ -712,7 +728,6 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
             .Select(job => job.Neighborhood!)
             .Distinct()
             .OrderBy(name => name)
-            .Take(500)
             .ToListAsync(cancellationToken);
 
         // Eski surumde kod ad olarak kaydedildigi icin "3" gibi sayisal adlar listeye karismis olabilir.
@@ -728,7 +743,6 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
             .Select(job => job.Street!)
             .Distinct()
             .OrderBy(name => name)
-            .Take(500)
             .ToListAsync(cancellationToken);
 
         return names.Where(name => !BelediyeAddressCodes.IsNumericOnly(name.Trim())).ToList();

@@ -75,12 +75,12 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
 
         var mahalle = await operations.BasvuruYapAsync(TenantId, NewRequest(mahalleKodu: "3"), default);
         Assert.False(mahalle.IsSuccess);
-        Assert.Equal(BelediyeSoapResultCodes.ValidationFailed, mahalle.SonucKodu);
-        Assert.Equal("GECERSIZ MAHALLE KODU", mahalle.SonucAciklamasi);
+        Assert.Equal(BelediyeSoapResultCodes.InvalidParameter, mahalle.SonucKodu);
+        Assert.Equal("HATALI PARAMETRE (mahalleKodu)", mahalle.SonucAciklamasi);
 
         var sokak = await operations.BasvuruYapAsync(TenantId, NewRequest(sokakKodu: "7"), default);
         Assert.False(sokak.IsSuccess);
-        Assert.Equal("GECERSIZ SOKAK/CADDE KODU", sokak.SonucAciklamasi);
+        Assert.Equal("HATALI PARAMETRE (sokakCaddeKodu)", sokak.SonucAciklamasi);
 
         Assert.Empty(await db.EDevletBasvurular.IgnoreQueryFilters().ToListAsync());
     }
@@ -99,7 +99,7 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
 
         var result = await operations.BasvuruYapAsync(TenantId, NewRequest(mahalleKodu: zafer.MahalleKodu), default);
         Assert.False(result.IsSuccess);
-        Assert.Equal("GECERSIZ MAHALLE KODU", result.SonucAciklamasi);
+        Assert.Equal("HATALI PARAMETRE (mahalleKodu)", result.SonucAciklamasi);
     }
 
     [Fact]

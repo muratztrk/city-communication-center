@@ -114,17 +114,38 @@ public sealed record BelediyeSoapOperationResult<T>(
         new(false, default, sonucKodu, sonucAciklamasi, belediyeKodu);
 }
 
+/// <summary>
+/// SDD (RVZ.3.1.3) "Islem Sonuc Kodlari ve Aciklamalari" tablosu. Tablo disinda kod gonderilmemeli:
+/// e-Devlet tanimadigi kodda hizmet ekraninda teknik aksaklik mesaji gosterir.
+/// </summary>
 public static class BelediyeSoapResultCodes
 {
     public const string Success = "0000";
     public const string SuccessMessage = "ISLEM BASARILI";
     public const string AuthFailed = "0001";
     public const string AuthFailedMessage = "KULLANICI ADI VEYA SIFRE HATALI";
-    public const string TenantNotFound = "0002";
+
+    /// <summary>0002 — Hatali Parametre; aciklamada hatali parametrenin adi verilir.</summary>
+    public const string InvalidParameter = "0002";
+
+    /// <summary>Taninmayan belediyeKodu da hatali parametredir (0002).</summary>
+    public const string TenantNotFound = InvalidParameter;
     public const string TenantNotFoundMessage = "BELEDIYE KODU BULUNAMADI";
-    public const string ValidationFailed = "0003";
-    public const string NotFound = "0004";
+
+    /// <summary>0003 — Sonuc bulunamadi.</summary>
+    public const string NotFound = "0003";
     public const string NotFoundMessage = "KAYIT BULUNAMADI";
+
+    /// <summary>0004 — Sistem Hatasi (eksik belediye ayari, desteklenmeyen islem).</summary>
+    public const string SystemError = "0004";
+
+    /// <summary>
+    /// 0006 — Uyari: islem basarisiz, aciklama vatandasa gosterilir. Vatandasin duzeltebilecegi is kurali
+    /// hatalari (dosya/not siniri, tekrar acma kapali, e-posta bicimi vb.) bununla doner.
+    /// </summary>
+    public const string ValidationFailed = "0006";
+
+    public static string InvalidParameterMessage(string parameterName) => $"HATALI PARAMETRE ({parameterName})";
 }
 
 public sealed record BelediyeSoapGunlukFaaliyetResponse(

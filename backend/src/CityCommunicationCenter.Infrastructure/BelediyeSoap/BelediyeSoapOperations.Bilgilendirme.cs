@@ -51,7 +51,8 @@ public sealed partial class BelediyeSoapOperations
         var tc = tcKimlikNo.Trim();
         if (tc.Length != 11 || !tc.All(char.IsDigit))
         {
-            return Invalid("GECERSIZ T.C. KIMLIK NUMARASI");
+            return BelediyeSoapOperationResult<bool>.Fail(
+                BelediyeSoapResultCodes.InvalidParameter, BelediyeSoapResultCodes.InvalidParameterMessage("tcKimlikNo"), settings.BelediyeKodu);
         }
 
         var adi = request.Adi.Trim();
@@ -122,7 +123,8 @@ public sealed partial class BelediyeSoapOperations
             var ad = mahalleAdlari.FirstOrDefault(name => string.Equals(BelediyeAddressCodes.Encode(name), kod.Trim(), StringComparison.Ordinal));
             if (ad is null)
             {
-                return Invalid($"GECERSIZ MAHALLE KODU: {kod.Trim()}");
+                return BelediyeSoapOperationResult<bool>.Fail(
+                    BelediyeSoapResultCodes.InvalidParameter, BelediyeSoapResultCodes.InvalidParameterMessage("ilgilenilenMahalleListesi"), settings.BelediyeKodu);
             }
 
             if (!mahalleler.Any(item => item.Kod == kod.Trim()))

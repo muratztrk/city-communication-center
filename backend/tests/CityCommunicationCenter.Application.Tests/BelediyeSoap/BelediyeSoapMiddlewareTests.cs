@@ -1,4 +1,5 @@
 using System.Text;
+using System.Xml.Linq;
 using CityCommunicationCenter.Api.BelediyeSoap;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Domain.Entities;
@@ -52,6 +53,28 @@ public sealed class BelediyeSoapMiddlewareTests
 
         Assert.Contains("<sonucKodu>0000</sonucKodu>", body);
         Assert.Contains("Talep", body);
+    }
+
+    [Fact]
+    public async Task Invoke_ResponseFollowsUnqualifiedWsdl_OnlyRootIsInV3Namespace()
+    {
+        var body = await PostAsync(UnqualifiedRequest);
+
+        XNamespace v3 = "http://belediye.turkiye.gov.tr/v3";
+        var root = XDocument.Parse(body).Descendants().Single(element => element.Name.Namespace == v3);
+        Assert.Equal("basvuruTipiBilgisiSorgulamaC", root.Name.LocalName);
+        Assert.NotEmpty(root.Descendants());
+        Assert.All(root.Descendants(), element => Assert.Equal(XNamespace.None, element.Name.Namespace));
+        Assert.Equal("0000", root.Element("sonucKodu")?.Value);
+        Assert.DoesNotContain("xmlns=\"", body);
+    }
+
+    [Fact]
+    public async Task Invoke_UnknownBelediyeKodu_IsInvalidParameter()
+    {
+        var body = await PostAsync(UnqualifiedRequest.Replace("<belediyeKodu>9999</belediyeKodu>", "<belediyeKodu>1111</belediyeKodu>"));
+
+        Assert.Contains("<sonucKodu>0002</sonucKodu>", body);
     }
 
     [Fact]

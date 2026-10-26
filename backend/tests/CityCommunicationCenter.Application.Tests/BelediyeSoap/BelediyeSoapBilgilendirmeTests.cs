@@ -99,7 +99,11 @@ public sealed class BelediyeSoapBilgilendirmeTests
         var result = await operations.BilgilendirmeIstegiYapAsync(TenantId, tc, request, default);
 
         Assert.False(result.IsSuccess);
-        Assert.Equal(BelediyeSoapResultCodes.ValidationFailed, result.SonucKodu);
+        // Sistemden gelen alanlar (TC, mahalle kodu) 0002 Hatali Parametre; vatandasin girdigi alanlar 0006 (mesaj gosterilir).
+        var beklenen = senaryo is "tcKisa" or "mahalleBilinmiyor"
+            ? BelediyeSoapResultCodes.InvalidParameter
+            : BelediyeSoapResultCodes.ValidationFailed;
+        Assert.Equal(beklenen, result.SonucKodu);
         Assert.Equal(0, await db.BilgilendirmeIstekleri.IgnoreQueryFilters().CountAsync());
     }
 
@@ -121,7 +125,7 @@ public sealed class BelediyeSoapBilgilendirmeTests
             <secilenSMSBilgilendirmeKategoriListesi><kod>DUYURU</kod></secilenSMSBilgilendirmeKategoriListesi>
             <secilenEpostaBilgilendirmeKategoriListesi><kod>MECLIS</kod></secilenEpostaBilgilendirmeKategoriListesi>
             """));
-        Assert.Contains("<bilgilendirmeIstegiYapC", yap);
+        Assert.Contains("<tns:bilgilendirmeIstegiYapC", yap);
         Assert.Contains("<sonucKodu>0000</sonucKodu>", yap);
 
         var sorgu = await PostAsync(operations, Envelope("bilgilendirmeIstegiSorgulaG", $"<tcKimlikNo>{Tc}</tcKimlikNo>"));
@@ -131,18 +135,18 @@ public sealed class BelediyeSoapBilgilendirmeTests
         Assert.DoesNotContain("nil=\"true\"", sorgu);
 
         var turler = await PostAsync(operations, Envelope("epostaBilgilendirmeTurleriSorgulaG", string.Empty));
-        Assert.Contains("<epostaBilgilendirmeTurleriSorgulaC", turler);
+        Assert.Contains("<tns:epostaBilgilendirmeTurleriSorgulaC", turler);
         Assert.Contains("Meclis ve Encumen", turler);
 
         var smsTurler = await PostAsync(operations, Envelope("smsBilgilendirmeTurleriSorgulaG", string.Empty));
-        Assert.Contains("<smsBilgilendirmeTurleriSorgulaC", smsTurler);
+        Assert.Contains("<tns:smsBilgilendirmeTurleriSorgulaC", smsTurler);
 
         var iptal = await PostAsync(operations, Envelope("bilgilendirmeIstegiIptalG", $"<tcKimlikNo>{Tc}</tcKimlikNo>"));
-        Assert.Contains("<bilgilendirmeIstegiIptalC", iptal);
+        Assert.Contains("<tns:bilgilendirmeIstegiIptalC", iptal);
         Assert.Contains("<sonucKodu>0000</sonucKodu>", iptal);
 
         var tekrar = await PostAsync(operations, Envelope("bilgilendirmeIstegiIptalG", $"<tcKimlikNo>{Tc}</tcKimlikNo>"));
-        Assert.Contains("<sonucKodu>0004</sonucKodu>", tekrar);
+        Assert.Contains("<sonucKodu>0003</sonucKodu>", tekrar);
     }
 
     private static string Envelope(string root, string innerBody) => $$"""

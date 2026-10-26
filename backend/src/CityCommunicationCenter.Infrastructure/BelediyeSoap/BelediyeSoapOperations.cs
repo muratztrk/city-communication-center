@@ -150,8 +150,8 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         if (string.IsNullOrWhiteSpace(request.TcKimlikNo) || request.TcKimlikNo.Trim().Length != 11)
         {
             return BelediyeSoapOperationResult<BelediyeSoapBasvuruYapResponse>.Fail(
-                BelediyeSoapResultCodes.ValidationFailed,
-                "GECERSIZ T.C. KIMLIK NUMARASI",
+                BelediyeSoapResultCodes.InvalidParameter,
+                BelediyeSoapResultCodes.InvalidParameterMessage("tcKimlikNo"),
                 settings.BelediyeKodu);
         }
 
@@ -178,8 +178,8 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         if (!string.IsNullOrWhiteSpace(request.MahalleKodu) && mahalleAdi is null)
         {
             return BelediyeSoapOperationResult<BelediyeSoapBasvuruYapResponse>.Fail(
-                BelediyeSoapResultCodes.ValidationFailed,
-                "GECERSIZ MAHALLE KODU",
+                BelediyeSoapResultCodes.InvalidParameter,
+                BelediyeSoapResultCodes.InvalidParameterMessage("mahalleKodu"),
                 settings.BelediyeKodu);
         }
 
@@ -187,8 +187,8 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         if (!string.IsNullOrWhiteSpace(request.SokakCaddeKodu) && sokakCaddeAdi is null)
         {
             return BelediyeSoapOperationResult<BelediyeSoapBasvuruYapResponse>.Fail(
-                BelediyeSoapResultCodes.ValidationFailed,
-                "GECERSIZ SOKAK/CADDE KODU",
+                BelediyeSoapResultCodes.InvalidParameter,
+                BelediyeSoapResultCodes.InvalidParameterMessage("sokakCaddeKodu"),
                 settings.BelediyeKodu);
         }
 
@@ -760,7 +760,7 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         var settings = _settingsProvider.GetSettings(tenantId)?.EDevlet;
         if (tenantSetting?.BelediyeKodu is null || settings?.SoapKullaniciAdi is null || settings.SoapSifre is null)
         {
-            return (settings?.BelediyeKodu, settings?.IlceAdi, settings?.BilgilendirmeMetni, settings?.TalepOneriAyarlari, (BelediyeSoapResultCodes.TenantNotFound, "BELEDIYE SOAP AYARLARI TAMAMLANMAMIS"));
+            return (settings?.BelediyeKodu, settings?.IlceAdi, settings?.BilgilendirmeMetni, settings?.TalepOneriAyarlari, (BelediyeSoapResultCodes.SystemError, "BELEDIYE SOAP AYARLARI TAMAMLANMAMIS"));
         }
 
         return (tenantSetting.BelediyeKodu, settings.IlceAdi, settings.BilgilendirmeMetni, settings.TalepOneriAyarlari, null);

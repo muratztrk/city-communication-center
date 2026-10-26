@@ -98,17 +98,31 @@ public sealed class BelediyeSoapMiddleware
                 GetValue(payload, "ilceKodu"),
                 GetValue(payload, "mahalleKodu"),
                 context.RequestAborted),
-            _ => BuildIslemSonuc("echoC", auth.BelediyeKodu!, "9999", "DESTEKLENMEYEN ISLEM"),
+            _ => BuildIslemSonuc("echoC", auth.BelediyeKodu!, BelediyeSoapResultCodes.SystemError, "DESTEKLENMEYEN ISLEM"),
         };
 
         var envelope = new XDocument(
             new XElement(SoapEnv + "Envelope",
                 new XAttribute(XNamespace.Xmlns + "soapenv", SoapEnv),
-                new XElement(SoapEnv + "Body", responseElement)));
+                new XElement(SoapEnv + "Body", ToUnqualifiedChildren(responseElement))));
 
         context.Response.ContentType = "text/xml; charset=utf-8";
         context.Response.StatusCode = StatusCodes.Status200OK;
         await context.Response.WriteAsync(envelope.ToString(SaveOptions.DisableFormatting), context.RequestAborted);
+    }
+
+    // WSDL elementFormDefault="unqualified": yalnizca global eleman (operasyonun ...C kok elemani) v3 namespace'indedir,
+    // alt elemanlar namespace'sizdir. Kok onekle yazilir; varsayilan namespace olmadigi icin alt elemanlara gecmez.
+    // Aksi halde XmlSerializer tabanli istemciler (TURKSAT, edevlet-integration wrapper'i) alanlari bos okur.
+    private static XElement ToUnqualifiedChildren(XElement root)
+    {
+        foreach (var element in root.Descendants())
+        {
+            element.Name = element.Name.LocalName;
+        }
+
+        root.Add(new XAttribute(XNamespace.Xmlns + "tns", Tns));
+        return root;
     }
 
     private static string ResolveOperation(string soapAction, string rootLocalName)
@@ -219,7 +233,7 @@ public sealed class BelediyeSoapMiddleware
         var basvuruBilgileri = Child(payload, "basvuruBilgileri");
         if (basvuruBilgileri is null)
         {
-            return BuildIslemSonuc("basvuruYapC", belediyeKodu, BelediyeSoapResultCodes.ValidationFailed, "BASVURU BILGILERI ZORUNLUDUR");
+            return BuildIslemSonuc("basvuruYapC", belediyeKodu, BelediyeSoapResultCodes.InvalidParameter, BelediyeSoapResultCodes.InvalidParameterMessage("basvuruBilgileri"));
         }
 
         var request = new BelediyeSoapBasvuruYapRequest(

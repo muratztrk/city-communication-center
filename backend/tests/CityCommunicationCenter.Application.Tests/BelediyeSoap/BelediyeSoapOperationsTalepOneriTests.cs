@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.BelediyeSoap;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Domain.Entities;
@@ -183,7 +184,91 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
         Assert.False((await enabled.BasvuruyuTekrarAcAsync(TenantId, Tc, takipNo, "yine", default)).IsSuccess);
     }
 
-    private async Task<(BelediyeSoapOperations Operations, CityCommunicationCenterDbContext Db)> CreateAsync(string? talepOneriAyarlari = null)
+    [Fact]
+    public async Task NotEkle_And_TekrarAc_NotifyActiveOperators()
+    {
+        var push = new FakePushService();
+        var (operations, db) = await CreateAsync("""{"notEklenebilirmi":1,"basvuruTekrarAcilabilirmi":1}""", push);
+        var operatorId = AddUser(db, RoleCode.Operator);
+        var additionalOperatorId = AddUser(db, RoleCode.Staff, additionalRoles: """["Operator"]""");
+        AddUser(db, RoleCode.Operator, isActive: false);
+        AddUser(db, RoleCode.Staff);
+        AddUser(db, RoleCode.SystemAdmin);
+        await db.SaveChangesAsync();
+
+        var takipNo = (await operations.BasvuruYapAsync(TenantId, NewRequest(), default)).Data!.BasvuruTakipNo;
+        Assert.True((await operations.BasvuruNotEkleAsync(TenantId, Tc, takipNo, "ek bilgi", default)).IsSuccess);
+
+        var noteNotifications = await db.Notifications.IgnoreQueryFilters().ToListAsync();
+        Assert.Equal(
+            new[] { operatorId, additionalOperatorId }.OrderBy(id => id),
+            noteNotifications.Select(item => item.UserId).OrderBy(id => id));
+        Assert.All(noteNotifications, item =>
+        {
+            Assert.Equal("e-Devlet başvurusuna not eklendi", item.Title);
+            Assert.Contains(takipNo, item.Message);
+            Assert.Contains("ek bilgi", item.Message);
+            Assert.Equal("/edevlet/basvurular", item.ActionUrl);
+        });
+        Assert.Equal(2, push.Sent.Count);
+
+        var basvuru = await db.EDevletBasvurular.IgnoreQueryFilters().SingleAsync();
+        basvuru.Status = EDevletBasvuruStatus.Rejected;
+        await db.SaveChangesAsync();
+        Assert.True((await operations.BasvuruyuTekrarAcAsync(TenantId, Tc, takipNo, "yeni bilgi var", default)).IsSuccess);
+
+        var reopenNotifications = await db.Notifications.IgnoreQueryFilters()
+            .Where(item => item.Title == "e-Devlet başvurusu tekrar açıldı")
+            .ToListAsync();
+        Assert.Equal(2, reopenNotifications.Count);
+        Assert.Equal(4, push.Sent.Count);
+    }
+
+    [Fact]
+    public async Task TekrarAc_WithoutOperators_NotifiesSystemAdminsAndJobCreator()
+    {
+        var (operations, db) = await CreateAsync("""{"basvuruTekrarAcilabilirmi":1}""");
+        var adminId = AddUser(db, RoleCode.SystemAdmin);
+        var creatorId = AddUser(db, RoleCode.Staff);
+        await db.SaveChangesAsync();
+
+        var takipNo = (await operations.BasvuruYapAsync(TenantId, NewRequest(), default)).Data!.BasvuruTakipNo;
+        var job = NewJob("Cumhuriyet Mahallesi", "Gül Sokak");
+        job.Status = JobStatus.Completed;
+        job.CompletedAtUtc = DateTimeOffset.UtcNow.AddDays(-1);
+        job.CreatedByUserId = creatorId;
+        db.Jobs.Add(job);
+        var basvuru = await db.EDevletBasvurular.IgnoreQueryFilters().SingleAsync();
+        basvuru.Status = EDevletBasvuruStatus.ConvertedToJob;
+        basvuru.JobId = job.JobId;
+        await db.SaveChangesAsync();
+
+        Assert.True((await operations.BasvuruyuTekrarAcAsync(TenantId, Tc, takipNo, "sorun devam ediyor", default)).IsSuccess);
+
+        var recipients = await db.Notifications.IgnoreQueryFilters().Select(item => item.UserId).ToListAsync();
+        Assert.Equal(new[] { adminId, creatorId }.OrderBy(id => id), recipients.OrderBy(id => id));
+    }
+
+    private static Guid AddUser(CityCommunicationCenterDbContext db, RoleCode role, bool isActive = true, string? additionalRoles = null)
+    {
+        var userId = Guid.NewGuid();
+        db.Users.Add(new ApplicationUser
+        {
+            UserId = userId,
+            TenantId = TenantId,
+            DepartmentId = Guid.NewGuid(),
+            Username = "u" + userId.ToString("N")[..8],
+            DisplayName = "Kullanici",
+            RoleCode = role,
+            AdditionalRoleCodesJson = additionalRoles,
+            IsActive = isActive,
+        });
+        return userId;
+    }
+
+    private async Task<(BelediyeSoapOperations Operations, CityCommunicationCenterDbContext Db)> CreateAsync(
+        string? talepOneriAyarlari = null,
+        INotificationPushService? pushService = null)
     {
         var db = new CityCommunicationCenterDbContext(
             new DbContextOptionsBuilder<CityCommunicationCenterDbContext>()
@@ -207,7 +292,7 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
             TalepOneriAyarlari = talepOneriAyarlari,
         });
 
-        return (new BelediyeSoapOperations(db, settings, new FakeHostEnvironment(_contentRoot)), db);
+        return (new BelediyeSoapOperations(db, settings, new FakeHostEnvironment(_contentRoot), pushService), db);
     }
 
     private static Job NewJob(string neighborhood, string street) => new()
@@ -234,6 +319,25 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
         public SocialMediaSettings? GetSettings(Guid tenantId) => new() { EDevlet = edevlet };
 
         public Task SaveSettingsAsync(Guid tenantId, SocialMediaSettings settings, CancellationToken ct = default) => Task.CompletedTask;
+    }
+
+    private sealed class FakePushService : INotificationPushService
+    {
+        public List<(Guid UserId, NotificationPayload Payload)> Sent { get; } = [];
+
+        public Task SendToUserAsync(Guid tenantId, Guid userId, NotificationPayload payload, CancellationToken cancellationToken = default)
+        {
+            Sent.Add((userId, payload));
+            return Task.CompletedTask;
+        }
+
+        public Task SendToTenantAsync(Guid tenantId, NotificationPayload payload, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task SendWhatsAppMessageToTenantAsync(Guid tenantId, WhatsAppMessagePayload payload, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task SendInternalMessageToUserAsync(Guid tenantId, Guid recipientUserId, InternalMessagePayload payload, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task SendInternalMessageTypingToUserAsync(Guid tenantId, Guid recipientUserId, InternalMessageTypingPayload payload, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     private sealed class FakeHostEnvironment(string contentRoot) : IHostEnvironment

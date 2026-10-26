@@ -11,9 +11,16 @@ public sealed class BelediyeSoapMiddleware
     private static readonly XNamespace Tns = "http://belediye.turkiye.gov.tr/v3";
     private static readonly XNamespace Xsi = "http://www.w3.org/2001/XMLSchema-instance";
 
-    private readonly RequestDelegate _next;
+    private const string AuthLockedOutMessage = "COK FAZLA HATALI GIRIS DENEMESI, DAHA SONRA TEKRAR DENEYINIZ";
 
-    public BelediyeSoapMiddleware(RequestDelegate next) => _next = next;
+    private readonly RequestDelegate _next;
+    private readonly BelediyeSoapAuthThrottle _authThrottle;
+
+    public BelediyeSoapMiddleware(RequestDelegate next, BelediyeSoapAuthThrottle? authThrottle = null)
+    {
+        _next = next;
+        _authThrottle = authThrottle ?? new BelediyeSoapAuthThrottle(new BelediyeSoapAuthThrottleOptions());
+    }
 
     public async Task InvokeAsync(HttpContext context, IBelediyeSoapOperations operations)
     {
@@ -55,11 +62,7 @@ public sealed class BelediyeSoapMiddleware
 
         var soapAction = context.Request.Headers["SOAPAction"].ToString().Trim('"');
         var operation = ResolveOperation(soapAction, payload.Name.LocalName);
-        var auth = await operations.AuthenticateAsync(
-            GetValue(payload, "belediyeKodu"),
-            GetValue(payload, "kullaniciAdi"),
-            GetValue(payload, "sifre"),
-            context.RequestAborted);
+        var auth = await AuthenticateAsync(context, operations, payload);
 
         XElement responseElement = operation switch
         {
@@ -465,6 +468,34 @@ public sealed class BelediyeSoapMiddleware
         }
 
         return list;
+    }
+
+    // Kilitli istemcide kimlik bilgisi hic denetlenmez; boylece kilit suresince sifre tahmini sonuc vermez.
+    private async Task<BelediyeSoapAuthResult> AuthenticateAsync(HttpContext context, IBelediyeSoapOperations operations, XElement payload)
+    {
+        var clientKey = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        var belediyeKodu = GetValue(payload, "belediyeKodu");
+        if (_authThrottle.IsLockedOut(clientKey))
+        {
+            return new BelediyeSoapAuthResult(false, null, belediyeKodu, BelediyeSoapResultCodes.AuthFailed, AuthLockedOutMessage);
+        }
+
+        var auth = await operations.AuthenticateAsync(
+            belediyeKodu,
+            GetValue(payload, "kullaniciAdi"),
+            GetValue(payload, "sifre"),
+            context.RequestAborted);
+
+        if (auth.IsSuccess)
+        {
+            _authThrottle.Reset(clientKey);
+        }
+        else
+        {
+            _authThrottle.RegisterFailure(clientKey);
+        }
+
+        return auth;
     }
 
     private static async Task<XElement> BuildBasvuruNotEkleResponseAsync(

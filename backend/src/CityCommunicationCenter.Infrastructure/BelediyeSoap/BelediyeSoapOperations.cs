@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using CityCommunicationCenter.Application.Abstractions.BelediyeSoap;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
@@ -15,15 +17,21 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
     private readonly IApplicationDbContext _dbContext;
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly string _uploadsRoot;
+    private readonly INotificationPushService? _pushService;
+    private readonly ILogger<BelediyeSoapOperations>? _logger;
 
     public BelediyeSoapOperations(
         IApplicationDbContext dbContext,
         ISocialMediaSettingsProvider settingsProvider,
-        IHostEnvironment hostEnvironment)
+        IHostEnvironment hostEnvironment,
+        INotificationPushService? pushService = null,
+        ILogger<BelediyeSoapOperations>? logger = null)
     {
         _dbContext = dbContext;
         _settingsProvider = settingsProvider;
         _uploadsRoot = Path.Combine(hostEnvironment.ContentRootPath, "uploads");
+        _pushService = pushService;
+        _logger = logger;
     }
 
     public async Task<BelediyeSoapAuthResult> AuthenticateAsync(
@@ -50,8 +58,7 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         var settings = _settingsProvider.GetSettings(tenantSetting.TenantId)?.EDevlet;
         if (settings is null
             || !string.Equals(settings.BelediyeKodu?.Trim(), belediyeKodu.Trim(), StringComparison.Ordinal)
-            || !string.Equals(settings.SoapKullaniciAdi?.Trim(), kullaniciAdi.Trim(), StringComparison.Ordinal)
-            || !string.Equals(settings.SoapSifre, sifre, StringComparison.Ordinal))
+            || !(SecretEquals(settings.SoapKullaniciAdi?.Trim(), kullaniciAdi.Trim()) & SecretEquals(settings.SoapSifre, sifre)))
         {
             return new BelediyeSoapAuthResult(false, tenantSetting.TenantId, belediyeKodu, BelediyeSoapResultCodes.AuthFailed, BelediyeSoapResultCodes.AuthFailedMessage);
         }
@@ -372,6 +379,7 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
 
         basvuru.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await NotifyCitizenActionAsync(basvuru, "e-Devlet başvurusuna not eklendi", "not eklendi", text, cancellationToken);
         return BelediyeSoapOperationResult<bool>.Success(true, settings.BelediyeKodu!);
     }
 
@@ -450,6 +458,7 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await NotifyCitizenActionAsync(basvuru, "e-Devlet başvurusu tekrar açıldı", "tekrar açıldı", reason, cancellationToken);
         return BelediyeSoapOperationResult<bool>.Success(true, settings.BelediyeKodu!);
     }
 
@@ -630,6 +639,14 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
     }
 
     private const int MaxCitizenNoteLength = 1000;
+
+    // Sabit sureli karsilastirma: ozetler esit uzunlukta oldugu icin sure ne icerige ne uzunluga gore degisir.
+    private static bool SecretEquals(string? expected, string actual)
+    {
+        var expectedHash = SHA256.HashData(Encoding.UTF8.GetBytes(expected ?? string.Empty));
+        var actualHash = SHA256.HashData(Encoding.UTF8.GetBytes(actual));
+        return CryptographicOperations.FixedTimeEquals(expectedHash, actualHash) && expected is not null;
+    }
 
     private async Task<EDevletBasvuru?> FindBasvuruAsync(
         Guid tenantId,

@@ -300,6 +300,9 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<IUserIdProvider, CccUserIdProvider>();
 builder.Services.AddSingleton<SignalRAccessTokenIssuer>();
 builder.Services.AddScoped<INotificationPushService, SignalRNotificationPushService>();
+builder.Services.AddSingleton(new BelediyeSoapAuthThrottle(
+    builder.Configuration.GetSection(BelediyeSoapAuthThrottleOptions.SectionName).Get<BelediyeSoapAuthThrottleOptions>()
+        ?? new BelediyeSoapAuthThrottleOptions()));
 
 var app = builder.Build();
 

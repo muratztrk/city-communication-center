@@ -62,7 +62,37 @@ public sealed class BelediyeSoapMiddlewareTests
         Assert.Contains("<sonucKodu>0001</sonucKodu>", body);
     }
 
-    private static async Task<string> PostAsync(string soap)
+    [Fact]
+    public async Task Invoke_LocksOutClientAfterRepeatedAuthFailures_EvenWithCorrectPassword()
+    {
+        var throttle = new BelediyeSoapAuthThrottle(new BelediyeSoapAuthThrottleOptions { MaxFailures = 2, WindowSeconds = 600 });
+        var wrong = UnqualifiedRequest.Replace("<sifre>sifre</sifre>", "<sifre>yanlis</sifre>");
+
+        Assert.Contains("<sonucKodu>0001</sonucKodu>", await PostAsync(wrong, throttle));
+        Assert.Contains("<sonucKodu>0001</sonucKodu>", await PostAsync(wrong, throttle));
+
+        var locked = await PostAsync(UnqualifiedRequest, throttle);
+        Assert.Contains("<sonucKodu>0001</sonucKodu>", locked);
+        Assert.Contains("COK FAZLA HATALI GIRIS DENEMESI", locked);
+
+        // Kilit IP basinadir; baska istemci etkilenmez.
+        Assert.Contains("<sonucKodu>0000</sonucKodu>", await PostAsync(UnqualifiedRequest, throttle, "10.0.0.9"));
+    }
+
+    [Fact]
+    public async Task Invoke_SuccessfulAuth_ResetsFailureCount()
+    {
+        var throttle = new BelediyeSoapAuthThrottle(new BelediyeSoapAuthThrottleOptions { MaxFailures = 2, WindowSeconds = 600 });
+        var wrong = UnqualifiedRequest.Replace("<sifre>sifre</sifre>", "<sifre>yanlis</sifre>");
+
+        await PostAsync(wrong, throttle);
+        Assert.Contains("<sonucKodu>0000</sonucKodu>", await PostAsync(UnqualifiedRequest, throttle));
+        await PostAsync(wrong, throttle);
+
+        Assert.Contains("<sonucKodu>0000</sonucKodu>", await PostAsync(UnqualifiedRequest, throttle));
+    }
+
+    private static async Task<string> PostAsync(string soap, BelediyeSoapAuthThrottle? throttle = null, string clientIp = "203.0.113.7")
     {
         var db = new CityCommunicationCenterDbContext(
             new DbContextOptionsBuilder<CityCommunicationCenterDbContext>()
@@ -85,10 +115,11 @@ public sealed class BelediyeSoapMiddlewareTests
         var context = new DefaultHttpContext();
         context.Request.Method = HttpMethods.Post;
         context.Request.Path = "/service";
+        context.Connection.RemoteIpAddress = System.Net.IPAddress.Parse(clientIp);
         context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(soap));
         context.Response.Body = new MemoryStream();
 
-        await new BelediyeSoapMiddleware(_ => Task.CompletedTask).InvokeAsync(context, operations);
+        await new BelediyeSoapMiddleware(_ => Task.CompletedTask, throttle).InvokeAsync(context, operations);
 
         context.Response.Body.Position = 0;
         return await new StreamReader(context.Response.Body, Encoding.UTF8).ReadToEndAsync();

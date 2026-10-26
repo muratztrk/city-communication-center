@@ -846,6 +846,7 @@ export function CreateRequestPage() {
     setField: (field: 'neighborhood' | 'street' | 'streetNo' | 'openAddress' | 'coordinates', value: string) => void,
     options?: {
       sectionTitle?: string
+      sectionTitleClassName?: string
       includePhotoUpload?: boolean
       compactPlaceholders?: boolean
       smallerPlaceholders?: boolean
@@ -875,7 +876,7 @@ export function CreateRequestPage() {
 
     return (
     <div className="job-field">
-      <span className="job-field-label">{sectionTitle}</span>
+      <span className={`job-field-label${options?.sectionTitleClassName ? ` ${options.sectionTitleClassName}` : ''}`}>{sectionTitle}</span>
       <div className="grid gap-2">
         <div className={`grid gap-2 ${neighborhoodStreetRowClass}`}>
           <div className="grid gap-1">
@@ -1754,6 +1755,7 @@ export function CreateRequestPage() {
               (field, value) => setCitizenForm(current => ({ ...current, [field]: value })),
               {
                 sectionTitle: t('requests.create.jobAddressSection', 'Talebin Adres Bilgisi (İsteğe Bağlı)'),
+                sectionTitleClassName: 'citizen-call-job-address-label-blink',
                 smallerPlaceholders: true,
                 coordinatesBelowNeighborhood: true,
                 menuClassName: 'citizen-call-address-menu',

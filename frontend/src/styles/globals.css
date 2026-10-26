@@ -6982,6 +6982,12 @@
     animation: ccc-blink 2.2s ease-in-out infinite;
   }
 
+  /* Vatandaş Çağrı Talebi Oluştur: "Talebin Adres Bilgisi (İsteğe Bağlı)" başlığı yanıp sönen yeşil (#4290). */
+  #citizen-request-form .job-field-label.citizen-call-job-address-label-blink {
+    color: #16a34a !important;
+    animation: ccc-blink 2.2s ease-in-out infinite;
+  }
+
   @keyframes ccc-blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.18; }
@@ -7007,6 +7013,7 @@
   @media (prefers-reduced-motion: reduce) {
     .task-new-badge,
     .extra-time-pending-blink,
+    #citizen-request-form .job-field-label.citizen-call-job-address-label-blink,
     .scope-chip-clear-pie,
     .whatsapp-mark-waiting-replied {
       animation: none;

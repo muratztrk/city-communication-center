@@ -1,3 +1,7 @@
+## Round 1502 — Çağrı talebi adres başlığı yanıp sönen yeşil
+
+- [x] Talep Oluştur → Vatandaş Çağrı Talebi Oluştur bölümünde "Talebin Adres Bilgisi (İsteğe Bağlı)" başlığı yanıp sönen yeşil renkte (#4290).
+
 ## Round 1501 — çift telefonla talep
 
 - [x] Ülke kodlu ve ülke kodsuz konuşma bir aradaysa talep ülke kodlu satıra bağlanır; kayıt 500 dönmez.

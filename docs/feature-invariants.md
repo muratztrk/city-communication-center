@@ -1182,7 +1182,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#3547 reopen). `request-form--readable` 3.2rem ezilir.
   **Mobil Talep Oluştur taşma (#3426):** `max-lg` formlar/input/dropdown `min-w-0` + `max-width:100%`;
   Cadde/No satırı mobilde tek kolon; masaüstü `#citizen-request-form` 3-sütun adres kuralları yalnız `≥1024px`.
-  Sol kolon **Talebin Adres Bilgisi** Cadde/No placeholder `0.875rem`; Mahalle aynı punto
+  Sol kolon **Talebin Adres Bilgisi (İsteğe Bağlı)** başlığı yanıp sönen yeşil renkte (`citizen-call-job-address-label-blink` / `ccc-blink`, `#16a34a`, #4290); Cadde/No placeholder `0.875rem`; Mahalle aynı punto
   (`citizen-call-neighborhood-trigger`, #2847). Talep Başlığı / Gideceği Birim / Telefon No /
   Öncelik placeholder da Mahalle ile aynı `0.875rem` (#3087). Vatandaş Çağrı seçili Öncelik
   metni de `0.875rem`. Birim İçi / Dışı Cadde placeholder `0.88rem`; Mahalle placeholder aynı

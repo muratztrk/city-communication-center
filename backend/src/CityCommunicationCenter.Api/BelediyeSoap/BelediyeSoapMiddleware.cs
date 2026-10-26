@@ -62,9 +62,36 @@ public sealed class BelediyeSoapMiddleware
 
         var soapAction = context.Request.Headers["SOAPAction"].ToString().Trim('"');
         var operation = ResolveOperation(soapAction, payload.Name.LocalName);
+
+        // Beklenmeyen hata (DB kesintisi, cakisan takip no) da SOAP zarfi icinde 0004 doner: e-Devlet JSON 500'u isleyemez.
+        XElement responseElement;
+        try
+        {
+            responseElement = await DispatchAsync(context, operations, payload, operation);
+        }
+        catch (Exception exception) when (!context.RequestAborted.IsCancellationRequested)
+        {
+            context.RequestServices?.GetService<ILogger<BelediyeSoapMiddleware>>()?
+                .LogError(exception, "e-Devlet SOAP islemi basarisiz: {Operation}", operation);
+            responseElement = BuildOperationFailure(operation, GetValue(payload, "belediyeKodu"), BelediyeSoapResultCodes.SystemError, BelediyeSoapResultCodes.SystemErrorMessage);
+        }
+
+        var envelope = new XDocument(
+            new XElement(SoapEnv + "Envelope",
+                new XAttribute(XNamespace.Xmlns + "soapenv", SoapEnv),
+                new XAttribute(XNamespace.Xmlns + "xsi", Xsi),
+                new XElement(SoapEnv + "Body", ToUnqualifiedChildren(responseElement))));
+
+        context.Response.ContentType = "text/xml; charset=utf-8";
+        context.Response.StatusCode = StatusCodes.Status200OK;
+        await context.Response.WriteAsync(envelope.ToString(SaveOptions.DisableFormatting), context.RequestAborted);
+    }
+
+    private async Task<XElement> DispatchAsync(HttpContext context, IBelediyeSoapOperations operations, XElement payload, string operation)
+    {
         var auth = await AuthenticateAsync(context, operations, payload);
 
-        XElement responseElement = operation switch
+        return operation switch
         {
             "servisKontrol" => BuildIslemSonuc("echoC", auth.BelediyeKodu ?? GetValue(payload, "belediyeKodu"), auth.SonucKodu, auth.SonucAciklamasi),
             _ when !auth.IsSuccess || auth.TenantId is null =>
@@ -100,15 +127,6 @@ public sealed class BelediyeSoapMiddleware
                 context.RequestAborted),
             _ => BuildIslemSonuc("echoC", auth.BelediyeKodu!, BelediyeSoapResultCodes.SystemError, "DESTEKLENMEYEN ISLEM"),
         };
-
-        var envelope = new XDocument(
-            new XElement(SoapEnv + "Envelope",
-                new XAttribute(XNamespace.Xmlns + "soapenv", SoapEnv),
-                new XElement(SoapEnv + "Body", ToUnqualifiedChildren(responseElement))));
-
-        context.Response.ContentType = "text/xml; charset=utf-8";
-        context.Response.StatusCode = StatusCodes.Status200OK;
-        await context.Response.WriteAsync(envelope.ToString(SaveOptions.DisableFormatting), context.RequestAborted);
     }
 
     // WSDL elementFormDefault="unqualified": yalnizca global eleman (operasyonun ...C kok elemani) v3 namespace'indedir,
@@ -484,29 +502,40 @@ public sealed class BelediyeSoapMiddleware
         return list;
     }
 
-    // Kilitli istemcide kimlik bilgisi hic denetlenmez; boylece kilit suresince sifre tahmini sonuc vermez.
+    // Kilitli istemcide kimlik bilgisi hic denetlenmez; boylece kilit suresince sifre tahmini sonuc vermez
+    // (dogru sifreyi kabul etmek, basari ile kilit yanitini ayirt ettirerek tahmini yeniden mumkun kilardi).
     private async Task<BelediyeSoapAuthResult> AuthenticateAsync(HttpContext context, IBelediyeSoapOperations operations, XElement payload)
     {
-        var clientKey = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         var belediyeKodu = GetValue(payload, "belediyeKodu");
-        if (_authThrottle.IsLockedOut(clientKey))
+        var clientKey = BelediyeSoapAuthThrottle.ClientKey(context.Connection.RemoteIpAddress, belediyeKodu);
+        if (!_authThrottle.TryBeginAttempt(clientKey))
         {
             return new BelediyeSoapAuthResult(false, null, belediyeKodu, BelediyeSoapResultCodes.AuthFailed, AuthLockedOutMessage);
         }
 
-        var auth = await operations.AuthenticateAsync(
-            belediyeKodu,
-            GetValue(payload, "kullaniciAdi"),
-            GetValue(payload, "sifre"),
-            context.RequestAborted);
+        BelediyeSoapAuthResult auth;
+        try
+        {
+            auth = await operations.AuthenticateAsync(
+                belediyeKodu,
+                GetValue(payload, "kullaniciAdi"),
+                GetValue(payload, "sifre"),
+                context.RequestAborted);
+        }
+        catch
+        {
+            _authThrottle.ReleaseAttempt(clientKey);
+            throw;
+        }
 
         if (auth.IsSuccess)
         {
-            _authThrottle.Reset(clientKey);
+            _authThrottle.Succeeded(clientKey);
         }
-        else
+        else if (auth.SonucKodu != BelediyeSoapResultCodes.AuthFailed)
         {
-            _authThrottle.RegisterFailure(clientKey);
+            // Bilinmeyen belediye kodu, eksik ayar: sifre tahmini degildir, kilide sayilmaz.
+            _authThrottle.ReleaseAttempt(clientKey);
         }
 
         return auth;

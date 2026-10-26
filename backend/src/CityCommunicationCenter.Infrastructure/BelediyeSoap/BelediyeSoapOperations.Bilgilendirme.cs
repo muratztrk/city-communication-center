@@ -87,7 +87,8 @@ public sealed partial class BelediyeSoapOperations
             var tur = turler.FindSms(kod);
             if (tur is null)
             {
-                return Invalid($"GECERSIZ SMS BILGILENDIRME KATEGORISI: {kod.Trim()}");
+                return BelediyeSoapOperationResult<bool>.Fail(
+                    BelediyeSoapResultCodes.InvalidParameter, BelediyeSoapResultCodes.InvalidParameterMessage("secilenSMSBilgilendirmeKategoriListesi"), settings.BelediyeKodu);
             }
 
             if (!smsKodlari.Contains(tur.Kod, StringComparer.Ordinal))
@@ -102,7 +103,8 @@ public sealed partial class BelediyeSoapOperations
             var tur = turler.FindEposta(kod);
             if (tur is null)
             {
-                return Invalid($"GECERSIZ E-POSTA BILGILENDIRME KATEGORISI: {kod.Trim()}");
+                return BelediyeSoapOperationResult<bool>.Fail(
+                    BelediyeSoapResultCodes.InvalidParameter, BelediyeSoapResultCodes.InvalidParameterMessage("secilenEpostaBilgilendirmeKategoriListesi"), settings.BelediyeKodu);
             }
 
             if (!epostaKodlari.Contains(tur.Kod, StringComparer.Ordinal))

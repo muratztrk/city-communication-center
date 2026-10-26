@@ -115,7 +115,79 @@ public sealed class BelediyeSoapMiddlewareTests
         Assert.Contains("<sonucKodu>0000</sonucKodu>", await PostAsync(UnqualifiedRequest, throttle));
     }
 
-    private static async Task<string> PostAsync(string soap, BelediyeSoapAuthThrottle? throttle = null, string clientIp = "203.0.113.7")
+    [Fact]
+    public async Task Invoke_UnknownBelediyeKodu_DoesNotCountTowardLockout()
+    {
+        var throttle = new BelediyeSoapAuthThrottle(new BelediyeSoapAuthThrottleOptions { MaxFailures = 2, WindowSeconds = 600 });
+        // Kilide sayilsaydi ucuncu istekten itibaren kilit mesaji (0001) donerdi.
+        for (var i = 0; i < 5; i++)
+        {
+            Assert.Contains("<sonucKodu>0002</sonucKodu>", await PostAsync(UnqualifiedRequest.Replace("9999", "1111"), throttle));
+        }
+
+        Assert.Contains("<sonucKodu>0000</sonucKodu>", await PostAsync(UnqualifiedRequest, throttle));
+    }
+
+    [Fact]
+    public async Task Invoke_UnexpectedError_ReturnsSoapSystemErrorInsteadOfException()
+    {
+        var body = await PostAsync(UnqualifiedRequest, disposeDb: true);
+
+        Assert.Contains("<soapenv:Envelope", body);
+        Assert.Contains("<sonucKodu>0004</sonucKodu>", body);
+    }
+
+    [Fact]
+    public void Throttle_ParallelAttempts_CannotExceedLimit()
+    {
+        var throttle = new BelediyeSoapAuthThrottle(new BelediyeSoapAuthThrottleOptions { MaxFailures = 10, WindowSeconds = 600 });
+        var key = BelediyeSoapAuthThrottle.ClientKey(System.Net.IPAddress.Parse("203.0.113.7"), "9999");
+
+        var acquired = 0;
+        Parallel.For(0, 500, _ =>
+        {
+            if (throttle.TryBeginAttempt(key))
+            {
+                Interlocked.Increment(ref acquired);
+            }
+        });
+
+        Assert.Equal(10, acquired);
+    }
+
+    [Fact]
+    public void Throttle_ReleasedAndSucceededAttempts_FreeTheSlot()
+    {
+        var throttle = new BelediyeSoapAuthThrottle(new BelediyeSoapAuthThrottleOptions { MaxFailures = 1, WindowSeconds = 600 });
+        var key = BelediyeSoapAuthThrottle.ClientKey(System.Net.IPAddress.Parse("203.0.113.7"), "9999");
+
+        Assert.True(throttle.TryBeginAttempt(key));
+        throttle.ReleaseAttempt(key);
+        Assert.True(throttle.TryBeginAttempt(key));
+        throttle.Succeeded(key);
+        Assert.True(throttle.TryBeginAttempt(key));
+        Assert.False(throttle.TryBeginAttempt(key));
+    }
+
+    [Fact]
+    public void Throttle_KeyIsPerBelediyeAndGroupsIpv6By64()
+    {
+        var ip = System.Net.IPAddress.Parse("203.0.113.7");
+        Assert.NotEqual(BelediyeSoapAuthThrottle.ClientKey(ip, "9999"), BelediyeSoapAuthThrottle.ClientKey(ip, "1111"));
+        Assert.Equal(BelediyeSoapAuthThrottle.ClientKey(ip, "9999"), BelediyeSoapAuthThrottle.ClientKey(ip.MapToIPv6(), " 9999 "));
+        Assert.Equal(
+            BelediyeSoapAuthThrottle.ClientKey(System.Net.IPAddress.Parse("2001:db8:1:2::1"), "9999"),
+            BelediyeSoapAuthThrottle.ClientKey(System.Net.IPAddress.Parse("2001:db8:1:2:ffff::9"), "9999"));
+        Assert.NotEqual(
+            BelediyeSoapAuthThrottle.ClientKey(System.Net.IPAddress.Parse("2001:db8:1:2::1"), "9999"),
+            BelediyeSoapAuthThrottle.ClientKey(System.Net.IPAddress.Parse("2001:db8:1:3::1"), "9999"));
+    }
+
+    private static async Task<string> PostAsync(
+        string soap,
+        BelediyeSoapAuthThrottle? throttle = null,
+        string clientIp = "203.0.113.7",
+        bool disposeDb = false)
     {
         var db = new CityCommunicationCenterDbContext(
             new DbContextOptionsBuilder<CityCommunicationCenterDbContext>()
@@ -137,6 +209,11 @@ public sealed class BelediyeSoapMiddlewareTests
 
         var context = new DefaultHttpContext();
         context.Request.Method = HttpMethods.Post;
+        if (disposeDb)
+        {
+            await db.DisposeAsync();
+        }
+
         context.Request.Path = "/service";
         context.Connection.RemoteIpAddress = System.Net.IPAddress.Parse(clientIp);
         context.Request.Body = new MemoryStream(Encoding.UTF8.GetBytes(soap));

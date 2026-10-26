@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Net;
+using System.Net.Sockets;
 
 namespace CityCommunicationCenter.Api.BelediyeSoap;
 
@@ -13,15 +15,21 @@ public sealed class BelediyeSoapAuthThrottleOptions
 }
 
 /// <summary>
-/// /service (e-Devlet SOAP) icin IP basina hatali giris sayaci. Genel rate limiter bu yolu kapsamaz
+/// /service (e-Devlet SOAP) icin hatali giris sayaci. Genel rate limiter bu yolu kapsamaz
 /// (middleware ondan once calisir); bu sayac SOAP sifresine kaba kuvvet denemesini sinirlar.
-/// Basarili istekler sayilmaz, boylece e-Devlet'in yogun trafigi kisilmaz.
+///
+/// - Anahtar (istemci IP, belediyeKodu): bir belediyeye yapilan denemeler baska belediyenin cagrisini kilitlemez,
+///   baska belediyedeki basarili giris de bu sayaci sifirlamaz.
+/// - Hak, kimlik dogrulamadan ONCE atomik olarak ayrilir; paralel istekler kontrol ile kayit arasindaki
+///   bosluktan sinirin otesine gecemez. Basarili giriste sayac sifirlanir, sifreyle ilgisiz hatada hak geri verilir.
+/// - Yalnizca sifre/kullanici uyusmazligi sayilir; basarili istekler sayilmaz, e-Devlet trafigi kisilmaz.
 /// </summary>
 public sealed class BelediyeSoapAuthThrottle
 {
-    private const int CleanupThreshold = 10_000;
+    // Bu kadar anahtar birikirse once suresi gecenler, yetmezse en eskiler atilir; tarama her istekte degil, yalnizca dolunca yapilir.
+    private const int MaxEntries = 10_000;
 
-    private readonly ConcurrentDictionary<string, FailureWindow> _failures = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, FailureWindow> _attempts = new(StringComparer.Ordinal);
     private readonly int _maxFailures;
     private readonly TimeSpan _window;
     private readonly TimeProvider _timeProvider;
@@ -33,49 +41,96 @@ public sealed class BelediyeSoapAuthThrottle
         _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
-    public bool IsLockedOut(string clientKey)
+    /// <summary>IPv6 istemciler /64 blogu ile gruplanir; tek blok icinde adres degistirerek sinir asilamaz.</summary>
+    public static string ClientKey(IPAddress? remoteIp, string belediyeKodu)
     {
-        if (!_failures.TryGetValue(clientKey, out var entry))
+        var ip = remoteIp?.IsIPv4MappedToIPv6 == true ? remoteIp.MapToIPv4() : remoteIp;
+        var ipKey = ip switch
         {
-            return false;
-        }
+            null => "unknown",
+            { AddressFamily: AddressFamily.InterNetworkV6 } => Ipv6Prefix64(ip),
+            _ => ip.ToString(),
+        };
 
-        if (IsExpired(entry))
-        {
-            _failures.TryRemove(new KeyValuePair<string, FailureWindow>(clientKey, entry));
-            return false;
-        }
-
-        return entry.Count >= _maxFailures;
+        return ipKey + "|" + belediyeKodu.Trim().ToUpperInvariant();
     }
 
-    public void RegisterFailure(string clientKey)
+    /// <summary>Bir deneme hakki ayirir. Sinir dolmussa false doner ve kimlik bilgisi hic denetlenmemelidir.</summary>
+    public bool TryBeginAttempt(string clientKey)
     {
-        if (_failures.Count >= CleanupThreshold)
+        if (_attempts.Count >= MaxEntries)
         {
-            RemoveExpired();
+            Compact();
         }
 
         var now = _timeProvider.GetUtcNow();
-        _failures.AddOrUpdate(
+        var acquired = false;
+        _attempts.AddOrUpdate(
             clientKey,
-            _ => new FailureWindow(now, 1),
-            (_, existing) => IsExpired(existing) ? new FailureWindow(now, 1) : existing with { Count = existing.Count + 1 });
+            _ =>
+            {
+                acquired = true;
+                return new FailureWindow(now, 1);
+            },
+            (_, existing) =>
+            {
+                if (IsExpired(existing, now))
+                {
+                    acquired = true;
+                    return new FailureWindow(now, 1);
+                }
+
+                acquired = existing.Count < _maxFailures;
+                return acquired ? existing with { Count = existing.Count + 1 } : existing;
+            });
+
+        return acquired;
     }
 
-    public void Reset(string clientKey) => _failures.TryRemove(clientKey, out _);
+    /// <summary>Basarili giris: sayac sifirlanir.</summary>
+    public void Succeeded(string clientKey) => _attempts.TryRemove(clientKey, out _);
 
-    private bool IsExpired(FailureWindow entry) => _timeProvider.GetUtcNow() - entry.StartedAtUtc >= _window;
-
-    private void RemoveExpired()
+    /// <summary>Sifreyle ilgisiz basarisizlik (bilinmeyen belediye kodu, eksik ayar): ayrilan hak geri verilir.</summary>
+    public void ReleaseAttempt(string clientKey)
     {
-        foreach (var pair in _failures)
+        while (_attempts.TryGetValue(clientKey, out var existing) && existing.Count > 0)
         {
-            if (IsExpired(pair.Value))
+            if (_attempts.TryUpdate(clientKey, existing with { Count = existing.Count - 1 }, existing))
             {
-                _failures.TryRemove(pair);
+                return;
             }
         }
+    }
+
+    private bool IsExpired(FailureWindow entry, DateTimeOffset now) => now - entry.StartedAtUtc >= _window;
+
+    private void Compact()
+    {
+        var now = _timeProvider.GetUtcNow();
+        foreach (var pair in _attempts)
+        {
+            if (IsExpired(pair.Value, now))
+            {
+                _attempts.TryRemove(pair);
+            }
+        }
+
+        if (_attempts.Count < MaxEntries)
+        {
+            return;
+        }
+
+        foreach (var pair in _attempts.OrderBy(pair => pair.Value.StartedAtUtc).Take(_attempts.Count - (MaxEntries / 2)))
+        {
+            _attempts.TryRemove(pair);
+        }
+    }
+
+    private static string Ipv6Prefix64(IPAddress ip)
+    {
+        var bytes = ip.GetAddressBytes();
+        Array.Clear(bytes, 8, 8);
+        return new IPAddress(bytes) + "/64";
     }
 
     private sealed record FailureWindow(DateTimeOffset StartedAtUtc, int Count);

@@ -100,7 +100,7 @@ public sealed class BelediyeSoapBilgilendirmeTests
 
         Assert.False(result.IsSuccess);
         // Sistemden gelen alanlar (TC, mahalle kodu) 0002 Hatali Parametre; vatandasin girdigi alanlar 0006 (mesaj gosterilir).
-        var beklenen = senaryo is "tcKisa" or "mahalleBilinmiyor"
+        var beklenen = senaryo is "tcKisa" or "mahalleBilinmiyor" or "kategoriBilinmiyor"
             ? BelediyeSoapResultCodes.InvalidParameter
             : BelediyeSoapResultCodes.ValidationFailed;
         Assert.Equal(beklenen, result.SonucKodu);

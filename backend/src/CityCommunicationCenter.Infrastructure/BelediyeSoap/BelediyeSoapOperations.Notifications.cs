@@ -9,13 +9,12 @@ public sealed partial class BelediyeSoapOperations
     private const string BasvurularActionUrl = "/edevlet/basvurular";
     private const int NotificationPreviewLength = 160;
 
-    private async Task NotifyCitizenActionAsync(
-        EDevletBasvuru basvuru,
-        string title,
-        string action,
-        string text,
-        CancellationToken cancellationToken)
+    // Vatandasin islemi kaydedildikten sonra cagrilir; e-Devlet istegi zaman asimina ugrasa bile bildirim tamamlanir
+    // (RequestAborted ile kesilirse not kaydedilmis ama yanit hata donmus olurdu, e-Devlet de notu tekrar gonderirdi).
+    private async Task NotifyCitizenActionAsync(EDevletBasvuru basvuru, string title, string action, string text)
     {
+        var cancellationToken = CancellationToken.None;
+        var notifications = new List<Notification>();
         try
         {
             var recipientIds = await ResolveBasvuruRecipientIdsAsync(basvuru, cancellationToken);
@@ -24,10 +23,13 @@ public sealed partial class BelediyeSoapOperations
                 return;
             }
 
-            var preview = text.Length > NotificationPreviewLength ? text[..NotificationPreviewLength] + "…" : text;
-            var message = $"{basvuru.TakipNo} numaralı e-Devlet başvurusu vatandaş tarafından {action}: {preview}";
+            // Bildirim listesi "{{ad}}" ve "tarafindan ... personelinin" kaliplarini vurgular; vatandas metni bu kaliplari
+            // uretemesin diye suslu parantezler atilir ve metin "tarafindan" ifadesinden once gelmez.
+            var safeText = text.Replace("{", string.Empty, StringComparison.Ordinal).Replace("}", string.Empty, StringComparison.Ordinal);
+            var preview = safeText.Length > NotificationPreviewLength ? safeText[..NotificationPreviewLength] + "…" : safeText;
+            var message = $"Vatandaş {basvuru.TakipNo} numaralı e-Devlet başvurusunu {action}. Metin: {preview}";
             var utcNow = DateTimeOffset.UtcNow;
-            var notifications = recipientIds
+            notifications = recipientIds
                 .Select(userId => new Notification
                 {
                     NotificationId = Guid.NewGuid(),
@@ -61,8 +63,18 @@ public sealed partial class BelediyeSoapOperations
                     cancellationToken);
             }
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        catch (Exception exception)
         {
+            // Kaydedilemeyen bildirimler baglamda Added kalmasin; ayni istekteki sonraki bir SaveChanges onlari tekrar denemez.
+            foreach (var notification in notifications)
+            {
+                var entry = _dbContext.Notifications.Entry(notification);
+                if (entry.State == EntityState.Added)
+                {
+                    entry.State = EntityState.Detached;
+                }
+            }
+
             _logger?.LogWarning(exception, "e-Devlet basvuru bildirimi gonderilemedi ({TakipNo}).", basvuru.TakipNo);
         }
     }

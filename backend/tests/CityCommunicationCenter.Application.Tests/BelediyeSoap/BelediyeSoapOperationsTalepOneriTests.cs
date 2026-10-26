@@ -75,12 +75,12 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
 
         var mahalle = await operations.BasvuruYapAsync(TenantId, NewRequest(mahalleKodu: "3"), default);
         Assert.False(mahalle.IsSuccess);
-        Assert.Equal(BelediyeSoapResultCodes.InvalidParameter, mahalle.SonucKodu);
-        Assert.Equal("HATALI PARAMETRE (mahalleKodu)", mahalle.SonucAciklamasi);
+        Assert.Equal(BelediyeSoapResultCodes.ValidationFailed, mahalle.SonucKodu);
+        Assert.Equal(BelediyeSoapResultCodes.AddressChangedMessage, mahalle.SonucAciklamasi);
 
         var sokak = await operations.BasvuruYapAsync(TenantId, NewRequest(sokakKodu: "7"), default);
         Assert.False(sokak.IsSuccess);
-        Assert.Equal("HATALI PARAMETRE (sokakCaddeKodu)", sokak.SonucAciklamasi);
+        Assert.Equal(BelediyeSoapResultCodes.AddressChangedMessage, sokak.SonucAciklamasi);
 
         Assert.Empty(await db.EDevletBasvurular.IgnoreQueryFilters().ToListAsync());
     }
@@ -99,7 +99,7 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
 
         var result = await operations.BasvuruYapAsync(TenantId, NewRequest(mahalleKodu: zafer.MahalleKodu), default);
         Assert.False(result.IsSuccess);
-        Assert.Equal("HATALI PARAMETRE (mahalleKodu)", result.SonucAciklamasi);
+        Assert.Equal(BelediyeSoapResultCodes.AddressChangedMessage, result.SonucAciklamasi);
     }
 
     [Fact]
@@ -258,6 +258,14 @@ public sealed class BelediyeSoapOperationsTalepOneriTests : IDisposable
             Assert.Equal("/edevlet/basvurular", item.ActionUrl);
         });
         Assert.Equal(2, push.Sent.Count);
+
+        // Vatandas metni bildirim listesinin vurgulama kaliplarini ({{ad}}, "tarafindan ... personelinin") uretemez.
+        Assert.True((await operations.BasvuruNotEkleAsync(TenantId, Tc, takipNo, "{{Baskan}} personelinin onayi", default)).IsSuccess);
+        var spoof = await db.Notifications.IgnoreQueryFilters().OrderByDescending(item => item.CreatedAtUtc).FirstAsync();
+        Assert.DoesNotContain("{", spoof.Message);
+        Assert.DoesNotContain("tarafından", spoof.Message);
+        Assert.Contains("Baskan personelinin onayi", spoof.Message);
+        push.Sent.RemoveRange(2, push.Sent.Count - 2);
 
         var basvuru = await db.EDevletBasvurular.IgnoreQueryFilters().SingleAsync();
         basvuru.Status = EDevletBasvuruStatus.Rejected;

@@ -138,12 +138,16 @@ public static class BelediyeSoapResultCodes
 
     /// <summary>0004 — Sistem Hatasi (eksik belediye ayari, desteklenmeyen islem).</summary>
     public const string SystemError = "0004";
+    public const string SystemErrorMessage = "SISTEM HATASI";
 
     /// <summary>
     /// 0006 — Uyari: islem basarisiz, aciklama vatandasa gosterilir. Vatandasin duzeltebilecegi is kurali
     /// hatalari (dosya/not siniri, tekrar acma kapali, e-posta bicimi vb.) bununla doner.
     /// </summary>
     public const string ValidationFailed = "0006";
+
+    /// <summary>Gonderilen adres kodu artik listede yok (liste degisti ya da eski kod): vatandas adresi yeniden secer.</summary>
+    public const string AddressChangedMessage = "ADRES BILGISI GUNCELLENMIS, LUTFEN ADRESI YENIDEN SECINIZ";
 
     public static string InvalidParameterMessage(string parameterName) => $"HATALI PARAMETRE ({parameterName})";
 }

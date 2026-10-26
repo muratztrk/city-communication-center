@@ -178,8 +178,8 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         if (!string.IsNullOrWhiteSpace(request.MahalleKodu) && mahalleAdi is null)
         {
             return BelediyeSoapOperationResult<BelediyeSoapBasvuruYapResponse>.Fail(
-                BelediyeSoapResultCodes.InvalidParameter,
-                BelediyeSoapResultCodes.InvalidParameterMessage("mahalleKodu"),
+                BelediyeSoapResultCodes.ValidationFailed,
+                BelediyeSoapResultCodes.AddressChangedMessage,
                 settings.BelediyeKodu);
         }
 
@@ -187,8 +187,8 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         if (!string.IsNullOrWhiteSpace(request.SokakCaddeKodu) && sokakCaddeAdi is null)
         {
             return BelediyeSoapOperationResult<BelediyeSoapBasvuruYapResponse>.Fail(
-                BelediyeSoapResultCodes.InvalidParameter,
-                BelediyeSoapResultCodes.InvalidParameterMessage("sokakCaddeKodu"),
+                BelediyeSoapResultCodes.ValidationFailed,
+                BelediyeSoapResultCodes.AddressChangedMessage,
                 settings.BelediyeKodu);
         }
 
@@ -395,7 +395,7 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
 
         basvuru.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
-        await NotifyCitizenActionAsync(basvuru, "e-Devlet başvurusuna not eklendi", "not eklendi", text, cancellationToken);
+        await NotifyCitizenActionAsync(basvuru, "e-Devlet başvurusuna not eklendi", "not ekledi", text);
         return BelediyeSoapOperationResult<bool>.Success(true, settings.BelediyeKodu!);
     }
 
@@ -474,7 +474,7 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        await NotifyCitizenActionAsync(basvuru, "e-Devlet başvurusu tekrar açıldı", "tekrar açıldı", reason, cancellationToken);
+        await NotifyCitizenActionAsync(basvuru, "e-Devlet başvurusu tekrar açıldı", "tekrar açtı", reason);
         return BelediyeSoapOperationResult<bool>.Success(true, settings.BelediyeKodu!);
     }
 
@@ -730,8 +730,7 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
             .OrderBy(name => name)
             .ToListAsync(cancellationToken);
 
-        // Eski surumde kod ad olarak kaydedildigi icin "3" gibi sayisal adlar listeye karismis olabilir.
-        return names.Where(name => !BelediyeAddressCodes.IsNumericOnly(name.Trim())).ToList();
+        return DistinctAddressNames(names);
     }
 
     private async Task<List<string>> LoadSokakNamesAsync(Guid tenantId, CancellationToken cancellationToken)
@@ -745,8 +744,16 @@ public sealed partial class BelediyeSoapOperations : IBelediyeSoapOperations
             .OrderBy(name => name)
             .ToListAsync(cancellationToken);
 
-        return names.Where(name => !BelediyeAddressCodes.IsNumericOnly(name.Trim())).ToList();
+        return DistinctAddressNames(names);
     }
+
+    // Eski surumde kod ad olarak kaydedildigi icin "3" gibi sayisal adlar listeye karismis olabilir; ayrica
+    // "Cumhuriyet" ile "CUMHURIYET" ayni koda dustugu icin listede tek satir olarak kalir (e-Devlet tekrarli kodu reddeder).
+    private static List<string> DistinctAddressNames(IEnumerable<string> names)
+        => names
+            .Where(name => !BelediyeAddressCodes.IsNumericOnly(name.Trim()))
+            .DistinctBy(BelediyeAddressCodes.Encode)
+            .ToList();
 
     private async Task<(string? BelediyeKodu, string? IlceAdi, string? BilgilendirmeMetni, string? TalepOneriAyarlari, (string Code, string Message)? Error)> RequireSettingsAsync(
         Guid tenantId,

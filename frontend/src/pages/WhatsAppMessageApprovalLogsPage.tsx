@@ -1,4 +1,4 @@
-import { FileText } from 'lucide-react'
+import { FileText, Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -8,12 +8,15 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { Button } from '../components/ui/button'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
+import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
+import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
+import { toLocalDateKey } from '../utils/dateTimePicker'
 import { getLocale } from '../utils/localization'
 import { muteNewRecordSoundWhileMounted } from '../utils/newRecordSoundSuppress'
 import { citizenPhoneOrEmpty, looksLikePhone } from '../utils/phoneDisplay'
@@ -60,6 +63,9 @@ function actionLabel(action: string, t: (key: string, fallback: string) => strin
 export function WhatsAppMessageApprovalLogsPage() {
   const { t, i18n } = useTranslation()
   const [kind, setKind] = useState<ApprovalLogKind>('all')
+  const [searchText, setSearchText] = useState('')
+  const [filterFrom, setFilterFrom] = useState('')
+  const [filterTo, setFilterTo] = useState('')
   const [relayConversation, setRelayConversation] = useState<{
     socialMessageId: string
     citizenHandle: string
@@ -107,20 +113,41 @@ export function WhatsAppMessageApprovalLogsPage() {
         }),
       }
     })
-    const filtered = source.filter(row => matchesFilters(row, (key, item) => {
-      if (key === 'citizen') return `${item.citizenNameText} ${item.citizenPhoneText}`
-      if (key === 'status') return item.statusLabel
-      if (key === 'actor') return item.actorText
-      if (key === 'destination') return item.destinationText
-      if (key === 'reviewer') return item.reviewerText
-      if (key === 'actedAt' || key === 'requestDate') return item.dateText
-      if (key === 'requestNo') return item.requestNoText
-      if (key === 'creator') return item.actorText
-      return ''
-    }))
+    const filtered = source.filter(row => {
+      if (filterFrom || filterTo) {
+        const eventDate = toLocalDateKey(row.eventTimeUtc) || row.eventTimeUtc.slice(0, 10)
+        if (filterFrom && eventDate && eventDate < filterFrom.slice(0, 10)) return false
+        if (filterTo && eventDate && eventDate > filterTo.slice(0, 10)) return false
+      }
+      if (!matchesBannerSearch(searchText, [
+        row.requestNoText,
+        row.citizenNameText,
+        row.citizenPhoneText,
+        row.citizenPhone ?? '',
+        row.whatsAppUsername ?? '',
+        row.statusLabel,
+        row.actorText,
+        row.destinationText,
+        row.reviewerText,
+        row.dateText,
+      ])) {
+        return false
+      }
+      return matchesFilters(row, (key, item) => {
+        if (key === 'citizen') return `${item.citizenNameText} ${item.citizenPhoneText}`
+        if (key === 'status') return item.statusLabel
+        if (key === 'actor') return item.actorText
+        if (key === 'destination') return item.destinationText
+        if (key === 'reviewer') return item.reviewerText
+        if (key === 'actedAt' || key === 'requestDate') return item.dateText
+        if (key === 'requestNo') return item.requestNoText
+        if (key === 'creator') return item.actorText
+        return ''
+      })
+    })
     if (!sortKey) return filtered
     return sortItems(filtered)
-  }, [locale, logsQuery.data, matchesFilters, sortItems, sortKey, t])
+  }, [filterFrom, filterTo, locale, logsQuery.data, matchesFilters, searchText, sortItems, sortKey, t])
 
   const totalCount = rows.length
   const safePage = Math.min(currentPage, Math.max(1, Math.ceil(totalCount / pageSize) || 1))
@@ -152,6 +179,49 @@ export function WhatsAppMessageApprovalLogsPage() {
               <p className="page-subtitle">
                 {t('whatsappMessageApprovalLogs.subtitle', 'Yanıt Verildi, Mesaj Onayı/Cevabı Verildi ve Mesajı İleten yapan operatör kullanıcılar görüntülenir.')}
               </p>
+            </div>
+            <div className="ml-auto mt-auto shrink-0">
+              <div className="scope-chips-filters">
+                <div className="scope-chip-search-wrap">
+                  <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
+                  <input
+                    type="text"
+                    className="scope-chip-search-input"
+                    placeholder={t('common.search', 'Ara...')}
+                    value={searchText}
+                    onChange={event => {
+                      setSearchText(event.target.value)
+                      setCurrentPage(1)
+                    }}
+                  />
+                  {searchText ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchText('')
+                        setCurrentPage(1)
+                      }}
+                      className="scope-chip-search-clear shrink-0 font-extrabold text-red-600 transition-colors hover:text-red-700"
+                      aria-label={t('common.clear', 'Temizle')}
+                    >
+                      <X className="size-3.5" strokeWidth={3} />
+                    </button>
+                  ) : null}
+                </div>
+                <ScopeChipDateRange
+                  from={filterFrom}
+                  to={filterTo}
+                  onFromChange={value => {
+                    setFilterFrom(value)
+                    setCurrentPage(1)
+                  }}
+                  onToChange={value => {
+                    setFilterTo(value)
+                    setCurrentPage(1)
+                  }}
+                  forceDown
+                />
+              </div>
             </div>
           </div>
         </div>

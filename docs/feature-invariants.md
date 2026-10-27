@@ -3578,7 +3578,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İşlem Tarihi takvim ikonlu, saniyesiz; ad, durum ve yapan sütunları biraz dar, tarih sütunu daha geniş
   (masaüstü `table-layout: fixed` + yüzde). ≤1023px'de sabit yüzde yok: sütunlar içeriğe açılır, tablo
   `.table-wrap` içinde yatay kayar — başlıklar üst üste binmez (#6ab94034).
-  Seçili filtre bannerın ilk satırında. Başlık diğer gridlerle aynı yeşil.
+  Seçili filtre bannerın ilk satırında. Başlık diğer gridlerle aynı yeşil. Bannerın sağ altında diğer sayfalardakiyle aynı hizada `Ara...`, `Başlangıç tarihi` ve `Bitiş tarihi` (`ScopeChipDateRange`) bileşenleri bulunur (#4292).
   Filtre butonları bannerın altında. Talep Oluşturan öncesinde `|` ayracı vardır (#4185).
   Telefon no, ad satırından biraz küçüktür (`0.93em`, #4188).
   Seçili buton: Yanıt Verildi Yapan mavi, Mesaj Onayı/Cevabı

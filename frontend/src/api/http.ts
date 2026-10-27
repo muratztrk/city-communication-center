@@ -145,9 +145,10 @@ export async function getAuthHeaders(): Promise<HeadersInit> {
 /**
  * Türk Telekom F5 BIG-IP ASM (WAF) JSON profili, 4-byte UTF-8 (surrogate pair / emoji, ör. 🙏🏻)
  * dizilerini "Malformed JSON data: Illegal encoding sequence" olarak bloklar.
- * JSON gövdelerinde surrogate pair ve variation selector karakterlerini temizler.
+ * Emojileri silmeden WAF'tan geçirmek için 4-byte codepoint'leri [[U+1F64F]] ASCII token'ına
+ * kodlar; backend ExceptionMiddleware isteği alınca tekrar gerçek UTF-8 emojiye çevirir.
  */
-function sanitizeWafJsonBody(body: BodyInit | null | undefined): BodyInit | null | undefined {
+function encodeWafSafeJsonBody(body: BodyInit | null | undefined): BodyInit | null | undefined {
   if (typeof body !== 'string') {
     return body
   }
@@ -155,7 +156,13 @@ function sanitizeWafJsonBody(body: BodyInit | null | undefined): BodyInit | null
   if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
     return body
   }
-  return body.replace(/(?:[\uD800-\uDFFF]|\u200D|[\uFE00-\uFE0F])/g, '')
+  return body.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDFFF]/g, match => {
+    const codePoint = match.codePointAt(0)
+    if (codePoint === undefined || (codePoint >= 0xd800 && codePoint <= 0xdfff)) {
+      return ''
+    }
+    return `[[U+${codePoint.toString(16).toUpperCase()}]]`
+  })
 }
 
 function isHtmlPayload(text: string): boolean {
@@ -166,7 +173,7 @@ function isHtmlPayload(text: string): boolean {
 export async function fetchWithCredentials(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
   return fetch(input, {
     ...init,
-    body: sanitizeWafJsonBody(init.body),
+    body: encodeWafSafeJsonBody(init.body),
     credentials: 'include',
   })
 }

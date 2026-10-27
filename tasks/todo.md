@@ -1,6 +1,6 @@
 ## Round 1504 — F5 WAF JSON emoji bloklaması ve HTML yanıt koruması
 
-- [x] `fetchWithCredentials` JSON gövdelerinde F5 BIG-IP ASM'in `Illegal encoding sequence` ile blokladığı 4-byte emoji/surrogate pair dizilerini temizler; `ensureOk` HTML blok yanıtlarında `Unexpected token '<'` yerine Türkçe hata mesajı gösterir.
+- [x] `fetchWithCredentials` JSON gövdelerinde 4-byte emoji/surrogate pair dizilerini silmeden `[[U+1F64F]]` ASCII token'ına kodlar ve `ExceptionMiddleware` bunları tekrar gerçek UTF-8 emojiye çevirir; `ensureOk` HTML blok yanıtlarında `Unexpected token '<'` yerine Türkçe hata mesajı gösterir.
 
 ## Round 1503 — BSUID konuşmadan talep açılırken vatandaş adı aktarımı
 

@@ -200,7 +200,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kesilir (`index.html`, sayfa açılır açılmaz). Service worker ve manifest kalır. Masaüstünde
   engellenmez. Dinleyici geç kalırsa Chrome kartı yine basar.
 
-- **F5 BIG-IP ASM (WAF) JSON emoji koruması:** `api/http.ts` (`fetchWithCredentials`) JSON istek gövdelerinde 4-byte UTF-8 / surrogate pair (`[\uD800-\uDFFF\u200D\uFE00-\uFE0F]`) karakterlerini temizler; F5 WAF bunları `Malformed JSON data: Illegal encoding sequence` olarak bloklar. Ayrıca `ensureOk` / `getErrorMessageFromText` HTML blok yanıtlarında (`text/html` / `<html>`) ham `Unexpected token '<'` yerine Türkçe `fallbackMessage` döndürür.
+- **F5 BIG-IP ASM (WAF) JSON emoji koruması:** `api/http.ts` (`fetchWithCredentials`) JSON istek gövdelerinde 4-byte UTF-8 / surrogate pair (`[\uD800-\uDBFF][\uDC00-\uDFFF]`) emojilerini silmeden `[[U+1F64F]]` ASCII token'ına kodlar (F5 WAF ham 4-byte dizileri `Malformed JSON data: Illegal encoding sequence` olarak bloklar); `ExceptionMiddleware` isteği alınca bu token'ları tekrar gerçek UTF-8 emojiye çevirir. Ayrıca `ensureOk` / `getErrorMessageFromText` HTML blok yanıtlarında (`text/html` / `<html>`) ham `Unexpected token '<'` yerine Türkçe `fallbackMessage` döndürür.
 
 ## 1. Görevler (Görevlerim / Tasks) — `pages/TasksPage.tsx`
 

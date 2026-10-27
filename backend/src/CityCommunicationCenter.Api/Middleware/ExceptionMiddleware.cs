@@ -1,16 +1,22 @@
+using System.Globalization;
+using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.RegularExpressions;
 using CityCommunicationCenter.Application.Common.Exceptions;
 using FluentValidation;
 using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Api.Middleware;
 
-public sealed class ExceptionMiddleware
+public sealed partial class ExceptionMiddleware
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
+
+    [GeneratedRegex(@"\[\[U\+([0-9A-Fa-f]{4,6})\]\]", RegexOptions.CultureInvariant)]
+    private static partial Regex WafEmojiTokenRegex();
 
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionMiddleware> _logger;
@@ -27,6 +33,7 @@ public sealed class ExceptionMiddleware
     {
         try
         {
+            await DecodeWafSafeJsonRequestBodyAsync(context);
             await _next(context);
         }
         catch (ForbiddenAccessException exception)
@@ -102,5 +109,40 @@ public sealed class ExceptionMiddleware
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
         return context.Response.WriteAsync(JsonSerializer.Serialize(payload, JsonOptions));
+    }
+
+    private static async Task DecodeWafSafeJsonRequestBodyAsync(HttpContext context)
+    {
+        if (context.Request.ContentLength is 0
+            || string.IsNullOrWhiteSpace(context.Request.ContentType)
+            || !context.Request.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        context.Request.EnableBuffering();
+        using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
+        var raw = await reader.ReadToEndAsync(context.RequestAborted);
+        if (!raw.Contains("[[U+", StringComparison.Ordinal))
+        {
+            context.Request.Body.Position = 0;
+            return;
+        }
+
+        var decoded = WafEmojiTokenRegex().Replace(raw, static match =>
+        {
+            if (!int.TryParse(match.Groups[1].Value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var codePoint)
+                || codePoint is < 0 or > 0x10FFFF
+                || codePoint is >= 0xD800 and <= 0xDFFF)
+            {
+                return match.Value;
+            }
+
+            return char.ConvertFromUtf32(codePoint);
+        });
+
+        var bytes = Encoding.UTF8.GetBytes(decoded);
+        context.Request.Body = new MemoryStream(bytes);
+        context.Request.ContentLength = bytes.Length;
     }
 }

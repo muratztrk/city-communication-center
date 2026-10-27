@@ -99,12 +99,44 @@ public sealed class BelediyeSoapBilgilendirmeTests
         var result = await operations.BilgilendirmeIstegiYapAsync(TenantId, tc, request, default);
 
         Assert.False(result.IsSuccess);
-        // Sistemden gelen alanlar (TC, mahalle kodu) 0002 Hatali Parametre; vatandasin girdigi alanlar 0006 (mesaj gosterilir).
-        var beklenen = senaryo is "tcKisa" or "mahalleBilinmiyor" or "kategoriBilinmiyor"
+        // Sistemden gelen alanlar (TC, kategori kodu) 0002 Hatali Parametre; vatandasin girdigi alanlar ve guncelligini
+        // yitirmis mahalle secimi 0006 (mesaj gosterilir, vatandas yeniden secer).
+        var beklenen = senaryo is "tcKisa" or "kategoriBilinmiyor"
             ? BelediyeSoapResultCodes.InvalidParameter
             : BelediyeSoapResultCodes.ValidationFailed;
         Assert.Equal(beklenen, result.SonucKodu);
         Assert.Equal(0, await db.BilgilendirmeIstekleri.IgnoreQueryFilters().CountAsync());
+    }
+
+    [Fact]
+    public async Task Yap_MahalleAdiniKabulEder_BilinenAdaVeAdKodunaCevirir()
+    {
+        var (operations, db) = await CreateAsync();
+        db.Jobs.Add(new Job { JobId = Guid.NewGuid(), TenantId = TenantId, Title = "t", Neighborhood = "Zafer Mahallesi" });
+        await db.SaveChangesAsync();
+        var zafer = (await operations.MahalleSorgulaAsync(TenantId, "1", default)).Data!.MahalleListesi.Single();
+
+        // Wrapper eski servisin kodunu ada cevirip gonderir; yazim farki (buyuk harf, bosluk) ayni mahalleye duser.
+        var request = NewRequest(mahalleKodlari: ["ZAFER  MAHALLESİ", zafer.MahalleKodu, "CUMHURIYET MAH."]);
+        Assert.True((await operations.BilgilendirmeIstegiYapAsync(TenantId, Tc, request, default)).IsSuccess);
+
+        var mahalleler = (await operations.BilgilendirmeIstegiSorgulaAsync(TenantId, Tc, default)).Data!.Mahalleler;
+        Assert.Equal(2, mahalleler.Count);
+        Assert.Equal(zafer.MahalleKodu, mahalleler[0].MahalleKodu);
+        Assert.Equal("Zafer Mahallesi", mahalleler[0].MahalleAdi);
+        Assert.Equal("CUMHURIYET MAH.", mahalleler[1].MahalleAdi);
+        Assert.Equal(BelediyeAddressCodes.Encode("CUMHURIYET MAH."), mahalleler[1].MahalleKodu);
+    }
+
+    [Fact]
+    public async Task Yap_CozulemeyenMahalle_AdresGuncellendiMesajiDoner()
+    {
+        var (operations, _) = await CreateAsync();
+
+        var result = await operations.BilgilendirmeIstegiYapAsync(TenantId, Tc, NewRequest(mahalleKodlari: ["0123456789ab"]), default);
+
+        Assert.Equal(BelediyeSoapResultCodes.ValidationFailed, result.SonucKodu);
+        Assert.Equal(BelediyeSoapResultCodes.AddressChangedMessage, result.SonucAciklamasi);
     }
 
     [Fact]

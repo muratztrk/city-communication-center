@@ -118,20 +118,26 @@ public sealed partial class BelediyeSoapOperations
             return Invalid("EN AZ BIR BILGILENDIRME KATEGORISI SECILMELIDIR");
         }
 
+        // Kod ya bu servisin mahalleSorgula kodudur ya da (adres sorgulari eski serviste kalan kurulumda) wrapper'in
+        // eski servis kodundan cevirdigi mahalle adidir — basvuruYap ile ayni kural. Bilinen bir adla eslesen ad
+        // o yazimla saklanir; kod her zaman addan uretilir, boylece ayni mahalle iki kez kaydedilmez.
         var mahalleAdlari = await LoadMahalleNamesAsync(tenantId, cancellationToken);
         var mahalleler = new List<BilgilendirmeMahalle>();
         foreach (var kod in request.MahalleKodlari.Where(value => !string.IsNullOrWhiteSpace(value)))
         {
-            var ad = mahalleAdlari.FirstOrDefault(name => string.Equals(BelediyeAddressCodes.Encode(name), kod.Trim(), StringComparison.Ordinal));
+            var ad = BelediyeAddressCodes.Resolve(kod, mahalleAdlari);
             if (ad is null)
             {
+                // e-Devlet onbellekteki eski listeden secmis olabilir: vatandas mesaji gorur ve mahalleyi yeniden secer.
                 return BelediyeSoapOperationResult<bool>.Fail(
-                    BelediyeSoapResultCodes.InvalidParameter, BelediyeSoapResultCodes.InvalidParameterMessage("ilgilenilenMahalleListesi"), settings.BelediyeKodu);
+                    BelediyeSoapResultCodes.ValidationFailed, BelediyeSoapResultCodes.AddressChangedMessage, settings.BelediyeKodu);
             }
 
-            if (!mahalleler.Any(item => item.Kod == kod.Trim()))
+            var adKodu = BelediyeAddressCodes.Encode(ad);
+            ad = mahalleAdlari.FirstOrDefault(name => BelediyeAddressCodes.Encode(name) == adKodu) ?? ad;
+            if (!mahalleler.Any(item => item.Kod == adKodu))
             {
-                mahalleler.Add(new BilgilendirmeMahalle(kod.Trim(), ad));
+                mahalleler.Add(new BilgilendirmeMahalle(adKodu, ad));
             }
         }
 

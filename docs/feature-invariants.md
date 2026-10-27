@@ -976,6 +976,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
   dizin Kaydet ile değişir/silinir; talep oluşturma veya etiket seçimi profili silmez.
   Convert/UpdateJob mevcut dolu profil alanını ezmez (yalnız boş adı doldurur).
+  BSUID (`TR....`) hiçbir zaman vatandaş adı olarak popup'a doldurulmaz veya `Job.CitizenName` / `CitizenConversation.CitizenName` alanına yazılmaz; sağ panelde ad/telefon girilip doğrudan `Talep Oluştur` tıklandığında `profileDraftRef` üzerindeki güncel ad/telefon popup'a aktarılır.
   Çağrı formu (`/requests/new?kind=citizen`) aynı telefondaki WA `CitizenConversation`
   mahalle/cadde/no/açık adresi yazmaz; talep adresi yalnız Job'da kalır.
   Profil PUT kısmi: `null` alanlar silinmez. Boş string kayıtlı değeri **silmez**

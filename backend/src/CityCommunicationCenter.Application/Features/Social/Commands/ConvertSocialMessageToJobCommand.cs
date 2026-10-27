@@ -157,7 +157,16 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
     {
         if (!string.IsNullOrWhiteSpace(requestedName))
         {
-            return requestedName.Trim();
+            var trimmed = requestedName.Trim();
+            if (!WhatsAppBusinessScopedUserId.IsValid(trimmed))
+            {
+                return trimmed;
+            }
+        }
+
+        if (WhatsAppBusinessScopedUserId.IsValid(citizenHandle))
+        {
+            return null;
         }
 
         return LooksLikePhone(citizenHandle) ? null : citizenHandle.Trim();
@@ -168,6 +177,11 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
         if (!string.IsNullOrWhiteSpace(requestedPhone))
         {
             return requestedPhone.Trim();
+        }
+
+        if (WhatsAppBusinessScopedUserId.IsValid(citizenHandle))
+        {
+            return null;
         }
 
         return LooksLikePhone(citizenHandle) ? NormalizePhoneDigits(citizenHandle) : null;

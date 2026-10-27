@@ -110,9 +110,14 @@ function stripWhatsAppJid(value: string): string {
   return atIndex >= 0 ? trimmed.slice(0, atIndex) : trimmed
 }
 
+function isBusinessScopedUserId(value: string): boolean {
+  const trimmed = stripWhatsAppJid(value)
+  return /^[A-Za-z]{2}\.[A-Za-z0-9.]{1,125}$/.test(trimmed)
+}
+
 function looksLikePhone(value: string): boolean {
   const trimmed = stripWhatsAppJid(value)
-  if (!trimmed) return false
+  if (!trimmed || isBusinessScopedUserId(trimmed)) return false
   const digits = trimmed.replace(/\D/g, '')
   if (digits.length < 10 || digits.length > 15) return false
   if (/^[\d+\s().-]+$/.test(trimmed)) return true
@@ -136,7 +141,7 @@ function resolveInitialCitizenName(message: SocialMessage): string {
   for (const candidate of [message.citizenName, message.citizenHandle]) {
     if (!candidate?.trim()) continue
     const normalized = normalizeCitizenHandle(candidate)
-    if (normalized && !looksLikePhone(normalized) && !isBlankCitizenLabel(normalized)) return normalized
+    if (normalized && !looksLikePhone(normalized) && !isBusinessScopedUserId(normalized) && !isBlankCitizenLabel(normalized)) return normalized
   }
   return ''
 }
@@ -153,7 +158,7 @@ function resolveInitialCitizenPhone(message: SocialMessage): string {
 function sanitizeCitizenName(value: string | null | undefined): string {
   if (!value?.trim()) return ''
   const normalized = normalizeCitizenHandle(value)
-  return normalized && !looksLikePhone(normalized) && !isBlankCitizenLabel(normalized) ? normalized : ''
+  return normalized && !looksLikePhone(normalized) && !isBusinessScopedUserId(normalized) && !isBlankCitizenLabel(normalized) ? normalized : ''
 }
 
 /**

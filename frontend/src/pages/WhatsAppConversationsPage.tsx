@@ -1131,7 +1131,10 @@ function ConversationDetail({
    *  konuşma tamamen yeniden mount edilmeden mevcut sohbeti sessizce tazeler (card #1493). */
   refreshSignal?: number
   onReadMarked?: () => void
-  onOpenCreateRequest: (socialMessageId?: string, options?: { hasExistingRequest?: boolean }) => void
+  onOpenCreateRequest: (
+    socialMessageId?: string,
+    options?: { hasExistingRequest?: boolean; citizenName?: string | null; citizenPhone?: string | null },
+  ) => void
   onToggleBlocked?: (nextBlocked: boolean) => void
   onOpenViewRequests: (citizenPhone: string) => void
   onProfileSaved: () => void
@@ -2240,7 +2243,12 @@ function ConversationDetail({
                     const saved = await handleProfileSave()
                     if (!saved) return
                   }
-                  onOpenCreateRequest(createRequestSocialMessageId, { hasExistingRequest: hasExistingCitizenRequest })
+                  const draft = profileDraftRef.current
+                  onOpenCreateRequest(createRequestSocialMessageId, {
+                    hasExistingRequest: hasExistingCitizenRequest,
+                    citizenName: normalizeTitleCaseField(draft.citizenName) || activeDetail.citizenName || null,
+                    citizenPhone: citizenPhoneOrEmpty(draft.citizenPhone) || citizenPhoneOrEmpty(activeDetail.citizenPhone) || null,
+                  })
                 })()
               }
             : undefined}
@@ -2603,15 +2611,17 @@ export function WhatsAppConversationsPage() {
 
   const handleOpenCreateRequest = useCallback(async (
     socialMessageId?: string,
-    options?: { hasExistingRequest?: boolean },
+    options?: { hasExistingRequest?: boolean; citizenName?: string | null; citizenPhone?: string | null },
   ) => {
     const conversation = conversations.find(item => item.citizenConversationId === selectedId)
+    const fallbackName = options?.citizenName ?? conversation?.citizenName ?? null
+    const fallbackPhone = options?.citizenPhone ?? conversation?.citizenPhone ?? null
     const stubMessage = (): SocialMessage => ({
       socialMessageId: socialMessageId ?? '',
       channel: 'WhatsApp',
-      citizenHandle: conversation?.citizenPhone ?? '',
-      citizenName: conversation?.citizenName ?? null,
-      citizenPhone: conversation?.citizenPhone ?? null,
+      citizenHandle: fallbackPhone ?? '',
+      citizenName: fallbackName,
+      citizenPhone: fallbackPhone,
       content: null,
       category: null,
       status: 'New',
@@ -2628,8 +2638,11 @@ export function WhatsAppConversationsPage() {
     const openWhatsAppRequest = (message: SocialMessage, forceNew: boolean) => {
       setRequestModalEditJobId(null)
       setRequestModalForceNew(forceNew)
+      const enriched = enrichMessageWithConversation(message, selectedId)
       setRequestModalMessage({
-        ...enrichMessageWithConversation(message, selectedId),
+        ...enriched,
+        citizenName: options?.citizenName ?? enriched.citizenName ?? null,
+        citizenPhone: options?.citizenPhone ?? enriched.citizenPhone ?? null,
         channel: 'WhatsApp',
       })
     }

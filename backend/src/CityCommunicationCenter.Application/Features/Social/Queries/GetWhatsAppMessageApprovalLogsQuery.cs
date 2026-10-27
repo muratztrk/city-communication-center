@@ -157,6 +157,31 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
         return digits is >= 10 and <= 15 ? trimmed : null;
     }
 
+    private static string? NameOrNull(string? value)
+    {
+        var trimmed = value?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed) || IsBusinessScopedUserId(trimmed))
+        {
+            return null;
+        }
+
+        return trimmed;
+    }
+
+    private static string? FirstName(params string?[] candidates)
+    {
+        foreach (var candidate in candidates)
+        {
+            var valid = NameOrNull(candidate);
+            if (valid is not null)
+            {
+                return valid;
+            }
+        }
+
+        return null;
+    }
+
     private static bool IsBusinessScopedUserId(string value)
     {
         if (value.Length < 4 || value.Length > 128 || value[2] != '.')
@@ -259,7 +284,7 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
         Guid tenantId,
         CancellationToken cancellationToken)
     {
-        return await (
+        var rows = await (
             from job in _dbContext.Jobs.AsNoTracking()
             join message in _dbContext.SocialMessages.AsNoTracking()
                 on job.JobId equals message.JobId
@@ -273,15 +298,18 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                 on message.CitizenConversationId equals conversation.CitizenConversationId into conversations
             from conversation in conversations.DefaultIfEmpty()
             orderby message.ReceivedAtUtc descending
-            select new WhatsAppMessageApprovalLogItemResponse(
+            select new
+            {
                 job.JobId,
-                job.CitizenName ?? message.CitizenHandle,
-                job.CitizenPhone ?? message.CitizenHandle,
+                JobCitizenName = job.CitizenName,
+                JobCitizenPhone = job.CitizenPhone,
+                MessageCitizenHandle = message.CitizenHandle,
+                ConversationCitizenName = conversation != null ? conversation.CitizenName : null,
+                ConversationCitizenPhone = conversation != null ? conversation.CitizenPhone : null,
                 message.ReceivedAtUtc,
-                "WhatsAppRequestCreated",
-                creator != null ? creator.DisplayName : null,
+                CreatorDisplayName = creator != null ? creator.DisplayName : null,
                 message.SocialMessageId,
-                _dbContext.JobDepartments
+                TargetDepartmentName = _dbContext.JobDepartments
                     .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
                     .Join(
                         _dbContext.Departments,
@@ -289,12 +317,26 @@ public sealed class GetWhatsAppMessageApprovalLogsQueryHandler
                         department => department.DepartmentId,
                         (_, department) => (string?)department.Name)
                     .FirstOrDefault(),
-                null,
                 message.CitizenRequestNumber,
                 message.CitizenRequestNumberYear,
-                job.JobId,
-                conversation != null ? conversation.WhatsAppUsername : null))
+                WhatsAppUsername = conversation != null ? conversation.WhatsAppUsername : null,
+            })
             .Take(MaxItems)
             .ToListAsync(cancellationToken);
+
+        return rows.Select(row => new WhatsAppMessageApprovalLogItemResponse(
+            row.JobId,
+            FirstName(row.JobCitizenName, row.ConversationCitizenName, row.MessageCitizenHandle),
+            FirstPhone(row.JobCitizenPhone, FirstPhone(row.ConversationCitizenPhone, row.MessageCitizenHandle)),
+            row.ReceivedAtUtc,
+            "WhatsAppRequestCreated",
+            row.CreatorDisplayName,
+            row.SocialMessageId,
+            row.TargetDepartmentName,
+            null,
+            row.CitizenRequestNumber,
+            row.CitizenRequestNumberYear,
+            row.JobId,
+            row.WhatsAppUsername)).ToList();
     }
 }

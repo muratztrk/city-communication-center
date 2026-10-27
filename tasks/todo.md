@@ -1,3 +1,7 @@
+## Round 1503 — BSUID konuşmadan talep açılırken vatandaş adı aktarımı
+
+- [x] WhatsApp sağ panelinden telefon/isim girilip doğrudan Talep Oluştur'a basıldığında güncel isim ve telefon popup'a aktarılır; BSUID (`TR....`) asla vatandaş adı olarak doldurulmaz veya kaydedilmez; WhatsApp Mesaj Logları Talep Oluşturan sekmesinde de BSUID adlar filtrelenir.
+
 ## Round 1502 — Çağrı talebi adres başlığı yanıp sönen yeşil
 
 - [x] Talep Oluştur → Vatandaş Çağrı Talebi Oluştur bölümünde "Talebin Adres Bilgisi (İsteğe Bağlı)" başlığı yanıp sönen yeşil renkte (#4290).

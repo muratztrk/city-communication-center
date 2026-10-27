@@ -1,3 +1,7 @@
+## Round 1504 — F5 WAF JSON emoji bloklaması ve HTML yanıt koruması
+
+- [x] `fetchWithCredentials` JSON gövdelerinde F5 BIG-IP ASM'in `Illegal encoding sequence` ile blokladığı 4-byte emoji/surrogate pair dizilerini temizler; `ensureOk` HTML blok yanıtlarında `Unexpected token '<'` yerine Türkçe hata mesajı gösterir.
+
 ## Round 1503 — BSUID konuşmadan talep açılırken vatandaş adı aktarımı
 
 - [x] WhatsApp sağ panelinden telefon/isim girilip doğrudan Talep Oluştur'a basıldığında güncel isim ve telefon popup'a aktarılır; BSUID (`TR....`) asla vatandaş adı olarak doldurulmaz veya kaydedilmez; WhatsApp Mesaj Logları Talep Oluşturan sekmesinde de BSUID adlar filtrelenir.

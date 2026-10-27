@@ -142,15 +142,37 @@ export async function getAuthHeaders(): Promise<HeadersInit> {
   return headers
 }
 
+/**
+ * Türk Telekom F5 BIG-IP ASM (WAF) JSON profili, 4-byte UTF-8 (surrogate pair / emoji, ör. 🙏🏻)
+ * dizilerini "Malformed JSON data: Illegal encoding sequence" olarak bloklar.
+ * JSON gövdelerinde surrogate pair ve variation selector karakterlerini temizler.
+ */
+function sanitizeWafJsonBody(body: BodyInit | null | undefined): BodyInit | null | undefined {
+  if (typeof body !== 'string') {
+    return body
+  }
+  const trimmed = body.trimStart()
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+    return body
+  }
+  return body.replace(/(?:[\uD800-\uDFFF]|\u200D|[\uFE00-\uFE0F])/g, '')
+}
+
+function isHtmlPayload(text: string): boolean {
+  const sample = text.trimStart().slice(0, 256).toLowerCase()
+  return sample.startsWith('<!doctype html') || sample.startsWith('<html') || sample.includes('<head>')
+}
+
 export async function fetchWithCredentials(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
   return fetch(input, {
     ...init,
+    body: sanitizeWafJsonBody(init.body),
     credentials: 'include',
   })
 }
 
 export function getErrorMessageFromText(responseText: string, fallbackMessage: string): string {
-  if (!responseText) {
+  if (!responseText || isHtmlPayload(responseText)) {
     return fallbackMessage
   }
 
@@ -199,6 +221,11 @@ export async function ensureOk(response: Response, fallbackMessage: string): Pro
 
   if (!response.ok) {
     throw new Error(await getErrorMessage(response, fallbackMessage))
+  }
+
+  const contentType = response.headers.get('content-type')?.toLowerCase() ?? ''
+  if (contentType.includes('text/html')) {
+    throw new Error(fallbackMessage)
   }
 
   return response

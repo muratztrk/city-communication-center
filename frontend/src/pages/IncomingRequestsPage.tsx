@@ -507,7 +507,10 @@ export function IncomingRequestsPage() {
   const showKindFilters = isModuleUsable('internal')
   const currentKindFilter = showKindFilters ? getIncomingKindFilter(searchParams.get('kind')) : 'all'
   // Onaylanan grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
-  const showIncomingStatusColumn = currentStatusFilter === 'all' || currentStatusFilter === 'approved' || currentStatusFilter === 'overdue'
+  const showIncomingStatusColumn = currentStatusFilter === 'all'
+    || currentStatusFilter === 'approved'
+    || currentStatusFilter === 'overdue'
+    || currentStatusFilter === 'processing-received'
   const showTaskOwnerColumn = ['in-progress', 'completed'].includes(currentStatusFilter)
   const hideIncomingGridMutations = currentStatusFilter === 'in-progress'
     || currentStatusFilter === 'overdue'

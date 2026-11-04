@@ -563,7 +563,7 @@
     "charts": {
       "staffTasks": "My Staff's Tasks",
       "staffOverdueTasks": "My Staff's Overdue Tasks",
-      "staffResolutionTime": "My Staff Task Resolution Time (Hours)",
+      "staffResolutionTime": "My Staff Task Resolution Time (Days)",
       "departmentTasks": "Department Tasks",
       "myTasks": "My Tasks",
       "outgoingRequests": "Outgoing Requests",

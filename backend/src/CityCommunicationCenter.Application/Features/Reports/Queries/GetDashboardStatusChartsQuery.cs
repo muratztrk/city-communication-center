@@ -1110,13 +1110,13 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .Select(group => new
             {
                 UserId = group.Key,
-                AverageHours = Math.Round(
-                    group.Average(task => (task.TerminalAtUtc!.Value - task.CreatedAtUtc).TotalHours),
+                AverageDays = Math.Round(
+                    group.Average(task => (task.TerminalAtUtc!.Value - task.CreatedAtUtc).TotalDays),
                     1),
             })
             // 0 olmayan en küçük süreden itibaren artan sıra; 0'lar sonda (R549 / #2038).
-            .OrderBy(item => item.AverageHours <= 0 ? 1 : 0)
-            .ThenBy(item => item.AverageHours)
+            .OrderBy(item => item.AverageDays <= 0 ? 1 : 0)
+            .ThenBy(item => item.AverageDays)
             .ToList();
 
         var userIds = averages.Select(item => item.UserId).ToArray();
@@ -1130,7 +1130,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
             "dashboard.charts.staffResolutionTime",
             averages.Select((item, index) => new DashboardChartSlice(
                 $"{item.UserId}|{userNames.GetValueOrDefault(item.UserId, "—")}",
-                item.AverageHours,
+                item.AverageDays,
                 StaffChartColors[index % StaffChartColors.Length]))
                 .ToList());
     }

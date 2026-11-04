@@ -1567,7 +1567,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dahil edilmez; talep bekleyen dilimi Draft/PendingOnay/Revision (yönetici dış onay dilimi
   yalnız PendingOwner/PendingExternal). **EF çeviri:** bu kurallar LINQ içinde satır içi
   ifade olarak yazılmalı; `CountAsync` içinde statik yardımcı metot çağrısı kullanılmaz (#2350 reopen 500).
-- **Yönetici pie chart sırası (#r507):** `Personelimin Görevleri` → `Personelimin Görevi Çözme Süresi (Saat)`
+- **Yönetici pie chart sırası (#r507):** `Personelimin Görevleri` → `Personelimin Görevi Çözme Süresi (Gün)`
   (sonra Görevlerim / giden-gelen). `Birimdeki Görevler` ve `Talep Önceliği` pie'ları kaldırıldı (#2521).
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
   detayında bağlı talebin `Öncelik` etiketi/değeri `job-detail-card-title--spread` ile Görev Bilgileri
@@ -2346,8 +2346,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yönetici `Vatandaş Talepleri` kartı:** `activeSocialMessageCount` — İşleme Alındı VT
   sayısı (`CitizenVtDashboardClassification`, geciken dahil — #2812); alt etiket **Onay Bekleyen**
   (#2791 reopen). Tıklama → `/incoming-requests?citizen=1&status=processing-received`.
-  Grid `processing-received` iptal/terminal VT satırlarını içermez — `toExternalRow` terminal
-  job durumunu `PendingExternalApproval` ile ezmez (#2812 reopen).
+  Bu grid İşleme Alındı satırlarıyla birlikte açık planlı (personel atanmamış) VT satırlarını da
+  gösterir; Durum sütunu `İşleme Alındı` / `Plana Alındı` ayrımını verir (#4295). Personeli olan
+  plan kaydı plana alınmış sayılmaz. Grid `processing-received` iptal/terminal VT satırlarını
+  içermez — `toExternalRow` terminal job durumunu `PendingExternalApproval` ile ezmez (#2812 reopen).
 - **Yönetici `Bekleyen Taleplerim` kartı:** sayı = `myRequests` pie `externalPendingApproval`
   dilimi (`PendingExternalApproval` veya `Active` + `taskCount===0`, geciken hariç — Taleplerim
   `external-pending` grid ile aynı); tıklama → `/my-requests?view=external-pending` (#2800).
@@ -2372,7 +2374,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı
-  arasındadır; personel başına ortalama saat (1 ondalık) gösterilir.
+  arasındadır; personel başına ortalama gün (1 ondalık) gösterilir (#4294). Saat cinsine geri dönülmez.
 - **Vatandaş Paneli / Anasayfa-Birimler dönem altı arama (#3087/#3161/#3124):**
   Ara kutusu Dönem satırının **altında** (Tüm Talepler ile aynı satırda değil); pie başlık
   satırında ayrı arama yok. Dilim etiketi eşleşmesi her iki görünümde geçerlidir.
@@ -3342,8 +3344,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle, birim-dışı ve **Talep Etiketi**
   pie'larında Ara... **başlık satırının sağına**. Personelimin Görevleri / Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin
   ~0.9rem; arama state parent'ta — boş eşleşmede input unmount olmaz (backspace odak kaybı yok).
-- **Personelimin Görevi Çözme Süresi sırası (R549 / #2038):** 0 olmayan en küçük ortalama saatten
-  artan sıra; 0'lar sonda.
+- **Personelimin Görevi Çözme Süresi sırası (R549 / #2038):** 0 olmayan en küçük ortalama günden
+  artan sıra; 0'lar sonda. Değer `TotalDays`, 1 ondalık (#4294).
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık
   hücre border'ından taşmaz.
 - **Vatandaşa Giden Cevaplar hitap alanı durum bazlıdır (#2985):** Ayarlar → Otomatik Yönlendirme'deki

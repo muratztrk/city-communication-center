@@ -1,3 +1,8 @@
+## Round 1506 — çözme süresi gün ve onay bekleyen listede planlanan
+
+- [x] Anasayfa `Personelimin Görevi Çözme Süresi` pastası başlık ve ortalama değeri gün cinsinden (#4294).
+- [x] Vatandaş Talepleri / Onay Bekleyen kutusu açılan gridde İşleme Alındı ile birlikte açık planlı talepler de listelenir (#4295).
+
 ## Round 1505 — Whatsapp Mesaj Logları banner arama ve tarih aralığı
 
 - [x] Whatsapp Mesaj Logları sayfasında banner sağ altına `Ara...`, `Başlangıç tarihi` ve `Bitiş tarihi` bileşenleri diğer banner'larla aynı hizada ve mantıkta eklendi (#4292).

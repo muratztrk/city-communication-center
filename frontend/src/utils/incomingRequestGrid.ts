@@ -88,7 +88,8 @@ export function matchesIncomingStatusFilter(row: IncomingRequestRow, filter: Inc
   const isClosed = row.status === 'Completed' || row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
   const planned = row.statusDomain === 'job' && isOpenPlannedJob(row)
   if (filter === 'planned') return planned
-  if (planned && filter !== 'overdue') return false
+  // Vatandaş Talepleri kutusu İşleme Alındı listesine açık planlı VT'yi de katar (#4295).
+  if (planned && filter !== 'overdue' && filter !== 'processing-received') return false
 
   if (filter === 'pending-approval') {
     const ownerApprovalPending = row.status === 'PendingOwnerApproval' || row.status === 'PendingApproval'
@@ -99,7 +100,7 @@ export function matchesIncomingStatusFilter(row: IncomingRequestRow, filter: Inc
   }
 
   if (filter === 'processing-received') {
-    return isCitizenProcessingReceivedRow(row)
+    return isCitizenProcessingReceivedRow(row) || (planned && Boolean(row.isCitizenRequest))
   }
 
   // Onaylanmış: hedef yönetici onayı var; İşleme Alındı / hedef onay bekleyen yok (#2826/#3986).

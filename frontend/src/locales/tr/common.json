@@ -565,7 +565,7 @@
     "charts": {
       "staffTasks": "Personelimin Görevleri",
       "staffOverdueTasks": "Personelimin Geciken Görevleri",
-      "staffResolutionTime": "Personelimin Görevi Çözme Süresi (Saat)",
+      "staffResolutionTime": "Personelimin Görevi Çözme Süresi (Gün)",
       "departmentTasks": "Birimdeki Görevler",
       "myTasks": "Görevlerim",
       "outgoingRequests": "Birimden Giden Talepler",

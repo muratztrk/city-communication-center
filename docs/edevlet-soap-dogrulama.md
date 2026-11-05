@@ -59,22 +59,50 @@ tanımsız belediye koduyla `sistemKontrol` ve `basvuruTipiSorgula` çağrılar�
 Yanıt kökleri v3 namespace'inde, alt elemanlar namespace'siz: 26 Ekim namespace düzeltmesi
 çalışan ortamda gözleniyor.
 
-Ancak başvuru tipi hata yanıtında zorunlu `basvuruTipiListesi` yoktu. Buradaki yeni hata yanıtı
-düzeltmesi çalışan ortamda henüz gözlenmedi. Bu çalışma push/deploy veya uzaktaki ayar/veri
-değişikliği yapmadı. Gerçek kimlik bilgileriyle başarı akışı test edilmedi.
+İlk kontrolde başvuru tipi hata yanıtında zorunlu `basvuruTipiListesi` yoktu. VPN bağlantısı
+sağlandıktan sonra `0b8f29fe` commit'i test sunucusuna bundle/fast-forward ile alındı ve yalnızca
+API yeniden derlenip başlatıldı. GitHub'a push, frontend veya production deploy yapılmadı.
+API konteyneri healthy; `/health` veritabanını Reachable bildiriyor.
+
+### HTTPS ve PostgreSQL üzerinde kabul kontrolü (6 Kasım 2026)
+
+Tire Belediyesi kaydında belediye kodu eşlemesi ve e-Devlet ayarları başlangıçta boştu.
+Kullanıcının açık isteğiyle belediye kodu `10868`, ilçe `Tire` ve bağımsız yeni CCC SOAP test
+kimlik bilgileri kaydedildi. Diğer sosyal medya ayarları korundu. Şifre loglanmadı veya repoya
+yazılmadı; kullanıcıya yalnız kendisinin okuyabildiği yerel erişim dosyasıyla teslim edildi.
+
+Çalışan servise `https://testtim.tire.bel.tr/service` üzerinden toplam **23 SOAP çağrısı** yapıldı.
+Her yanıt standart WSDL'in XSD'siyle doğrulandı; tamamı geçti:
+
+- Tire'nin gerçek tenant ayarlarıyla altı okuma çağrısı: servis kontrol, başvuru tipi, SMS/e-posta
+  kategorileri, ilçe ve Talep/Öneri ayarı. Hepsi `0000` döndü.
+- Yazma testleri için operatör hesabı ve alıcısı olmayan ayrı, geçici bir tenant oluşturuldu.
+  Aynı çalışan API ve PostgreSQL üzerinde başvuru oluşturma/detay/durum, not ekleme, başka
+  vatandaşın detayına erişimin reddi, tekrar açma, ayar listesi, hatalı ve geçerli ek denendi.
+- Reddedilmiş başvuru durumu yalnızca bu geçici kayıtta veritabanından hazırlanıp SOAP ile
+  yeniden açıldı. Bu, operatör arayüzünün manuel testi değildir.
+- Bilgilendirme oluşturma, aynı kayıt üzerinde güncelleme, sorgulama, iptal, boş kayıt ve
+  ikinci iptalde `0003` kontrol edildi. PostgreSQL'de mükerrer kayıt oluşmadığı doğrulandı.
+- Telefon ve notların kalıcılığı ile ekin saklanması doğrulandı. Hatalı ekle başvuru oluşmadı.
+- Geçici tenant'ta SMS veya operatör bildirimi oluşmadığı doğrulandı. Geçici tenant, başvurular,
+  tercihler, ekler ve disk dosyaları test sonunda silindi; tenant sayısı sıfır olarak kontrol edildi.
+  Sunucuya aktarılan geçici kontrol programı ve erişim dosyası da kaldırıldı.
+
+Tire tenant'ında dosya/not/tekrar açma özelliklerinin varsayılanları değiştirilmedi; bu özellikler
+yaşam döngüsü testi sırasında yalnız geçici tenant'ta etkinleştirildi. Test ortamında yeni bir
+migration gerekmedi. Ayrı makinede SoapUI arayüzü ve CCC operatör ekranı üzerinden manuel
+kabul testi yapılmadı; XML doğrulaması otomatik XSD kontrolüyle gerçekleştirildi.
 
 ## Devreye alma öncesi kalanlar
 
-1. Test ortamına bu sürümü alın ve CCC Ayarlar → e-Devlet alanlarını doğrulayın. CBS veya
-   Innosa şifrelerini CCC şifresi varsaymayın.
-2. SoapUI projesini standart WSDL'den oluşturun; endpoint'i `https://testtim.tire.bel.tr/service`
-   yapın. İki hizmetin başarı ve hata yanıtlarını Validate edin. GET `/service?wsdl` sunulduğunu
-   varsaymayın; mevcut middleware yalnızca SOAP POST isteklerini karşılar.
-3. Başvuru oluşturma → CCC operatör ekranı → durum/detay → not → tekrar açma akışını gerçek
-   test verisiyle kontrol edin. Tekrar açmanın Job üzerindeki mevcut davranışını operatörlerle teyit edin.
-4. Bilgilendirme tercihlerinin oluşturma/güncelleme/iptal akışını deneyin. Bu hizmet mesaj göndermez;
-   `belediyeIletisimBilgisiniGuncelle` tercihi de yalnızca kayıt amaçlıdır.
-5. Test kayıtlarını belirleyip kontrollü temizleyin; sonrasında TÜRKSAT kabul sürecini yürütün.
+1. CCC operatör ekranında başvuruyu iş akışına alma ve sonuçlandırma davranışını operatörlerle
+   teyit edin. Tekrar açmanın Job üzerindeki mevcut davranışı ayrıca kabul edilmeli.
+2. Dosya/not/tekrar açma özelliklerinin Tire için etkinleştirilip etkinleştirilmeyeceğini kararlaştırın.
+3. TÜRKSAT kabul sürecini yürütün. İstenirse SoapUI projesini standart WSDL'den oluşturup aynı
+   endpoint ile doğrulayın. GET `/service?wsdl` sunulduğunu varsaymayın; mevcut middleware
+   yalnızca SOAP POST isteklerini karşılar.
+4. Bilgilendirme hizmetinin mesaj göndermediğini ve `belediyeIletisimBilgisiniGuncelle` tercihinin
+   yalnızca kayıt amaçlı olduğunu hizmet sahipleriyle netleştirin.
 
 Başkası adına işlem desteği, eski sıra kodlu adres kayıtlarının düzeltilmesi, IP kısıtı ve
 bilgilendirme mesajlarının gönderilmesi bu çalışmada değiştirilmedi.

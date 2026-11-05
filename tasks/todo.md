@@ -8287,4 +8287,6 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] Telefon eleman adları, ayar listesi, zorunlu hata alanları ve notsuz detay yanıtı düzeltildi; boş/geçersiz dosya sessizce atılmıyor.
 - [x] Toplam 412 backend testi (87 SOAP) ve backend build başarılı; ayrıntılar `docs/edevlet-soap-dogrulama.md`.
 - [x] testtim SOAP'a tanımsız belediye ile veri yazmayan erişim kontrolü: namespace düzeltmesi gözlendi, yeni zorunlu hata alanları henüz yok.
-- [ ] Test ortamına sürüm alma, gerçek CCC ayarlarıyla SoapUI/operatör akışı ve TÜRKSAT kabulü. Bu çalışma push/deploy yapmadı.
+- [x] VPN sonrası `0b8f29fe` test sunucusuna bundle ile alındı; yalnız API deploy edildi, healthy. Tire e-Devlet ayarları kullanıcı isteğiyle kaydedildi; şifre repoya/loga yazılmadı.
+- [x] Gerçek HTTPS endpoint + PostgreSQL üzerinde 23 SOAP çağrısı ve XSD doğrulaması başarılı. Yazma testleri ayrı geçici tenant'ta yapılıp tüm kayıt/dosyalar temizlendi; SMS/bildirim yok.
+- [ ] Operatör ekranı/Job iş akışı kabulü, Tire için opsiyonel özelliklerin kararı ve TÜRKSAT kabulü. GitHub push veya production deploy yapılmadı.

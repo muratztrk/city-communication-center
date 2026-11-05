@@ -8280,3 +8280,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [ ] `6a97ae9ee352e681fa7ab39d` — Mobil Uygulama Yetki (atlandı).
 
 ## STATUS: Round 1259 complete — `f9723cd7` develop + testtim deploy.
+
+## CCC e-Devlet sözleşme doğrulaması (2026-11-06)
+
+- [x] Talep/Öneri ve Bilgilendirilme İsteği için WSDL XSD doğrulaması ve gerçek middleware/operasyon yaşam döngüsü testleri (34 yeni test).
+- [x] Telefon eleman adları, ayar listesi, zorunlu hata alanları ve notsuz detay yanıtı düzeltildi; boş/geçersiz dosya sessizce atılmıyor.
+- [x] Toplam 412 backend testi (87 SOAP) ve backend build başarılı; ayrıntılar `docs/edevlet-soap-dogrulama.md`.
+- [x] testtim SOAP'a tanımsız belediye ile veri yazmayan erişim kontrolü: namespace düzeltmesi gözlendi, yeni zorunlu hata alanları henüz yok.
+- [ ] Test ortamına sürüm alma, gerçek CCC ayarlarıyla SoapUI/operatör akışı ve TÜRKSAT kabulü. Bu çalışma push/deploy yapmadı.

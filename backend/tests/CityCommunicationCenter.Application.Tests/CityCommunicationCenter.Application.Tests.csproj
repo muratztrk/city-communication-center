@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <None Include="../../docs/BelediyeStandartV3.wsdl" Link="BelediyeSoap/BelediyeStandartV3.wsdl" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

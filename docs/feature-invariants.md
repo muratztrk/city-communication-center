@@ -4059,3 +4059,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Taleplerim Tamamlanan (#4014):** detay popup'ta aktif veya pasif Düzenle butonu gösterilmez; Yapılmakta kuralı da korunur.
 - **Adres alt çizgileri (#4002):** üç kart düzeninde etiket çizgileri hücre genişliğini kaplar; vatandaş adres alanlarıyla aynı yapı korunur.
 - **Dashboard kutuları / FAB (#3994/#4005):** personel dönem kutuları `max-w-5xl`, başlık `0.72rem`; genel FAB yatay aralığı `gap-2`, vatandaş paneli kaydır düğmesi çakışma istisnası korunur.
+
+## e-Devlet SOAP sözleşmesi (2026-11-06)
+
+- Başarı ve hata yanıtları `backend/docs/BelediyeStandartV3.wsdl` şemasına uymalı; `sonucKodu` başarısız olsa da zorunlu yanıt alanları atlanmaz (`BelediyeSoapContractTests`).
+- Başvuru telefonu standartta `telefonBilgisiType/telefonTuru/ulkeKodu/telefonNo`, ayar listesi `group/key/value` kullanır; eski CCC telefon girdi adları kabul edilse de yanıt adları değiştirilmez.
+- Boş/geçersiz Base64 eki sessizce atıp başvuru oluşturma; `0002` dön ve kayıt oluşturma. Notu olmayan başvurunun WSDL'de zorunlu not listesi, gerçek oluşturma olayıyla doldurulur; bu olay vatandaş notu olarak kaydedilmez.

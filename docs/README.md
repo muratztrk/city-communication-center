@@ -30,6 +30,7 @@ hangi dosyayı açacağını buradan bul.**
 | Dosya | Ne için | Son commit | Tazelik |
 |---|---|---|---|
 | [`api-integration-guide.md`](api-integration-guide.md) | API entegrasyon rehberi | 2026-06-18 | 🟢 güncel |
+| [`edevlet-soap-dogrulama.md`](edevlet-soap-dogrulama.md) | CCC Talep/Öneri ve Bilgilendirilme İsteği sözleşme testleri, test ortamı bulguları ve kalan kabul adımları | 2026-11-06 | 🟢 güncel |
 | [`whatsapp-social-integration-guide.md`](whatsapp-social-integration-guide.md) | WhatsApp / sosyal medya entegrasyonu | 2026-06-18 | 🟢 güncel |
 | [`adaptive-auth-20260322.md`](adaptive-auth-20260322.md) | Tenant resolution + adaptive auth | 2026-03-23 | 🟡 eski — koddan teyit et |
 | [`deployment-guide.md`](deployment-guide.md) | Kurulum / deployment | 2026-06-18 | 🟢 güncel |

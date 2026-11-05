@@ -3,7 +3,8 @@ namespace CityCommunicationCenter.Application.Features.Auth;
 public sealed record AuthenticateUserCommand(
     string Username,
     string Password,
-    string TenantId) : ICommand<AuthenticatedTokenPayload?>;
+    string TenantId,
+    bool StartMobileSession = false) : ICommand<AuthenticatedTokenPayload?>;
 
 public sealed class AuthenticateUserCommandValidator : AbstractValidator<AuthenticateUserCommand>
 {
@@ -58,6 +59,11 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
         // Yeni login önceki oturumu geçersiz kılar; uyarı eski oturumda (#6a6c805e).
         var activeSessionId = Guid.NewGuid();
         entity.ActiveSessionId = activeSessionId;
+        if (request.StartMobileSession)
+        {
+            entity.MobileSessionId = Guid.NewGuid();
+        }
+
         entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
         var departmentName = await _dbContext.Departments
             .Where(department => department.DepartmentId == entity.DepartmentId && department.TenantId == entity.TenantId)
@@ -89,6 +95,7 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             user.AdditionalRoleCodes,
             user.TenantName,
             user.AuthenticationMode,
-            activeSessionId);
+            activeSessionId,
+            request.StartMobileSession ? entity.MobileSessionId : null);
     }
 }

@@ -13,6 +13,9 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 public sealed class AuthController : ControllerBase
 {
     private const string PasswordGrantExchangeTicketPrefix = "auth-ticket:";
+    private const string MobileSessionClaim = "ccc_msid";
+    private static readonly string[] MobileTokenScopes =
+        [Scopes.OpenId, Scopes.Profile, Scopes.Email, Scopes.OfflineAccess, "ccc_api"];
     private readonly IMediator _sender;
     private readonly IConfiguration _configuration;
     private readonly ITenantAuthenticationPolicyService _tenantAuthenticationPolicyService;
@@ -51,10 +54,18 @@ public sealed class AuthController : ControllerBase
             return BadRequest(new { error = Errors.InvalidRequest, error_description = _localizer["AuthRequestUnreadable"].Value });
         }
 
+        if (request.IsRefreshTokenGrantType())
+        {
+            return await RefreshMobileSessionAsync(cancellationToken);
+        }
+
         if (!string.Equals(request.GrantType, GrantTypes.Password, StringComparison.OrdinalIgnoreCase))
         {
             return BadRequest(new { error = Errors.UnsupportedGrantType, error_description = _localizer["AuthPasswordGrantOnly"].Value });
         }
+
+        var startsMobileSession = request.HasScope(Scopes.OfflineAccess)
+            && MobileOidcClientConfiguration.FromConfiguration(_configuration).IsRegisteredClient(request.ClientId);
 
         var tenantId = await ResolveTenantIdAsync(request.GetParameter("tenant_id")?.ToString(), cancellationToken);
         if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
@@ -92,7 +103,7 @@ public sealed class AuthController : ControllerBase
         }
 
         var result = await _sender.Send(
-            new AuthenticateUserCommand(request.Username, request.Password, tenantId),
+            new AuthenticateUserCommand(request.Username, request.Password, tenantId, startsMobileSession),
             cancellationToken);
         if (result is null)
         {
@@ -100,7 +111,49 @@ public sealed class AuthController : ControllerBase
         }
 
         var principal = CreatePrincipal(result);
+        if (startsMobileSession)
+        {
+            principal.SetScopes(request.GetScopes().Intersect(MobileTokenScopes));
+        }
+
         return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    private async Task<IActionResult> RefreshMobileSessionAsync(CancellationToken cancellationToken)
+    {
+        var authentication = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        var previous = authentication.Principal;
+        if (previous is not null
+            && Guid.TryParse(previous.GetClaim(Claims.Subject), out var userId)
+            && Guid.TryParse(previous.GetClaim("tenant_id"), out var tenantId)
+            && Guid.TryParse(previous.GetClaim(MobileSessionClaim), out var mobileSessionId))
+        {
+            var payload = await _sender.Send(
+                new RefreshMobileSessionCommand(userId, tenantId, mobileSessionId),
+                cancellationToken);
+            if (payload is not null)
+            {
+                var principal = CreatePrincipal(payload);
+                principal.SetScopes(previous.GetScopes());
+                return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+        }
+
+        return BadRequest(new { error = Errors.InvalidGrant, error_description = "Oturum sona erdi. Lütfen tekrar giriş yapın." });
+    }
+
+    /// <summary>Mobil çıkış: cihazdaki refresh token sunucuda da geçersiz olur.</summary>
+    [HttpPost("mobile-session/revoke")]
+    [Authorize]
+    public async Task<IActionResult> RevokeMobileSession(CancellationToken cancellationToken)
+    {
+        if (Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst(Claims.Subject)?.Value, out var userId)
+            && Guid.TryParse(User.FindFirst("tenant_id")?.Value, out var tenantId))
+        {
+            await _sender.Send(new RevokeMobileSessionCommand(userId, tenantId), cancellationToken);
+        }
+
+        return NoContent();
     }
 
     [HttpGet("/connect/authorize")]
@@ -494,6 +547,11 @@ public sealed class AuthController : ControllerBase
         identity.AddClaim(new Claim("tenant_name", payload.TenantName));
         identity.AddClaim(new Claim("department_id", departmentId));
         identity.AddClaim(new Claim("ccc_sid", payload.ActiveSessionId.ToString()));
+        if (payload.MobileSessionId is { } mobileSessionId)
+        {
+            // Hedefi yok: yalnız şifreli refresh token içinde taşınır.
+            identity.AddClaim(new Claim(MobileSessionClaim, mobileSessionId.ToString()));
+        }
 
         if (!string.IsNullOrWhiteSpace(payload.Email))
         {

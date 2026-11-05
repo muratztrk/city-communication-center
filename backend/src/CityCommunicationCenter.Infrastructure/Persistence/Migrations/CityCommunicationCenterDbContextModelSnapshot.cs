@@ -33,6 +33,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("activesessionid");
 
+                    b.Property<Guid?>("MobileSessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("mobilesessionid");
+
                     b.Property<string>("AdditionalRoleCodesJson")
                         .HasColumnType("text")
                         .HasColumnName("additionalrolecodesjson");

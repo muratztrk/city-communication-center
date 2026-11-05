@@ -11,4 +11,5 @@ public sealed record AuthenticatedTokenPayload(
     IReadOnlyList<string> AdditionalRoleCodes,
     string TenantName,
     string AuthenticationMode,
-    Guid ActiveSessionId);
+    Guid ActiveSessionId,
+    Guid? MobileSessionId = null);

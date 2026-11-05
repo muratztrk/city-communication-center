@@ -205,8 +205,10 @@ builder.Services.AddOpenIddict()
         // Native clients use the standards-based authorization-code flow.  The
         // existing password grant remains available for current web clients.
         options.AllowAuthorizationCodeFlow();
+        // Mobil oturum, users.mobilesessionid ile sunucudan iptal edilebilir.
+        options.AllowRefreshTokenFlow();
         options.RequireProofKeyForCodeExchange();
-        options.RegisterScopes("openid", "profile", "email", "ccc_api");
+        options.RegisterScopes("openid", "profile", "email", "offline_access", "ccc_api");
         options.AcceptAnonymousClients();
         options.EnableDegradedMode();
         options.DisableAuthorizationStorage();
@@ -218,8 +220,12 @@ builder.Services.AddOpenIddict()
         options.DisableAccessTokenEncryption();
         options.SetAccessTokenLifetime(TimeSpan.FromHours(9));
         options.SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(5));
+        // Süre sabittir: yenileme uzatmaz, kullanıcı süre sonunda parola ve ikinci doğrulamadan yeniden geçer.
+        options.SetRefreshTokenLifetime(TimeSpan.FromDays(
+            builder.Configuration.GetValue("Authentication:MobileOidc:RefreshTokenLifetimeDays", 30d)));
+        options.DisableSlidingRefreshTokenExpiration();
         options.AddEphemeralSigningKey();
-        options.AddEphemeralEncryptionKey();
+        options.AddEncryptionKey(AuthenticationKeyFactory.CreateEncryptionKey(signingKey));
         options.AddSigningKey(signingKey);
 
         options.UseAspNetCore()

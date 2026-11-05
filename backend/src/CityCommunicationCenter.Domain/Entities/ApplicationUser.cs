@@ -38,6 +38,12 @@ public sealed class ApplicationUser : AuditableTenantEntity, IHasDatabaseIndexDe
     /// </summary>
     public Guid? ActiveSessionId { get; set; }
 
+    /// <summary>
+    /// Mobil refresh token'ın bağlı olduğu oturum. Boşaltılınca o refresh token sunucuda geçersiz olur.
+    /// Web oturumundan ayrıdır: web girişi mobil oturumu düşürmez.
+    /// </summary>
+    public Guid? MobileSessionId { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 
     public Department Department { get; set; } = null!;

@@ -109,6 +109,7 @@ public sealed class ResetLocalUserPasswordCommandHandler : ICommandHandler<Reset
         }
 
         localUser.PasswordHash = _localUserPasswordService.HashPassword(localUser, newPassword);
+        localUser.MobileSessionId = null;
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

@@ -27,6 +27,20 @@ internal static class AuthenticationKeyFactory
         return new SymmetricSecurityKey(SHA256.HashData(utf8Bytes));
     }
 
+    /// <summary>
+    /// Refresh token'lar şifreli taşınır. Anahtar imza anahtarından türetilir, böylece API yeniden
+    /// başlayınca token'lar geçerli kalır ve dağıtıma yeni bir gizli değer eklemek gerekmez.
+    /// </summary>
+    public static SymmetricSecurityKey CreateEncryptionKey(SymmetricSecurityKey signingKey)
+    {
+        var keyBytes = HKDF.DeriveKey(
+            HashAlgorithmName.SHA256,
+            signingKey.Key,
+            outputLength: 32,
+            info: Encoding.UTF8.GetBytes("ccc-openiddict-token-encryption-v1"));
+        return new SymmetricSecurityKey(keyBytes);
+    }
+
     private static bool TryDecodeBase64Key(string configuredKey, out byte[] keyBytes)
     {
         try

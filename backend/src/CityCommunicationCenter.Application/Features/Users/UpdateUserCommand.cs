@@ -210,6 +210,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
         if (user.UserSource == UserSource.Manual && !string.IsNullOrWhiteSpace(request.Password))
         {
             user.PasswordHash = _localUserPasswordService.HashPassword(user, request.Password);
+            user.MobileSessionId = null;
         }
         else if (!string.IsNullOrWhiteSpace(request.Password))
         {

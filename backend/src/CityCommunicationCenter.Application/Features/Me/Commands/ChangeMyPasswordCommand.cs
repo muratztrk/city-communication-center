@@ -86,6 +86,7 @@ public sealed class ChangeMyPasswordCommandHandler : ICommandHandler<ChangeMyPas
         }
 
         user.PasswordHash = _localUserPasswordService.HashPassword(user, request.NewPassword);
+        user.MobileSessionId = null;
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

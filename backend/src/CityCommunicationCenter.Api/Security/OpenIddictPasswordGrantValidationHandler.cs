@@ -36,6 +36,19 @@ internal sealed class OpenIddictPasswordGrantValidationHandler : IOpenIddictServ
             return ValueTask.CompletedTask;
         }
 
+        if (context.Request.IsRefreshTokenGrantType())
+        {
+            var mobileClient = MobileOidcClientConfiguration.FromConfiguration(_configuration);
+            if (!mobileClient.IsRegisteredClient(context.Request.ClientId))
+            {
+                context.Reject(
+                    error: Errors.InvalidClient,
+                    description: "Bu istemci için yenileme belirteci kullanılamaz.");
+            }
+
+            return ValueTask.CompletedTask;
+        }
+
         if (!context.Request.IsPasswordGrantType())
         {
             context.Reject(

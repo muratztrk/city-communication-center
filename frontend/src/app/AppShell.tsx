@@ -477,7 +477,9 @@ export function AppShell() {
   useNavBadgeCountSound(pendingSmsDeliveryApprovalCount, pendingSmsDeliveryApprovalQuery.isSuccess, '/sms-delivery-approval')
   useNavBadgeCountSound(returnedCitizenRequestsNavCount, returnedCitizenRequestsCountQuery.isSuccess, '/returned-citizen-requests')
 
-  const isReporterNav = user?.role === 'Reporter'
+  const hasReporterRole = getEffectiveUserRoles(user).includes('Reporter')
+  const isManagerWithReporter = user?.role === 'Manager' && hasReporterRole
+  const isReporterNav = user?.role === 'Reporter' || isManagerWithReporter
   const isOperatorNav = user?.role === 'Operator'
   const isCitizenDashboardNav = isReporterNav || isOperatorNav
   const showCitizenDashboard = canAccessCitizenLicensedRoute('/dashboard')
@@ -505,9 +507,12 @@ export function AppShell() {
                 ]
               : []),
           ]
-        : [
+            : [
             { pageKey: 'dashboard' as const, path: showCitizenDashboard ? '/dashboard' : '/dashboard/birimler', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
           ]),
+    ...(isManagerWithReporter
+      ? [{ pageKey: 'dashboard' as const, path: '/dashboard/mudurluk', label: t('nav.dashboard', 'Anasayfa'), icon: LayoutDashboard, separatorAfter: true }]
+      : []),
     { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'edevletActivityPlansList' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: isCitizenOnlyLicense() || isCitizenRequestOperator ? Phone : ClipboardPlus, iconClassName: isCitizenOnlyLicense() || isCitizenRequestOperator ? 'text-sky-400 !size-4' : undefined },
@@ -700,9 +705,10 @@ export function AppShell() {
   }
 
   const breadcrumbLabels: Record<string, string> = {
-    dashboard: user?.role === 'Reporter' || user?.role === 'Operator'
+    dashboard: user?.role === 'Reporter' || user?.role === 'Operator' || (user?.role === 'Manager' && getEffectiveUserRoles(user).includes('Reporter'))
       ? t('nav.dashboardCitizen', 'Anasayfa - Vatandaş')
       : t('nav.dashboard'),
+    mudurluk: t('nav.dashboard', 'Anasayfa'),
     // Operatör birim anasayfası: breadcrumb da "Anasayfa" (#6a75bed6).
     birimler: user?.role === 'Operator'
       ? t('nav.dashboard', 'Anasayfa')

@@ -108,6 +108,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Müdür ek rol kısıtı:** Birincil rolü `Manager` (UI'da Müdür/Sorumlu) olan kullanıcıya
   `Staff` veya `CitizenRequestManager` ek rolü verilemez; frontend seçenekleri gizler ve backend
   `UserRoleAccess.ApplyAdditionalRoleCodes` kuralı zorunlu uygular (card #2273).
+- **Müdür + Üst Düzey Yönetici:** Birincil rolü `Manager` olup ek rolü `Reporter` olan kullanıcı
+  Üst Düzey sol menü başlıklarını (Anasayfa - Vatandaş, harita, bilgi listesi, Anasayfa - Birimler,
+  Vatandaş Talepleri, Whatsapp Mesaj Logları) ve o sayfaların Reporter verisini görür.
+  Müdür anasayfası `/dashboard/mudurluk` altında kalır. `Staff` / `CitizenRequestManager` ek rol yasağı
+  ve SystemAdmin sayfaları (ayar, kullanıcı, birim, denetim) değişmez.
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
 - **Desktop zoom (#3471):** 1280–1920 arası sidebar/content **sürekli** interpolasyon; pencere

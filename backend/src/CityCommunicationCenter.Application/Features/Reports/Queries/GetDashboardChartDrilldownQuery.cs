@@ -16,7 +16,8 @@ public sealed record GetDashboardChartDrilldownQuery(
     RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All,
     bool OverdueOnly = false,
     /// <summary>Anasayfa-Birimler / yönetici mahalle pie: VT dışı talepler de dahil (#6ac2799b).</summary>
-    bool IncludeNonCitizenRequests = false) : IQuery<DashboardChartDrilldownResponse>;
+    bool IncludeNonCitizenRequests = false,
+    bool ReporterOverview = false) : IQuery<DashboardChartDrilldownResponse>;
 
 public sealed class GetDashboardChartDrilldownQueryHandler
     : IQueryHandler<GetDashboardChartDrilldownQuery, DashboardChartDrilldownResponse>
@@ -46,18 +47,31 @@ public sealed class GetDashboardChartDrilldownQueryHandler
 
         // Birim Yöneticisi/Sorumlusu yalnız "Mahallelerdeki Tüm Talepler" detayına erişir ve yalnız
         // hedef birimi kendi birim(ler)i olan talepleri görür (#6abf5223).
+        // Ek rolü Üst Düzey Yönetici olan müdür tenant geneli reporter detayını görür.
         Guid[]? managerDepartmentScope = null;
-        if (context.RoleCode == "Manager" && chartKey == "neighborhoodAllRequests" && context.UserId.HasValue)
+        var allowReporterOverview = false;
+        if (context.RoleCode == "Manager" && context.UserId.HasValue)
         {
             var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
                 user => user.TenantId == tenantId && user.UserId == context.UserId.Value && user.IsActive,
                 cancellationToken);
-            managerDepartmentScope = actor is null
-                ? []
-                : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
-                    _dbContext, tenantId, actor, context.ActiveDepartmentId, cancellationToken);
+            allowReporterOverview = request.ReporterOverview
+                && actor is not null
+                && UserRoleAccess.HasRole(actor, RoleCode.Reporter);
+            if (chartKey == "neighborhoodAllRequests" && !allowReporterOverview)
+            {
+                managerDepartmentScope = actor is null
+                    ? []
+                    : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                        _dbContext, tenantId, actor, context.ActiveDepartmentId, cancellationToken);
+            }
         }
         else if (context.RoleCode is not ("Reporter" or "Operator" or "SystemAdmin"))
+        {
+            throw new ForbiddenAccessException("Bu rapor detayına yalnızca Üst Düzey Yönetici veya Vatandaş Talep Operatörü erişebilir.");
+        }
+
+        if (context.RoleCode == "Manager" && !allowReporterOverview && chartKey != "neighborhoodAllRequests")
         {
             throw new ForbiddenAccessException("Bu rapor detayına yalnızca Üst Düzey Yönetici veya Vatandaş Talep Operatörü erişebilir.");
         }

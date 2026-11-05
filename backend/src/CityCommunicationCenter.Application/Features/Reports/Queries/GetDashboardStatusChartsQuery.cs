@@ -16,7 +16,8 @@ public sealed record GetDashboardStatusChartsQuery(
     TaskDashboardFilter DepartmentTaskType = TaskDashboardFilter.All,
     TaskDashboardFilter MyTaskType = TaskDashboardFilter.All,
     RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All,
-    bool OverdueOnly = false)
+    bool OverdueOnly = false,
+    bool ReporterOverview = false)
     : IQuery<DashboardStatusChartsResponse>;
 
 public sealed class GetDashboardStatusChartsQueryHandler
@@ -42,6 +43,23 @@ public sealed class GetDashboardStatusChartsQueryHandler
         if (!context.UserId.HasValue)
         {
             return new DashboardStatusChartsResponse([]);
+        }
+
+        if (request.ReporterOverview && context.RoleCode == "Manager")
+        {
+            var reporterActor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
+                user => user.TenantId == tenantId && user.UserId == context.UserId.Value && user.IsActive,
+                cancellationToken);
+            if (reporterActor is not null && UserRoleAccess.HasRole(reporterActor, RoleCode.Reporter))
+            {
+                return await BuildStandardUserChartsAsync(
+                    tenantId,
+                    context.UserId.Value,
+                    "Reporter",
+                    context.ActiveDepartmentId,
+                    request,
+                    cancellationToken);
+            }
         }
 
         if (context.RoleCode is not ("Manager" or "SystemAdmin"))
@@ -336,41 +354,54 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
         if (roleCode is "Reporter" or "Operator")
         {
-            var citizenJobs = await ProjectCitizenJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
-                job.TenantId == tenantId
-                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
-                // VT numarası kaynağıdır; RequestType=Citizen şartı etiket/kanal grafikleriyle
-                // uyumsuz sıfır dilim üretiyordu (#r546 / Vatandaş Talepleri pie).
-                .WhereHasCitizenRequestNumber(_dbContext), cancellationToken);
-            charts.Add(BuildCitizenRequestsChart(citizenJobs, now));
-            charts.Add(await BuildRequestTagChartAsync(tenantId, request, cancellationToken));
-        }
-
-        // Üst Düzey Yönetici + Vatandaş Operatörü mahalle kırılımlarını görür (cards #1833/#1810).
-        if (roleCode is "Reporter" or "Operator")
-        {
-            charts.Add(await BuildNeighborhoodCompletedRequestsChartAsync(tenantId, request, cancellationToken));
-            charts.Add(await BuildNeighborhoodInProgressRequestsChartAsync(tenantId, request, cancellationToken));
-            charts.Add(await BuildNeighborhoodProcessingRequestsChartAsync(tenantId, request, cancellationToken));
-        }
-
-        // Üst Düzey Yönetici / Vatandaş Talep Operatörü Anasayfa-Vatandaş: birim bazlı VT durum
-        // pie'ları (#6a6cdec6, Operator'e genişletildi card #2245).
-        if (roleCode is "Reporter" or "Operator")
-        {
-            charts.AddRange(await BuildCitizenDepartmentStatusChartsAsync(tenantId, request, cancellationToken));
-        }
-
-        // Üst Düzey Yönetici (Reporter) tenant genelinde birim-dışı talep dağılımını görür (card #835, #763).
-        if (roleCode is "Reporter")
-        {
-            charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
-            charts.Add(await BuildEDevletPlanDepartmentChartAsync(tenantId, request, cancellationToken));
-            charts.Add(await BuildNeighborhoodAllRequestsChartTenantWideAsync(tenantId, request, cancellationToken));
+            var nowForCitizen = DateTimeOffset.UtcNow;
+            await AppendReporterOverviewChartsAsync(
+                charts,
+                tenantId,
+                request,
+                cancellationToken,
+                includeDepartmentOverview: roleCode == "Reporter",
+                nowForCitizen);
         }
 
         return new DashboardStatusChartsResponse(charts);
+    }
+
+    /// <summary>
+    /// Üst Düzey Yönetici panosundaki tenant geneli vatandaş ve birim pie'ları.
+    /// Birincil rolü Müdür olup ek rolü Reporter olan kullanıcı da aynı grafikleri alır.
+    /// </summary>
+    private async Task AppendReporterOverviewChartsAsync(
+        List<DashboardChartResponse> charts,
+        Guid tenantId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken,
+        bool includeDepartmentOverview,
+        DateTimeOffset? now = null)
+    {
+        var clock = now ?? DateTimeOffset.UtcNow;
+        var citizenJobs = await ProjectCitizenJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
+            job.TenantId == tenantId
+            && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+            && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .WhereHasCitizenRequestNumber(_dbContext), cancellationToken);
+        charts.Add(BuildCitizenRequestsChart(citizenJobs, clock));
+        charts.Add(await BuildRequestTagChartAsync(tenantId, request, cancellationToken));
+        charts.Add(await BuildNeighborhoodCompletedRequestsChartAsync(tenantId, request, cancellationToken));
+        charts.Add(await BuildNeighborhoodInProgressRequestsChartAsync(tenantId, request, cancellationToken));
+        charts.Add(await BuildNeighborhoodProcessingRequestsChartAsync(tenantId, request, cancellationToken));
+        charts.AddRange(await BuildCitizenDepartmentStatusChartsAsync(tenantId, request, cancellationToken));
+
+        if (!includeDepartmentOverview)
+        {
+            return;
+        }
+
+        charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
+        charts.Add(await BuildEDevletPlanDepartmentChartAsync(tenantId, request, cancellationToken));
+        var tenantNeighborhood = await BuildNeighborhoodAllRequestsChartTenantWideAsync(tenantId, request, cancellationToken);
+        charts.RemoveAll(chart => chart.TitleKey == tenantNeighborhood.TitleKey);
+        charts.Add(tenantNeighborhood);
     }
 
     private async Task<DashboardChartResponse> BuildRequestTagChartAsync(

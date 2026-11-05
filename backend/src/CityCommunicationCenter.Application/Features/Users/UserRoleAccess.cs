@@ -12,6 +12,16 @@ public static class UserRoleAccess
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
+    public static bool HasRole(ApplicationUser user, RoleCode role)
+    {
+        if (user.RoleCode == role)
+        {
+            return true;
+        }
+
+        return ParseAdditionalRoleCodes(user.AdditionalRoleCodesJson).Contains(role);
+    }
+
     public static IReadOnlyList<RoleCode> ParseAdditionalRoleCodes(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))

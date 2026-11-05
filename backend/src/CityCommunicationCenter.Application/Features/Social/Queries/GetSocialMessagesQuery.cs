@@ -42,9 +42,11 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
         {
             query = query.Where(entity => false);
         }
-        else if (actor.RoleCode is RoleCode.SystemAdmin or RoleCode.Operator or RoleCode.Reporter)
+        else if (actor.RoleCode is RoleCode.SystemAdmin or RoleCode.Operator or RoleCode.Reporter
+            || (actor.RoleCode == RoleCode.Manager && UserRoleAccess.HasRole(actor, RoleCode.Reporter)))
         {
-            // Operators and top-level reporters see the full citizen inbox, including converted requests.
+            // SystemAdmin, Operator, Reporter ve ek rolü Üst Düzey Yönetici olan müdür
+            // tüm vatandaş taleplerini görür.
         }
         else if (actor.RoleCode != RoleCode.SystemAdmin)
         {

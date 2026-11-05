@@ -100,6 +100,7 @@ export default function App() {
           <Route path="/login" element={<Navigate to={getDefaultLandingPath(user)} replace />} />
           <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" user={user}><CitizenDashboardGate user={user}><DashboardPage /></CitizenDashboardGate></PageAccessGate>} />
           <Route path="/dashboard/birimler" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage view="departments" /></PageAccessGate>} />
+          <Route path="/dashboard/mudurluk" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage view="manager" /></PageAccessGate>} />
           <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" user={user}><EDevletActivityPlanPage /></PageAccessGate>} />
           <Route path="/edevlet/activity-plans" element={<PageAccessGate pageKey="edevletActivityPlansList" user={user}><EDevletActivityPlansListPage /></PageAccessGate>} />
           <Route path="/edevlet/basvurular" element={<PageAccessGate pageKey="social" user={user}><EDevletBasvurularPage /></PageAccessGate>} />

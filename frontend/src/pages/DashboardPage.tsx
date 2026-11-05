@@ -270,7 +270,7 @@ const OPERATOR_DEPARTMENT_CHART_KEYS = new Set([
   'dashboard.charts.myRequests',
 ])
 
-export type DashboardView = 'full' | 'citizen' | 'departments'
+export type DashboardView = 'full' | 'citizen' | 'departments' | 'manager'
 
 interface DashboardPageProps {
   view?: DashboardView
@@ -441,10 +441,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const navigate = useNavigate()
   const { user: currentUser } = useAuth()
   const role = currentUser?.role ?? ''
-  const isSplitDashboardRole = role === 'Reporter' || role === 'Operator'
-  const effectiveView: DashboardView = isSplitDashboardRole
-    ? (view === 'full' ? 'citizen' : view)
-    : 'full'
+  const hasAdditionalReporter = role === 'Manager' && getEffectiveUserRoles(currentUser).includes('Reporter')
+  const isManagerHome = view === 'manager'
+  const isSplitDashboardRole = !isManagerHome && (role === 'Reporter' || role === 'Operator' || hasAdditionalReporter)
+  const effectiveView: DashboardView = isManagerHome
+    ? 'full'
+    : isSplitDashboardRole
+      ? (view === 'full' ? 'citizen' : view)
+      : 'full'
 
   const [period, setPeriod] = useState<Period>('yearly')
   const [customFrom, setCustomFrom] = useState('')
@@ -570,8 +574,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       to: activeTo,
       departmentId: activeDeptId,
       overdueOnly: dashboardOverdueOnly || undefined,
+      reporterOverview: (hasAdditionalReporter && !isManagerHome) || undefined,
     }),
-    queryFn: () => api.getCitizenChannelChart(apiFrom, apiTo, dashboardOverdueOnly),
+    queryFn: () => api.getCitizenChannelChart(apiFrom, apiTo, dashboardOverdueOnly, hasAdditionalReporter && !isManagerHome),
     enabled: canSeeCitizenChannels,
     refetchInterval: 60_000,
   })
@@ -585,11 +590,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       staffTaskType: taskChartFilters['dashboard.charts.staffTasks'],
       myTaskType: taskChartFilters['dashboard.charts.myTasks'],
       overdueOnly: dashboardOverdueOnly || undefined,
+      reporterOverview: (hasAdditionalReporter && !isManagerHome) || undefined,
     }),
     queryFn: () => api.getDashboardStatusCharts(apiFrom, apiTo, {
       staff: taskChartFilters['dashboard.charts.staffTasks'],
       mine: taskChartFilters['dashboard.charts.myTasks'],
       overdueOnly: dashboardOverdueOnly,
+      reporterOverview: hasAdditionalReporter && !isManagerHome,
     }),
     enabled: true,
     refetchInterval: 60_000,
@@ -631,13 +638,17 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/citizen-directory'} replace />
   }
 
-  if (effectiveView === 'departments' && role === 'Reporter' && !isModuleUsable('internal')) {
+  if (isManagerHome && !hasAdditionalReporter) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  if (effectiveView === 'departments' && (role === 'Reporter' || hasAdditionalReporter) && !isModuleUsable('internal')) {
     return <Navigate to={isModuleUsable('citizen') ? '/dashboard' : '/citizen-directory'} replace />
   }
 
   // Üst Düzey Yönetici (Reporter) yalnızca talep oluşturur; "Bekleyen Görevlerim" gösterilmez.
-  const isReporter = role === 'Reporter'
-  const isCitizenDashboardDrilldownRole = role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin'
+  const isReporter = role === 'Reporter' || (hasAdditionalReporter && !isManagerHome)
+  const isCitizenDashboardDrilldownRole = role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin' || isReporter
   const hideMetricCards = effectiveView === 'citizen'
     || (effectiveView === 'departments' && role !== 'Operator')
 
@@ -824,6 +835,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       if (isReporter) return REPORTER_DEPARTMENT_CHART_KEYS.has(card.titleKey)
       if (role === 'Operator') return OPERATOR_DEPARTMENT_CHART_KEYS.has(card.titleKey)
       return false
+    }
+    if (isManagerHome) {
+      return MANAGER_DASHBOARD_CHART_ORDER.includes(card.titleKey)
     }
     // Unified (non-split) dashboard: Reporter still hides task charts.
     return !isReporter || card.titleKey !== 'dashboard.charts.myTasks'
@@ -1238,6 +1252,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           from={apiFrom}
           to={apiTo}
           overdueOnly={dashboardOverdueOnly}
+          reporterOverview={hasAdditionalReporter && !isManagerHome}
           jobDetailTitle={t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')}
           onClose={() => setChartDrilldown(null)}
         />
@@ -1249,14 +1264,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           from={apiFrom}
           to={apiTo}
           overdueOnly={dashboardOverdueOnly}
+          reporterOverview={hasAdditionalReporter && !isManagerHome}
           rowSearch={effectiveView === 'citizen' ? debouncedPanelSearch : undefined}
           includeNonCitizenRequests={
             chartDrilldown.chartKey === 'dashboard.charts.neighborhoodAllRequests'
-            && (effectiveView === 'departments' || role === 'Manager')
+            && (effectiveView === 'departments' || isManagerHome)
           }
           jobDetailTitle={
             chartDrilldown.chartKey === 'dashboard.charts.neighborhoodAllRequests'
-              && (effectiveView === 'departments' || role === 'Manager')
+              && (effectiveView === 'departments' || isManagerHome)
               ? t('dashboard.pieJobDetailTitle', 'Birim Talebi')
               : effectiveView === 'citizen'
                 ? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')

@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Features.Users;
+
 namespace CityCommunicationCenter.Application.Features.Reports;
 
 /// <summary>
@@ -31,7 +33,8 @@ public sealed class GetDashboardEDevletPlansQueryHandler
     {
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
-        if (context.RoleCode is not ("Reporter" or "SystemAdmin"))
+        if (context.RoleCode is not ("Reporter" or "SystemAdmin")
+            && !await HasAdditionalReporterRoleAsync(context, tenantId, cancellationToken))
         {
             throw new ForbiddenAccessException("Bu rapor detayına yalnızca Üst Düzey Yönetici erişebilir.");
         }
@@ -65,5 +68,21 @@ public sealed class GetDashboardEDevletPlansQueryHandler
             .ToListAsync(cancellationToken);
 
         return new DashboardEDevletPlansResponse(departmentName, rows);
+    }
+
+    private async Task<bool> HasAdditionalReporterRoleAsync(
+        TenantContext context,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        if (context.RoleCode != "Manager" || !context.UserId.HasValue)
+        {
+            return false;
+        }
+
+        var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
+            user => user.TenantId == tenantId && user.UserId == context.UserId.Value && user.IsActive,
+            cancellationToken);
+        return actor is not null && UserRoleAccess.HasRole(actor, RoleCode.Reporter);
     }
 }

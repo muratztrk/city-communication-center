@@ -10,7 +10,8 @@ namespace CityCommunicationCenter.Application.Features.Reports;
 public sealed record GetCitizenChannelChartQuery(
     DateTimeOffset? FromUtc,
     DateTimeOffset? ToUtc,
-    bool OverdueOnly = false)
+    bool OverdueOnly = false,
+    bool ReporterOverview = false)
     : IQuery<DashboardChartResponse>;
 
 public sealed class GetCitizenChannelChartQueryHandler
@@ -70,24 +71,30 @@ public sealed class GetCitizenChannelChartQueryHandler
             var actor = await _dbContext.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.UserId == context.UserId.Value && u.TenantId == tenantId && u.IsActive, cancellationToken);
-            var scopedDepartmentIds = actor is null
-                ? []
-                : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
-                    _dbContext,
-                    tenantId,
-                    actor,
-                    context.ActiveDepartmentId,
-                    cancellationToken);
-
-            if (scopedDepartmentIds.Length == 0)
+            var seesTenantWide = request.ReporterOverview
+                && actor is not null
+                && UserRoleAccess.HasRole(actor, RoleCode.Reporter);
+            if (!seesTenantWide)
             {
-                return new DashboardChartResponse("dashboard.citizenChannels.title", []);
-            }
+                var scopedDepartmentIds = actor is null
+                    ? []
+                    : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                        _dbContext,
+                        tenantId,
+                        actor,
+                        context.ActiveDepartmentId,
+                        cancellationToken);
 
-            citizenJobs = citizenJobs.Where(j => scopedDepartmentIds.Contains(j.OwnerDepartmentId)
-                || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
-                    && jd.Role == JobDepartmentRole.Target
-                    && scopedDepartmentIds.Contains(jd.DepartmentId)));
+                if (scopedDepartmentIds.Length == 0)
+                {
+                    return new DashboardChartResponse("dashboard.citizenChannels.title", []);
+                }
+
+                citizenJobs = citizenJobs.Where(j => scopedDepartmentIds.Contains(j.OwnerDepartmentId)
+                    || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
+                        && jd.Role == JobDepartmentRole.Target
+                        && scopedDepartmentIds.Contains(jd.DepartmentId)));
+            }
         }
 
         if (request.OverdueOnly)

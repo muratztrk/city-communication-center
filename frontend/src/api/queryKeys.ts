@@ -9,6 +9,7 @@ type DateRange = {
   myTaskType?: string
   requestTagStatus?: string
   overdueOnly?: boolean
+  reporterOverview?: boolean
 }
 
 const normalize = <T extends Record<string, unknown>>(value: T) =>

@@ -223,7 +223,7 @@ If API logs show `column ... does not exist`, the schema is ahead of the migrati
 - Supported grants: `password`; `refresh_token` only for the registered mobile client.
 - OpenIddict server runs in degraded/stateless mode with token storage disabled.
 - Mobile refresh tokens are revocable through `users.mobilesessionid`: every refresh must match that column, and clearing it (logout, password change) ends the session. Do not issue refresh tokens to other clients or add OpenIddict EF stores unless the storage model changes intentionally.
-- `users.mobilesessionid` is separate from `users.activesessionid`, so a web login does not end a mobile session. Refreshing must not rotate either value. Refresh tokens have a fixed lifetime (`Authentication:MobileOidc:RefreshTokenLifetimeDays`, default 30) and skip the second-factor check until they expire.
+- `users.mobilesessionid` is separate from `users.activesessionid`, so a web login does not end a mobile session. Refreshing must not rotate either value. Mobile refresh tokens do not expire; logout, a password change, or a new mobile login ends them by clearing `users.mobilesessionid`. They skip the second-factor check. The stable HMAC signing key is registered before the ephemeral RSA key so access and refresh tokens survive an API restart.
 - Tenant selection is passed as custom token parameter: `tenant_id`
 
 ### Login Source Order

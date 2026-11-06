@@ -4038,7 +4038,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **Tenant çözümleme önceliği:** `X-Tenant-Id` header > `CustomDomain` (Host) > `SingleTenant`
   (tek aktif) > `ManualSelection`.
-- **OpenIddict stateless password flow; refresh token YOK; access token 9 saat; session cookie sliding 540 dk.**
+- **OpenIddict stateless password flow; mobil refresh token süresiz (çıkış, şifre değişimi veya yeni mobil giriş bitirir); access token 9 saat ve refresh ile yenilenir; session cookie sliding 540 dk.**
 - **`RoleCode` → Türkçe etiket (kartlar bu adları kullanır):** `Reporter` = "Üst Düzey Yönetici",
   `Operator` = "Vatandaş Talep Operatörü", `CitizenRequestManager` = "Vatandaş Talep Yöneticisi",
   `Manager` = "Müdür". CRM scoped rol — detay [`authorization-matrix.md`](authorization-matrix.md) §1.1.

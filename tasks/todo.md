@@ -1,3 +1,10 @@
+## Round 1507 — ek rol, son giriş, log araması, LDAP pasif
+
+- [x] Kullanıcılar ek rol menüsünün son satırı Sistem Yöneticisi (#4299).
+- [x] Kullanıcılar gridinde Durum altında son başarılı giriş tarihi ve saati (#4300).
+- [x] Log araması sekme çubuğunun altında; griddeki tüm metin aranır (#4301).
+- [x] LDAP’ta kapatılan hesap senkronda pasifleşir, oturumu kapanır, atama listesinde görünmez (#4302).
+
 ## Round 1506 — çözme süresi gün ve onay bekleyen listede planlanan
 
 - [x] Anasayfa `Personelimin Görevi Çözme Süresi` pastası başlık ve ortalama değeri gün cinsinden (#4294).

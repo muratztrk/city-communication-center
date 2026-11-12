@@ -830,6 +830,7 @@
     "active": "Aktif",
     "inactive": "Pasif",
     "status": "Durum",
+    "lastLoginNever": "Giriş yok",
     "empty": "Henüz kullanıcı bulunmuyor",
     "deleteConfirm": "\"{{name}}\" kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
     "departmentWillBeCreated": "yeni oluşturulacak",

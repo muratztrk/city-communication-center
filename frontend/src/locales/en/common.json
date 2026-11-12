@@ -826,6 +826,7 @@
     "active": "Active",
     "inactive": "Inactive",
     "status": "Status",
+    "lastLoginNever": "No login",
     "empty": "No users found yet",
     "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
     "departmentWillBeCreated": "will be created",

@@ -266,6 +266,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             user.Phone,
             departments,
             UserRoleAccess.GetAdditionalRoleCodeStrings(user),
-            user.MobilePhone);
+            user.MobilePhone,
+            user.LastSuccessfulLoginAtUtc);
     }
 }

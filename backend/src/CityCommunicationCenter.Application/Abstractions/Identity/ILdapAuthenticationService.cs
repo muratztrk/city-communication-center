@@ -12,6 +12,9 @@ public interface ILdapAuthenticationService
     /// <summary>LDAP'taki kullanıcı hesaplarını önek taramasıyla listeler (toplu ekleme). Otomatik kullanıcı oluşturmaz.</summary>
     Task<IReadOnlyList<LdapDirectoryUser>> ListUsersAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
+    /// <summary>LDAP'ta hesabı kapatılmış (ACCOUNTDISABLE) kullanıcıları listeler. Senkron bunları sistemde pasifleştirir (#4302).</summary>
+    Task<IReadOnlyList<LdapDirectoryUser>> ListDisabledUsersAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
     Task<LdapDirectoryUser?> FindUserByUsernameAsync(Guid tenantId, string username, CancellationToken cancellationToken = default);
 
     Task<LdapDirectoryUser?> FindUserByExternalIdentityAsync(Guid tenantId, string externalIdentityId, CancellationToken cancellationToken = default);

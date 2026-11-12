@@ -117,6 +117,7 @@ export interface User {
   roleCode: string;
   additionalRoleCodes?: string[] | null;
   isActive: boolean;
+  lastSuccessfulLoginAtUtc?: string | null;
   userSource: string;
   title: string | null;
   phone: string | null;

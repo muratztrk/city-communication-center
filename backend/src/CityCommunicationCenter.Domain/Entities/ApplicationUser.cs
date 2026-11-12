@@ -33,6 +33,9 @@ public sealed class ApplicationUser : AuditableTenantEntity, IHasDatabaseIndexDe
 
     public bool IsActive { get; set; } = true;
 
+    /// <summary>Son başarılı giriş. Kullanıcılar gridinde Durum altında gösterilir (#4300).</summary>
+    public DateTimeOffset? LastSuccessfulLoginAtUtc { get; set; }
+
     /// <summary>
     /// Tek aktif oturum kimliği — yeni login önceki oturumu geçersiz kılar (#6a6c805e).
     /// </summary>

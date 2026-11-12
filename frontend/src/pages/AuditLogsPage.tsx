@@ -313,6 +313,7 @@ export function AuditLogsPage() {
           row.actorDisplayName ?? '',
           row.entityNumber ?? '',
           row.entityTitle ?? '',
+          row.dateText,
         ].join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }
@@ -409,6 +410,7 @@ export function AuditLogsPage() {
           row.citizenDisplayName,
           row.requestNumber ?? '',
           row.smsOutboundLogId,
+          row.dateText,
         ].join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }
@@ -473,6 +475,7 @@ export function AuditLogsPage() {
           row.subject ?? '',
           row.statusLabel,
           row.mailOutboundLogId,
+          row.dateText,
         ].join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }
@@ -527,26 +530,6 @@ export function AuditLogsPage() {
             </div>
             <div className="ml-auto mt-auto flex shrink-0 flex-wrap items-end gap-3">
               <div className="scope-chips-filters">
-                <div className="scope-chip-search-wrap">
-                  <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
-                  <input
-                    type="text"
-                    className="scope-chip-search-input"
-                    placeholder={t('common.search', 'Ara...')}
-                    value={searchText}
-                    onChange={e => { setSearchText(e.target.value); setCurrentPage(1) }}
-                  />
-                  {searchText ? (
-                    <button
-                      type="button"
-                      onClick={() => { setSearchText(''); setCurrentPage(1) }}
-                      className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
-                      aria-label={t('common.clear', 'Temizle')}
-                    >
-                      <XIcon className="size-3.5" strokeWidth={3} />
-                    </button>
-                  ) : null}
-                </div>
                 <ScopeChipDateRange
                   from={filterFrom}
                   to={filterTo}
@@ -614,6 +597,28 @@ export function AuditLogsPage() {
             >
               {t('audit.scopes.mailLog', 'Mail Log')}
             </button>
+          </div>
+          <div className="border-t border-slate-100 px-4 py-2">
+            <div className="scope-chip-search-wrap max-w-xs">
+              <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
+              <input
+                type="text"
+                className="scope-chip-search-input"
+                placeholder={t('common.search', 'Ara...')}
+                value={searchText}
+                onChange={e => { setSearchText(e.target.value); setCurrentPage(1) }}
+              />
+              {searchText ? (
+                <button
+                  type="button"
+                  onClick={() => { setSearchText(''); setCurrentPage(1) }}
+                  className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
+                  aria-label={t('common.clear', 'Temizle')}
+                >
+                  <XIcon className="size-3.5" strokeWidth={3} />
+                </button>
+              ) : null}
+            </div>
           </div>
         </div>
       </section>

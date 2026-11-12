@@ -16,9 +16,9 @@ public sealed class WhatsAppInboundIdentityTests
     [Fact]
     public void FromMessageId_reads_the_user_id_that_opened_the_window()
     {
-        var identity = WhatsAppInboundIdentity.FromMessageId(Wamid("TR.1159231116552749"));
+        var identity = WhatsAppInboundIdentity.FromMessageId(Wamid("TR.13491208655302741"));
 
-        Assert.Equal("TR.1159231116552749", identity);
+        Assert.Equal("TR.13491208655302741", identity);
     }
 
     [Theory]

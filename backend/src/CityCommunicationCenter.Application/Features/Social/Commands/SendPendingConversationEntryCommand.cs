@@ -57,16 +57,8 @@ public sealed class SendPendingConversationEntryCommandHandler
                 await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(_dbContext, tenantId, message, cancellationToken),
                 utcNow);
 
-        if (WhatsAppServiceWindow.IsReEngagementFailure(entry))
-        {
-            throw new ValidationException([
-                new FluentValidation.Results.ValidationFailure(
-                    nameof(request.EntryId),
-                    WhatsAppServiceWindow.ReEngagementOperatorMessage)
-            ]);
-        }
-
         // Pencere kapalıyken serbest metin WhatsApp'a gitmez; kimlik yazılıp Failed'e düşmesin.
+        // Pencere açıksa Failed re-engagement (yanlış numaraya gitmiş durum şablonu) yeniden gönderilebilir.
         if (message.Channel == SocialChannel.WhatsApp
             && !windowOpen
             && string.IsNullOrWhiteSpace(entry.WhatsAppTemplateName))
@@ -136,8 +128,9 @@ public sealed class SendPendingConversationEntryCommandHandler
 
         if (message.Channel == SocialChannel.WhatsApp && client is not null)
         {
-            var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+            var recipientPhone = await WhatsAppRecipientResolver.ResolveWhatsAppRecipientAsync(
                 _dbContext,
+                tenantId,
                 message,
                 cancellationToken);
 

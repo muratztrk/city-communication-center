@@ -2872,6 +2872,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   re-engagement balonu Beklemede/Mesajı Gönder göstermez. Otomatik durum şablonu
   (`talebinizin durumu`) Failed olsa da Beklemede + Düzenle / Onaylayan Personel / Mesajı Gönder
   gösterir (#3912).
+- **WA gönderim hedefi:** son gelen mesajın Meta kimliği (`wamid` başı). Telefonla yazdıysa o `wa_id`,
+  kullanıcı adıyla yazdıysa BSUID (`recipient`). Talep formuna yazılan telefon `CitizenPhone` ve SMS
+  alıcısı olarak kalır; WhatsApp hedefinin üzerine yazılmaz. Pencere açıkken bu kimliğe giden
+  `Failed` re-engagement durum şablonu `Mesajı Gönder` ile yeniden iletilir.
 - **Otomatik WA 24s (#3912):** talep oluşturma / non-terminal durum (İşleme Alındı, Yapılmakta)
   serbest metin, son inbound ≥24s ise WhatsApp'a gitmez. Failed balon yazılmaz; `Pending` kuyruk
   (Düzenle / Onaylayan Personel / Mesajı Gönder). Plana Alındı aynı kuyrukta Beklemede kalır;

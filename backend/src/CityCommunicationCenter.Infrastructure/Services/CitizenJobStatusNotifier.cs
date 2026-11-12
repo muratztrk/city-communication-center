@@ -608,8 +608,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         if (!requireApproval && !queueForOperator)
         {
-            var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+            var recipientPhone = await WhatsAppRecipientResolver.ResolveWhatsAppRecipientAsync(
                 _dbContext,
+                tenantId,
                 message,
                 cancellationToken);
             var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);

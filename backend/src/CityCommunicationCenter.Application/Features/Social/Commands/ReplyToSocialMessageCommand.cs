@@ -91,8 +91,9 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
                 var whatsAppWindowOpen = false;
                 if (isWhatsApp)
                 {
-                    var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+                    var recipientPhone = await WhatsAppRecipientResolver.ResolveWhatsAppRecipientAsync(
                         _dbContext,
+                        tenantId,
                         message,
                         cancellationToken);
                     if (!string.IsNullOrWhiteSpace(recipientPhone))
@@ -399,8 +400,9 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
 
             deliveryStatus = ConversationDeliveryStatus.Failed;
             var client = _clientFactory.GetClient(message.Channel, tenantId);
-            var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+            var recipientPhone = await WhatsAppRecipientResolver.ResolveWhatsAppRecipientAsync(
                 _dbContext,
+                tenantId,
                 message,
                 cancellationToken);
 

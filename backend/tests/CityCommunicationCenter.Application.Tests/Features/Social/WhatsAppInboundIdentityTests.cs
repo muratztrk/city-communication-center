@@ -32,7 +32,12 @@ public sealed class WhatsAppInboundIdentityTests
 
     private static string Wamid(string identity)
     {
-        var payload = Encoding.ASCII.GetBytes(identity + "\u001cXXXX");
+        var body = Encoding.ASCII.GetBytes(identity);
+        var payload = new byte[3 + body.Length + 4];
+        payload[0] = 0x1C;
+        payload[1] = 0x18;
+        payload[2] = (byte)body.Length;
+        body.CopyTo(payload, 3);
         return "wamid." + Convert.ToBase64String(payload);
     }
 }

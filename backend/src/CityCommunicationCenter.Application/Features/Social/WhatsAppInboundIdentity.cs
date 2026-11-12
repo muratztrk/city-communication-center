@@ -43,33 +43,67 @@ public static class WhatsAppInboundIdentity
             return null;
         }
 
-        if (bytes[0] is >= (byte)'0' and <= (byte)'9')
+        // Gerçek wamid: 0x1C 0x18 <uzunluk> <kimlik>. Kimlik başta değil.
+        if (bytes[0] == 0x1C && bytes[1] == 0x18)
         {
-            var end = 0;
-            while (end < bytes.Length && bytes[end] is >= (byte)'0' and <= (byte)'9')
+            var length = bytes[2];
+            if (length >= 4 && 3 + length <= bytes.Length)
             {
-                end++;
+                var prefixed = ReadIdentity(bytes, 3, length);
+                if (prefixed is not null)
+                {
+                    return prefixed;
+                }
             }
-
-            return end is >= 10 and <= 15
-                ? Encoding.ASCII.GetString(bytes, 0, end)
-                : null;
         }
 
-        if (!char.IsLetter((char)bytes[0]) || !char.IsLetter((char)bytes[1]) || bytes[2] != (byte)'.')
+        return ReadIdentity(bytes, 0, bytes.Length);
+    }
+
+    private static string? ReadIdentity(byte[] bytes, int start, int length)
+    {
+        if (start < 0 || length < 4 || start + length > bytes.Length)
         {
             return null;
         }
 
-        var identityEnd = 3;
-        while (identityEnd < bytes.Length
-            && identityEnd < 128
+        if (bytes[start] is >= (byte)'0' and <= (byte)'9')
+        {
+            var end = start;
+            var limit = start + length;
+            while (end < limit && bytes[end] is >= (byte)'0' and <= (byte)'9')
+            {
+                end++;
+            }
+
+            var digitCount = end - start;
+            return digitCount is >= 10 and <= 15 && digitCount == length
+                ? Encoding.ASCII.GetString(bytes, start, digitCount)
+                : null;
+        }
+
+        if (length < 4
+            || !char.IsLetter((char)bytes[start])
+            || !char.IsLetter((char)bytes[start + 1])
+            || bytes[start + 2] != (byte)'.')
+        {
+            return null;
+        }
+
+        var identityEnd = start + 3;
+        var identityLimit = Math.Min(start + length, start + 128);
+        while (identityEnd < identityLimit
             && (char.IsLetterOrDigit((char)bytes[identityEnd]) || bytes[identityEnd] == (byte)'.'))
         {
             identityEnd++;
         }
 
-        var userId = Encoding.ASCII.GetString(bytes, 0, identityEnd);
+        if (identityEnd - start != length)
+        {
+            return null;
+        }
+
+        var userId = Encoding.ASCII.GetString(bytes, start, length);
         return WhatsAppBusinessScopedUserId.IsValid(userId) ? userId : null;
     }
 }

@@ -1,3 +1,8 @@
+## Round 1508 — log arama görünümü ve son giriş bullet
+
+- [x] Log sayfası arama kutusu Kullanıcılar aramasıyla aynı görünür (#4301).
+- [x] Kullanıcılar gridinde son giriş tarihi ile saati aynı satırdaysa aralarında küçük bullet vardır; saat alt satırdaysa bullet yoktur (#4300).
+
 ## Round 1507 — ek rol, son giriş, log araması, LDAP pasif
 
 - [x] Kullanıcılar ek rol menüsünün son satırı Sistem Yöneticisi (#4299).

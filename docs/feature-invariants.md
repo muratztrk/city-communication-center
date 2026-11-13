@@ -1737,6 +1737,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ham dump yok; varsa yalnızca lokalize durum (card #1713 Detay).
   Tarih hücresi `DateTimeText`: saat önünde küçük dairesel bullet (#4164). Sistem, talep, görev, SMS ve e-posta log gridleri aynı.
   Arama kutusu sekme çubuğunun altında, Sistem Log sekmesinin hizasında; tarih aralığı banner’da kalır.
+  Kutunun görünümü Kullanıcılar aramasıyla aynı: `citizen-directory-search-input field-input`, solda
+  arama ikonu, genişlik `%25` / `10–20rem` (#4301).
   Arama tüm sekmelerde gridde görünen metni (tarih dahil) `toLocaleLowerCase('tr')` ile tarar (#4301).
   Vatandaşa Giden SMS ve Mail Log Tarih kolonu `min-w-[9.5rem]` ve tek satır (#4164 r2).
   Log grid Tarih verisi `.audit-log-date` ile biraz küçük (`0.8rem`, #4164 r3).
@@ -2953,7 +2955,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sistem Yöneticisi (`additionalRoleFormOptions`, #3429 reopen, #4299). Birincil rol listeden düşer.
   Kullanıcılar gridinde Durum değerinin altında son başarılı giriş (`LastSuccessfulLoginAtUtc`,
   boşsa “Giriş yok”); login bu alanı ve `Login` audit kaydını yazar, migration geçmiş Login’lerden
-  doldurur (#4300).
+  doldurur (#4300). Tarih ve saat aynı satırdaysa aralarında küçük dairesel bullet vardır; saat
+  alt satıra düşerse bullet yoktur (#4300).
   Grid Ek Roller/Ek birimler footer Çıkış/Seç ~0.85rem (#r526/#1994).
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`
   (eski “… Planı” kaldırıldı; RoleCode değişmez).

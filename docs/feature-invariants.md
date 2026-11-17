@@ -2956,7 +2956,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kullanıcılar gridinde Durum değerinin altında son başarılı giriş (`LastSuccessfulLoginAtUtc`,
   boşsa “Giriş yok”); login bu alanı ve `Login` audit kaydını yazar, migration geçmiş Login’lerden
   doldurur (#4300). Tarih ve saat aynı satırdaysa aralarında küçük dairesel bullet vardır; saat
-  alt satıra düşerse bullet yoktur (#4300).
+  alt satıra düşerse bullet yoktur. Durum hücresinde durum etiketi ve son giriş metni ortalanır (#4300).
   Grid Ek Roller/Ek birimler footer Çıkış/Seç ~0.85rem (#r526/#1994).
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`
   (eski “… Planı” kaldırıldı; RoleCode değişmez).

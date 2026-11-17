@@ -1,3 +1,7 @@
+## Round 1509 — son giriş ortala
+
+- [x] Kullanıcılar gridinde Durum altındaki son giriş tarihi ve saati sütunda ortalanır (#4300).
+
 ## Round 1508 — log arama görünümü ve son giriş bullet
 
 - [x] Log sayfası arama kutusu Kullanıcılar aramasıyla aynı görünür (#4301).

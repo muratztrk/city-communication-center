@@ -119,7 +119,24 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 .ToArray();
         }
 
-        return await Task.Run(() => ListUsersInternal(settings), cancellationToken);
+        return await Task.Run(() => ListUsersInternal(settings, disabledAccounts: false), cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<LdapDirectoryUser>> ListDisabledUsersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var settings = await _tenantLdapSettingsService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
+        if (!settings.CanSearch)
+        {
+            return [];
+        }
+
+        // Mock dizinde disable bayrağı yok; yalnız gerçek LDAP sorgusu pasif hesap döner.
+        if (settings.MockUsers.Count > 0 && string.IsNullOrWhiteSpace(settings.Host))
+        {
+            return [];
+        }
+
+        return await Task.Run(() => ListUsersInternal(settings, disabledAccounts: true), cancellationToken);
     }
 
     public async Task<LdapDirectoryUser?> FindUserByUsernameAsync(Guid tenantId, string username, CancellationToken cancellationToken = default)
@@ -574,7 +591,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         return names.ToArray();
     }
 
-    private IReadOnlyList<LdapDirectoryUser> ListUsersInternal(TenantLdapRuntimeSettings settings)
+    private IReadOnlyList<LdapDirectoryUser> ListUsersInternal(TenantLdapRuntimeSettings settings, bool disabledAccounts)
     {
         if (string.IsNullOrWhiteSpace(settings.Host) || string.IsNullOrWhiteSpace(settings.SearchBase))
         {
@@ -595,8 +612,11 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 try
                 {
                     var escaped = Escape(prefix.ToString());
+                    var accountClause = disabledAccounts
+                        ? "(userAccountControl:1.2.840.113556.1.4.803:=2)"
+                        : "(!(userAccountControl:1.2.840.113556.1.4.803:=2))";
                     var filter =
-                        $"(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$))(!(userAccountControl:1.2.840.113556.1.4.803:=2))(|({settings.UserAttribute}={escaped}*)(sAMAccountName={escaped}*)(displayName={escaped}*)(cn={escaped}*)))";
+                        $"(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$)){accountClause}(|({settings.UserAttribute}={escaped}*)(sAMAccountName={escaped}*)(displayName={escaped}*)(cn={escaped}*)))";
                     var request = new SearchRequest(
                         settings.SearchBase,
                         filter,

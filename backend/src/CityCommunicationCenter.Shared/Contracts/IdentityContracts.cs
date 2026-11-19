@@ -37,7 +37,8 @@ public sealed record UserSummaryResponse(
     string? Phone = null,
     IReadOnlyList<DepartmentSummaryResponse>? Departments = null,
     IReadOnlyList<string>? AdditionalRoleCodes = null,
-    string? MobilePhone = null);
+    string? MobilePhone = null,
+    DateTimeOffset? LastSuccessfulLoginAtUtc = null);
 
 public sealed record CreateUserRequest(
     string? Username,

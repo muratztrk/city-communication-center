@@ -2,7 +2,7 @@ import { Fragment, useCallback, useMemo, useState, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
-import { Search, X as XIcon } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -313,6 +313,7 @@ export function AuditLogsPage() {
           row.actorDisplayName ?? '',
           row.entityNumber ?? '',
           row.entityTitle ?? '',
+          row.dateText,
         ].join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }
@@ -409,6 +410,7 @@ export function AuditLogsPage() {
           row.citizenDisplayName,
           row.requestNumber ?? '',
           row.smsOutboundLogId,
+          row.dateText,
         ].join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }
@@ -473,6 +475,7 @@ export function AuditLogsPage() {
           row.subject ?? '',
           row.statusLabel,
           row.mailOutboundLogId,
+          row.dateText,
         ].join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }
@@ -527,26 +530,6 @@ export function AuditLogsPage() {
             </div>
             <div className="ml-auto mt-auto flex shrink-0 flex-wrap items-end gap-3">
               <div className="scope-chips-filters">
-                <div className="scope-chip-search-wrap">
-                  <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
-                  <input
-                    type="text"
-                    className="scope-chip-search-input"
-                    placeholder={t('common.search', 'Ara...')}
-                    value={searchText}
-                    onChange={e => { setSearchText(e.target.value); setCurrentPage(1) }}
-                  />
-                  {searchText ? (
-                    <button
-                      type="button"
-                      onClick={() => { setSearchText(''); setCurrentPage(1) }}
-                      className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
-                      aria-label={t('common.clear', 'Temizle')}
-                    >
-                      <XIcon className="size-3.5" strokeWidth={3} />
-                    </button>
-                  ) : null}
-                </div>
                 <ScopeChipDateRange
                   from={filterFrom}
                   to={filterTo}
@@ -614,6 +597,19 @@ export function AuditLogsPage() {
             >
               {t('audit.scopes.mailLog', 'Mail Log')}
             </button>
+          </div>
+          <div className="border-t border-slate-100 bg-[var(--color-background)] px-4 py-2.5">
+            <div className="relative w-[25%] min-w-[10rem] max-w-[20rem] shrink-0">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
+              <input
+                type="search"
+                value={searchText}
+                onChange={event => { setSearchText(event.target.value); setCurrentPage(1) }}
+                placeholder={t('common.search', 'Ara...')}
+                aria-label={t('common.search', 'Ara...')}
+                className="citizen-directory-search-input field-input w-full pl-8 text-sm"
+              />
+            </div>
           </div>
         </div>
       </section>

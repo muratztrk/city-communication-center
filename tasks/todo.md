@@ -1,3 +1,19 @@
+## Round 1509 — son giriş ortala
+
+- [x] Kullanıcılar gridinde Durum altındaki son giriş tarihi ve saati sütunda ortalanır (#4300).
+
+## Round 1508 — log arama görünümü ve son giriş bullet
+
+- [x] Log sayfası arama kutusu Kullanıcılar aramasıyla aynı görünür (#4301).
+- [x] Kullanıcılar gridinde son giriş tarihi ile saati aynı satırdaysa aralarında küçük bullet vardır; saat alt satırdaysa bullet yoktur (#4300).
+
+## Round 1507 — ek rol, son giriş, log araması, LDAP pasif
+
+- [x] Kullanıcılar ek rol menüsünün son satırı Sistem Yöneticisi (#4299).
+- [x] Kullanıcılar gridinde Durum altında son başarılı giriş tarihi ve saati (#4300).
+- [x] Log araması sekme çubuğunun altında; griddeki tüm metin aranır (#4301).
+- [x] LDAP’ta kapatılan hesap senkronda pasifleşir, oturumu kapanır, atama listesinde görünmez (#4302).
+
 ## Round 1506 — çözme süresi gün ve onay bekleyen listede planlanan
 
 - [x] Anasayfa `Personelimin Görevi Çözme Süresi` pastası başlık ve ortalama değeri gün cinsinden (#4294).
@@ -8280,3 +8296,13 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [ ] `6a97ae9ee352e681fa7ab39d` — Mobil Uygulama Yetki (atlandı).
 
 ## STATUS: Round 1259 complete — `f9723cd7` develop + testtim deploy.
+
+## CCC e-Devlet sözleşme doğrulaması (2026-11-06)
+
+- [x] Talep/Öneri ve Bilgilendirilme İsteği için WSDL XSD doğrulaması ve gerçek middleware/operasyon yaşam döngüsü testleri (34 yeni test).
+- [x] Telefon eleman adları, ayar listesi, zorunlu hata alanları ve notsuz detay yanıtı düzeltildi; boş/geçersiz dosya sessizce atılmıyor.
+- [x] Toplam 412 backend testi (87 SOAP) ve backend build başarılı; ayrıntılar `docs/edevlet-soap-dogrulama.md`.
+- [x] testtim SOAP'a tanımsız belediye ile veri yazmayan erişim kontrolü: namespace düzeltmesi gözlendi, yeni zorunlu hata alanları henüz yok.
+- [x] VPN sonrası `0b8f29fe` test sunucusuna bundle ile alındı; yalnız API deploy edildi, healthy. Tire e-Devlet ayarları kullanıcı isteğiyle kaydedildi; şifre repoya/loga yazılmadı.
+- [x] Gerçek HTTPS endpoint + PostgreSQL üzerinde 23 SOAP çağrısı ve XSD doğrulaması başarılı. Yazma testleri ayrı geçici tenant'ta yapılıp tüm kayıt/dosyalar temizlendi; SMS/bildirim yok.
+- [ ] Operatör ekranı/Job iş akışı kabulü, Tire için opsiyonel özelliklerin kararı ve TÜRKSAT kabulü. GitHub push veya production deploy yapılmadı.

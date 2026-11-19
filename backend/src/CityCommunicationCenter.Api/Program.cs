@@ -220,13 +220,17 @@ builder.Services.AddOpenIddict()
         options.DisableAccessTokenEncryption();
         options.SetAccessTokenLifetime(TimeSpan.FromHours(9));
         options.SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(5));
-        // Süre sabittir: yenileme uzatmaz, kullanıcı süre sonunda parola ve ikinci doğrulamadan yeniden geçer.
-        options.SetRefreshTokenLifetime(TimeSpan.FromDays(
-            builder.Configuration.GetValue("Authentication:MobileOidc:RefreshTokenLifetimeDays", 30d)));
-        options.DisableSlidingRefreshTokenExpiration();
+        // Mobil oturum süreye bağlı değildir. Access token kısa ömürlüdür; uygulama
+        // refresh token ile yeniler. Refresh token'ın bitiş tarihi yoktur. Oturum
+        // çıkışta, şifre değişince veya yeni mobil giriş mobilesessionid'yi
+        // temizleyince biter.
+        options.SetRefreshTokenLifetime(null);
+        // Access ve refresh token ilk anahtarla imzalanır. Kalıcı HMAC anahtar
+        // önde olmalı; geçici RSA anahtarı yalnız identity token içindir ve
+        // yeniden başlatınca access token'ı düşürmesin.
+        options.AddSigningKey(signingKey);
         options.AddEphemeralSigningKey();
         options.AddEncryptionKey(AuthenticationKeyFactory.CreateEncryptionKey(signingKey));
-        options.AddSigningKey(signingKey);
 
         options.UseAspNetCore()
             .EnableAuthorizationEndpointPassthrough()

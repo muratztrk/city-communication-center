@@ -70,6 +70,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("isactive");
 
+                    b.Property<DateTimeOffset?>("LastSuccessfulLoginAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lastsuccessfulloginatutc");
+
                     b.Property<Guid?>("ManagerUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("manageruserid");

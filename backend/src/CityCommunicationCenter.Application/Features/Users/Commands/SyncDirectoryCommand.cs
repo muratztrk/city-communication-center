@@ -151,6 +151,38 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
             }
         }
 
+        var disabledDirectoryUsers = await _ldapAuthenticationService.ListDisabledUsersAsync(tenantId, cancellationToken);
+        var disabledUserIds = new HashSet<Guid>();
+        foreach (var directoryUser in disabledDirectoryUsers)
+        {
+            ApplicationUser? linked = null;
+            if (!string.IsNullOrWhiteSpace(directoryUser.ExternalIdentityId))
+            {
+                byExternalId.TryGetValue(directoryUser.ExternalIdentityId, out linked);
+            }
+
+            if (linked is null && !string.IsNullOrWhiteSpace(directoryUser.Username))
+            {
+                byUsername.TryGetValue(directoryUser.Username, out linked);
+            }
+
+            if (linked is null || !linked.IsActive || !disabledUserIds.Add(linked.UserId))
+            {
+                continue;
+            }
+
+            linked.IsActive = false;
+            linked.ActiveSessionId = null;
+            linked.MobileSessionId = null;
+            linked.UpdatedAtUtc = DateTimeOffset.UtcNow;
+            linked.UpdatedByUserId = context.UserId;
+            updatedCount += 1;
+            updatedUsers.Add(new SyncDirectoryUpdatedUser(
+                linked.UserId,
+                linked.DisplayName,
+                [new SyncDirectoryProfileChange("IsActive", "true", "false")]));
+        }
+
         var newDirectoryCount = directoryUsers.Count(candidate =>
         {
             var linkedById = !string.IsNullOrWhiteSpace(candidate.ExternalIdentityId)

@@ -254,6 +254,17 @@ public sealed class BelediyeSoapMiddleware
             return BuildIslemSonuc("basvuruYapC", belediyeKodu, BelediyeSoapResultCodes.InvalidParameter, BelediyeSoapResultCodes.InvalidParameterMessage("basvuruBilgileri"));
         }
 
+        IReadOnlyList<BelediyeSoapBasvuruDosyaItem> files;
+        try
+        {
+            files = ParseDosyaListesi(basvuruBilgileri);
+        }
+        catch (FormatException)
+        {
+            return BuildIslemSonuc("basvuruYapC", belediyeKodu, BelediyeSoapResultCodes.InvalidParameter,
+                BelediyeSoapResultCodes.InvalidParameterMessage("dosyaListesi"));
+        }
+
         var request = new BelediyeSoapBasvuruYapRequest(
             GetValue(payload, "tcKimlikNo"),
             GetValue(basvuruBilgileri, "adi"),
@@ -272,7 +283,7 @@ public sealed class BelediyeSoapMiddleware
             GetValue(Child(basvuruBilgileri, "koordinat"), "enlem"),
             GetValue(Child(basvuruBilgileri, "koordinat"), "boylam"),
             GetValue(basvuruBilgileri, "cevapSekli"),
-            ParseDosyaListesi(basvuruBilgileri));
+            files);
 
         var result = await operations.BasvuruYapAsync(tenantId, request, cancellationToken);
         if (!result.IsSuccess || result.Data is null)
@@ -333,9 +344,10 @@ public sealed class BelediyeSoapMiddleware
         var telefonListesi = new XElement(Tns + "telefonListesi");
         foreach (var phone in data.TelefonListesi)
         {
-            telefonListesi.Add(new XElement(Tns + "telefonBilgisi",
-                new XElement(Tns + "telefonTipi", phone.TelefonTipi),
-                new XElement(Tns + "telefonNumarasi", phone.TelefonNumarasi)));
+            telefonListesi.Add(new XElement(Tns + "telefonBilgisiType",
+                new XElement(Tns + "telefonTuru", phone.TelefonTipi),
+                new XElement(Tns + "ulkeKodu", string.Empty),
+                new XElement(Tns + "telefonNo", phone.TelefonNumarasi)));
         }
 
         var surecListesi = new XElement(Tns + "basvuruSurecListesi");
@@ -358,6 +370,13 @@ public sealed class BelediyeSoapMiddleware
                 new XElement(Tns + "notSiraNumarasi", note.NotSiraNumarasi),
                 new XElement(Tns + "notTarihi", note.NotTarihi.ToString("o", CultureInfo.InvariantCulture)),
                 new XElement(Tns + "notMetin", note.NotMetin)));
+        }
+
+        // WSDL arrayOfBasvuruNotType en az bir not ister. Vatandas/operator notu yoksa
+        // gercek basvuru olusturma olayini goster; veritabanina yapay bir vatandas notu yazma.
+        if (!notListesi.HasElements)
+        {
+            notListesi.Add(BuildBasvuruNot(1, data.BasvuruTarihi, "Basvurunuz alinmistir."));
         }
 
         return new XElement(Tns + "basvuruDetaySorgulamaC",
@@ -614,8 +633,9 @@ public sealed class BelediyeSoapMiddleware
         foreach (var item in result.Data)
         {
             detayListesi.Add(new XElement(Tns + "detay",
-                new XElement(Tns + "anahtar", item.Anahtar),
-                new XElement(Tns + "deger", item.Deger)));
+                new XElement(Tns + "group", string.Empty),
+                new XElement(Tns + "key", item.Anahtar),
+                new XElement(Tns + "value", item.Deger)));
         }
 
         return new XElement(Tns + "ayarOkuListeC",
@@ -725,7 +745,60 @@ public sealed class BelediyeSoapMiddleware
         };
 
     private static XElement BuildIslemSonuc(string elementName, string belediyeKodu, string sonucKodu, string sonucAciklamasi)
-        => new(Tns + elementName, BuildIslemSonucChildren(belediyeKodu, sonucKodu, sonucAciklamasi));
+    {
+        var result = new XElement(Tns + elementName, BuildIslemSonucChildren(belediyeKodu, sonucKodu, sonucAciklamasi));
+        // Zorunlu alanlar hata yanitinda da bulunmali. Aksi halde istemci 0001/0002/0004
+        // sonucunu okumadan once XML sema dogrulamasinda hata alir. Bos alanlar veri ifade etmez.
+        var requiredField = elementName switch
+        {
+            "gunlukFaaliyetSorgulamaC" => "faaliyetListesi",
+            "basvuruTipiBilgisiSorgulamaC" => "basvuruTipiListesi",
+            "basvuruYapC" => "basvuruTakipNo",
+            "basvuruDurumSorgulamaC" => "basvuruDurumListesi",
+            "smsBilgilendirmeTurleriSorgulaC" or "epostaBilgilendirmeTurleriSorgulaC" => "bilgilendirmeTurListesi",
+            "ayarOkuC" => "deger",
+            "ayarOkuListeC" => "detayListesi",
+            "ilceSorgulamaC" => "ilceListesi",
+            "mahalleSorgulamaC" => "mahalleListesi",
+            "sokakCaddeSorgulamaC" => "sokakCaddeListesi",
+            _ => null,
+        };
+        if (requiredField is not null)
+        {
+            result.Add(new XElement(Tns + requiredField));
+        }
+        else if (elementName == "bilgilendirmeIstegiSorgulaC")
+        {
+            result.Add(new XElement(Tns + "kayitliBilgilendirmeIstegi", new XAttribute(Xsi + "nil", "true")));
+        }
+        else if (elementName == "basvuruDetaySorgulamaC")
+        {
+            result.Add(BuildEmptyBasvuruDetay());
+        }
+
+        return result;
+    }
+
+    private static IEnumerable<XElement> BuildEmptyBasvuruDetay()
+    {
+        yield return new XElement(Tns + "basvuruNumarasi");
+        yield return new XElement(Tns + "basvuruTarihi", "0001-01-01T00:00:00Z");
+        foreach (var name in new[] { "aboneNo", "basvuruTipi", "ilceAdi", "mahalleAdi", "sokakCaddeAdi", "disKapiNo", "icKapiNo", "basvuranAcikAdres", "eposta", "telefonListesi", "basvuruIstek", "cevapSekli", "basvuruSurecListesi", "basvuruDurumu" })
+        {
+            yield return new XElement(Tns + name);
+        }
+        yield return new XElement(Tns + "basvuruCevapTarihi", new XAttribute(Xsi + "nil", "true"));
+        yield return new XElement(Tns + "basvuruCevapMetin");
+        // Sema bos not listesine izin vermez; basarisiz sonuc icin degerleri bos/default tut.
+        yield return new XElement(Tns + "basvuruNotListesi", BuildBasvuruNot(0, DateTimeOffset.MinValue, string.Empty));
+        yield return new XElement(Tns + "detayListesi");
+    }
+
+    private static XElement BuildBasvuruNot(int number, DateTimeOffset date, string text)
+        => new(Tns + "basvuruNot",
+            new XElement(Tns + "notSiraNumarasi", number),
+            new XElement(Tns + "notTarihi", date.ToString("o", CultureInfo.InvariantCulture)),
+            new XElement(Tns + "notMetin", text));
 
     private static object[] BuildIslemSonucChildren(string belediyeKodu, string sonucKodu, string sonucAciklamasi)
         =>
@@ -765,8 +838,9 @@ public sealed class BelediyeSoapMiddleware
             return Array.Empty<string>();
         }
 
-        return Children(list, "telefonBilgisi")
-            .Select(element => GetValue(element, "telefonNumarasi"))
+        // Standart adlar telefonBilgisiType/telefonNo; eski CCC istemcilerinin adlarini da kabul et.
+        return list.Elements().Where(element => element.Name.LocalName is "telefonBilgisiType" or "telefonBilgisi")
+            .Select(element => Child(element, "telefonNo")?.Value.Trim() ?? GetValue(element, "telefonNumarasi"))
             .Where(value => !string.IsNullOrWhiteSpace(value))
             .ToList();
     }
@@ -783,14 +857,10 @@ public sealed class BelediyeSoapMiddleware
             .Select(element =>
             {
                 var raw = Child(element, "dosya")?.Value ?? string.Empty;
-                byte[] bytes;
-                try
+                var bytes = Convert.FromBase64String(raw);
+                if (bytes.Length == 0)
                 {
-                    bytes = string.IsNullOrWhiteSpace(raw) ? Array.Empty<byte>() : Convert.FromBase64String(raw);
-                }
-                catch (FormatException)
-                {
-                    bytes = Array.Empty<byte>();
+                    throw new FormatException("Bos dosya kabul edilmez.");
                 }
 
                 return new BelediyeSoapBasvuruDosyaItem(
@@ -800,7 +870,6 @@ public sealed class BelediyeSoapMiddleware
                     GetValue(element, "belgeSayisi"),
                     bytes);
             })
-            .Where(item => item.Dosya.Length > 0)
             .ToList();
     }
 }

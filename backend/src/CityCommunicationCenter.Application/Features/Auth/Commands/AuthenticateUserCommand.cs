@@ -64,7 +64,9 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             entity.MobileSessionId = Guid.NewGuid();
         }
 
-        entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        var loggedInAtUtc = DateTimeOffset.UtcNow;
+        entity.LastSuccessfulLoginAtUtc = loggedInAtUtc;
+        entity.UpdatedAtUtc = loggedInAtUtc;
         var departmentName = await _dbContext.Departments
             .Where(department => department.DepartmentId == entity.DepartmentId && department.TenantId == entity.TenantId)
             .Select(department => department.Name)
@@ -79,7 +81,7 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             ActorUserId = entity.UserId,
             ActorDisplayName = entity.DisplayName,
             DepartmentName = departmentName,
-            EventTimeUtc = DateTimeOffset.UtcNow,
+            EventTimeUtc = loggedInAtUtc,
             Details = $"Username={entity.Username}",
         });
         await _dbContext.SaveChangesAsync(cancellationToken);

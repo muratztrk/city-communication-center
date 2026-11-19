@@ -1736,6 +1736,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Detay sütunu bildirim `FormatNote` ile aynı sadeleştirme: teknik `Status=/Targets=/CreatedTasks=`
   ham dump yok; varsa yalnızca lokalize durum (card #1713 Detay).
   Tarih hücresi `DateTimeText`: saat önünde küçük dairesel bullet (#4164). Sistem, talep, görev, SMS ve e-posta log gridleri aynı.
+  Arama kutusu sekme çubuğunun altında, Sistem Log sekmesinin hizasında; tarih aralığı banner’da kalır.
+  Kutunun görünümü Kullanıcılar aramasıyla aynı: `citizen-directory-search-input field-input`, solda
+  arama ikonu, genişlik `%25` / `10–20rem` (#4301).
+  Arama tüm sekmelerde gridde görünen metni (tarih dahil) `toLocaleLowerCase('tr')` ile tarar (#4301).
   Vatandaşa Giden SMS ve Mail Log Tarih kolonu `min-w-[9.5rem]` ve tek satır (#4164 r2).
   Log grid Tarih verisi `.audit-log-date` ile biraz küçük (`0.8rem`, #4164 r3).
 - **Nav/UI “Birimler”:** `nav.departments` ve departments.* metinleri “Birimler/Birim”dir;
@@ -1887,7 +1891,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Aktif** Rol kolonunun altında (Ek roller satırını itmez) (card #1718). LDAP kullanıcı
   seçimi birimi otomatik oluşturmaz; kullanıcı/birim **Oluştur** ile eklenir; senkron yalnız
   dizin listesini yeniler (card #1729). “Tüm LDAP Kullanıcılarını Ekle” önce yalnız aktif
-  LDAP kullanıcılarını çeker (disable olanlar gelmez — cards #1754/#1757); ConfirmDialog’da
+  LDAP kullanıcılarını çeker (disable olanlar gelmez — cards #1754/#1757); dizin senkronu
+  ACCOUNTDISABLE (bit 2) hesapları pozitif LDAP aramasıyla bulur ve bağlı `UserSource.Ldap`
+  kullanıcıyı `IsActive=false` yapıp oturum kimliklerini temizler — listede yok diye pasifleştirmez,
+  kendiliğinden yeniden aktifleştirmez (#4302); ConfirmDialog’da
   birimi sistemde olmayanlar atlanır, kalanlar **Ekle** ile Staff olarak eklenir; sAMAccountName
   ile zaten bağlı olanlar yeniden eklenmez; başarıda **Yeni çekilen kullanıcılar (N)** listelenir
   (`GET /users/directory-users`, cards #1748/#1750/#1758/#1759). Aynı LDAP e-postası birden fazla
@@ -2944,8 +2951,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`!important` ile admin-surface ezilir). Create form Rol + Ek Roller (`users-roles-compact-menu`)
   aynı `menuWidth={220}` + satır/buton ~0.82rem (#r527/#1988). Rol sırası Standart → VTY → … → Operatör
   (#3403 / #3429); Operatör menü etiketi `enum.role.OperatorMenu` iki satır + `white-space: pre-line`
-  (alt satır Standart ile sol hizalı). Ek roller: Standart → VTY → Reporter → e-Devlet → Operatör
-  (`additionalRoleFormOptions`, #3429 reopen).
+  (alt satır Standart ile sol hizalı). Ek roller: Standart → VTY → Reporter → e-Devlet → Operatör →
+  Sistem Yöneticisi (`additionalRoleFormOptions`, #3429 reopen, #4299). Birincil rol listeden düşer.
+  Kullanıcılar gridinde Durum değerinin altında son başarılı giriş (`LastSuccessfulLoginAtUtc`,
+  boşsa “Giriş yok”); login bu alanı ve `Login` audit kaydını yazar, migration geçmiş Login’lerden
+  doldurur (#4300). Tarih ve saat aynı satırdaysa aralarında küçük dairesel bullet vardır; saat
+  alt satıra düşerse bullet yoktur. Durum hücresinde durum etiketi ve son giriş metni ortalanır (#4300).
   Grid Ek Roller/Ek birimler footer Çıkış/Seç ~0.85rem (#r526/#1994).
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`
   (eski “… Planı” kaldırıldı; RoleCode değişmez).
@@ -4042,7 +4053,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **Tenant çözümleme önceliği:** `X-Tenant-Id` header > `CustomDomain` (Host) > `SingleTenant`
   (tek aktif) > `ManualSelection`.
-- **OpenIddict stateless password flow; refresh token YOK; access token 9 saat; session cookie sliding 540 dk.**
+- **OpenIddict stateless password flow; mobil refresh token süresiz (çıkış, şifre değişimi veya yeni mobil giriş bitirir); access token 9 saat ve refresh ile yenilenir; session cookie sliding 540 dk.**
 - **`RoleCode` → Türkçe etiket (kartlar bu adları kullanır):** `Reporter` = "Üst Düzey Yönetici",
   `Operator` = "Vatandaş Talep Operatörü", `CitizenRequestManager` = "Vatandaş Talep Yöneticisi",
   `Manager` = "Müdür". CRM scoped rol — detay [`authorization-matrix.md`](authorization-matrix.md) §1.1.
@@ -4063,3 +4074,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Taleplerim Tamamlanan (#4014):** detay popup'ta aktif veya pasif Düzenle butonu gösterilmez; Yapılmakta kuralı da korunur.
 - **Adres alt çizgileri (#4002):** üç kart düzeninde etiket çizgileri hücre genişliğini kaplar; vatandaş adres alanlarıyla aynı yapı korunur.
 - **Dashboard kutuları / FAB (#3994/#4005):** personel dönem kutuları `max-w-5xl`, başlık `0.72rem`; genel FAB yatay aralığı `gap-2`, vatandaş paneli kaydır düğmesi çakışma istisnası korunur.
+
+## e-Devlet SOAP sözleşmesi (2026-11-06)
+
+- Başarı ve hata yanıtları `backend/docs/BelediyeStandartV3.wsdl` şemasına uymalı; `sonucKodu` başarısız olsa da zorunlu yanıt alanları atlanmaz (`BelediyeSoapContractTests`).
+- Başvuru telefonu standartta `telefonBilgisiType/telefonTuru/ulkeKodu/telefonNo`, ayar listesi `group/key/value` kullanır; eski CCC telefon girdi adları kabul edilse de yanıt adları değiştirilmez.
+- Boş/geçersiz Base64 eki sessizce atıp başvuru oluşturma; `0002` dön ve kayıt oluşturma. Notu olmayan başvurunun WSDL'de zorunlu not listesi, gerçek oluşturma olayıyla doldurulur; bu olay vatandaş notu olarak kaydedilmez.

@@ -1,7 +1,7 @@
 import type { FormEvent } from 'react'
 import type { TFunction } from 'i18next'
 import { Eye, EyeOff, PenLine, Search, Trash2, Users } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -28,6 +28,42 @@ import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
 import { uniqueDepartmentsByName } from '../utils/departments'
 import { formatTrNationalGrouped, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 
+function LastSuccessfulLoginStamp({ value, locale, emptyLabel }: { value: string | null | undefined; locale: string; emptyLabel: string }) {
+  const rootRef = useRef<HTMLSpanElement>(null)
+  const dateRef = useRef<HTMLSpanElement>(null)
+  const timeRef = useRef<HTMLSpanElement>(null)
+  const [showBullet, setShowBullet] = useState(true)
+  const date = value ? new Date(value) : null
+  const valid = !!date && !Number.isNaN(date.getTime())
+
+  useLayoutEffect(() => {
+    if (!valid) return
+    const root = rootRef.current
+    const dateEl = dateRef.current
+    const timeEl = timeRef.current
+    if (!root || !dateEl || !timeEl) return
+    const measure = () => {
+      const bulletWidth = 16
+      setShowBullet(dateEl.offsetWidth + timeEl.offsetWidth + bulletWidth <= root.clientWidth + 1)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(root)
+    return () => observer.disconnect()
+  }, [valid, value, locale])
+
+  if (!valid || !date) return <>{emptyLabel}</>
+  return (
+    <span ref={rootRef} className="flex w-full max-w-full flex-wrap items-center justify-center text-center">
+      <span ref={dateRef}>{date.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+      {showBullet
+        ? <span aria-hidden="true" className="mx-1.5 inline-block size-[3.5px] shrink-0 rounded-full bg-current opacity-70" />
+        : <span className="h-0 basis-full" />}
+      <span ref={timeRef}>{date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}</span>
+    </span>
+  )
+}
+
 function formatUserMobileGridDisplay(phone: string | null | undefined): string {
   if (!phone?.trim()) return ''
   const digits = phone.replace(/\D/g, '')
@@ -36,7 +72,7 @@ function formatUserMobileGridDisplay(phone: string | null | undefined): string {
 }
 type CreateMode = 'manual' | 'ldap'
 
-const ADDITIONAL_ROLE_CODES = ['Staff', 'Operator', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
+const ADDITIONAL_ROLE_CODES = ['Staff', 'Operator', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager', 'SystemAdmin'] as const
 const MIN_USER_SEARCH_LENGTH = 3
 /** UI-only rol seçeneği — kayıtta Manager'a map (card #1897). */
 const SORUMLU_ROLE_OPTION = 'Sorumlu'
@@ -75,13 +111,14 @@ function getUsersRoleMenuLabel(t: TFunction, roleCode: string): string {
 
 function additionalRoleFormOptions(t: TFunction, primaryRoleCode: string) {
   const allowed = new Set(getAllowedAdditionalRoleCodes(primaryRoleCode))
-  // Ek roller: Standart → VTY → Reporter → e-Devlet → Operatör (#3429 reopen).
+  // Ek roller: Standart → VTY → Reporter → e-Devlet → Operatör → Sistem Yöneticisi (#3429, #4299).
   const ordered: Array<(typeof ADDITIONAL_ROLE_CODES)[number]> = [
     'Staff',
     'CitizenRequestManager',
     'Reporter',
     'EDevletActivityPlan',
     'Operator',
+    'SystemAdmin',
   ]
   return ordered
     .filter(roleCode => allowed.has(roleCode))
@@ -147,7 +184,8 @@ function resolveDataRequests(canManageUsers: boolean) {
 }
 
 export function UsersPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.language?.toLowerCase().startsWith('en') ? 'en-GB' : 'tr-TR'
   const queryClient = useQueryClient()
   const { user: currentUser } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -1980,11 +2018,16 @@ export function UsersPage() {
                       </div>
                     </td>
                     <td><StatusPill tone="info">{getUserSourceLabel(t, user.userSource)}</StatusPill></td>
-                    <td>
-                      <label className="inline-flex items-center gap-2 text-sm">
-                        <input className="field-checkbox" checked={editForm.isActive} type="checkbox" onChange={e => setEditForm(c => ({ ...c, isActive: e.target.checked }))} />
-                        {editForm.isActive ? t('users.active') : t('users.inactive')}
-                      </label>
+                    <td className="text-center">
+                      <div className="grid justify-items-center gap-0.5">
+                        <label className="inline-flex items-center gap-2 text-sm">
+                          <input className="field-checkbox" checked={editForm.isActive} type="checkbox" onChange={e => setEditForm(c => ({ ...c, isActive: e.target.checked }))} />
+                          {editForm.isActive ? t('users.active') : t('users.inactive')}
+                        </label>
+                        <span className="block w-full text-center text-xs text-slate-500">
+                          <LastSuccessfulLoginStamp value={user.lastSuccessfulLoginAtUtc} locale={locale} emptyLabel={t('users.lastLoginNever', 'Giriş yok')} />
+                        </span>
+                      </div>
                     </td>
                     <td className="actions-column">
                       <div className="row-actions users-edit-row-actions">
@@ -2029,10 +2072,15 @@ export function UsersPage() {
                       </div>
                     </td>
                     <td><StatusPill tone="info">{getUserSourceLabel(t, user.userSource)}</StatusPill></td>
-                    <td>
-                      <StatusPill tone={user.isActive ? 'success' : 'danger'}>
-                        {user.isActive ? t('users.active') : t('users.inactive')}
-                      </StatusPill>
+                    <td className="text-center">
+                      <div className="grid justify-items-center gap-0.5">
+                        <StatusPill tone={user.isActive ? 'success' : 'danger'}>
+                          {user.isActive ? t('users.active') : t('users.inactive')}
+                        </StatusPill>
+                        <span className="block w-full text-center text-xs text-slate-500">
+                          <LastSuccessfulLoginStamp value={user.lastSuccessfulLoginAtUtc} locale={locale} emptyLabel={t('users.lastLoginNever', 'Giriş yok')} />
+                        </span>
+                      </div>
                     </td>
                     {canManageUsers ? (
                       <td className="actions-column">

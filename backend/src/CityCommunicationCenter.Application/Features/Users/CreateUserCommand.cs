@@ -396,7 +396,8 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             user.Phone,
             departments,
             UserRoleAccess.GetAdditionalRoleCodeStrings(user),
-            user.MobilePhone);
+            user.MobilePhone,
+            user.LastSuccessfulLoginAtUtc);
     }
 
     private static string? Truncate(string? value, int maxLength)

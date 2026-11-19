@@ -12,7 +12,7 @@ RUN npm ci
 COPY . .
 RUN echo "frontend build ${CACHE_BUST}" && npm run build
 
-FROM nginx:1.27-alpine AS production
+FROM nginx:1.30.7-alpine AS production
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx && \

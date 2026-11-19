@@ -37,7 +37,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   private-range bir adrese istek atarsa Chrome "Yerel ağınızdaki diğer cihazlara erişin" izni
   sorar. `api/config.ts` bunu **şemadan bağımsız** engeller (http'de de) ve aynı origin'e düşer;
   bu geri düşüş sayfanın origin'inin `/api`, `/connect`, `/hubs` proxy'lemesine dayanır (nginx
-  yapıyor). Frontend'de LAN'a giden tek yol `VITE_API_ORIGIN`'dir — yeni mutlak URL ekleme.
+  yapıyor). Frontend production imajı `nginx:1.30.7-alpine` (stable yama) veya sonraki güvenlik
+  sürümünde kalır; `1.27` tabanına dönülmez. Konteyner `listen 80` HTTP/1.1 kalır, HTTP/2 açılmaz.
+  Frontend'de LAN'a giden tek yol `VITE_API_ORIGIN`'dir — yeni mutlak URL ekleme.
   HTML yanıtlarında `Permissions-Policy: local-network-access=()` olmalı; `location /` ve
   `location = /index.html` kendi `add_header` kümesiyle server kalıtımını kestiği için politikayı
   **orada da** tekrarla (yoksa kutusu çıkar). Uygulama başka LAN cihazına bağlanmaz — yalnız
